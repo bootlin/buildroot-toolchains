@@ -1,0 +1,3 @@
+[submodule "linux/linux-2.6.x"]
+	path = linux/linux-2.6.x
+	url = git://10.99.22.20/git/readonly-mirrors/linux-kernel.git
