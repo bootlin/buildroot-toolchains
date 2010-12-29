@@ -102,7 +102,7 @@ define NCURSES_INSTALL_TARGET_CMDS
 	$(NCURSES_INSTALL_TARGET_PANEL)
 	$(NCURSES_INSTALL_TARGET_FORM)
 	$(NCURSES_INSTALL_TARGET_MENU)
-	ln -snf /usr/share/terminfo $(TARGET_DIR)/usr/lib/terminfo
+	ln -snf /usr/share/terminfo $(STAGING_DIR)/usr/share/terminfo
 	mkdir -p $(TARGET_DIR)/usr/share/terminfo/x
 	cp -dpf $(STAGING_DIR)/usr/share/terminfo/x/xterm $(TARGET_DIR)/usr/share/terminfo/x
 	cp -dpf $(STAGING_DIR)/usr/share/terminfo/x/xterm-color $(TARGET_DIR)/usr/share/terminfo/x
