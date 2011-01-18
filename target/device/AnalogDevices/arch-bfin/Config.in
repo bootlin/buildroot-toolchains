@@ -1,0 +1,7 @@
+config BR2_TARGET_ANALOGDEVICES_INSTALL_ELF_SHARED
+	bool "Install ELF shared libraries" if !BR2_BFIN_FDPIC
+	default y
+
+config BR2_TARGET_ANALOGDEVICES_INSTALL_FLAT_SHARED
+	bool "Install FLAT shared libraries" if !BR2_BFIN_SHARED_FLAT
+	default y

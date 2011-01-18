@@ -1,0 +1,12 @@
+ifeq ($(BR2_TARGET_ANALOGDEVICES_pelican-ezbub),y)
+ADI_ARM_BOARD = pelican-ezbub
+endif
+ifeq ($(BR2_TARGET_ANALOGDEVICES_beagleboard),y)
+ADI_ARM_BOARD = beagleboard
+endif
+
+ADI_ARM_PATH = target/device/AnalogDevices/arch-arm/$(ADI_ARM_BOARD)
+TARGET_SKELETON = $(ADI_ARM_PATH)/target_skeleton
+BUSYBOX_CONFIG_FILE = $(ADI_ARM_PATH)/busybox.config
+
+

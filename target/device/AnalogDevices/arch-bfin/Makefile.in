@@ -1,0 +1,27 @@
+TARGETS-y =
+TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_ELF_SHARED) += romfs.shared.libs.elf
+TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_FLAT_SHARED) += romfs.shared.libs.flat
+TARGETS += $(TARGETS-y)
+
+ADI_BFIN_PATH = target/device/AnalogDevices/arch-bfin
+TARGET_SKELETON = $(ADI_BFIN_PATH)/target_skeleton
+BUSYBOX_CONFIG_FILE = $(ADI_BFIN_PATH)/busybox.config
+
+CROSS_COMPILE_SHARED_ELF ?= bfin-linux-uclibc-
+romfs.shared.libs.elf:
+	set -e; \
+	t=`$(CROSS_COMPILE_SHARED_ELF)gcc $(CPUFLAGS) -print-file-name=libc.a`; \
+	t=`dirname $$t`/../..; \
+	for i in $$t/lib/*so*; do \
+		i=`readlink -f "$$i"`; \
+		soname=`$(CROSS_COMPILE_SHARED_ELF)readelf -d "$$i" | sed -n '/(SONAME)/s:.*[[]\(.*\)[]].*:\1:p'`; \
+		$(INSTALL) -D $$i $(TARGET_DIR)/lib/$$soname; \
+	done
+
+CROSS_COMPILE_SHARED_FLAT ?= bfin-uclinux-
+romfs.shared.libs.flat:
+	set -e; \
+	t=`$(CROSS_COMPILE_SHARED_FLAT)gcc $(CPUFLAGS) -mid-shared-library -print-file-name=libc`; \
+	if [ -f $$t -a ! -h $$t ] ; then \
+		$(INSTALL) -D $$t $(TARGET_DIR)/lib/lib1.so; \
+	fi

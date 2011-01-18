@@ -1,0 +1,27 @@
+menuconfig BR2_TARGET_ANALOGDEVICES
+	bool "Analog Devices Device Support"
+	depends on BR2_arm || BR2_bfin
+
+if BR2_TARGET_ANALOGDEVICES
+
+if BR2_bfin
+
+config BR2_TARGET_ANALOGDEVICES_UCLINUX_DIST_COMPAT
+	bool "Support uClinux-dist shortcuts"
+	default y
+	help
+	  For people familiar with the uClinux-dist build system,
+	  we make the common make shortcuts available and simply
+	  execute the buildroot equivalent.
+
+source "target/device/AnalogDevices/arch-bfin/Config.in"
+
+endif
+
+if BR2_arm
+
+source "target/device/AnalogDevices/arch-arm/Config.in"
+
+endif
+
+endif

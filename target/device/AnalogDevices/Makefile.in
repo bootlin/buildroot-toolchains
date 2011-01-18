@@ -1,0 +1,21 @@
+ifeq ($(BR2_bfin),y)
+-include target/device/AnalogDevices/arch-bfin/Makefile.in
+endif
+ifeq ($(BR2_arm),y)
+-include target/device/AnalogDevices/arch-arm/Makefile.in
+endif
+
+ifeq ($(BR2_TARGET_ANALOGDEVICES_UCLINUX_DIST_COMPAT),y)
+
+config_%: ; $(MAKE) $(patsubst config_%,%,$@)
+linux_%:  ; $(MAKE) $(patsubst linux_%,linux-%,$@)
+%_only:   ; $(MAKE) $(patsubst %/,%,$(patsubst package/%,%,$(patsubst %_only,%,$@)))
+%_clean:  ; $(MAKE) $(patsubst %/,%,$(patsubst package/%,%,$(patsubst %_clean,%,$@)))-clean
+%_romfs:  ; $(MAKE) $(patsubst %/,%,$(patsubst package/%,%,$(patsubst %_romfs,%,$@)))
+
+%_default: $(TOPDIR)/configs/%_defconfig
+	$(MAKE) clean
+	$(MAKE) $(patsubst %_default,%_defconfig,$@)
+	$(MAKE)
+
+endif
