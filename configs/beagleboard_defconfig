@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot version: 2010.11-00001-ge7a11cf-dirty
-# Tue Dec 28 17:40:07 2010
+# Buildroot version: 2010.11-00008-g5f1d538-dirty
+# Wed Jan 19 14:18:10 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_arm=y
@@ -54,6 +54,8 @@ BR2_GCC_TARGET_ABI="aapcs-linux"
 #
 # Preset Devices
 #
+BR2_TARGET_ANALOGDEVICES=y
+BR2_TARGET_ANALOGDEVICES_pelican-ezbub=y
 # BR2_TARGET_ARMLTD is not set
 # BR2_TARGET_ATMEL is not set
 # BR2_TARGET_KWIKBYTE is not set
@@ -174,7 +176,7 @@ BR2_BUSYBOX_VERSION_1_17_X=y
 # BR2_PACKAGE_BUSYBOX_SNAPSHOT is not set
 BR2_BUSYBOX_VERSION="1.17.4"
 BR2_PACKAGE_BUSYBOX_FULLINSTALL=y
-BR2_PACKAGE_BUSYBOX_CONFIG="package/busybox/busybox-1.17.x.config"
+BR2_PACKAGE_BUSYBOX_CONFIG=""
 # BR2_PACKAGE_BUSYBOX_SHOW_OTHERS is not set
 BR2_PACKAGE_CUSTOMIZE=y
 
@@ -732,7 +734,7 @@ BR2_PACKAGE_WIRELESS_TOOLS=y
 # Target filesystem options
 #
 BR2_ROOTFS_POST_BUILD_SCRIPT=""
-BR2_ROOTFS_DEVICE_TABLE="target/generic/device_table.txt"
+BR2_ROOTFS_DEVICE_TABLE="target/device/AnalogDevices/device_table-min.txt"
 BR2_ROOTFS_SKELETON_DEFAULT=y
 # BR2_ROOTFS_SKELETON_CUSTOM is not set
 # BR2_TARGET_ROOTFS_CRAMFS is not set
@@ -775,6 +777,6 @@ BR2_LINUX_KERNEL_VERSION="custom"
 BR2_LINUX_KERNEL_PATCH=""
 BR2_LINUX_KERNEL_USE_DEFCONFIG=y
 # BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG is not set
-BR2_LINUX_KERNEL_DEFCONFIG="omap3"
+BR2_LINUX_KERNEL_DEFCONFIG="omap3_beagle"
 BR2_LINUX_KERNEL_UIMAGE=y
 # BR2_LINUX_KERNEL_ZIMAGE is not set
