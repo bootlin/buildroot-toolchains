@@ -10,6 +10,10 @@ ttyS0
 ttyS1
 ttyS2
 ttyS3
+ttyO0
+ttyO1
+ttyO2
+ttyO3
 ttyAMA0
 ttyAMA1
 ttyAMA2
