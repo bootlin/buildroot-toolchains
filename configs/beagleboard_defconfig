@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot version: 2010.11-00009-g0a89d2f-dirty
-# Fri Jan 21 11:31:39 2011
+# Buildroot version: 2010.11-00013-g0bf1137-dirty
+# Thu Jan 27 12:03:36 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_arm=y
@@ -393,10 +393,7 @@ BR2_PACKAGE_QT_KEYBOARD_LINUXINPUT=y
 #
 # Phonon module needs gstreamer
 #
-
-#
-# Qt DBbus module not available (need dbus)
-#
+# BR2_PACKAGE_QT_DBUS is not set
 BR2_PACKAGE_QT_XML=y
 # BR2_PACKAGE_QT_XMLPATTERNS is not set
 # BR2_PACKAGE_QT_MULTIMEDIA is not set
@@ -433,7 +430,10 @@ BR2_PACKAGE_QT_SCRIPT=y
 #
 # BR2_PACKAGE_CDRKIT is not set
 # BR2_PACKAGE_CRAMFS is not set
-# BR2_PACKAGE_DBUS is not set
+BR2_PACKAGE_DBUS=y
+BR2_DBUS_EXPAT=y
+# BR2_DBUS_LIBXML2 is not set
+# BR2_PACKAGE_DBUS_GLIB is not set
 # BR2_PACKAGE_DMRAID is not set
 # BR2_PACKAGE_DOSFSTOOLS is not set
 # BR2_PACKAGE_E2FSPROGS is not set
@@ -618,6 +618,7 @@ BR2_PACKAGE_LIBXML2=y
 # BR2_PACKAGE_ARGUS is not set
 # BR2_PACKAGE_AVAHI is not set
 # BR2_PACKAGE_AXEL is not set
+BR2_PACKAGE_BLUEZ_UTILS=y
 # BR2_PACKAGE_BIND is not set
 # BR2_PACKAGE_BMON is not set
 # BR2_PACKAGE_BRIDGE is not set
