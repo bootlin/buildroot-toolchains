@@ -110,7 +110,7 @@ $(LINUX26_BUILD_DIR)/.stamp_patched: $(LINUX26_BUILD_DIR)/.stamp_extracted
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
 			toolchain/patch-kernel.sh $(@D) $(DL_DIR) `basename $$p` ; \
 		elif test -d $$p ; then \
-			toolchain/patch-kernel.sh $(@D) $$p linux-\*.patch ; \
+			toolchain/patch-kernel.sh $(LINUX26_SOURCE_DIR) $$p linux-\*.patch ; \
 		else \
 			toolchain/patch-kernel.sh $(@D) `dirname $$p` `basename $$p` ; \
 		fi \

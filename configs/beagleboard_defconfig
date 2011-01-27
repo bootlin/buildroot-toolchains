@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot version: 2010.11-00013-g0bf1137-dirty
-# Thu Jan 27 12:03:36 2011
+# Buildroot version: 2010.11-00014-g08c90a8-dirty
+# Thu Jan 27 14:17:42 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_arm=y
@@ -761,7 +761,7 @@ BR2_LINUX_KERNEL=y
 BR2_LINUX_KERNEL_CUSTOM_TREE=y
 BR2_LINUX_KERNEL_CUSTOM_PATH="linux/linux-2.6.x"
 BR2_LINUX_KERNEL_VERSION="custom"
-BR2_LINUX_KERNEL_PATCH=""
+BR2_LINUX_KERNEL_PATCH="linux/patch"
 BR2_LINUX_KERNEL_USE_DEFCONFIG=y
 # BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG is not set
 BR2_LINUX_KERNEL_DEFCONFIG="omap3_beagle_xm"
