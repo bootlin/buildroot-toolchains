@@ -94,7 +94,6 @@ define $(2)_CONFIGURE_CMDS
 	$$(TARGET_CONFIGURE_ARGS) \
 	$$($$(PKG)_CONF_ENV) \
 	./configure \
-		--target=$$(GNU_TARGET_NAME) \
 		--host=$$(GNU_TARGET_NAME) \
 		--build=$$(GNU_HOST_NAME) \
 		--prefix=/usr \
