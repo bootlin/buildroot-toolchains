@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot version: 2010.11-00014-g08c90a8-dirty
-# Thu Jan 27 14:17:42 2011
+# Buildroot version: 2010.11-00024-gd4e8b8c-dirty
+# Mon Feb 14 15:37:17 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_arm=y
@@ -564,12 +564,14 @@ BR2_PACKAGE_LIBUSB_COMPAT=y
 # BR2_PACKAGE_LIBIDN is not set
 # BR2_PACKAGE_LIBMICROHTTPD is not set
 # BR2_PACKAGE_NEON is not set
+BR2_PACKAGE_LIBNEMESI=y
 # BR2_PACKAGE_LIBNL is not set
 # BR2_PACKAGE_LIBPCAP is not set
 BR2_PACKAGE_LIBOSIP2=y
 # BR2_PACKAGE_LIBRSYNC is not set
 # BR2_PACKAGE_LIBSOUP is not set
 # BR2_PACKAGE_LIBUPNP is not set
+BR2_PACKAGE_NETEMBRYO=y
 
 #
 # Other
