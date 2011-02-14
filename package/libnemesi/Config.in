@@ -1,0 +1,7 @@
+config BR2_PACKAGE_LIBNEMESI
+	bool "libnemesi"
+	depends on BR2_PACKAGE_NETEMBRYO
+	help
+	  the RTSP/RTP client library
+
+	  http://lscube.org/projects/libnemesi

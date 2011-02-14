@@ -1,0 +1,23 @@
+diff -urN libnemesi-0.6/include/rtsp.h libnemesi-0.6-conf/include/rtsp.h
+--- libnemesi-0.6/include/rtsp.h	2009-04-23 01:59:35.000000000 +0800
++++ libnemesi-0.6-conf/include/rtsp.h	2011-02-10 17:40:59.482139899 +0800
+@@ -32,7 +32,7 @@
+ #include "transport.h"
+ #include "rtp.h"
+ #include "sdp.h"
+-#include <netembryo/rtsp_errors.h>
++#include "rtsp_errors.h"
+ 
+ /*! Default RTSP port (default setting from rfc) if not explicitly specified. */
+ #define RTSP_DEFAULT_PORT 554
+--- libnemesi-0.6/configure.ac	2009-04-23 01:59:35.000000000 +0800
++++ libnemesi-0.6-conf/configure.ac	2011-02-10 17:37:22.874390052 +0800
+@@ -84,7 +84,7 @@
+ fi
+ 
+ 
+-PKG_CHECK_MODULES(LIBNETEMBRYO,[libnetembryo = 0.0.9])
++PKG_CHECK_MODULES(LIBNETEMBRYO,[libnetembryo = 0.1.1])
+ CFLAGS="$CFLAGS $LIBNETEMBRYO_CFLAGS"
+ LIBS="$LIBS $LIBM $LIBNETEMBRYO_LIBS"
+ 
