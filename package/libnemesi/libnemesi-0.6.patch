@@ -1,4 +1,6 @@
-diff -urN libnemesi-0.6/include/rtsp.h libnemesi-0.6-conf/include/rtsp.h
+1) Correct the path of head file.
+2) Update the library dependency to a newer version.
+
 --- libnemesi-0.6/include/rtsp.h	2009-04-23 01:59:35.000000000 +0800
 +++ libnemesi-0.6-conf/include/rtsp.h	2011-02-10 17:40:59.482139899 +0800
 @@ -32,7 +32,7 @@
