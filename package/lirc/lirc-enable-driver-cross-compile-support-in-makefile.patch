@@ -1,0 +1,14 @@
+Change Makefile.common to support cross compiling for kernel drivers.
+
+
+--- lirc-0.8.7.orin/drivers/Makefile.common	2011-02-16 13:52:01.522140295 +0800
++++ lirc-0.8.7/drivers/Makefile.common	2011-02-16 12:28:58.902139964 +0800
+@@ -24,6 +24,8 @@
+ 	-cp $(srcdir)/../lirc_dev/Module*.symvers .
+ 	mv Makefile Makefile.automake
+ 	cp $(srcdir)/../Makefile.kernel Makefile
++	ARCH=`echo '$(CC)' | sed 's/ --sysroot.*//g;s/.*\///g;s/-.*//g'` \
++	CROSS_COMPILE=`echo '$(CC)' | sed 's/ --sysroot.*//g;s/.*\///g;s/[a-z,A-Z]*cc//g'` \
+ 	CPPFLAGS="" CFLAGS="" LDFLAGS="" \
+ 	$(MAKE) -C $(KERNEL_LOCATION) SUBDIRS=$(LIRC_DEVDIR) modules \
+ 		KBUILD_VERBOSE=$(KBUILD_VERBOSE)
