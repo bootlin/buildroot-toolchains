@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot version: 2010.11-00024-gd4e8b8c-dirty
-# Mon Feb 14 15:37:17 2011
+# Buildroot version: 2010.11-00026-g7749325-dirty
+# Tue Feb 15 15:32:04 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_arm=y
@@ -451,6 +451,7 @@ BR2_DBUS_EXPAT=y
 # BR2_PACKAGE_INPUT_TOOLS is not set
 # BR2_PACKAGE_IOSTAT is not set
 # BR2_PACKAGE_KBD is not set
+BR2_PACKAGE_LIRC=y
 # BR2_PACKAGE_LM_SENSORS is not set
 # BR2_PACKAGE_LVM2 is not set
 # BR2_PACKAGE_MAKEDEVS is not set
