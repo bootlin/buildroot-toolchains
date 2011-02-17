@@ -1,6 +1,7 @@
 config BR2_PACKAGE_LIRC
 	bool "lirc"
 	help
-	  LIRC is a package that allows you to decode and send infra-red signals of many (but not all) commonly used remote controls. 
+	  LIRC is a package that allows you to decode and send infra-red signals
+	  of many (but not all) commonly used remote controls. 
 
 	  http://www.lirc.org/

@@ -9,6 +9,7 @@ LIRC_SITE = http://prdownloads.sourceforge.net/lirc/
 LIRC_DEPENDENCIES = linux
 LIRC_AUTORECONF = YES
 LIRC_INSTALL_STAGING = NO
-LIRC_CONF_OPT = --enable-sandboxed --with-kerneldir=$(LINUX26_BUILD_DIR) --without-x --with-driver=userspace --with-driver=sir
-
+LIRC_CONF_OPT = \
+	--without-x \
+	--with-driver=userspace
 $(eval $(call AUTOTARGETS,package,lirc))
