@@ -1,6 +1,0 @@
-config BR2_PACKAGE_FREETYPE2
-	bool "freetype2"
-	help
-	  a small, efficient, highly customizeable software font engine.
-
-	  http://www.freetype.org/freetype2
