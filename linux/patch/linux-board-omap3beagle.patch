@@ -1,9 +1,31 @@
 diff --git a/linux/linux-2.6.x/arch/arm/mach-omap2/board-omap3beagle.c b/linux/linux-2.6.x/arch/arm/mach-omap2/board-omap3beagle.c
-index 14f4224..01bb0e3 100644
+index 14f4224..7c95a78 100644
 --- a/arch/arm/mach-omap2/board-omap3beagle.c
 +++ b/arch/arm/mach-omap2/board-omap3beagle.c
-@@ -299,7 +299,7 @@ static int beagle_twl_gpio_setup(struct device *dev,
+@@ -199,7 +199,7 @@ static struct omap_dss_device beagle_dvi_device = {
+ 	.name = "dvi",
+ 	.driver_name = "generic_panel",
+ 	.phy.dpi.data_lines = 24,
+-	.reset_gpio = 170,
++	.reset_gpio = 129,
+ 	.platform_enable = beagle_enable_dvi,
+ 	.platform_disable = beagle_disable_dvi,
+ };
+@@ -273,6 +273,7 @@ static struct gpio_led gpio_leds[];
+ static int beagle_twl_gpio_setup(struct device *dev,
+ 		unsigned gpio, unsigned ngpio)
+ {
++	int r;
+ 	if (omap3_beagle_get_rev() == OMAP3BEAGLE_BOARD_XM) {
+ 		mmc[0].gpio_wp = -EINVAL;
+ 	} else if ((omap3_beagle_get_rev() == OMAP3BEAGLE_BOARD_C1_3) ||
+@@ -294,16 +295,33 @@ static int beagle_twl_gpio_setup(struct device *dev,
+ 	 * power switch and overcurrent detect
+ 	 */
  
+-	gpio_request(gpio + 1, "EHCI_nOC");
+-	gpio_direction_input(gpio + 1);
+-
  	/* TWL4030_GPIO_MAX + 0 == ledA, EHCI nEN_USB_PWR (out, active low) */
  	gpio_request(gpio + TWL4030_GPIO_MAX, "nEN_USB_PWR");
 -	gpio_direction_output(gpio + TWL4030_GPIO_MAX, 0);
@@ -11,3 +33,27 @@ index 14f4224..01bb0e3 100644
  
  	/* TWL4030_GPIO_MAX + 1 == ledB, PMU_STAT (out, active low LED) */
  	gpio_leds[2].gpio = gpio + TWL4030_GPIO_MAX + 1;
+ 
++	if (omap3_beagle_get_rev() == OMAP3BEAGLE_BOARD_XM) {
++		r = gpio_request(gpio + 1, "nDVI_PWR_EN");
++		if (!r) {
++			r = gpio_direction_output(gpio + 1, 0);
++			if (r)
++				gpio_free(gpio + 1);
++		}
++		if (r)
++			pr_err("%s: unable to configure nDVI_PWR_EN\n",
++					__func__);
++		r = gpio_request(gpio + 2, "DVI_LDO_EN");
++		if (!r) {
++			r = gpio_direction_output(gpio + 2, 1);
++			if (r)
++				gpio_free(gpio + 2);
++		}
++		if (r)
++			pr_err("%s: unable to configure DVI_LDO_EN\n",
++					__func__);
++	}
+ 	return 0;
+ }
+ 
