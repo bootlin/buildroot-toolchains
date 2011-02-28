@@ -622,7 +622,11 @@ ifeq ($(NEED_WRAPPER),y)
 	$(Q)$(TOPDIR)/scripts/mkmakefile $(TOPDIR) $(O)
 endif
 
+patchs = $(wildcard $(TOPDIR)/linux/patch/*.patch)
 clean:
+ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
+	patch -RE -p1 -d $(TOPDIR)/$(BR2_LINUX_KERNEL_CUSTOM_PATH) < $(patchs)
+endif
 	rm -rf $(STAGING_DIR) $(TARGET_DIR) $(BINARIES_DIR) $(HOST_DIR) \
 		$(STAMP_DIR) $(BUILD_DIR) $(TOOLCHAIN_DIR) $(BASE_DIR)/staging
 
