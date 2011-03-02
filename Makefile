@@ -623,10 +623,18 @@ ifeq ($(NEED_WRAPPER),y)
 endif
 
 patchs = $(wildcard $(TOPDIR)/linux/patch/*.patch)
-clean:
+LINUX26_VERSION=$(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
+unpatch:
 ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
+ifeq (.stamp_patched,$(wildcard $(BUILD_DIR)/linux-$(LINUX26_VERSION)/.stamp_patched))
+	@echo 'unpatch linux kernel....'
 	patch -RE -p1 -d $(TOPDIR)/$(BR2_LINUX_KERNEL_CUSTOM_PATH) < $(patchs)
+else
+	@echo 'linux kernel didn\'t patched, skip unpatch....'
 endif
+endif
+
+clean: unpatch
 	rm -rf $(STAGING_DIR) $(TARGET_DIR) $(BINARIES_DIR) $(HOST_DIR) \
 		$(STAMP_DIR) $(BUILD_DIR) $(TOOLCHAIN_DIR) $(BASE_DIR)/staging
 
