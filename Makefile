@@ -630,7 +630,7 @@ ifeq (.stamp_patched,$(wildcard $(BUILD_DIR)/linux-$(LINUX26_VERSION)/.stamp_pat
 	@echo 'unpatch linux kernel....'
 	patch -RE -p1 -d $(TOPDIR)/$(BR2_LINUX_KERNEL_CUSTOM_PATH) < $(patchs)
 else
-	@echo 'linux kernel didn\'t patched, skip unpatch....'
+	@echo "linux kernel didn't patched, skip unpatch...."
 endif
 endif
 
