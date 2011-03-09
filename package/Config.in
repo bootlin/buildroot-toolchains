@@ -367,6 +367,8 @@ endmenu
 
 menu "Miscellaneous"
 source "package/shared-mime-info/Config.in"
+source "package/xenomai/Config.in"
+comment "trial only, disabled, latest xenomai is for kernel 2.6.33, also not supported by latest toolchain"
 endmenu
 
 menu "Networking applications"

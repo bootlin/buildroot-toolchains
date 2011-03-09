@@ -1,0 +1,24 @@
+diff -Nur xenomai-2.5.5.2.orig/ksrc/arch/arm/patches/adeos-ipipe-2.6.33-arm-1.18-00.patch xenomai-2.5.5.2/ksrc/arch/arm/patches/adeos-ipipe-2.6.33-arm-1.18-00.patch
+--- xenomai-2.5.5.2.orig/ksrc/arch/arm/patches/adeos-ipipe-2.6.33-arm-1.18-00.patch	2011-03-08 19:12:23.493600912 +0800
++++ xenomai-2.5.5.2/ksrc/arch/arm/patches/adeos-ipipe-2.6.33-arm-1.18-00.patch	2011-03-08 19:16:21.770096468 +0800
+@@ -12251,7 +12251,7 @@
+ @@ -0,0 +1,23 @@
+ +config IPIPE
+ +	bool "Interrupt pipeline"
+-+	default y
+++	default n
+ +	---help---
+ +	  Activate this option if you want the interrupt pipeline to be
+ +	  compiled in.
+diff -Nur xenomai-2.5.5.2.orig/scripts/Kconfig.frag xenomai-2.5.5.2/scripts/Kconfig.frag
+--- xenomai-2.5.5.2.orig/scripts/Kconfig.frag	2011-03-08 19:12:23.569851167 +0800
++++ xenomai-2.5.5.2/scripts/Kconfig.frag	2011-03-08 19:16:58.814096127 +0800
+@@ -19,7 +19,7 @@
+ config XENOMAI
+ 	depends on ((X86_TSC || !X86 || !INPUT_PCSPKR) && (!HPET_TIMER || !X86 || (X86_LOCAL_APIC && X86_TSC)))
+ 	bool "Xenomai"
+-	default y
++	default n
+         select IPIPE
+ 
+         help
