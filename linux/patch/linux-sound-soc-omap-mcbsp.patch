@@ -1,0 +1,13 @@
+diff --git a/linux/linux-2.6.x/sound/soc/omap/omap-mcbsp.c b/linux/linux-2.6.x/sound/soc/omap/omap-mcbsp.c
+index 7e84f24..ee30d02 100644
+--- a/sound/soc/omap/omap-mcbsp.c
++++ b/sound/soc/omap/omap-mcbsp.c
+@@ -329,7 +329,7 @@ static int omap_mcbsp_dai_hw_params(struct snd_pcm_substream *substream,
+ 	} else if (cpu_is_omap2430()) {
+ 		dma = omap24xx_dma_reqs[bus_id][substream->stream];
+ 		port = omap2430_mcbsp_port[bus_id][substream->stream];
+-	} else if (cpu_is_omap343x()) {
++	} else if (cpu_is_omap34xx()) {
+ 		dma = omap24xx_dma_reqs[bus_id][substream->stream];
+ 		port = omap34xx_mcbsp_port[bus_id][substream->stream];
+ 	} else {
