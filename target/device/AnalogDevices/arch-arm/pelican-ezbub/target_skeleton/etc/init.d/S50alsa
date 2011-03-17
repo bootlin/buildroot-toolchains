@@ -1,0 +1,19 @@
+mkdir /dev/snd
+mknod /dev/snd/controlC0 c 116 5
+mknod /dev/snd/pcmC0D0p c 116 3
+mknod /dev/snd/pcmC0D0c c 116 4
+mknod /dev/snd/timer c 116 2
+
+amixer sset 'HeadsetL Mixer AudioL2' on
+amixer sset 'HeadsetR Mixer AudioR2' on
+amixer sset 'Headset' 2
+amixer cset name="DAC2 Analog Playback Switch" 1
+amixer cset name="DAC2 Analog Playback Volume" 12
+amixer cset name="DAC2 Digital Coarse Playback Volume" 2
+amixer cset name="DAC2 Digital Fine Playback Volume" 50
+
+amixer sset 'Analog' 1 # 6dB amplification
+amixer sset 'Analog Left AUXL' cap
+amixer sset 'Analog Right AUXR' cap
+amixer sset 'TX1' 'Analog'
+amixer sset 'TX1 Digital' 5 # 5db amplification
