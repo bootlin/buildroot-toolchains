@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot 2011.02-00561-gfddc4fb-dirty Configuration
-# Thu Mar 17 11:33:32 2011
+# Buildroot 2011.02-00562-g183b1a4-dirty Configuration
+# Thu Mar 17 14:34:12 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 BR2_arm=y
@@ -815,8 +815,8 @@ BR2_LINUX_KERNEL_CUSTOM_TREE=y
 BR2_LINUX_KERNEL_CUSTOM_PATH="linux/linux-2.6.x"
 BR2_LINUX_KERNEL_VERSION="custom"
 BR2_LINUX_KERNEL_PATCH="linux/patch"
-BR2_LINUX_KERNEL_USE_DEFCONFIG=y
-# BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG is not set
-BR2_LINUX_KERNEL_DEFCONFIG="omap3_beagle_xm"
+# BR2_LINUX_KERNEL_USE_DEFCONFIG is not set
+BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG=y
+BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE="$(TOPDIR)/target/device/AnalogDevices/arch-arm/omap3_beagle_xm_defconfig"
 BR2_LINUX_KERNEL_UIMAGE=y
 # BR2_LINUX_KERNEL_ZIMAGE is not set
