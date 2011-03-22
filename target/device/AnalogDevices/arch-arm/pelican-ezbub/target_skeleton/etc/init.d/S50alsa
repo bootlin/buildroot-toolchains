@@ -1,9 +1,3 @@
-mkdir /dev/snd
-mknod /dev/snd/controlC0 c 116 5
-mknod /dev/snd/pcmC0D0p c 116 3
-mknod /dev/snd/pcmC0D0c c 116 4
-mknod /dev/snd/timer c 116 2
-
 amixer sset 'HeadsetL Mixer AudioL2' on
 amixer sset 'HeadsetR Mixer AudioR2' on
 amixer sset 'Headset' 2
