@@ -103,14 +103,16 @@ ifneq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
 endif
 	$(Q)touch $@
 
+KERNELVERSION=$(shell cat $(LINUX26_SOURCE_DIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
 # Patch
+#LINUX26_VERSION_PROBED = $(shell $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) --no-print-directory -s kernelrelease)
 $(LINUX26_BUILD_DIR)/.stamp_patched: $(LINUX26_BUILD_DIR)/.stamp_extracted
 	@$(call MESSAGE,"Patching kernel")
 	for p in $(LINUX26_PATCH) ; do \
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
 			toolchain/patch-kernel.sh $(@D) $(DL_DIR) `basename $$p` ; \
 		elif test -d $$p ; then \
-			toolchain/patch-kernel.sh $(LINUX26_SOURCE_DIR) $$p linux-\*.patch ; \
+			toolchain/patch-kernel.sh $(LINUX26_SOURCE_DIR) $$p linux-$(KERNELVERSION)-\*.patch ; \
 		else \
 			toolchain/patch-kernel.sh $(@D) `dirname $$p` `basename $$p` ; \
 		fi \
