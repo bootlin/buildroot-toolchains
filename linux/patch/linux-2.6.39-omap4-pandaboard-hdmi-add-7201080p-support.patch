@@ -1,13 +1,20 @@
-Signed-off-by: Bob Liu <lliubbo@gmail.com>
----
- drivers/video/modedb.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
-
 diff --git a/drivers/video/modedb.c b/drivers/video/modedb.c
-index 48c3ea8..edc853d 100644
+index 48c3ea8..1783fe2 100644
 --- a/drivers/video/modedb.c
 +++ b/drivers/video/modedb.c
-@@ -260,6 +260,11 @@ static const struct fb_videomode modedb[] = {
+@@ -38,6 +38,11 @@ EXPORT_SYMBOL_GPL(fb_mode_option);
+ 
+ static const struct fb_videomode modedb[] = {
+ 
++	/* 1280x720 @ 60 Hz,for pandaboard hdmi 720p output */
++	{ NULL, 60, 1280, 720, 13468, 220, 110, 20, 5, 40, 5,
++		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
++		FB_VMODE_NONINTERLACED },
++
+ 	/* 640x400 @ 70 Hz, 31.5 kHz hsync */
+ 	{ NULL, 70, 640, 400, 39721, 40, 24, 39, 9, 96, 2, 0,
+ 		FB_VMODE_NONINTERLACED },
+@@ -260,6 +265,11 @@ static const struct fb_videomode modedb[] = {
  	{ NULL, 72, 480, 300, 33386, 40, 24, 11, 19, 80, 3, 0,
  		FB_VMODE_DOUBLE },
  
@@ -19,6 +26,3 @@ index 48c3ea8..edc853d 100644
  	/* 1920x1200 @ 60 Hz, 74.5 Khz hsync */
  	{ NULL, 60, 1920, 1200, 5177, 128, 336, 1, 38, 208, 3,
  		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
--- 
-1.6.3.3
-
