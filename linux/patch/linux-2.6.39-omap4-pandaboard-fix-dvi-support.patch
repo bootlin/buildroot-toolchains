@@ -5,6 +5,8 @@ Subject: [PATCH] omap4: pandaboard: fix dvi support
 
 this patch fixes some clock issues, provides a base 720p dvi panel
 and adds the panda_dvi_defconfig for testing purposes.
+
+Url: http://elinux.org/Panda_How_to_kernel_2_6_39
 ---
  arch/arm/mach-omap2/board-omap4panda.c           |   12 +-
  drivers/video/omap2/displays/panel-generic-dpi.c |   24 +

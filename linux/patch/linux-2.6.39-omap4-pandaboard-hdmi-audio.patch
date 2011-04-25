@@ -1,3 +1,7 @@
+This patch comes from ubuntu ti-omap4 git tree:
+http://kernel.ubuntu.com/git?p=ubuntu/ubuntu-natty.git;a=tree;hb=refs/heads/ti-omap4
+---
+
 diff --git a/arch/arm/mach-omap2/board-omap4panda.c b/arch/arm/mach-omap2/board-omap4panda.c
 index f3a7b10..c93ec59 100644
 --- a/arch/arm/mach-omap2/board-omap4panda.c
