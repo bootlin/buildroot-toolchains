@@ -634,7 +634,7 @@ else
 endif
 endif
 
-clean: unpatch
+clean: linux-unpatch
 	rm -rf $(STAGING_DIR) $(TARGET_DIR) $(BINARIES_DIR) $(HOST_DIR) \
 		$(STAMP_DIR) $(BUILD_DIR) $(TOOLCHAIN_DIR) $(BASE_DIR)/staging
 

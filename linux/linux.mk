@@ -204,6 +204,20 @@ $(LINUX26_BUILD_DIR)/.stamp_initramfs_rebuilt: $(LINUX26_BUILD_DIR)/.stamp_insta
 # after it generated the initramfs list of files.
 linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX26_BUILD_DIR)/.stamp_initramfs_rebuilt
 
+LINUX26_VERSION=$(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
+LINUX26_PATCHES=$(wildcard $(LINUX26_PATCH)/linux-$(KERNELVERSION)-*.patch)
+linux-unpatch:
+ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
+ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX26_VERSION)/.stamp_patched),)
+	@echo "unpatch linux kernel...."
+	for p in $(LINUX26_PATCHES) ; do \
+		patch -RE -p1 -d $(LINUX26_SOURCE_DIR) < $$p; \
+	done
+else
+	@echo "linux kernel didn't patched, skip unpatch...."
+endif
+endif
+
 ifeq ($(BR2_LINUX_KERNEL),y)
 TARGETS+=linux26
 endif
