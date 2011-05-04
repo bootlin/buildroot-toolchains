@@ -91,7 +91,7 @@ MPLAYER_CONF_OPTS += --enable-armv6
 endif
 
 ifeq ($(call qstrip,$(BR2_GCC_TARGET_ARCH)),armv7-a)
-MPLAYER_CONF_OPTS += --enable-neon
+MPLAYER_CONF_OPTS += --enable-armv6
 endif
 
 define MPLAYER_CONFIGURE_CMDS
