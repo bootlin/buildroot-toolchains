@@ -106,7 +106,6 @@ endif
 KERNELVERSION=$(shell cat $(LINUX26_SOURCE_DIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
 # Patch
 $(LINUX26_BUILD_DIR)/.stamp_patched: $(LINUX26_BUILD_DIR)/.stamp_extracted
-ifeq ($(BR2_arm),y)
 	@$(call MESSAGE,"Patching kernel")
 	for p in $(LINUX26_PATCH) ; do \
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
@@ -117,7 +116,6 @@ ifeq ($(BR2_arm),y)
 			toolchain/patch-kernel.sh $(@D) `dirname $$p` `basename $$p` ; \
 		fi \
 	done
-endif
 	$(Q)touch $@
 
 
