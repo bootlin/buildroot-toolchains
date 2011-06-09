@@ -49,10 +49,15 @@
 #  This toolchain wrapper and symlinks are installed into
 #  $(HOST_DIR)/usr/bin like for the internal toolchains, and the rest
 #  of Buildroot is handled identical for the 2 toolchain types.
+-include target/device/*/ext-tool.mk
 
 uclibc: dependencies $(HOST_DIR)/usr/bin/ext-toolchain-wrapper
 
+ifeq ($(BR2_ABI_FLAT),y)
+LIB_EXTERNAL_LIBS=
+else
 LIB_EXTERNAL_LIBS=ld*.so libc.so libcrypt.so libdl.so libgcc_s.so libm.so libnsl.so libresolv.so librt.so libutil.so
+endif
 ifeq ($(BR2_TOOLCHAIN_EXTERNAL_GLIBC),y)
 LIB_EXTERNAL_LIBS+=libnss_files.so libnss_dns.so
 endif

@@ -169,20 +169,31 @@ config BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD
 	  install the selected external toolchain. When disabled,
 	  Buildroot will use a pre-installed toolchain.
 
+config BR2_TOOLCHAIN_OVERRIDE_VENDOR
+	bool "Override vendor/device toolchain defaults" if BR2_bfin
+	default y
+	help
+	  Some targets have standard toolchain namings which the
+	  vendor/device maintainer have defined.  If you wish to
+	  override their choices, say Y here.
+
 config BR2_TOOLCHAIN_EXTERNAL_PATH
 	string "Toolchain path"
 	default "/path/to/toolchain/usr"
+	depends on BR2_TOOLCHAIN_OVERRIDE_VENDOR
 	depends on !BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD
 	help
 	  Path to where the external toolchain is installed.
 
 config BR2_TOOLCHAIN_EXTERNAL_CUSTOM_PREFIX
 	string "Toolchain prefix"
+	depends on BR2_TOOLCHAIN_OVERRIDE_VENDOR
 	depends on BR2_TOOLCHAIN_EXTERNAL_CUSTOM
 	default "$(ARCH)-linux"
 
 config BR2_TOOLCHAIN_EXTERNAL_PREFIX
 	string
+	depends on BR2_TOOLCHAIN_OVERRIDE_VENDOR
 	default "arm-none-linux-gnueabi" if BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM2009Q1
 	default "arm-none-linux-gnueabi" if BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM2010Q1
 	default "arm-none-linux-gnueabi" if BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM201009

@@ -181,12 +181,19 @@ check_uclibc_feature = \
 #
 # $1: sysroot directory
 #
-check_uclibc = \
-	SYSROOT_DIR="$(strip $1)"; \
+ifeq ($(BR2_ABI_FLAT),y)
+check_uclibc_ldso = :
+else
+check_uclibc_ldso = \
 	if ! test -f $${SYSROOT_DIR}/lib/ld*-uClibc.so.* ; then \
 		echo "Incorrect selection of the C library"; \
 		exit -1; \
-	fi; \
+	fi
+endif
+
+check_uclibc = \
+	SYSROOT_DIR="$(strip $1)"; \
+	$(check_uclibc_ldso); \
 	UCLIBC_CONFIG_FILE=$${SYSROOT_DIR}/usr/include/bits/uClibc_config.h ; \
 	$(call check_uclibc_feature,__ARCH_USE_MMU__,BR2_USE_MMU,$${UCLIBC_CONFIG_FILE},MMU support) ;\
 	$(call check_uclibc_feature,__UCLIBC_HAS_LFS__,BR2_LARGEFILE,$${UCLIBC_CONFIG_FILE},Large file support) ;\

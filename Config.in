@@ -331,6 +331,7 @@ endmenu
 
 source "toolchain/Config.in"
 
+source "target/device/AnalogDevices/Config.in"
 source "target/generic/Config.in"
 
 source "package/Config.in"

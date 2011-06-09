@@ -87,6 +87,12 @@ config BR2_SOFT_FLOAT
 	  functions, then everything will need to be compiled with soft
 	  floating point support (-msoft-float).
 
+config BR2_INSTALL_ELF_CLEANUP
+	bool "Cull unused ELF shared libraries"
+	help
+	  Automatically scan the target rootfs and remove all ELF libraries
+	  that are not explicitly required by other ELF binaries.
+
 config BR2_TARGET_OPTIMIZATION
 	string "Target Optimizations"
 	default "-pipe"

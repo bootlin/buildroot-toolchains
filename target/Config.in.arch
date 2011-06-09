@@ -40,6 +40,15 @@ config BR2_xtensa
 	bool "xtensa"
 endchoice
 
+config BR2_ABI_FLAT
+	bool
+	default n
+
+config BR2_ABI_ELF
+	bool
+	default y
+	depends on !BR2_ABI_FLAT
+
 #
 # Keep the variants separate, there's no need to clutter everything else.
 # sh is fairly "special" in this regard, as virtually everyone else has
@@ -135,12 +144,16 @@ choice
 	default BR2_BFIN_FLAT
 config BR2_BFIN_FDPIC
 	bool "FDPIC"
+	select BR2_ABI_ELF
 config BR2_BFIN_FLAT
 	bool "FLAT"
+	select BR2_ABI_FLAT
 config BR2_BFIN_FLAT_SEP_DATA
 	bool "FLAT (Separate data)"
+	select BR2_ABI_FLAT
 config BR2_BFIN_SHARED_FLAT
 	bool "Shared FLAT"
+	select BR2_ABI_FLAT
 endchoice
 
 choice

@@ -252,6 +252,11 @@ TARGET_CONFIGURE_ARGS= \
 	$(BR2_AC_CV_C_BIGENDIAN)
 
 #######################################################################
+ifeq ($(BR2_ABI_FLAT),y)
+DISABLE_SHARED = --disable-shared
+else
+DISABLE_SHARED =
+endif
 
 ifeq ($(BR2_ENABLE_LOCALE),y)
 DISABLE_NLS:=
