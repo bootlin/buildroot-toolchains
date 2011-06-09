@@ -3,7 +3,11 @@ TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_ELF_SHARED) += romfs.shared.libs.elf
 TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_FLAT_SHARED) += romfs.shared.libs.flat
 TARGETS += $(TARGETS-y)
 
-ADI_BFIN_PATH = target/device/AnalogDevices/arch-bfin
+ifeq ($(BR2_TARGET_ANALOGDEVICES_devonshire-ezkit),y)
+ADI_BFIN_BOARD = devonshire-ezkit
+endif
+
+ADI_BFIN_PATH = target/device/AnalogDevices/arch-bfin/$(ADI_BFIN_BOARD)
 TARGET_SKELETON = $(ADI_BFIN_PATH)/target_skeleton
 BUSYBOX_CONFIG_FILE = $(ADI_BFIN_PATH)/busybox.config
 
