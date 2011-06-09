@@ -171,7 +171,7 @@ config BR2_TOOLCHAIN_EXTERNAL_DOWNLOAD
 
 config BR2_TOOLCHAIN_OVERRIDE_VENDOR
 	bool "Override vendor/device toolchain defaults" if BR2_bfin
-	default n
+	default y
 	help
 	  Some targets have standard toolchain namings which the
 	  vendor/device maintainer have defined.  If you wish to
