@@ -2,7 +2,7 @@ TARGETS-y =
 TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_ELF_SHARED) += romfs.shared.libs.elf
 TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_FLAT_SHARED) += romfs.shared.libs.flat
 TARGETS += $(TARGETS-y)
-
+TARGET_CFLAGS += -D__uClinux__
 ifeq ($(BR2_TARGET_ANALOGDEVICES_devonshire-ezkit),y)
 ADI_BFIN_BOARD = devonshire-ezkit
 endif
