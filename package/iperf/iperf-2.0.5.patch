@@ -1,0 +1,45 @@
+Index: a/src/Listener.cpp
+===================================================================
+--- a/src/Listener.cpp	(revision 7811)
++++ b/src/Listener.cpp	(revision 9587)
+@@ -675,34 +675,14 @@
+  * --------------------------------------------------------------------*/ 
+ 
+ void Listener::runAsDaemon(const char *pname, int facility) {
+-#ifndef WIN32 
+-    pid_t pid; 
+-
+-    /* Create a child process & if successful, exit from the parent process */ 
+-    if ( (pid = fork()) == -1 ) {
+-        fprintf( stderr, "error in first child create\n");     
+-        exit(0); 
+-    } else if ( pid != 0 ) {
+-        exit(0); 
++#ifndef WIN32
++    /* Create a child process & if successful, exit from the parent process */
++    if ( daemon(1, 1) == -1 ) {
++        fprintf( stderr, "error in child daemon create\n");
++        exit(1);
+     }
++    signal(SIGHUP,SIG_IGN);
+ 
+-    /* Try becoming the session leader, once the parent exits */
+-    if ( setsid() == -1 ) {           /* Become the session leader */ 
+-        fprintf( stderr, "Cannot change the session group leader\n"); 
+-    } else {
+-    } 
+-    signal(SIGHUP,SIG_IGN); 
+-
+-
+-    /* Now fork() and get released from the terminal */  
+-    if ( (pid = fork()) == -1 ) {
+-        fprintf( stderr, "error\n");   
+-        exit(0); 
+-    } else if ( pid != 0 ) {
+-        exit(0); 
+-    }
+-
+-    chdir("."); 
+     fprintf( stderr, "Running Iperf Server as a daemon\n"); 
+     fprintf( stderr, "The Iperf daemon process ID : %d\n",((int)getpid())); 
+     fflush(stderr); 
