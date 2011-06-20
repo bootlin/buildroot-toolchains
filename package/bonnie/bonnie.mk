@@ -2,9 +2,9 @@
 # bonnie++
 #
 
-BONNIE_VERSION = 1.03e
+BONNIE_VERSION = 1.94
 BONNIE_SOURCE = bonnie++-$(BONNIE_VERSION).tgz
-BONNIE_SITE = http://www.coker.com.au/bonnie++/
+BONNIE_SITE = http://www.coker.com.au/bonnie++/experimental/
 
 define BONNIE_INSTALL_TARGET_CMDS
 	install -D -m 755 $(@D)/bonnie++ $(TARGET_DIR)/usr/sbin/bonnie++
