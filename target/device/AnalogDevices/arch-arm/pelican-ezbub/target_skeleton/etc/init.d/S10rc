@@ -17,6 +17,9 @@ if [ -e /sbin/mdev ] ; then
 	ln -s fd/2 /dev/stderr
 fi
 
+mkdir -p /dev/pts
+mount -t devpts devpts /dev/pts -o noexec,nosuid
+
 #
 # Give the log/state/runtime files in /var temporary storage that'll be
 # lost when we reboot.
