@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot 2011.05-00102-g45fdb1f-dirty Configuration
-# Thu Jun 16 16:26:07 2011
+# Buildroot 2011.05-00110-gbecf1aa-dirty Configuration
+# Tue Jun 21 12:36:45 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 # BR2_arm is not set
@@ -209,8 +209,8 @@ BR2_PACKAGE_CUSTOMIZE=y
 #
 # Debugging, profiling and benchmark
 #
-# BR2_PACKAGE_BONNIE is not set
-# BR2_PACKAGE_DHRYSTONE is not set
+BR2_PACKAGE_BONNIE=y
+BR2_PACKAGE_DHRYSTONE=y
 # BR2_PACKAGE_DMALLOC is not set
 # BR2_PACKAGE_KEXEC is not set
 # BR2_PACKAGE_LMBENCH is not set
@@ -220,7 +220,7 @@ BR2_PACKAGE_CUSTOMIZE=y
 # BR2_PACKAGE_MEMSTAT is not set
 # BR2_PACKAGE_NETPERF is not set
 # BR2_PACKAGE_STRACE is not set
-# BR2_PACKAGE_WHETSTONE is not set
+BR2_PACKAGE_WHETSTONE=y
 
 #
 # Development tools
@@ -324,7 +324,10 @@ BR2_PACKAGE_CUSTOMIZE=y
 # dbus not available (need expat or libxml2)
 #
 # BR2_PACKAGE_DMRAID is not set
-# BR2_PACKAGE_DOSFSTOOLS is not set
+BR2_PACKAGE_DOSFSTOOLS=y
+BR2_PACKAGE_DOSFSTOOLS_MKDOSFS=y
+BR2_PACKAGE_DOSFSTOOLS_DOSFSCK=y
+# BR2_PACKAGE_DOSFSTOOLS_DOSFSLABEL is not set
 # BR2_PACKAGE_E2FSPROGS is not set
 # BR2_PACKAGE_EEPROG is not set
 # BR2_PACKAGE_FCONFIG is not set
