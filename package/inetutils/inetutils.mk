@@ -3,7 +3,7 @@
 # inet_utils
 #
 #############################################################
-INETUTILS_VERSION = 1.6
+INETUTILS_VERSION = 1.8
 INETUTILS_SOURCE = inetutils-$(INETUTILS_VERSION).tar.gz
 INETUTILS_SITE = http://ftp.gnu.org/gnu/inetutils/
 INETUTILS_INSTALL_STAGING = NO
