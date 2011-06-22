@@ -1,0 +1,21 @@
+diff --git a/Makefile b/Makefile
+index 5045c77..1e565f4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -151,3 +150,9 @@ clean:
+ 
+ mrproper: clean
+ 	- /bin/rm -f nbench
++
++install: nbench
++	if [ ! -d $(BASE) ]; then mkdir $(BASE); fi
++	if [ ! -d $(BASE)/bin ]; then mkdir $(BASE)/bin; fi
++	if [ ! -d $(BASE)/lib ]; then mkdir $(BASE)/lib; fi
++	cp nbench $(BASE)/bin
+diff --git a/pointer.h b/pointer.h
+new file mode 100644
+index 0000000..0badd44
+--- /dev/null
++++ b/pointer.h
+@@ -0,0 +1 @@
++#define LONG64

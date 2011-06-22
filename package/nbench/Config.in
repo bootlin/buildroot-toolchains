@@ -1,0 +1,11 @@
+config BR2_PACKAGE_NBENCH
+	bool "nbench"
+	help
+	  nbench is a Linux/Unix port of release 2 of BYTE Magazine's BYTEmark
+	  benchmark program (previously known as BYTE's Native Mode
+	  Benchmarks). These are Native Mode (a.k.a. Algorithm Level) tests;
+	  benchmarks designed to expose the capabilities of a system's CPU,
+	  FPU, and memory system
+
+	  http://www.tux.org/~mayer/linux/bmark.html
+
