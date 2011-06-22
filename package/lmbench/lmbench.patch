@@ -58,6 +58,22 @@ index ad71157..f9bb18c 100644
  	    case 0:
  	      handle_scheduler(benchmp_childid(), 1, 1);
  		close(state->control[1]);
+diff --git a/src/lat_cmd.c b/src/lat_cmd.c
+index 1a2ee7e..5556d22 100644
+--- a/src/lat_cmd.c
++++ b/src/lat_cmd.c
+@@ -89,7 +89,11 @@ bench(register iter_t iterations, void *cookie)
+ 
+ 	signal(SIGCHLD, SIG_DFL);
+ 	while (iterations-- > 0) {
++#ifdef __NOMMU__
++		switch (state->pid = vfork()) {
++#else
+ 		switch (state->pid = fork()) {
++#endif
+ 		case '0':
+ 			execvp(state->argv[0], state->argv);
+ 			/*NOTREACHED*/
 diff --git a/src/lat_connect.c b/src/lat_connect.c
 index 4e5538e..1724a9c 100644
 --- a/src/lat_connect.c
