@@ -1,0 +1,61 @@
+Index: a/arch/blackfin/boot/Makefile
+===================================================================
+--- a/arch/blackfin/boot/Makefile	(revision 9961)
++++ a/arch/blackfin/boot/Makefile	(working copy)
+@@ -42,22 +42,22 @@
+ $(obj)/vmlinux.bin.xip: $(obj)/vmlinux.bin FORCE
+ 	$(call if_changed,mk_bin_xip)
+ 
+-$(obj)/vmImage.bin: $(obj)/vmlinux.bin
++$(obj)/uImage.bin: $(obj)/vmlinux.bin
+ 	$(call if_changed,uimage,none)
+ 
+-$(obj)/vmImage.bz2: $(obj)/vmlinux.bin.bz2
++$(obj)/uImage.bz2: $(obj)/vmlinux.bin.bz2
+ 	$(call if_changed,uimage,bzip2)
+ 
+-$(obj)/vmImage.gz: $(obj)/vmlinux.bin.gz
++$(obj)/uImage.gz: $(obj)/vmlinux.bin.gz
+ 	$(call if_changed,uimage,gzip)
+ 
+-$(obj)/vmImage.lzma: $(obj)/vmlinux.bin.lzma
++$(obj)/uImage.lzma: $(obj)/vmlinux.bin.lzma
+ 	$(call if_changed,uimage,lzma)
+ 
+-$(obj)/vmImage.lzo: $(obj)/vmlinux.bin.lzo
++$(obj)/uImage.lzo: $(obj)/vmlinux.bin.lzo
+ 	$(call if_changed,uimage,lzo)
+ 
+-$(obj)/vmImage.xip: $(obj)/vmlinux.bin.xip
++$(obj)/uImage.xip: $(obj)/vmlinux.bin.xip
+ 	$(call if_changed,uimage,none)
+ 
+ suffix-y                      := bin
+@@ -67,7 +67,7 @@
+ suffix-$(CONFIG_KERNEL_LZO)   := lzo
+ suffix-$(CONFIG_ROMKERNEL)    := xip
+ 
+-$(obj)/vmImage: $(obj)/vmImage.$(suffix-y)
++$(obj)/uImage: $(obj)/uImage.$(suffix-y)
+ 	@ln -sf $(notdir $<) $@
+ 
+ install:
+Index: a/arch/blackfin/Makefile
+===================================================================
+--- a/arch/blackfin/Makefile	(revision 9961)
++++ a/arch/blackfin/Makefile	(working copy)
+@@ -142,11 +142,11 @@
+ 
+ INSTALL_PATH ?= /tftpboot
+ boot := arch/$(ARCH)/boot
+-BOOT_TARGETS = vmImage vmImage.bin vmImage.bz2 vmImage.gz vmImage.lzma vmImage.lzo vmImage.xip
++BOOT_TARGETS = uImage uImage.bin uImage.bz2 uImage.gz uImage.lzma uImage.lzo uImage.xip
+ PHONY += $(BOOT_TARGETS) install
+-KBUILD_IMAGE := $(boot)/vmImage
++KBUILD_IMAGE := $(boot)/uImage
+ 
+-all: vmImage
++all: uImage
+ 
+ $(BOOT_TARGETS): vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
