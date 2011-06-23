@@ -1,0 +1,4 @@
+config BR2_PACKAGE_GPBR_TOOL
+	bool "gpbr-tool"
+	help
+         Tool to read/write GPBR registers.

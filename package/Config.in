@@ -510,4 +510,8 @@ source "package/vim/Config.in"
 endif
 endmenu
 
+menu "Getinge packages"
+source "package/getinge/gpbr-tool/Config.in"
+endmenu
+
 endmenu
