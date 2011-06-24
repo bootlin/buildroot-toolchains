@@ -16,6 +16,12 @@ ZLIB_PIC := -fPIC
 ZLIB_SHARED := --shared
 endif
 
+ifeq ($(BR2_bfin),y)
+ZLIB_MAPFILE := --mapfile=zlib-bfin.map
+else
+ZLIB_MAPFILE :=
+endif
+
 define ZLIB_CONFIGURE_CMDS
 	(cd $(@D); rm -rf config.cache; \
 		$(TARGET_CONFIGURE_ARGS) \
@@ -24,6 +30,7 @@ define ZLIB_CONFIGURE_CMDS
 		./configure \
 		$(ZLIB_SHARED) \
 		--prefix=/usr \
+		$(ZLIB_MAPFILE) \
 	)
 endef
 

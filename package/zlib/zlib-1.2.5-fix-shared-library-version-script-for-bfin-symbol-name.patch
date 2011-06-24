@@ -1,0 +1,106 @@
+--- a/configure.old	2011-06-24 17:16:37.658164887 +0800
++++ a/configure	2011-06-24 17:22:00.985194045 +0800
+@@ -52,6 +52,7 @@
+ sharedlibdir=${sharedlibdir-'${libdir}'}
+ includedir=${includedir-'${prefix}/include'}
+ mandir=${mandir-'${prefix}/share/man'}
++shared_mapfile="zlib.map"
+ shared_ext='.so'
+ shared=1
+ zprefix=0
+@@ -67,13 +68,14 @@
+       echo 'usage:'
+       echo '  configure [--zprefix] [--prefix=PREFIX]  [--eprefix=EXPREFIX]'
+       echo '    [--static] [--64] [--libdir=LIBDIR] [--sharedlibdir=LIBDIR]'
+-      echo '    [--includedir=INCLUDEDIR]'
++      echo '    [--includedir=INCLUDEDIR] [--mapfile=MAPFILE]'
+         exit 0 ;;
+     -p*=* | --prefix=*) prefix=`echo $1 | sed 's/.*=//'`; shift ;;
+     -e*=* | --eprefix=*) exec_prefix=`echo $1 | sed 's/.*=//'`; shift ;;
+     -l*=* | --libdir=*) libdir=`echo $1 | sed 's/.*=//'`; shift ;;
+     --sharedlibdir=*) sharedlibdir=`echo $1 | sed 's/.*=//'`; shift ;;
+     -i*=* | --includedir=*) includedir=`echo $1 | sed 's/.*=//'`;shift ;;
++    -m*=* | --mapfile=*) shared_mapfile=`echo $1 | sed 's/.*=//'`;shift ;;
+     -u*=* | --uname=*) uname=`echo $1 | sed 's/.*=//'`;shift ;;
+     -p* | --prefix) prefix="$2"; shift; shift ;;
+     -e* | --eprefix) exec_prefix="$2"; shift; shift ;;
+@@ -118,7 +120,7 @@
+     uname=`(uname -s || echo unknown) 2>/dev/null`
+   fi
+   case "$uname" in
+-  Linux* | linux* | GNU | GNU/* | *BSD | DragonFly) LDSHARED=${LDSHARED-"$cc -shared -Wl,-soname,libz.so.1,--version-script,zlib.map"} ;;
++  Linux* | linux* | GNU | GNU/* | *BSD | DragonFly) LDSHARED=${LDSHARED-"$cc -shared -Wl,-soname,libz.so.1,--version-script,$shared_mapfile"} ;;
+   CYGWIN* | Cygwin* | cygwin* | OS/2*)
+         EXE='.exe' ;;
+   MINGW*|mingw*)
+--- a/zlib-bfin.map	2011-05-31 18:41:09.738415010 +0800
++++ a/zlib-bfin.map	2011-06-24 17:26:48.662416698 +0800
+@@ -0,0 +1,68 @@
++ZLIB_1.2.0 {
++  global:
++    _compressBound;
++    _deflateBound;
++    _inflateBack;
++    _inflateBackEnd;
++    _inflateBackInit_;
++    _inflateCopy;
++  local:
++    _deflate_copyright;
++    _inflate_copyright;
++    _inflate_fast;
++    _inflate_table;
++    _zcalloc;
++    _zcfree;
++    _z_errmsg;
++    _gz_error;
++    _gz_intmax;
++    __*;
++};
++
++ZLIB_1.2.0.2 {
++    _gzclearerr;
++    _gzungetc;
++    _zlibCompileFlags;
++} ZLIB_1.2.0;
++
++ZLIB_1.2.0.8 {
++    _deflatePrime;
++} ZLIB_1.2.0.2;
++
++ZLIB_1.2.2 {
++    _adler32_combine;
++    _crc32_combine;
++    _deflateSetHeader;
++    _inflateGetHeader;
++} ZLIB_1.2.0.8;
++
++ZLIB_1.2.2.3 {
++    _deflateTune;
++    _gzdirect;
++} ZLIB_1.2.2;
++
++ZLIB_1.2.2.4 {
++    _inflatePrime;
++} ZLIB_1.2.2.3;
++
++ZLIB_1.2.3.3 {
++    _adler32_combine64;
++    _crc32_combine64;
++    _gzopen64;
++    _gzseek64;
++    _gztell64;
++    _inflateUndermine;
++} ZLIB_1.2.2.4;
++
++ZLIB_1.2.3.4 {
++    _inflateReset2;
++    _inflateMark;
++} ZLIB_1.2.3.3;
++
++ZLIB_1.2.3.5 {
++    _gzbuffer;
++    _gzoffset;
++    _gzoffset64;
++    _gzclose_r;
++    _gzclose_w;
++} ZLIB_1.2.3.4;
