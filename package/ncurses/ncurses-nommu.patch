@@ -1,0 +1,14 @@
+--- a/test/ditto.c	2011-06-24 18:03:01.018166435 +0800
++++ a/test/ditto.c	2011-06-24 18:03:27.614166034 +0800
+@@ -162,7 +162,11 @@
+ 	failed(slave_name);
+     }
+     sprintf(s_option, "-S%s/%d", slave_name, aslave);
++#ifdef __NOMMU__
++    if (vfork()) {
++#else
+     if (fork()) {
++#endif
+ 	execlp("xterm", "xterm", s_option, "-title", path, (char *) 0);
+ 	_exit(0);
+     }
