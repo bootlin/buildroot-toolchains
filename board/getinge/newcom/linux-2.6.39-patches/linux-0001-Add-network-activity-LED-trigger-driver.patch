@@ -1,7 +1,7 @@
 From af5ae96fcf282c932730d417b75922821a64808c Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 16:03:09 +0200
-Subject: [PATCH 1/2] Add network activity LED trigger driver
+Subject: [PATCH 1/6] Add network activity LED trigger driver
 
 Patch taken from
 http://www.mail-archive.com/netdev@vger.kernel.org/msg38825.html,
