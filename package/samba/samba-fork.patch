@@ -1,0 +1,73 @@
+diff --git a/source/lib/sock_exec.c b/source/lib/sock_exec.c
+index 2333d7c..24be729 100644
+--- a/source/lib/sock_exec.c
++++ b/source/lib/sock_exec.c
+@@ -101,7 +101,11 @@ int sock_exec(const char *prog)
+ 		DEBUG(0,("socketpair_tcp failed (%s)\n", strerror(errno)));
+ 		return -1;
+ 	}
++#ifdef __NOMMU__
++	if (vfork() == 0) {
++#else
+ 	if (fork() == 0) {
++#endif
+ 		close(fd[0]);
+ 		close(0);
+ 		close(1);
+diff --git a/source/lib/system.c b/source/lib/system.c
+index 36745b1..346af7e 100644
+--- a/source/lib/system.c
++++ b/source/lib/system.c
+@@ -1164,7 +1164,11 @@ static pid_t mypid = (pid_t)-1;
+ 
+ pid_t sys_fork(void)
+ {
++#ifdef __NOMMU__
++	pid_t forkret = vfork();
++#else
+ 	pid_t forkret = fork();
++#endif
+ 
+ 	if (forkret == (pid_t)0) /* Child - reset mypid so sys_getpid does a system call. */
+ 		mypid = (pid_t) -1;
+diff --git a/source/web/startstop.c b/source/web/startstop.c
+index b24410a..758464f 100644
+--- a/source/web/startstop.c
++++ b/source/web/startstop.c
+@@ -30,8 +30,11 @@ void start_smbd(void)
+ 	if (geteuid() != 0) {
+ 		 return;
+ 	}
+-
++#ifdef __NOMMU__
++	if (vfork()) {
++#else
+ 	if (fork()) {
++#endif
+ 		return;
+ 	}
+ 
+@@ -51,7 +54,11 @@ void start_nmbd(void)
+ 		return;
+ 	}
+ 
++#ifdef __NOMMU__
++	if (vfork()) {
++#else
+ 	if (fork()) {
++#endif
+ 		return;
+ 	}
+ 
+@@ -71,7 +78,11 @@ void start_winbindd(void)
+ 		return;
+ 	}
+ 
++#ifdef __NOMMU__
++	if (vfork()) {
++#else
+ 	if (fork()) {
++#endif
+ 		return;
+ 	}
+ 
