@@ -125,6 +125,11 @@ define BUSYBOX_COPY_CONFIG
 	cp -f $(BUSYBOX_CONFIG_FILE) $(BUSYBOX_BUILD_CONFIG)
 endef
 
+define BUSYBOX_INSTALL_LOGGING_SCRIPT
+	$(INSTALL) -m 0755 -D package/busybox/S01logging \
+		$(TARGET_DIR)/etc/init.d/S01logging
+endef
+
 # We do this here to avoid busting a modified .config in configure
 BUSYBOX_POST_EXTRACT_HOOKS += BUSYBOX_COPY_CONFIG
 
@@ -153,6 +158,7 @@ define BUSYBOX_INSTALL_TARGET_CMDS
 			$(TARGET_DIR)/usr/share/udhcpc/default.script; \
 	fi
 	$(BUSYBOX_INSTALL_MDEV_SCRIPT)
+	$(BUSYBOX_INSTALL_LOGGING_SCRIPT)
 endef
 
 define BUSYBOX_UNINSTALL_TARGET_CMDS
