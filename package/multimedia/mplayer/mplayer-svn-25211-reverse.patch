@@ -1,0 +1,59 @@
+diff --git a/libvo/vo_fbdev.c b/libvo/vo_fbdev.c
+index 48c3dd2..9c25e47 100644
+--- a/libvo/vo_fbdev.c
++++ b/libvo/vo_fbdev.c
+@@ -977,8 +977,12 @@ static int config(uint32_t width, uint32_t height, uint32_t d_width,
+         frame_buffer = mmap(0, fb_size, PROT_READ | PROT_WRITE,
+                             MAP_SHARED, fb_dev_fd, 0);
+         if (frame_buffer == (uint8_t *) -1) {
+-            mp_msg(MSGT_VO, MSGL_ERR, "Can't mmap %s: %s\n", fb_dev_name, strerror(errno));
+-            return 1;
++		frame_buffer = (uint8_t *) mmap(0, fb_size, PROT_READ | PROT_WRITE,
++				MAP_PRIVATE, fb_dev_fd, 0);
++		if (frame_buffer == -1) {
++			mp_msg(MSGT_VO, MSGL_ERR, "Can't mmap %s: %s\n", fb_dev_name, strerror(errno));
++			return 1;
++		}
+         }
+         center = frame_buffer +
+
+diff --git a/configure b/configure
+index f1f28fe..6755d6e 100755
+--- a/configure
++++ b/configure
+@@ -868,6 +868,11 @@ for ac_option do
+ 
+   --target=*)
+     _target=$(echo $ac_option | cut -d '=' -f 2)
++    _host_cc=${_cc}
++    _cc=${_target}-gcc
++    _as=${_target}-as
++    _ar=${_target}-uclibc-ar
++    _ranlib=${_target}-ranlib
+     ;;
+   --cc=*)
+     _cc=$(echo $ac_option | cut -d '=' -f 2-)
+@@ -2414,6 +2419,23 @@ EOF
+     iproc='xtensa'
+     ;;
+ 
++  bf*)
++    _arch='BFIN'
++    _target_arch='ARCH_BFIN = yes'
++    iproc='bfin'
++    proc=''
++    _bfin=yes
++    _march=''
++    _mcpu=''
++    _optimizing=''
++    _faad_fixed=yes
++    _libavcodec_mpegaudio_hp=no
++    _mp3lib=no
++    _speex=no
++    _termcap=no
++    _termios=no
++    ;;
++
+   generic)
+     arch='generic'
+     ;;

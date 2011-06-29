@@ -1,0 +1,49 @@
+diff --git a/stream/cache2.c b/stream/cache2.c
+index 7e709fa..82ff22e 100644
+--- a/stream/cache2.c
++++ b/stream/cache2.c
+@@ -417,7 +417,11 @@ int stream_enable_cache(stream_t *stream,int size,int min,int seek_limit){
+     min = 1;
+ 
+ #if FORKED_CACHE
++#ifdef __NOMMU__
++  if((stream->cache_pid=vfork())){
++#else
+   if((stream->cache_pid=fork())){
++#endif
+     if ((pid_t)stream->cache_pid == -1)
+       stream->cache_pid = 0;
+ #else
+diff --git a/command.c b/command.c
+index b95b750..c6df876 100644
+--- a/command.c
++++ b/command.c
+@@ -3374,7 +3374,11 @@ int run_command(MPContext *mpctx, mp_cmd_t *cmd)
+ 
+         case MP_CMD_RUN:
+ #ifndef __MINGW32__
++#ifdef __NOMMU__
++            if (!vfork()) {
++#else
+             if (!fork()) {
++#endif
+                 execl("/bin/sh", "sh", "-c", cmd->args[0].v.s, NULL);
+                 exit(0);
+             }
+mplayer-fork.patch
+diff --git a/sub/unrar_exec.c b/sub/unrar_exec.c
+index 6de8c59..8897146 100644
+--- a/sub/unrar_exec.c
++++ b/sub/unrar_exec.c
+@@ -52,7 +52,11 @@ static FILE* launch_pipe(pid_t *apid, const char *executable, int action,
+         return NULL;
+     }
+ 
++#ifdef __NOMMU__
++    pid = vfork();
++#else
+     pid = fork();
++#endif
+     if (pid == 0) {
+         /* This is the child process. Execute the unrar executable. */
+         close(mypipe[0]);
