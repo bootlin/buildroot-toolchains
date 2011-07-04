@@ -1,0 +1,54 @@
+From 200231f2dd640348c2900b32e82bfbbbc2f2a374 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 4 Jul 2011 15:27:50 +0200
+Subject: [PATCH 8/9] ohci-at91: add vbus_pin_inverted platform attribute
+
+The existing OHCI AT91 driver made the assumption that the enable
+input of the USB power switch was active low. However, the MIC2026-1
+used in the Getinge NetCOM v3 platform is active-high. The
+vbus_pin_inverted attribute allows to tell the driver that this input
+is active high.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/mach-at91/include/mach/board.h |    1 +
+ drivers/usb/host/ohci-at91.c            |    4 ++--
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-at91/include/mach/board.h b/arch/arm/mach-at91/include/mach/board.h
+index 76e0a55..5fdae48 100644
+--- a/arch/arm/mach-at91/include/mach/board.h
++++ b/arch/arm/mach-at91/include/mach/board.h
+@@ -98,6 +98,7 @@ extern void __init at91_add_device_eth(struct at91_eth_data *data);
+ struct at91_usbh_data {
+ 	u8		ports;		/* number of ports on root hub */
+ 	u8		vbus_pin[2];	/* port power-control pin */
++	u8              vbus_pin_inverted;
+ 	u8              overcurrent_pin[2];
+ };
+ extern void __init at91_add_device_usbh(struct at91_usbh_data *data);
+diff --git a/drivers/usb/host/ohci-at91.c b/drivers/usb/host/ohci-at91.c
+index 283b8ca..2801c77 100644
+--- a/drivers/usb/host/ohci-at91.c
++++ b/drivers/usb/host/ohci-at91.c
+@@ -297,7 +297,7 @@ static int ohci_hcd_at91_drv_probe(struct platform_device *pdev)
+ 			if (pdata->vbus_pin[i] <= 0)
+ 				continue;
+ 			gpio_request(pdata->vbus_pin[i], "ohci_vbus");
+-			gpio_direction_output(pdata->vbus_pin[i], 0);
++			gpio_direction_output(pdata->vbus_pin[i], 0 ^ pdata->vbus_pin_inverted);
+ 		}
+ 
+ 		for (i = 0; i < ARRAY_SIZE(pdata->overcurrent_pin); i++) {
+@@ -331,7 +331,7 @@ static int ohci_hcd_at91_drv_remove(struct platform_device *pdev)
+ 		for (i = 0; i < ARRAY_SIZE(pdata->vbus_pin); i++) {
+ 			if (pdata->vbus_pin[i] <= 0)
+ 				continue;
+-			gpio_direction_output(pdata->vbus_pin[i], 1);
++			gpio_direction_output(pdata->vbus_pin[i], 1 ^ pdata->vbus_pin_inverted);
+ 			gpio_free(pdata->vbus_pin[i]);
+ 		}
+ 
+-- 
+1.7.4.1
+
