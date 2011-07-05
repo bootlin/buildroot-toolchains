@@ -1,4 +1,4 @@
-From f44256473b106879f51c690989c0d6180e25c0ad Mon Sep 17 00:00:00 2001
+From 7f55dcc19fb406ed564ea781fdf230a4e6eef99d Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
 Subject: [PATCH 9/9] getinge: Add support for Getinge NetCOM v3 platform
@@ -7,9 +7,9 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  arch/arm/mach-at91/Kconfig                  |    6 +
  arch/arm/mach-at91/Makefile                 |    1 +
- arch/arm/mach-at91/board-getinge-netcomv3.c |  284 +++++++++++++++++++++++++++
+ arch/arm/mach-at91/board-getinge-netcomv3.c |  311 +++++++++++++++++++++++++++
  arch/arm/tools/mach-types                   |    1 +
- 4 files changed, 292 insertions(+), 0 deletions(-)
+ 4 files changed, 319 insertions(+), 0 deletions(-)
  create mode 100644 arch/arm/mach-at91/board-getinge-netcomv3.c
 
 diff --git a/arch/arm/mach-at91/Kconfig b/arch/arm/mach-at91/Kconfig
@@ -43,10 +43,10 @@ index a83835e..aee938d 100644
  obj-$(CONFIG_MACH_AT91CAP9ADK)	+= board-cap9adk.o
 diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
 new file mode 100644
-index 0000000..4d64b11
+index 0000000..c056d8f
 --- /dev/null
 +++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
-@@ -0,0 +1,284 @@
+@@ -0,0 +1,311 @@
 +/*
 + *  Board-specific setup code for the Getinge NetCOM v3
 + *  platform. Largely inspired from the board-sam9m10g45ek.c file.
@@ -67,6 +67,7 @@ index 0000000..4d64b11
 +#include <linux/module.h>
 +#include <linux/platform_device.h>
 +#include <linux/spi/spi.h>
++#include <linux/spi/flash.h>
 +#include <linux/fb.h>
 +#include <linux/gpio_keys.h>
 +#include <linux/input.h>
@@ -133,12 +134,38 @@ index 0000000..4d64b11
 +/*
 + * SPI devices.
 + */
++
++static struct mtd_partition netcom_dataflash_partitions[] = {
++	{
++		.name   = "AT91Bootstrap",
++		.offset = 0,
++		.size   = 0x4200,
++	},
++	{
++		.name   = "U-Boot environment",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = 0x4200,
++	},
++	{
++		.name   = "U-Boot",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = MTDPART_SIZ_FULL,
++	},
++};
++
++static struct flash_platform_data netcom_dataflash_data = {
++	.name = "Boot DataFlash",
++	.parts = netcom_dataflash_partitions,
++	.nr_parts = ARRAY_SIZE(netcom_dataflash_partitions),
++};
++
 +static struct spi_board_info netcom_spi_devices[] = {
 +	{	/* DataFlash chip */
 +		.modalias	= "mtd_dataflash",
 +		.chip_select	= 0,
 +		.max_speed_hz	= 15 * 1000 * 1000,
 +		.bus_num	= 0,
++		.platform_data  = &netcom_dataflash_data,
 +	},
 +};
 +
