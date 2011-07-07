@@ -1,7 +1,7 @@
 From 9d887efeca5aff91ffad5bf946d10e6e81b98c81 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:23:44 +0200
-Subject: [PATCH 7/9] at91-ohci: support overcurrent notification
+Subject: [PATCH 07/13] at91-ohci: support overcurrent notification
 
 The OHCI AT91 driver now supports a new platform_data attribute,
 overcurrent_pin. The driver will register an interrupt on this GPIO

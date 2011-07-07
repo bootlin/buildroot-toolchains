@@ -1,7 +1,7 @@
 From 5e3133b753d01e641916f852ba8f9cf26593c4b1 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 14:35:34 +0200
-Subject: [PATCH 4/6] atmel_serial: add support for RS485 duplex selection pin
+Subject: [PATCH 04/13] atmel_serial: add support for RS485 duplex selection pin
 
 We extend the driver platform_data structure with two new fields:
 

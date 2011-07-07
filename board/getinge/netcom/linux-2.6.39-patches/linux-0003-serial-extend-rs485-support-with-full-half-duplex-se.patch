@@ -1,7 +1,7 @@
 From 5adcb6a5e3b5698a9c02374dafe6b3b8bd7e627c Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 14:33:11 +0200
-Subject: [PATCH 3/6] serial: extend rs485 support with full/half duplex selection
+Subject: [PATCH 03/13] serial: extend rs485 support with full/half duplex selection
 
 We create a new RS485 configuration flag SER_RS485_FULL_DUPLEX. When
 set, the RS485 link must be configured in full duplex mode by the

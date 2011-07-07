@@ -1,7 +1,7 @@
-From 7f55dcc19fb406ed564ea781fdf230a4e6eef99d Mon Sep 17 00:00:00 2001
+From e36b99eb16f637794b39241fe445478377e91d74 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
-Subject: [PATCH 9/9] getinge: Add support for Getinge NetCOM v3 platform
+Subject: [PATCH 09/13] getinge: Add support for Getinge NetCOM v3 platform
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
@@ -359,14 +359,14 @@ index 0000000..c056d8f
 +	.init_machine	= netcom_board_init,
 +MACHINE_END
 diff --git a/arch/arm/tools/mach-types b/arch/arm/tools/mach-types
-index 7ca41f0..049fe69 100644
+index 7ca41f0..21c3a3d 100644
 --- a/arch/arm/tools/mach-types
 +++ b/arch/arm/tools/mach-types
 @@ -1099,3 +1099,4 @@ ecuv5			MACH_ECUV5		ECUV5			3421
  hsgx6d			MACH_HSGX6D		HSGX6D			3422
  dawad7			MACH_DAWAD7		DAWAD7			3423
  sam9repeater		MACH_SAM9REPEATER	SAM9REPEATER		3424
-+getinge_netcomv3	MACH_GETINGE_NETCOMV3	GETINGE_NETCOMV3	6666
++getinge_netcomv3	MACH_GETINGE_NETCOMV3	GETINGE_NETCOMV3	3602
 -- 
 1.7.4.1
 

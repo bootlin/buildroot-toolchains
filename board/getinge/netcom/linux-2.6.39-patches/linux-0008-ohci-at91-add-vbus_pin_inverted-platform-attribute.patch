@@ -1,7 +1,7 @@
 From 200231f2dd640348c2900b32e82bfbbbc2f2a374 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:27:50 +0200
-Subject: [PATCH 8/9] ohci-at91: add vbus_pin_inverted platform attribute
+Subject: [PATCH 08/13] ohci-at91: add vbus_pin_inverted platform attribute
 
 The existing OHCI AT91 driver made the assumption that the enable
 input of the USB power switch was active low. However, the MIC2026-1
