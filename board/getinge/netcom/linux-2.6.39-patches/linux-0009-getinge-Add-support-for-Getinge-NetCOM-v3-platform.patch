@@ -1,4 +1,4 @@
-From e36b99eb16f637794b39241fe445478377e91d74 Mon Sep 17 00:00:00 2001
+From a49708bce4a3bf5a93c425eb7fd78e98374d2805 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
 Subject: [PATCH 09/13] getinge: Add support for Getinge NetCOM v3 platform
@@ -7,9 +7,9 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  arch/arm/mach-at91/Kconfig                  |    6 +
  arch/arm/mach-at91/Makefile                 |    1 +
- arch/arm/mach-at91/board-getinge-netcomv3.c |  311 +++++++++++++++++++++++++++
+ arch/arm/mach-at91/board-getinge-netcomv3.c |  327 +++++++++++++++++++++++++++
  arch/arm/tools/mach-types                   |    1 +
- 4 files changed, 319 insertions(+), 0 deletions(-)
+ 4 files changed, 335 insertions(+), 0 deletions(-)
  create mode 100644 arch/arm/mach-at91/board-getinge-netcomv3.c
 
 diff --git a/arch/arm/mach-at91/Kconfig b/arch/arm/mach-at91/Kconfig
@@ -43,10 +43,10 @@ index a83835e..aee938d 100644
  obj-$(CONFIG_MACH_AT91CAP9ADK)	+= board-cap9adk.o
 diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
 new file mode 100644
-index 0000000..c056d8f
+index 0000000..056d529
 --- /dev/null
 +++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
-@@ -0,0 +1,311 @@
+@@ -0,0 +1,327 @@
 +/*
 + *  Board-specific setup code for the Getinge NetCOM v3
 + *  platform. Largely inspired from the board-sam9m10g45ek.c file.
@@ -100,9 +100,25 @@ index 0000000..c056d8f
 +	/* DGBU on ttyS0. (Rx & Tx only) */
 +	at91_register_uart(0, 0, 0, -EINVAL);
 +
-+	/* USART0 not connected on the -EK board */
-+	/* USART1 on ttyS2. (Rx, Tx, RTS, CTS) */
-+	at91_register_uart(AT91SAM9G45_ID_US1, 2, ATMEL_UART_CTS | ATMEL_UART_RTS, AT91_PIN_PD30);
++	/* UART0, with CTS, RTS, DTR, DSR for RS-232 on J8 */
++	at91_register_uart(AT91SAM9G45_ID_US0, 1,
++			   ATMEL_UART_CTS | ATMEL_UART_RTS | ATMEL_UART_DTR | ATMEL_UART_DSR,
++			   -EINVAL);
++
++	/* UART1, with CTS, RTS for TTL on J11 and RS485 on J6. RS485
++	   duplex selection pin is PB21 */
++	at91_register_uart(AT91SAM9G45_ID_US1, 2,
++			   ATMEL_UART_CTS | ATMEL_UART_RTS, AT91_PIN_PB21);
++
++	/* UART2, with RTS for RS-485 on J7. RS485 duplex selection
++	   pin in PB20 */
++	at91_register_uart(AT91SAM9G45_ID_US2, 3,
++			   ATMEL_UART_RTS, AT91_PIN_PB20);
++
++	/* UART3, with RTS, CTS for RS-232 on J13 */
++	at91_register_uart(AT91SAM9G45_ID_US3, 4,
++			   ATMEL_UART_CTS | ATMEL_UART_RTS,
++			   -EINVAL);
 +
 +	/* set serial console to ttyS0 (ie, DBGU) */
 +	at91_set_serial_console(0);

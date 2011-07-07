@@ -1,4 +1,4 @@
-From 5114c72593c257e8a4e3e835520cf36af9102bd2 Mon Sep 17 00:00:00 2001
+From e5ee2ca919863c3e11e1f51fc92056f9d52c6993 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:16 +0200
 Subject: [PATCH 10/13] g45adg-hwmon: new hwmon driver for AT91 ADCs
@@ -42,7 +42,7 @@ index 967d0ea..9e231b4 100644
  obj-$(CONFIG_PMBUS)		+= pmbus_core.o
 diff --git a/drivers/hwmon/g45adc-hwmon.c b/drivers/hwmon/g45adc-hwmon.c
 new file mode 100644
-index 0000000..72a0e39
+index 0000000..d99750e
 --- /dev/null
 +++ b/drivers/hwmon/g45adc-hwmon.c
 @@ -0,0 +1,450 @@
@@ -174,7 +174,7 @@ index 0000000..72a0e39
 +/* Voltage scaling for voltage dividers
 + *  mV_in = (ADC_VAL * VREF * (_R1+_R2)) / (_R2 * FS)
 + */
-+#define VREF_MV			3300
++#define VREF_MV			2500
 +#define ADC_FULL_SCALE  	0x3FF		
 +#define G45ADC_CONVERT_V(x, r1, r2) 	(x * VREF_MV * (r1 + r2)) / (r2 * ADC_FULL_SCALE)
 +
