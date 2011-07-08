@@ -1,7 +1,7 @@
-From a5e707ff60109f4cdd297c10ad8548df31dc924e Mon Sep 17 00:00:00 2001
+From e4b9ab6b623de799fa58363e9dac27684b8ff67d Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:59 +0200
-Subject: [PATCH 12/13] sam9m10g45ek: register g45adc devices
+Subject: [PATCH] sam9m10g45ek: register g45adc devices
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---

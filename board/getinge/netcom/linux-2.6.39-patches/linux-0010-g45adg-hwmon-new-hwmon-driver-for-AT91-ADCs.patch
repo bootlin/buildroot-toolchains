@@ -1,7 +1,7 @@
-From e5ee2ca919863c3e11e1f51fc92056f9d52c6993 Mon Sep 17 00:00:00 2001
+From debef9fdd756e910b9f8938b604671207992994c Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:16 +0200
-Subject: [PATCH 10/13] g45adg-hwmon: new hwmon driver for AT91 ADCs
+Subject: [PATCH] g45adg-hwmon: new hwmon driver for AT91 ADCs
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---

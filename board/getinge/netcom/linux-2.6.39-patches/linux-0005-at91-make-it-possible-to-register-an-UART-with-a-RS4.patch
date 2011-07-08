@@ -1,7 +1,7 @@
-From b523bc53848aa492665984f8489bdeca9d4bfe2b Mon Sep 17 00:00:00 2001
+From ced98a502fe2e374a8d11e7fcd561a9e07c1f7c9 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 15:07:03 +0200
-Subject: [PATCH 05/13] at91: make it possible to register an UART with a RS485 duplex pin
+Subject: [PATCH] at91: make it possible to register an UART with a RS485 duplex pin
 
 We add a new parameter to at91_register_uart() to specify an
 additional RS485 duplex pin. It's a bit unfortunate that AT91 has

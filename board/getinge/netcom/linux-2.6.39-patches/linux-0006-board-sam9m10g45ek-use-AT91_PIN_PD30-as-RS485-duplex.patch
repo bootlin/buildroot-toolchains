@@ -1,7 +1,7 @@
-From c00028c6949da1c6b09665bc21bfb6ee89857e24 Mon Sep 17 00:00:00 2001
+From f0f81a1d800d37c68d096f7ca90e5e4c89df7ebf Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 15:36:31 +0200
-Subject: [PATCH 06/13] board-sam9m10g45ek: use AT91_PIN_PD30 as RS485 duplex selector
+Subject: [PATCH] board-sam9m10g45ek: use AT91_PIN_PD30 as RS485 duplex selector
 
 The AT91_PIN_PD30 is the red LED next to the USB device connector. It
 can be used to check that the RS485 duplex functionality is working.
