@@ -1,4 +1,4 @@
-From f0f81a1d800d37c68d096f7ca90e5e4c89df7ebf Mon Sep 17 00:00:00 2001
+From c66d5bcd31dce64e474a506b213c11e2ff67a214 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 15:36:31 +0200
 Subject: [PATCH] board-sam9m10g45ek: use AT91_PIN_PD30 as RS485 duplex selector

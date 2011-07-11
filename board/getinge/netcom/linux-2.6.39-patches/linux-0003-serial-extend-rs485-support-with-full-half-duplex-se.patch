@@ -1,4 +1,4 @@
-From bbcd547d59d56fb214a40ea661c663ceb5aed927 Mon Sep 17 00:00:00 2001
+From ade680aa92feab68eb06424ad416dfbb58d9bc05 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 14:33:11 +0200
 Subject: [PATCH] serial: extend rs485 support with full/half duplex selection
