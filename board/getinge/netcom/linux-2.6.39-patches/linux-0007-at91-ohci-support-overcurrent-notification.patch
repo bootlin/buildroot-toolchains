@@ -1,4 +1,4 @@
-From 61341b02023099c69119dec32af71207aa20e57a Mon Sep 17 00:00:00 2001
+From 6a99aec9c5b3611f1cda67fb6cf3892cbaa3866e Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:23:44 +0200
 Subject: [PATCH] at91-ohci: support overcurrent notification

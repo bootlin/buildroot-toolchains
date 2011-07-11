@@ -1,4 +1,4 @@
-From ca45b4f488038c60e17a10ddafb0b62579cec07a Mon Sep 17 00:00:00 2001
+From b5265bc7b005b4c03d5ed75b2fa84419a1c85b16 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Thu, 7 Jul 2011 10:29:42 +0200
 Subject: [PATCH] getinge-netcomv3: add ADC device registration
@@ -9,7 +9,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  1 files changed, 9 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
-index 056d529..3bf18db 100644
+index b25305d..f50fd0c 100644
 --- a/arch/arm/mach-at91/board-getinge-netcomv3.c
 +++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
 @@ -253,6 +253,13 @@ static struct gpio_keys_button netcom_buttons[] = {

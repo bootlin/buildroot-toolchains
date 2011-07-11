@@ -1,4 +1,4 @@
-From c3173dea5d7795f2a55a79c36d3c740988cf4dcd Mon Sep 17 00:00:00 2001
+From edf76ade45ec3eba051dceafcfdf572d71c2ad05 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:59 +0200
 Subject: [PATCH] sam9m10g45ek: register g45adc devices

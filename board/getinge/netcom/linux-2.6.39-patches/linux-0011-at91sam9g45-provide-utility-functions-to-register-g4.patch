@@ -1,4 +1,4 @@
-From 962a5c8426759114f8bb8f9eaa1f7ac891a97373 Mon Sep 17 00:00:00 2001
+From c562ca9307a4dc0c21408ae081dfb82598a5e630 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:46 +0200
 Subject: [PATCH] at91sam9g45: provide utility functions to register g45adc devices

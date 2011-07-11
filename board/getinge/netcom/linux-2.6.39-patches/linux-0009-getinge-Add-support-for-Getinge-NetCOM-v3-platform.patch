@@ -1,4 +1,4 @@
-From a64d0bd86d9e30d4b25c303396c3925a2818b5e8 Mon Sep 17 00:00:00 2001
+From 84c5b653b59551c942bbbed5bb3ae704b97bb7e0 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
 Subject: [PATCH] getinge: Add support for Getinge NetCOM v3 platform
@@ -43,7 +43,7 @@ index a83835e..aee938d 100644
  obj-$(CONFIG_MACH_AT91CAP9ADK)	+= board-cap9adk.o
 diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
 new file mode 100644
-index 0000000..056d529
+index 0000000..b25305d
 --- /dev/null
 +++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
 @@ -0,0 +1,327 @@
@@ -97,31 +97,31 @@ index 0000000..056d529
 +	/* Initialize processor: 12.000 MHz crystal */
 +	at91sam9g45_initialize(12000000);
 +
-+	/* DGBU on ttyS0. (Rx & Tx only) */
-+	at91_register_uart(0, 0, 0, -EINVAL);
++	/* DGBU on ttyS4. (Rx & Tx only) */
++	at91_register_uart(0, 4, 0, -EINVAL);
 +
-+	/* UART0, with CTS, RTS, DTR, DSR for RS-232 on J8 */
-+	at91_register_uart(AT91SAM9G45_ID_US0, 1,
++	/* UART0 on ttyS3, with CTS, RTS, DTR, DSR for RS-232 on J8 */
++	at91_register_uart(AT91SAM9G45_ID_US0, 3,
 +			   ATMEL_UART_CTS | ATMEL_UART_RTS | ATMEL_UART_DTR | ATMEL_UART_DSR,
 +			   -EINVAL);
 +
-+	/* UART1, with CTS, RTS for TTL on J11 and RS485 on J6. RS485
-+	   duplex selection pin is PB21 */
-+	at91_register_uart(AT91SAM9G45_ID_US1, 2,
++	/* UART1 on ttyS1, with CTS, RTS for TTL on J11 and RS485 on
++	   J6. RS485 duplex selection pin is PB21 */
++	at91_register_uart(AT91SAM9G45_ID_US1, 1,
 +			   ATMEL_UART_CTS | ATMEL_UART_RTS, AT91_PIN_PB21);
 +
-+	/* UART2, with RTS for RS-485 on J7. RS485 duplex selection
-+	   pin in PB20 */
-+	at91_register_uart(AT91SAM9G45_ID_US2, 3,
++	/* UART2 on ttyS2, with RTS for RS-485 on J7. RS485 duplex
++	   selection pin in PB20 */
++	at91_register_uart(AT91SAM9G45_ID_US2, 2,
 +			   ATMEL_UART_RTS, AT91_PIN_PB20);
 +
-+	/* UART3, with RTS, CTS for RS-232 on J13 */
-+	at91_register_uart(AT91SAM9G45_ID_US3, 4,
++	/* UART3 on ttyS0, with RTS, CTS for RS-232 on J13 */
++	at91_register_uart(AT91SAM9G45_ID_US3, 0,
 +			   ATMEL_UART_CTS | ATMEL_UART_RTS,
 +			   -EINVAL);
 +
-+	/* set serial console to ttyS0 (ie, DBGU) */
-+	at91_set_serial_console(0);
++	/* set serial console to ttyS4 (ie, DBGU) */
++	at91_set_serial_console(4);
 +}
 +
 +static void __init netcom_init_irq(void)

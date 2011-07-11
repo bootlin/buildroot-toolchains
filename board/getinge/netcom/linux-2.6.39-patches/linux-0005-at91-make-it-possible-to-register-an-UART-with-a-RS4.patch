@@ -1,4 +1,4 @@
-From c5337186e84b18083c83bd5a7dfd24efe9491478 Mon Sep 17 00:00:00 2001
+From 03c2effa805f5ba343c19997442ad2697d0c03ac Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 15:07:03 +0200
 Subject: [PATCH] at91: make it possible to register an UART with a RS485 duplex pin

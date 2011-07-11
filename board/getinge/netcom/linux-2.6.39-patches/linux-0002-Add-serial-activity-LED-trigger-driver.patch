@@ -1,4 +1,4 @@
-From dc47702080e694f941c65cdfb30a884a16c8f16d Mon Sep 17 00:00:00 2001
+From 815324bc8376fa9ce5ef721e1abf03b32474f7d2 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 18:09:10 +0200
 Subject: [PATCH] Add serial activity LED trigger driver

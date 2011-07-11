@@ -1,4 +1,4 @@
-From 812b3b90d0973747365cf8b188cc2c831571432d Mon Sep 17 00:00:00 2001
+From 1d36afaa34aaf3b64e640ac267e1c18f6e7bbd5f Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 16:03:09 +0200
 Subject: [PATCH] Add network activity LED trigger driver
@@ -58,7 +58,7 @@ index 39c80fc..1bc2c66 100644
  obj-$(CONFIG_LEDS_TRIGGER_GPIO)		+= ledtrig-gpio.o
 diff --git a/drivers/leds/ledtrig-network.c b/drivers/leds/ledtrig-network.c
 new file mode 100644
-index 0000000..4c48511
+index 0000000..bc6c25e
 --- /dev/null
 +++ b/drivers/leds/ledtrig-network.c
 @@ -0,0 +1,93 @@
@@ -82,7 +82,7 @@ index 0000000..4c48511
 +#include <linux/leds.h>
 +#include <linux/netdevice.h>
 +
-+#define LEDTRIG_NETWORK_ON_DURATION_MSECS 10
++#define LEDTRIG_NETWORK_ON_DURATION_MSECS 100
 +
 +static void ledtrig_network_timerfunc(unsigned long data);
 +

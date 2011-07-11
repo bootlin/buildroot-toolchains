@@ -1,4 +1,4 @@
-From c7708beb571fe5e7e3313dd2b1d894423c556aab Mon Sep 17 00:00:00 2001
+From 1a5f9ecab0ec7c421ab38988e3c25df85167ba0f Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:27:50 +0200
 Subject: [PATCH] ohci-at91: add vbus_pin_inverted platform attribute

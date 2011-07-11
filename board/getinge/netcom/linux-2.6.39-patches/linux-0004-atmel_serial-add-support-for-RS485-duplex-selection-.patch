@@ -1,4 +1,4 @@
-From 40887ecf66f182799fb3fb5303a9689268f3d644 Mon Sep 17 00:00:00 2001
+From 1fef280f50b63deb52106dae7995c8cefd897685 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 14:35:34 +0200
 Subject: [PATCH] atmel_serial: add support for RS485 duplex selection pin
