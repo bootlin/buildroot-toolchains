@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# This shell script creates /dev/gpio/<label> symbolic links to the
+# corresponding /sys/class/gpio/gpioXXX entries, to make it easy to
+# access GPIOs based on their names.
+
+mkdir /dev/gpio
+for i in /sys/class/gpio/gpio[0-9]* ; do
+        if test ! -f $i/label ; then
+                continue ;
+        fi
+        label=$(cat $i/label)
+        if test $label == "?" ; then
+                continue ;
+        fi
+        ln -sf $i /dev/gpio/$label
+done
+
