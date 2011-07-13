@@ -1,0 +1,24 @@
+U-Boot environment
+==================
+
+Common variables
+----------------
+
+setenv machid E12
+
+For TFTP/NFS booting
+--------------------
+
+setenv nfspath NFSPATH
+setenv bootargs 'console=ttyS4,115200 root=/dev/nfs nfsroot=SERVERIP:NFSPATH ip=IPADDR mtdparts=atmel_nand:3m(kernel),16m(rootfs)'
+setenv bootcmd 'tftp 70000000 uImage; bootm'
+
+For NAND booting
+----------------
+
+setenv bootargs 'console=ttyS4,115200 ubi.mtd=1 root=ubi0:rootfs mtdparts=atmel_nand:3m(kernel),16m(rootfs) rootfstype=ubifs'
+setenv bootcmd 'nboot 70000000 0 0; bootm'
+setenv flashkernel 'nand erase 0 300000; tftp 70000000 uImage; nand write 70000000 0 300000'
+setenv flashrootfs 'nand erase 300000 1300000; tftp 70000000 rootfs.ubi; nand write 70000000 300000 ${filesize}'
+setenv flashall 'run flashkernel; run flashrootfs'
+
