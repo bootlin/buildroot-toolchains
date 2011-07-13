@@ -1,4 +1,4 @@
-From b5265bc7b005b4c03d5ed75b2fa84419a1c85b16 Mon Sep 17 00:00:00 2001
+From 1b6866c6eb27c39799e631b0553511ab82ff00cc Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Thu, 7 Jul 2011 10:29:42 +0200
 Subject: [PATCH] getinge-netcomv3: add ADC device registration
