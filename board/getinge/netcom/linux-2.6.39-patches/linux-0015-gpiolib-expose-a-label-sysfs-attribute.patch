@@ -1,4 +1,4 @@
-From b676d40eb47d1e23817fb55048e074333426d3f1 Mon Sep 17 00:00:00 2001
+From 1dd9ee6b6b9663ce721c8fab7893adbff39b51d6 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 13 Jul 2011 16:05:31 +0200
 Subject: [PATCH] gpiolib: expose a "label" sysfs attribute

@@ -1,4 +1,4 @@
-From 0284e98f17c182e9721729dca9eb193abb0b7668 Mon Sep 17 00:00:00 2001
+From 471cea568de55bd46a6475fb975af69d39102b50 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
 Subject: [PATCH] getinge: Add support for Getinge NetCOM v3 platform
@@ -7,9 +7,9 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  arch/arm/mach-at91/Kconfig                  |    6 +
  arch/arm/mach-at91/Makefile                 |    1 +
- arch/arm/mach-at91/board-getinge-netcomv3.c |  327 +++++++++++++++++++++++++++
+ arch/arm/mach-at91/board-getinge-netcomv3.c |  288 +++++++++++++++++++++++++++
  arch/arm/tools/mach-types                   |    1 +
- 4 files changed, 335 insertions(+), 0 deletions(-)
+ 4 files changed, 296 insertions(+), 0 deletions(-)
  create mode 100644 arch/arm/mach-at91/board-getinge-netcomv3.c
 
 diff --git a/arch/arm/mach-at91/Kconfig b/arch/arm/mach-at91/Kconfig
@@ -43,10 +43,10 @@ index a83835e..aee938d 100644
  obj-$(CONFIG_MACH_AT91CAP9ADK)	+= board-cap9adk.o
 diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
 new file mode 100644
-index 0000000..b25305d
+index 0000000..914369f
 --- /dev/null
 +++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
-@@ -0,0 +1,327 @@
+@@ -0,0 +1,288 @@
 +/*
 + *  Board-specific setup code for the Getinge NetCOM v3
 + *  platform. Largely inspired from the board-sam9m10g45ek.c file.
@@ -288,52 +288,15 @@ index 0000000..b25305d
 +	},
 +};
 +
-+/*
-+ * GPIO Buttons
-+ */
-+#if defined(CONFIG_KEYBOARD_GPIO) || defined(CONFIG_KEYBOARD_GPIO_MODULE)
-+static struct gpio_keys_button netcom_buttons[] = {
-+	{	/* TST button */
-+		.code		= BTN_EXTRA,
-+		.gpio		= AT91_PIN_PE22,
-+		.active_low	= 1,
-+		.desc		= "test button",
-+		.wakeup		= 1,
-+	},
-+};
-+
-+static struct gpio_keys_platform_data netcom_button_data = {
-+	.buttons	= netcom_buttons,
-+	.nbuttons	= ARRAY_SIZE(netcom_buttons),
-+};
-+
-+static struct platform_device netcom_button_device = {
-+	.name		= "gpio-keys",
-+	.id		= -1,
-+	.num_resources	= 0,
-+	.dev		= {
-+		.platform_data	= &netcom_button_data,
-+	}
-+};
-+
-+static void __init netcom_add_device_buttons(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(netcom_buttons); i++) {
-+		at91_set_GPIO_periph(netcom_buttons[i].gpio, 1);
-+		at91_set_deglitch(netcom_buttons[i].gpio, 1);
-+	}
-+
-+	platform_device_register(&netcom_button_device);
-+}
-+#else
-+static void __init netcom_add_device_buttons(void) {}
-+#endif
-+
 +static struct gpio netcom_gpios[] = {
++	{ AT91_PIN_PE14, GPIOF_OUT_INIT_HIGH, "out1" },
++	{ AT91_PIN_PE15, GPIOF_OUT_INIT_HIGH, "out0" },
++	{ AT91_PIN_PE16, GPIOF_IN, "in1" },
++	{ AT91_PIN_PE17, GPIOF_IN, "in0" },
++	{ AT91_PIN_PE22, GPIOF_IN, "button0" },
 +	{ AT91_PIN_PE28, GPIOF_IN, "tst-mode" },
 +	{ AT91_PIN_PE29, GPIOF_IN, "spare" },
++
 +};
 +
 +static void __init netcom_board_init(void)
@@ -355,8 +318,6 @@ index 0000000..b25305d
 +	netcom_add_device_nand();
 +	/* LEDs */
 +	at91_gpio_leds(netcom_leds, ARRAY_SIZE(netcom_leds));
-+	/* Button */
-+	netcom_add_device_buttons();
 +	/* GPIOs */
 +	gpio_request_array(netcom_gpios, ARRAY_SIZE(netcom_gpios));
 +	for (i = 0; i < ARRAY_SIZE(netcom_gpios); i++) {
