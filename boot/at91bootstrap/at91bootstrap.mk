@@ -26,6 +26,9 @@ $(AT91BOOTSTRAP_DIR)/.unpacked: $(DL_DIR)/$(AT91BOOTSTRAP_SOURCE)
 
 $(AT91BOOTSTRAP_DIR)/.patched: $(AT91BOOTSTRAP_DIR)/.unpacked
 	toolchain/patch-kernel.sh $(AT91BOOTSTRAP_DIR) boot/at91bootstrap/ at91bootstrap-$(AT91BOOTSTRAP_VERSION)\*.patch
+ifneq ($(call qstrip,$(BR2_TARGET_AT91BOOTSTRAP_CUSTOM_PATCH_DIR)),)
+	toolchain/patch-kernel.sh $(AT91BOOTSTRAP_DIR) $(BR2_TARGET_AT91BOOTSTRAP_CUSTOM_PATCH_DIR) at91bootstrap-$(AT91BOOTSTRAP_VERSION)-\*.patch
+endif
 	touch $@
 
 $(AT91BOOTSTRAP_TARGET): $(AT91BOOTSTRAP_DIR)/.patched
