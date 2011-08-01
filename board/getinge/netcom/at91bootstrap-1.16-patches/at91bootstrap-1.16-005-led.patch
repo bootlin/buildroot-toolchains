@@ -1,0 +1,25 @@
+Light the CR16 LED at boot time on Getinge NetCOM platform.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:24:39.956074227 +0200
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:28:27.466074351 +0200
+@@ -68,6 +68,7 @@
+ 		{"RXD", AT91C_PIN_PB(12), 0, PIO_DEFAULT, PIO_PERIPH_A},
+ 		{"TXD", AT91C_PIN_PB(13), 0, PIO_DEFAULT, PIO_PERIPH_A},
+ #endif
++		{"CR16", AT91C_PIN_PE(21), 1, PIO_DEFAULT, PIO_OUTPUT},
+ 		{(char *) 0, 0, 0, PIO_DEFAULT, PIO_PERIPH_A},
+ 	};
+ 
+@@ -98,6 +99,8 @@
+ 	/* Configure the PIO controller */
+ 	pio_setup(hw_pio);
+ 
++	pio_set_value(AT91C_PIN_PE(21), 0);
++
+ #ifdef CFG_DEBUG
+ 	/* Enable Debug messages on the DBGU */
+ 	dbg_init(BAUDRATE(MASTER_CLOCK, 115200));

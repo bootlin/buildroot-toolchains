@@ -1,0 +1,16 @@
+Add macro that allows usage of GPIO on bank E. This is needed to
+operate with LEDs connected on bank E.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+Index: Bootstrap-v1.16/include/gpio.h
+===================================================================
+--- Bootstrap-v1.16.orig/include/gpio.h	2011-08-01 14:29:24.516074381 +0200
++++ Bootstrap-v1.16/include/gpio.h	2011-08-01 14:29:32.426074387 +0200
+@@ -68,5 +68,6 @@
+ #define	AT91C_PIN_PB(io)	(1 * PIO_NB_IO + io)
+ #define	AT91C_PIN_PC(io)	(2 * PIO_NB_IO + io)
+ #define	AT91C_PIN_PD(io)	(3 * PIO_NB_IO + io)
++#define	AT91C_PIN_PE(io)	(4 * PIO_NB_IO + io)
+ 
+ #endif /* GPIO_H_*/

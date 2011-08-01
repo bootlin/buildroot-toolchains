@@ -1,0 +1,99 @@
+This patch adds a RAM write/read test in the boot process, under the
+CFG_DEBUG configuration macro. Code written by Adeneo/Adetel hardware
+engineers, and slightly modified by Thomas Petazzoni
+<thomas.petazzoni@free-electrons.com> (test code moved to a function,
+and placed under #ifdef CFG_DEBUG).
+
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:09:08.576073723 +0200
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:15:08.546073917 +0200
+@@ -149,6 +149,77 @@
+ };
+ 
+ /*------------------------------------------------------------------------------*/
++/* \fn    ddramc_hw_test							*/
++/* \brief This function performs DDRAMC HW testing      			*/
++/*------------------------------------------------------------------------------*/
++#ifdef CFG_DEBUG
++static void ddramc_hw_test(void)
++{
++	unsigned int i=0;
++	unsigned int addr = 0;
++	unsigned int val = 0;
++	unsigned int bResult = 0;
++
++	dbg_print("Writing RAM...\r\n");
++	addr = 0;
++	for(i = 0; i < 0x2000000; i++)
++	{
++		if((i%2) == 0)
++			*(((unsigned volatile int*) (JUMP_ADDR + addr))) = 0xAAAAAAAA;
++		else
++			*(((unsigned volatile int*) (JUMP_ADDR + addr))) = 0x55555555;
++		addr += 4;
++
++		if((i%100000) == 0)
++			dbg_print("#");
++	}
++	dbg_print("\r\n");
++
++	dbg_print("Reading RAM...\r\n");
++	addr = 0;
++	for( i = 0; i < 0x2000000; i++)
++	{
++		val = (*((unsigned volatile int*) (JUMP_ADDR + addr)));
++
++		if((i%2) == 0)
++		{
++			if(val != 0xAAAAAAAA)
++			{
++				dbg_print("RAM Error...\n\r");
++				bResult++;
++			}
++		}
++		else
++		{
++			if(val != 0x55555555)
++			{
++				dbg_print("RAM Error...\n\r");
++				bResult++;
++			}
++		}
++		val = 0;
++
++		if((i%100000) == 0)
++		{
++			dbg_print("#");
++		}
++		addr += 4;
++	}
++	dbg_print("\r\n");
++
++	if(!bResult)
++	{
++		dbg_print("RAM Test OK...\r\n");
++	}
++	else
++	{
++		dbg_print("RAM Test failed...\r\n");
++		for(;;);
++	}
++}
++#endif
++
++/*------------------------------------------------------------------------------*/
+ /* \fn    ddramc_hw_init							*/
+ /* \brief This function performs DDRAMC HW initialization			*/
+ /*------------------------------------------------------------------------------*/
+@@ -168,6 +239,10 @@
+ 	
+ 	/* EBI DDRAM controller */
+ 	//ddram_init(AT91C_BASE_DDR2CP1, AT91C_EBI_CS1, &ddram_config);
++
++#ifdef CFG_DEBUG
++	ddramc_hw_test();
++#endif
+ }
+ #endif /* CFG_DDRAM */
+ 

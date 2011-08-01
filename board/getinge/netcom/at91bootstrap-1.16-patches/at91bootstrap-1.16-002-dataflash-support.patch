@@ -1,0 +1,28 @@
+This patch adds support for the AT45DB021D variant of the SPI
+Dataflash. Code written by Adeneo/Adetel hardware engineers.
+
+--- Bootstrap-v1.16.orig/driver/dataflash.c	2008-09-15 10:44:19.000000000 +0200
++++ Bootstrap-v1.16/driver/dataflash.c	2011-07-06 14:16:25.000000000 +0200
+@@ -312,6 +312,12 @@
+ 			pDf->dfDescription.page_offset = 9;
+ 			break;
+ */
++		case AT45DB021D:
++			pDf->dfDescription.pages_number = 1024;
++			pDf->dfDescription.pages_size = 264;
++			pDf->dfDescription.page_offset = 9;
++			break;
++
+ 		case AT45DB161B:
+ 			pDf->dfDescription.pages_number = 4096;
+ 			pDf->dfDescription.pages_size = 528;
+--- Bootstrap-v1.16.orig/include/dataflash.h	2008-09-26 17:20:02.000000000 +0200
++++ Bootstrap-v1.16/include/dataflash.h	2011-07-06 14:16:27.000000000 +0200
+@@ -88,6 +88,7 @@
+ /*//////////////////////////////////////////////////////////////////////////////////////////////////////*/
+ #define AT45DB011B		0x0C
+ #define AT45DB021B		0x14
++#define AT45DB021D		0x14
+ #define AT45DB041B		0x1C
+ #define AT45DB081B		0x24
+ #define AT45DB161B		0x2C

@@ -1,0 +1,45 @@
+Show the build date at boot time when CFG_DEBUG is enabled.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:15:08.546073917 +0200
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:44:50.486074885 +0200
+@@ -102,7 +102,7 @@
+ 	/* Enable Debug messages on the DBGU */
+ 	dbg_init(BAUDRATE(MASTER_CLOCK, 115200));
+ 
+-	dbg_print("Start AT91Bootstrap...\n\r");
++	dbg_print("Start AT91Bootstrap (" BUILDDATE ")...\n\r");
+ #endif /* CFG_DEBUG */
+ 
+ #ifdef CFG_DDRAM
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/dataflash/Makefile
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/dataflash/Makefile	2011-08-01 14:45:12.656074897 +0200
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/dataflash/Makefile	2011-08-01 14:45:16.646074899 +0200
+@@ -37,7 +37,8 @@
+ SIZE=$(CROSS_COMPILE)size
+ OBJCOPY=$(CROSS_COMPILE)objcopy
+ OBJDUMP=$(CROSS_COMPILE)objdump
+-CCFLAGS=-g -mcpu=arm926ej-s -O2 -Wall -D$(TARGET) -I$(INCL) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
++BUILDDATE=$(shell date +%Y-%m-%d_%H:%M:%S)
++CCFLAGS=-g -mcpu=arm926ej-s -O2 -Wall -D$(TARGET) -DBUILDDATE="\"$(BUILDDATE)\"" -I$(INCL) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
+ ASFLAGS=-g -mcpu=arm926ej-s -c -O2 -Wall -D$(TARGET) -I$(INCL) -DTOP_OF_MEM=$(TOP_OF_MEMORY)
+ 
+ # Linker flags.
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/nandflash/Makefile
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/nandflash/Makefile	2011-08-01 14:45:33.696074907 +0200
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/nandflash/Makefile	2011-08-01 14:45:36.176074909 +0200
+@@ -37,7 +37,8 @@
+ SIZE=$(CROSS_COMPILE)size
+ OBJCOPY=$(CROSS_COMPILE)objcopy
+ OBJDUMP=$(CROSS_COMPILE)objdump
+-CCFLAGS=-g -mcpu=arm926ej-s -O2 -Wall -D$(TARGET) -I$(INCL) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
++BUILDDATE=$(shell date +%Y-%m-%d_%H:%M:%S)
++CCFLAGS=-g -mcpu=arm926ej-s -O2 -Wall -D$(TARGET) -DBUILDDATE="\"$(BUILDDATE)\"" -I$(INCL) -fno-exceptions -fno-unwind-tables -fno-asynchronous-unwind-tables
+ ASFLAGS=-g -mcpu=arm926ej-s -c -O2 -Wall -D$(TARGET) -I$(INCL) -DTOP_OF_MEM=$(TOP_OF_MEMORY)
+ 
+ # Linker flags.
