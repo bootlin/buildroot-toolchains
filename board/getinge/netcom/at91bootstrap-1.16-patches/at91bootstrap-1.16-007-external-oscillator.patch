@@ -1,0 +1,76 @@
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-02 13:52:22.789372004 +0200
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-02 14:07:10.569371552 +0200
+@@ -52,6 +52,35 @@
+ }
+ 
+ #ifdef CFG_HW_INIT
++/* Switch to the external oscillator, using the procedure described in
++   section 24.5.1 of the datasheet */
++void hw_switch_ext_oscillator(void)
++{
++  unsigned int val, i;
++
++	val = readl(AT91C_BASE_SCKCR);
++	val |= AT91_SCKCR_OSC32EN;
++	writel(val, AT91C_BASE_SCKCR);
++
++	/* must wait 1000 us (6 core cycles per iteration, core is at
++	   396MHz: min 66000 loops) */
++	for (i = 0; i < 70000; i++) {
++		asm("    nop");
++	}
++
++	val |= AT91_SCKCR_OSCSEL;
++	writel(val, AT91C_BASE_SCKCR);
++
++	/* must wait 5 slow clock cycles (at 32 khz => 152us), min
++	   10032 cycles */
++	for (i = 0; i < 12000; i++) {
++		asm("    nop");
++	}
++
++	val &= ~AT91_SCKCR_RCEN;
++	writel(val, AT91C_BASE_SCKCR);
++}
++
+ /*----------------------------------------------------------------------------*/
+ /* \fn    hw_init							      */
+ /* \brief This function performs very low level HW initialization	      */
+@@ -96,6 +125,8 @@
+ 	cp15 |= I_CACHE;
+ 	set_cp15(cp15);
+ 
++	hw_switch_ext_oscillator();
++
+ 	/* Configure the PIO controller */
+ 	pio_setup(hw_pio);
+ 
+Index: Bootstrap-v1.16/include/AT91SAM9G45_inc.h
+===================================================================
+--- Bootstrap-v1.16.orig/include/AT91SAM9G45_inc.h	2011-08-02 13:54:13.529371948 +0200
++++ Bootstrap-v1.16/include/AT91SAM9G45_inc.h	2011-08-02 13:57:54.519371835 +0200
+@@ -1533,6 +1533,14 @@
+ #define AT91C_WDTC_WDERR          (0x1 <<  1) // (WDTC) Watchdog Error
+ 
+ // *****************************************************************************
++//              SOFTWARE API DEFINITION  FOR SCKCR
++// *****************************************************************************
++#define AT91_SCKCR_RCEN           (1 << 0)
++#define AT91_SCKCR_OSC32EN        (1 << 1)
++#define AT91_SCKCR_OSC32BYP       (1 << 2)
++#define AT91_SCKCR_OSCSEL         (1 << 3)
++
++// *****************************************************************************
+ //              SOFTWARE API DEFINITION  FOR Real-time Clock Alarm and Parallel Load Interface
+ // *****************************************************************************
+ // *** Register offset in AT91S_RTC structure ***
+@@ -6201,6 +6209,7 @@
+ #define AT91C_BASE_RTTC           (0xFFFFFD20) // (RTTC) Base Address
+ #define AT91C_BASE_PITC           (0xFFFFFD30) // (PITC) Base Address
+ #define AT91C_BASE_WDTC           (0xFFFFFD40) // (WDTC) Base Address
++#define AT91C_BASE_SCKCR          (0xFFFFFD50) // (SCKCR) Base Address
+ #define AT91C_BASE_RTC            (0xFFFFFDB0) // (RTC) Base Address
+ #define AT91C_BASE_TC0            (0xFFF7C000) // (TC0) Base Address
+ #define AT91C_BASE_TC1            (0xFFF7C040) // (TC1) Base Address
