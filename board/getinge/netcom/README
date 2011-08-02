@@ -4,7 +4,12 @@ U-Boot environment
 Common variables
 ----------------
 
-setenv machid E12
+This is only needed if the U-Boot binary version from Adeneo is used:
+
+  setenv machid E12
+
+With the U-Boot binary built by Buildroot, the machine number is
+already properly set.
 
 For TFTP/NFS booting
 --------------------
@@ -22,3 +27,35 @@ setenv flashkernel 'nand erase 0 300000; tftp 70000000 uImage; nand write 700000
 setenv flashrootfs 'nand erase 300000 1300000; tftp 70000000 rootfs.ubi; nand write 70000000 300000 ${filesize}'
 setenv flashall 'run flashkernel; run flashrootfs'
 
+Reflashing AT91Bootstrap and U-Boot
+===================================
+
+Installation
+------------
+
+ *) Download and unpack the SAM-BA utility from
+    http://www.at91.com/linux4sam/bin/view/Linux4SAM/SoftwareTools
+
+ *) Copy the board/getinge/netcom/isp-extram-at91sam9g45.bin file to
+    the tcl_lib/at91sam9g45-ek/ in the SAM-BA installation.
+
+Flashing
+--------
+
+ *) Unplug the power from the NetCOM board
+
+ *) Disconnect the Dataflash chipselect jumper
+
+ *) Plug the power and the USB device cable to the NetCOM board
+
+ *) Reconnect the Dataflash chipselect jumper
+
+ *) Create a symbolic link /dev/ttyUSB0 -> /dev/ttyACM0
+    sudo ln -s /dev/ttyACM0 /dev/ttyUSB0
+
+    (this is needed because SAM-BA only recognizes ttyUSB* and ttyS*
+    while on Linux, the Atmel USB device is recognized as ttyACM*)
+
+ *) Start SAM-BA with the flashing script :
+
+    ./sam-ba /dev/ttyACM0 at91sam9g45-ekes board/getinge/netcom/samba-script.tcl
