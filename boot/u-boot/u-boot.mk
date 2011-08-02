@@ -37,9 +37,8 @@ else
 U_BOOT_BIN:=u-boot.bin
 endif
 
-MKIMAGE:=$(HOST_DIR)/usr/bin/mkimage
+U_BOOT_TARGETS:=$(BINARIES_DIR)/$(U_BOOT_BIN)
 
-U_BOOT_TARGETS:=$(BINARIES_DIR)/$(U_BOOT_BIN) $(MKIMAGE)
 U_BOOT_ARCH=$(KERNEL_ARCH)
 
 # u-boot in the past used arch=ppc for powerpc
@@ -48,13 +47,6 @@ U_BOOT_ARCH=$(KERNEL_ARCH:powerpc=ppc)
 endif
 
 U_BOOT_INC_CONF_FILE:=$(U_BOOT_DIR)/include/config.h
-
-ifeq ($(BR2_TARGET_UBOOT_TOOL_MKIMAGE),y)
-U_BOOT_TARGETS+=$(TARGET_DIR)/usr/bin/mkimage
-endif
-ifeq ($(BR2_TARGET_UBOOT_TOOL_ENV),y)
-U_BOOT_TARGETS+=$(TARGET_DIR)/usr/sbin/fw_printenv
-endif
 
 U_BOOT_CONFIGURE_OPTS += CONFIG_NOSOFTFLOAT=1
 
@@ -138,34 +130,6 @@ $(BINARIES_DIR)/$(U_BOOT_BIN): $(U_BOOT_DIR)/$(U_BOOT_BIN)
 	rm -f $(BINARIES_DIR)/$(U_BOOT_BIN)
 	cp -dpf $(U_BOOT_DIR)/$(U_BOOT_BIN) $(BINARIES_DIR)/
 
-# Build just mkimage for the host. It might have already been built by
-# the U-Boot build procedure, but mkimage may also be needed even if
-# U-Boot isn't selected in the configuration, to generate a kernel
-# uImage.
-$(MKIMAGE): $(U_BOOT_DIR)/.patched
-	mkdir -p $(@D)
-	$(MAKE) -C $(U_BOOT_DIR) CROSS_COMPILE="$(TARGET_CROSS)" ARCH=$(U_BOOT_ARCH) tools
-	cp -dpf $(U_BOOT_DIR)/tools/mkimage $(@D)
-
-# Build manually mkimage for the target
-$(TARGET_DIR)/usr/bin/mkimage: $(U_BOOT_DIR)/.configured
-	mkdir -p $(@D)
-	$(TARGET_CC) -I$(U_BOOT_DIR)/include -I$(U_BOOT_DIR)/tools \
-		-DUSE_HOSTCC -o $@ \
-		$(U_BOOT_DIR)/common/image.c \
-		$(wildcard $(addprefix $(U_BOOT_DIR)/tools/,default_image.c \
-			fit_image.c imximage.c kwbimage.c mkimage.c)) \
-		$(addprefix $(U_BOOT_DIR)/lib*/,crc32.c md5.c sha1.c) \
-		$(U_BOOT_DIR)/tools/os_support.c \
-		$(wildcard $(U_BOOT_DIR)/libfdt/fdt*.c $(U_BOOT_DIR)/lib/libfdt/fdt*.c)
-
-# Build manually fw_printenv for the target
-$(TARGET_DIR)/usr/sbin/fw_printenv: $(U_BOOT_DIR)/.configured
-	$(TARGET_CONFIGURE_OPTS) \
-		$(MAKE) HOSTCC="$(TARGET_CC)" -C $(U_BOOT_DIR) env
-	$(INSTALL) -m 0755 -D $(U_BOOT_DIR)/tools/env/fw_printenv $@
-	ln -sf fw_printenv $(TARGET_DIR)/usr/sbin/fw_setenv
-
 u-boot: $(U_BOOT_TARGETS)
 
 u-boot-clean:
@@ -188,12 +152,4 @@ u-boot-configured: $(U_BOOT_DIR)/.header_modified
 #############################################################
 ifeq ($(BR2_TARGET_UBOOT),y)
 TARGETS+=u-boot
-
-# we NEED a board name unless we're at make source
-ifeq ($(filter source,$(MAKECMDGOALS)),)
-ifeq ($(U_BOOT_BOARD_NAME),)
-$(error NO U-Boot board name set. Check your BR2_TARGET_UBOOT_BOARDNAME setting)
-endif
-endif
-
 endif
