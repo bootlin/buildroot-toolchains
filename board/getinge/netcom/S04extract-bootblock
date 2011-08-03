@@ -1,0 +1,2 @@
+#!/bin/sh
+fw_printenv | grep ^BOOTBLOCK > /etc/conf.d/bootblock

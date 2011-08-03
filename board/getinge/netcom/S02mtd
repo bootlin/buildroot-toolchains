@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# This script creates symbolic links from the name of the MTD
+# partitions to the actual devices. It allows to access the MTD
+# partitions in a numbering-independent way.
+
+mkdir -p /dev/mtd/
+for i in /sys/class/mtd/mtd* ; do
+
+    # Skip read-only devices (name ending with "ro")
+    if echo $i | grep -q "ro$" ; then
+	continue ;
+    fi
+
+    name=$(cat $i/name | sed 's/ /_/g')
+    devname=$(basename $i)
+
+    ln -sf /dev/$devname /dev/mtd/$name
+done
