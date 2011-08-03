@@ -513,6 +513,7 @@ endmenu
 
 menu "Getinge packages"
 source "package/getinge/gpbr-tool/Config.in"
+source "package/getinge/ipsetd/Config.in"
 endmenu
 
 endmenu

@@ -1,0 +1,40 @@
+#! /bin/sh
+#
+# Script to be called by ipsetd to change IP address.
+#
+
+if [ -z "$NEW_IPADDR" ]; then
+        logger -sp daemon.err "$0: NEW_IPADDR is not set!"
+        exit 1
+fi
+
+if [ -n "$NEW_IP_ANET" ]; then
+        broadcast="broadcast $NEW_IP_ANET.255.255.255"
+else
+        logger -sp daemon.warning "$0: NEW_IP_ANET is not set!"
+        broadcast=
+fi
+
+if /sbin/ifconfig $IFNAME $NEW_IPADDR netmask 255.0.0.0 $broadcast; then
+        logger -sp daemon.info "$0: Changed $IFNAME IP address to: $NEW_IPADDR"
+
+	route | grep -q "^224.0.0.0 .* eth0\$"
+	if [ $? -ne 0 ] ; then
+            route add -net 224.0.0.0 netmask 224.0.0.0 eth0 \
+                || echo "$0: route failed!" >&2
+	fi
+
+        echo HOSTNAME=$HOSTNAME > /tmp/network
+        echo IP_SETMETHOD=IPSETD >> /tmp/network
+        echo IP=$NEW_IPADDR >> /tmp/network
+        echo NETMASK=255.0.0.0 >> /tmp/network
+        echo GATEWAY= >> /tmp/network
+        echo BROADCAST=$broadcast >> /tmp/network
+        /usr/bin/unix2dos /tmp/network
+        /sbin/logusb /tmp/network network
+        rm -f /tmp/network
+        exit 0
+else
+        logger -sp daemon.err "$0: ifconfig failed to change IP address!"
+        exit 1
+fi

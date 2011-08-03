@@ -1,0 +1,36 @@
+#!/bin/sh
+
+IPSETD_OPTIONS="-i eth0 -t 120 -l 408 -e /etc/ipsetd.script"
+
+start() {
+ 	echo -n "Starting ipsetd: "
+	start-stop-daemon --start --exec /usr/sbin/ipsetd -- $IPSETD_OPTIONS
+	echo "OK"
+}
+stop() {
+	echo -n "Stopping ipsetd: "
+	start-stop-daemon --stop --oknodo --retry 5 --exec /usr/sbin/ipsetd
+	echo "OK"
+}
+restart() {
+	stop
+	start
+}
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart|reload)
+  	restart
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart}"
+	exit 1
+esac
+
+exit $?
+
