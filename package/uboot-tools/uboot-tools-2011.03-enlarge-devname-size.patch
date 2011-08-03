@@ -1,0 +1,21 @@
+Enlarge storage of device name when parsing the fw_printenv/fw_setenv
+config file
+
+While 16 bytes is enough for /dev/mtd[0-9], it is not sufficient for
+something like /dev/mtd/u-boot-env.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+Index: uboot-tools-2011.03/tools/env/fw_env.c
+===================================================================
+--- uboot-tools-2011.03.orig/tools/env/fw_env.c	2011-08-03 17:18:56.032103534 +0200
++++ uboot-tools-2011.03/tools/env/fw_env.c	2011-08-03 17:19:03.462103530 +0200
+@@ -54,7 +54,7 @@
+ 	_min1 < _min2 ? _min1 : _min2; })
+ 
+ struct envdev_s {
+-	char devname[16];		/* Device name */
++	char devname[64];		/* Device name */
+ 	ulong devoff;			/* Device offset */
+ 	ulong env_size;			/* environment size */
+ 	ulong erase_size;		/* device erase size */
