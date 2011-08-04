@@ -1,0 +1,4 @@
+config BR2_PACKAGE_RESPAWND
+	bool "respawnd"
+	help
+         respawnd daemon and utilities.
