@@ -1,2 +1,2 @@
 #!/bin/sh
-fw_printenv ethaddr | cut -f2 -d'=' > /etc/conf.d/mac
+printf "MAC=\"%s\"\n" $(fw_printenv ethaddr | cut -f2 -d'=') > /etc/conf.d/mac

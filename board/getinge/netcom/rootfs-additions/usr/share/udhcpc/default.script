@@ -1,0 +1,105 @@
+#!/bin/sh
+# udhcpc renew script
+
+info() {
+	/usr/bin/logger -p daemon.info "$0:" "$@" || \
+		echo "$0: logger failed!" >&2
+}
+
+err() {
+	/usr/bin/logger -p daemon.err "$0:" "$@" || \
+		echo "$0: logger failed!" >&2
+}
+
+if [ "$1" = deconfig ]; then
+    c=$(echo $MAC | cut -f 5 -d ':')
+    d=$(echo $MAC | cut -f 6 -d ':')
+    /sbin/zcip -q -f -r 169.254.${c}.${d} $interface /usr/share/zcip/default.script || err "$interface: ifconfig failed to configure autoip!" : exit 1
+    echo 1 > /var/run/init.d/net.$iface ||
+    err "Failed to write status to /var/run/init.d/net.$interface"
+    exit 0
+fi
+
+if [ "$1" = nak ]; then
+  info "$interface: DHCP NAK Received: \"$message\""
+	exit 0
+fi
+
+RESOLV_CONF="/etc/resolv.conf"
+
+[ -n "$broadcast" ] && BROADCAST="broadcast $broadcast"
+[ -n "$subnet" ] && NETMASK="netmask $subnet"
+
+if ! arpPingRes=`arping -f -c2 -w3 -D -I $interface $ip`; then
+  arpPingRes=`echo "$arpPingRes"  | sed -n '/\[/p' | cut -f2 -d[ | cut -f1 -d]`
+  info "Error, host with hardware address $arpPingRes already has address ${ip}."
+fi
+
+/sbin/ifconfig $interface $ip $BROADCAST $NETMASK || exit 1
+
+info "$interface: IP address: \"$ip\""
+info "$interface: Netmask: \"$subnet\""
+info "$interface: Broadcast: \"$broadcast\""
+
+if [ -n "$router" ]; then
+	while /sbin/route del default gw 0.0.0.0 dev $interface 2>/dev/null; do
+		:
+	done
+
+	for i in $router; do
+		if /sbin/route add default gw $i dev $interface; then
+			info "$interface: Default gateway: $i"
+			echo > /tmp/got_dhcp_router
+		else
+			err "$interface: Failed to add default gateway: $i"
+		fi
+	done
+
+
+fi
+
+echo -n > $RESOLV_CONF
+[ -n "$domain" ] && echo search $domain >> $RESOLV_CONF
+for i in $dns; do
+	if echo "nameserver $i" >> $RESOLV_CONF; then
+		info "DNS server: $i"
+		echo > /tmp/got_dhcp_dns
+	else
+		err "Failed to add DNS server: $i"
+	fi
+done
+
+if [ -n "$hostname" ]; then
+	if /bin/hostname "$hostname"; then
+		info "Hostname: $hostname"
+	else
+		err "Failed to set hostname: $hostname"
+	fi
+fi
+
+echo 1 > /var/run/init.d/net.$interface || \
+	err "failed to write status to /var/run/init.d/net.$interface"
+
+if [ -e /tmp/got_dhcp_dns ] && [ -e /tmp/got_dhcp_router ]; then
+	/sbin/register
+	/sbin/license
+
+	echo HOSTNAME=$hostname > /tmp/network
+	echo IP_SETMETHOD=DHCP >> /tmp/network
+	echo IP=$ip >> /tmp/network
+	echo NETMASK=$subnet >> /tmp/network
+	echo GATEWAY=$router >> /tmp/network
+	echo BROADCAST=$broadcast >> /tmp/network
+	/usr/bin/unix2dos /tmp/network
+	/sbin/logusb /tmp/network network
+	rm -f /tmp/network
+	
+	echo "[InternetShortcut]" > /tmp/weblink
+	echo "URL=http://$ip/" >> /tmp/weblink
+	/usr/bin/unix2dos /tmp/weblink
+	/sbin/logusb /tmp/weblink weblink.URL
+	rm -f /tmp/weblink
+	
+fi
+
+exit 0

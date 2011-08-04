@@ -1,0 +1,179 @@
+#!/bin/sh
+. /etc/init.d/functions.sh
+. /etc/conf.d/mac
+iface=${0##*.}
+[ -n "$iface" ] || error "$0: Must be started as net.<interface name>!"
+. /etc/conf.d/net.$iface
+
+/bin/mkdir -p /var/run/init.d || error "$0: Could not create run-directory!"
+
+start_static() {
+	[ -n "$IP" ] || end 1 "$0: IP is missing!"
+	if [ "$IP" = "none" ]; then
+		ifconfig $iface up || end $? "$0: ifconfig failed!"
+	else
+		[ -n "$NETMASK" ] || end 1 "$0: NETMASK is missing!"
+		[ -n "$BROADCAST" ] || end 1 "$0: BROADCAST is missing!"
+
+		# Set up interface using static settings.
+		ifconfig $iface $IP netmask $NETMASK broadcast $BROADCAST \
+			|| end $? "$0: ifconfig failed!"
+		information "IP address: $IP"
+		information "netmask: $NETMASK"
+		information "broadcast address: $BROADCAST"
+
+		echo HOSTNAME=$HOSTNAME > /tmp/network
+		echo IP_SETMETHOD=STATIC >> /tmp/network
+		echo IP=$IP >> /tmp/network
+		echo NETMASK=$NETMASK >> /tmp/network
+		echo GATEWAY=$GATEWAY >> /tmp/network
+		echo BROADCAST=$BROADCAST >> /tmp/network
+		/usr/bin/unix2dos /tmp/network
+		/sbin/logusb /tmp/network network
+		rm -f /tmp/network
+
+	fi
+
+	echo 1 > /var/run/init.d/net.$iface
+
+	# Default route
+	if [ -n "$GATEWAY" ]; then
+		if route -n | grep -q "^0.0.0.0[[:space:]]\+$GATEWAY .* $iface\$"
+		then
+			:
+		else
+			route del -net default 2> /dev/null
+			route add -net default gw $GATEWAY $iface \
+				|| end 1 "$0: route failed!"
+		fi
+	fi
+	information "default gateway: $GATEWAY"
+}
+
+
+set_media() {
+	if [ ! -e /bin/ethtool ]; then
+		return
+	fi
+
+	if [ -z "$MEDIA" ]; then
+		information "media: missing, using default"
+		return
+	fi
+
+	case "$MEDIA" in
+		auto)
+			ethtool_set_options="autoneg on"
+			;;
+		10baseT-HD)
+			ethtool_set_options="autoneg off speed 10 duplex half"
+			;;
+		10baseT-FD)
+			ethtool_set_options="autoneg off speed 10 duplex full"
+			;;
+		100baseTX-HD)
+			ethtool_set_options="autoneg off speed 100 duplex half"
+			;;
+		100baseTX-FD)
+			ethtool_set_options="autoneg off speed 100 duplex full"
+			;;
+		*)
+			warning "$0: Unknown media: $MEDIA"
+			return 1
+			;;
+	esac
+
+	if /bin/ethtool -s $iface $ethtool_set_options; then
+		information "media: $MEDIA"
+	else
+		warning "$0: ethtool failed!"
+		return 1
+	fi
+}
+
+case "$1" in
+	start)
+		begin "Bringing $iface up"
+
+		[ -n "$MAC" ] || end 1 "$0: MAC is missing!"
+		hwaddr=`ifconfig $iface | grep HWaddr | sed -e 's/.*\<HWaddr \([^ ]*\).*/\1/'`
+		if [ "$MAC" != "none" -a "$MAC" != "$hwaddr" ]; then
+			ifconfig $iface hw ether $MAC || \
+				end $? "$0: ifconfig failed to set " \
+				       "hardware address!"
+			information "hardware address: $MAC"
+		fi
+
+		set_media
+
+		# Always set up the static address. In case we use DHCP the
+		# static settings will be used until we get the new settings
+		# from the DHCP server.
+		start_static
+
+		information "boot protocol: $BOOTPROTO"
+		if [ "$BOOTPROTO" = dhcp ]; then
+			start_dhcp
+		fi
+
+		end $?
+		;;
+	stop)
+		begin "Bringing $iface down"
+		if [ "$BOOTPROTO" = "dhcp" ]; then
+			stop_dhcp || end $?
+		fi
+
+		# Always remove address. If we had a DHCP client running it may
+		# not have done that when we stopped it.
+		ifconfig $iface 0.0.0.0 || end $? "$0: ifconfig failed!"
+
+		echo 0 > /var/run/init.d/net.$iface
+
+		end 0
+		;;
+	restart|force-reload)
+		begin "Reconfiguring $iface"
+
+		set_media
+
+		if [ "$BOOTPROTO" = "dhcp" ]; then
+			if [ -n "$DHCP_CLIENT" ]; then
+				if check_cmd $DHCP_CLIENT; then
+					if [ "$1" = force-reload ]; then
+						information "stopping DHCP client"
+						stop_dhcp
+						start_static
+						information "starting DHCP client"
+						start_dhcp
+					else
+						information "DHCP client is running"
+					fi
+				else
+					start_dhcp
+				fi
+			else
+				end 1 "$0: BOOTPROTO is dhcp but " \
+				      "DHCP_CLIENT is not defined!"
+			fi
+		else
+			if [ -n "$DHCP_CLIENT" ]; then
+				if check_cmd $DHCP_CLIENT; then
+					stop_dhcp # Continue even if this fails.
+				fi
+			else
+				end 1 "$0: DHCP_CLIENT is not defined!"
+			fi
+
+			# Change to static IP address even if stop_dhcp failed.
+			start_static
+		fi
+
+		end $?
+		;;
+	*)
+		error "Usage: $0 start|stop|restart|force-reload"
+		;;
+esac
+
+exit 0

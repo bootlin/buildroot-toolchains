@@ -1,0 +1,66 @@
+#! /bin/sh
+
+# FIXME: If this is to work for different interfaces we cannot hardcode
+#        that we shall use eth0.
+. /etc/conf.d/net.eth0
+. /etc/conf.d/mac
+. /etc/init.d/functions.sh
+. /etc/conf.d/hostname
+
+case "$1" in
+	start|restart)
+		begin "Setting hostname"
+
+		if [ "$HOSTNAME" = "" ]; then
+		        serno=$(echo $MAC | cut -f 4-6 -d':' | sed 's/://g')
+			if [ -z "$serno" ]; then
+				warning "$0: Cannot determine serial number!"
+				HOSTNAME="Getinge"
+				information "no serial number," \
+					"using default hostname: $HOSTNAME"
+			else
+				# Add prefix to serial number and update file.
+				HOSTNAME="Getinge-$serno"
+				information "saving generated hostname:" \
+					"\"$HOSTNAME\""
+				echo "HOSTNAME=\"$HOSTNAME\"" > \
+					/etc/conf.d/hostname
+			fi
+		fi
+
+		_dhcp_restart="no"
+		if [ "$BOOTPROTO" = dhcp ]; then
+			if check_cmd $DHCP_CLIENT; then
+				# Restart dhcp - first stop:
+				_dhcp_restart="yes"
+				stop_dhcp
+			fi
+		fi
+
+		# Hostname may be empty so we must not (and will not) fail if
+		# it is.
+		hostname "$HOSTNAME" && information "hostname: \"$HOSTNAME\""
+
+		# source conf file again to get updated DHCP_CLIENT:
+		. /etc/conf.d/net.eth0
+
+		if [ "$BOOTPROTO" = dhcp ]; then
+			if [ "$_dhcp_restart" = "yes" ]; then
+				# Wait until new hostname set, then start:
+				start_dhcp
+			fi
+		fi
+
+		end $?
+		;;
+	stop)
+		begin "Removing hostname"
+		hostname "" && information "hostname: \"\""
+		end $?
+		;;
+	*)
+		error "Usage: $0 start|stop"
+		;;
+esac
+
+exit 0

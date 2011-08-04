@@ -1,0 +1,45 @@
+#!/bin/sh
+# zcip/autoip script
+
+info() {
+	/usr/bin/logger -tautoip -p daemon.info "$0:" "$@" || \
+		echo "$0: logger failed!" >&2
+}
+
+err() {
+	/usr/bin/logger -tautoip -p daemon.err "$0:" "$@" || \
+		echo "$0: logger failed!" >&2
+}
+
+case $1 in
+    init)
+	;;
+    config)
+	ifconfig $interface $ip netmask 255.255.0.0 broadcast 169.254.255.255 \
+	    || err "$interface: ifconfig failed to set device parameters!"
+	info "set $interface IP to $ip"
+
+	route | grep -q "^224.0.0.0 .* eth0\$"
+	if [ $? -ne 0 ] ; then
+	    route add -net 224.0.0.0 netmask 224.0.0.0 eth0 \
+		|| echo "$0: route failed!" >&2
+	fi
+
+	echo HOSTNAME=$HOSTNAME > /tmp/network
+	echo IP_SETMETHOD=AUTOIP >> /tmp/network
+	echo IP=$ip >> /tmp/network
+	echo NETMASK=255.255.0.0 >> /tmp/network
+	echo GATEWAY= >> /tmp/network
+	echo BROADCAST=169.254.255.255 >> /tmp/network
+	/usr/bin/unix2dos /tmp/network
+	/sbin/logusb /tmp/network network
+	rm -f /tmp/network
+	;;
+    deconfig)
+	ifconfig $iface 0.0.0.0 || end $? "$0: ifconfig failed to clear device parameters!"
+	;;
+    *)
+	err "Unrecognized Command" ;;
+esac
+
+exit 0
