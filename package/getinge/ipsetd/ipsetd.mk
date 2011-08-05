@@ -9,13 +9,11 @@ endef
 define IPSETD_INSTALL_TARGET_CMDS
 	$(INSTALL) -D $(@D)/ipsetd $(TARGET_DIR)/usr/sbin/ipsetd
 	$(INSTALL) -D $(@D)/S11ipsetd $(TARGET_DIR)/etc/init.d/S11ipsetd
-	$(INSTALL) -D $(@D)/ipsetd.script $(TARGET_DIR)/etc/ipsetd.script
 endef
 
 define IPSETD_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/sbin/ipsetd
 	rm -f $(TARGET_DIR)/etc/init.d/S11ipsetd
-	rm -f $(TARGET_DIR)/etc/ipsetd.script
 endef
 
 $(eval $(call GENTARGETS,package/getinge,ipsetd))
