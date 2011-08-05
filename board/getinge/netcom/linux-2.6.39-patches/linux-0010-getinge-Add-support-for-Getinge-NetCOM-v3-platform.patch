@@ -153,17 +153,17 @@ index 0000000..914369f
 +
 +static struct mtd_partition netcom_dataflash_partitions[] = {
 +	{
-+		.name   = "AT91Bootstrap",
++		.name   = "at91bootstrap",
 +		.offset = 0,
 +		.size   = 0x4200,
 +	},
 +	{
-+		.name   = "U-Boot environment",
++		.name   = "u-boot-env",
 +		.offset = MTDPART_OFS_NXTBLK,
 +		.size   = 0x4200,
 +	},
 +	{
-+		.name   = "U-Boot",
++		.name   = "u-boot",
 +		.offset = MTDPART_OFS_NXTBLK,
 +		.size   = MTDPART_SIZ_FULL,
 +	},
