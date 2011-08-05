@@ -12,28 +12,28 @@ err() {
 }
 
 if [ "$1" = deconfig ]; then
+    . /etc/conf.d/mac
     c=$(echo $MAC | cut -f 5 -d ':')
     d=$(echo $MAC | cut -f 6 -d ':')
     /sbin/zcip -q -f -r 169.254.${c}.${d} $interface /usr/share/zcip/default.script || err "$interface: ifconfig failed to configure autoip!" : exit 1
-    echo 1 > /var/run/init.d/net.$iface ||
-    err "Failed to write status to /var/run/init.d/net.$interface"
+    echo 1 > /var/run/init.d/net.$iface || err "Failed to write status to /var/run/init.d/net.$interface"
     exit 0
 fi
 
 if [ "$1" = nak ]; then
-  info "$interface: DHCP NAK Received: \"$message\""
-	exit 0
+    info "$interface: DHCP NAK Received: \"$message\""
+    exit 0
+fi
+
+if [ "$1" = leasefail ] ; then
+    info "$interface: DHCP lease fail"
+    exit 0
 fi
 
 RESOLV_CONF="/etc/resolv.conf"
 
 [ -n "$broadcast" ] && BROADCAST="broadcast $broadcast"
 [ -n "$subnet" ] && NETMASK="netmask $subnet"
-
-if ! arpPingRes=`arping -f -c2 -w3 -D -I $interface $ip`; then
-  arpPingRes=`echo "$arpPingRes"  | sed -n '/\[/p' | cut -f2 -d[ | cut -f1 -d]`
-  info "Error, host with hardware address $arpPingRes already has address ${ip}."
-fi
 
 /sbin/ifconfig $interface $ip $BROADCAST $NETMASK || exit 1
 
@@ -93,13 +93,13 @@ if [ -e /tmp/got_dhcp_dns ] && [ -e /tmp/got_dhcp_router ]; then
 	/usr/bin/unix2dos /tmp/network
 	/sbin/logusb /tmp/network network
 	rm -f /tmp/network
-	
+
 	echo "[InternetShortcut]" > /tmp/weblink
 	echo "URL=http://$ip/" >> /tmp/weblink
 	/usr/bin/unix2dos /tmp/weblink
 	/sbin/logusb /tmp/weblink weblink.URL
 	rm -f /tmp/weblink
-	
+
 fi
 
 exit 0
