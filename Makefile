@@ -363,7 +363,7 @@ $(TARGETS_ALL): __real_tgt_%: $(BASE_TARGETS) %
 dirs: $(DL_DIR) $(TOOLCHAIN_DIR) $(BUILD_DIR) $(STAGING_DIR) $(TARGET_DIR) \
 	$(HOST_DIR) $(BR2_DEPENDS_DIR) $(BINARIES_DIR) $(STAMP_DIR)
 
-$(BASE_TARGETS): dirs $(O)/toolchainfile.cmake
+$(BASE_TARGETS): dirs $(O)/toolchainfile.cmake $(O)/br.env $(O)/br.unenv
 
 $(BUILD_DIR)/buildroot-config/auto.conf: $(CONFIG_DIR)/.config
 	$(MAKE) $(EXTRAMAKEARGS) HOSTCC="$(HOSTCC_NOCCACHE)" HOSTCXX="$(HOSTCXX_NOCCACHE)" silentoldconfig
@@ -386,6 +386,44 @@ $(O)/toolchainfile.cmake:
 	set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)\n\
 	set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)\n\
 	set(ENV{PKG_CONFIG_SYSROOT_DIR} \"$(STAGING_DIR)\")\n\
+	" > $@
+
+$(O)/br.env:
+	@echo -en "\
+	export AR=\"$(TARGET_AR)\" \n\
+	export AS=\"$(TARGET_AS)\" \n\
+	export LD=\"$(TARGET_LD)\" \n\
+	export NM=\"$(TARGET_NM)\" \n\
+	export CC=\"$(TARGET_CC)\" \n\
+	export GCC=\"$(TARGET_CC)\" \n\
+	export CPP=\"$(TARGET_CPP)\" \n\
+	export CXX=\"$(TARGET_CXX)\" \n\
+	export RANLIB=\"$(TARGET_RANLIB)\" \n\
+	export STRIP=\"$(TARGET_STRIP)\" \n\
+	export OBJCOPY=\"$(TARGET_OBJCOPY)\" \n\
+	export OBJDUMP=\"$(TARGET_OBJDUMP)\" \n\
+	export CFLAGS=\"$(TARGET_CFLAGS)\" \n\
+	export CXXFLAGS=\"$(TARGET_CXXFLAGS)\" \n\
+	export LDFLAGS=\"$(TARGET_LDFLAGS)\" \n\
+	" > $@
+
+$(O)/br.unenv:
+	@echo -en "\
+	unset AR\n\
+	unset AS\n\
+	unset LD\n\
+	unset NM\n\
+	unset CC\n\
+	unset GCC\n\
+	unset CPP\n\
+	unset CXX\n\
+	unset RANLIB\n\
+	unset STRIP\n\
+	unset OBJCOPY\n\
+	unset OBJDUMP\n\
+	unset CFLAGS\n\
+	unset CXXFLAGS\n\
+	unset LDFLAGS\n\
 	" > $@
 
 .PHONY: all world dirs clean distclean source outputmakefile \
