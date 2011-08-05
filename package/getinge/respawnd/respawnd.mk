@@ -7,16 +7,18 @@ define RESPAWND_BUILD_CMDS
 endef
 
 define RESPAWND_INSTALL_TARGET_CMDS
-	$(INSTALL) -D $(@D)/respawnd $(TARGET_DIR)/sbin/respawnd
+	$(INSTALL) -D -m 0755 $(@D)/respawnd $(TARGET_DIR)/sbin/respawnd
 	(cd $(TARGET_DIR)/sbin;		\
 		ln -sf respawnd respawn-on;	\
 		ln -sf respawnd respawn-off)
+	$(INSTALL) -D -m 0755 $(@D)/S12respawnd $(TARGET_DIR)/etc/init.d/S12respawnd
 endef
 
 define RESPAWND_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/sbin/respawnd
 	rm -f $(TARGET_DIR)/sbin/respawn-on
 	rm -f $(TARGET_DIR)/sbin/respawn-off
+	rm -f $(TARGET_DIR)/etc/init.d/S12respawnd
 endef
 
 $(eval $(call GENTARGETS,package/getinge,respawnd))
