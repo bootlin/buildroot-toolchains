@@ -105,6 +105,7 @@ define MPLAYER_CONFIGURE_CMDS
 		--host-cc="$(HOSTCC)" \
 		--cc="$(TARGET_CC)" \
 		--as="$(TARGET_AS)" \
+		--ar="$(TARGET_AR)" \
 		--charset=UTF-8 \
 		--extra-cflags="$(TARGET_CFLAGS)" \
 		--extra-ldflags="$(TARGET_LDFLAGS)" \
