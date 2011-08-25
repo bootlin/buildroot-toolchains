@@ -1,0 +1,40 @@
+--- alsa-utils-1.0.24.2.orig/alsactl/init_utils_run.c	2011-08-25 14:28:14.293759517 +0800
++++ alsa-utils-1.0.24.2/alsactl/init_utils_run.c	2011-08-25 14:02:20.514300241 +0800
+@@ -88,8 +88,11 @@
+ 		strlcat(program, argv[0], sizeof(program));
+ 		argv[0] = program;
+ 	}
+-
++#ifdef __NOMMU__
++ 	pid = vfork();
++#else
+	pid = fork();
++#endif
+ 	switch(pid) {
+ 	case 0:
+ 		/* child closes parent ends of pipes */
+--- alsa-utils-1.0.24.2.orig/alsaloop/alsaloop.c	2011-01-31 22:19:55.000000000 +0800
++++ alsa-utils-1.0.24.2/alsaloop/alsaloop.c	2011-08-25 15:41:53.175091946 +0800
+@@ -850,14 +850,22 @@
+ 			logit(LOG_CRIT, "daemon() failed: %s\n", strerror(errno));
+ 			exit(EXIT_FAILURE);
+ 		}
++#ifdef __NOMMU__
++		i = vfork();
++#else
+ 		i = fork();
++#endif
+ 		if (i < 0) {
+ 			logit(LOG_CRIT, "fork() failed: %s\n", strerror(errno));
+ 			exit(EXIT_FAILURE);
+ 		}
+ 		if (i > 0) {
+ 			/* wait(&i); */
++#ifdef __NOMMU__
++			_exit(EXIT_SUCCESS);
++#else
+ 			exit(EXIT_SUCCESS);
++#endif
+ 		}
+ 	}
+ 
