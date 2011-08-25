@@ -1,0 +1,23 @@
+--- alsa-lib-1.0.24.1.orin/src/pcm/pcm_direct.c	2011-08-25 14:07:07.934300437 +0800
++++ alsa-lib-1.0.24.1/src/pcm/pcm_direct.c	2011-08-25 13:58:50.950050443 +0800
+@@ -425,12 +425,20 @@
+ 		return ret;
+ 	}
+ 	
++#ifdef __NOMMU__
++	ret = vfork();
++#else
+ 	ret = fork();
++#endif
+ 	if (ret < 0) {
+ 		close(dmix->server_fd);
+ 		return ret;
+ 	} else if (ret == 0) {
++#ifdef __NOMMU__
++		ret = vfork();
++#else
+ 		ret = fork();
++#endif
+ 		if (ret == 0)
+ 			server_job(dmix);
+ 		_exit(EXIT_SUCCESS);

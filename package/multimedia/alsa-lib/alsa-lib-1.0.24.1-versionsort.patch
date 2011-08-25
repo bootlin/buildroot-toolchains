@@ -1,0 +1,14 @@
+--- alsa-lib-1.0.24.1.orin/src/ucm/parser.c	2011-08-25 14:07:58.306470954 +0800
++++ alsa-lib-1.0.24.1/src/ucm/parser.c	2011-08-25 13:54:47.222300737 +0800
+@@ -1120,6 +1120,11 @@
+ 	return 0;
+ }
+ 
++int versionsort(const struct dirent ** src, const struct dirent ** des)
++{
++	return 1;
++}
++
+ /* scan all cards and comments */
+ int uc_mgr_scan_master_configs(const char **_list[])
+ {
