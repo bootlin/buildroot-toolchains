@@ -1,0 +1,9 @@
+config BR2_PACKAGE_FWUPGRADE
+	bool "fwupgrade"
+	# We need MTD at runtime, but these are not compile time
+	# dependencies
+	select BR2_PACKAGE_MTD
+	select BR2_PACKAGE_MTD_FLASH_ERASE
+	select BR2_PACKAGE_MTD_NANDWRITE
+	help
+         fwupgrade CGI script and utilities

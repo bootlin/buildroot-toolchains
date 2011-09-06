@@ -1,0 +1,19 @@
+<html>
+<body>
+<h1>NetCOM system</h1>
+
+<h2>Firmware upgrade</h2>
+
+<form action="/cgi-bin/fwupgrade-cgi" enctype="multipart/form-data" method="post">
+  <input type="file" name="Firmware"/>
+  <input type="submit" value="Upload"/>
+</form>
+
+<h2>Reset to factory defaults</h2>
+
+<form action="/cgi-bin/factory-defaults" method="post">
+  <input type="submit" value="Reset"/>
+</form>
+
+</body>
+</html>

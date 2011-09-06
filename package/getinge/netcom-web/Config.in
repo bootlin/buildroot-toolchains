@@ -1,0 +1,5 @@
+config BR2_PACKAGE_NETCOM_WEB
+       bool "netcom web interface"
+       select BR2_PACKAGE_FWUPGRADE
+       help
+         Getinge NetCOM Web interface
