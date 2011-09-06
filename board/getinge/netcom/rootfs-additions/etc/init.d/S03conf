@@ -1,0 +1,30 @@
+#!/bin/sh
+
+# This shell script mounts the conf filesystem in /etc/conf.d/. If the
+# filesystem cannot be mounted, or it is incompatible with the
+# installed root filesystem, the conf partition is reflashed with the
+# factory defaults.
+
+reflash() {
+    echo "Reflashing conf.d partition"
+    flash_erase -q /dev/mtd/conf 0 0
+    nandwrite -q -p /dev/mtd/conf /usr/share/conf.d/defaults.img
+}
+
+mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+if [ $? -ne 0 ] ; then
+    reflash
+    mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+fi
+
+if [ ! -f /etc/conf.d/version ] ; then
+    umount /etc/conf.d/
+    reflash
+    mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+fi
+
+if [ $(cat /etc/conf.d/version) != $(cat /usr/share/conf.d/version) ] ; then
+    umount /etc/conf.d/
+    reflash
+    mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+fi

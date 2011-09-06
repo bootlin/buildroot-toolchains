@@ -5,6 +5,7 @@
 # partitions in a numbering-independent way.
 
 mkdir -p /dev/mtd/
+
 for i in /sys/class/mtd/mtd* ; do
 
     # Skip read-only devices (name ending with "ro")
@@ -16,4 +17,11 @@ for i in /sys/class/mtd/mtd* ; do
     devname=$(basename $i)
 
     ln -sf /dev/$devname /dev/mtd/$name
+done
+
+mkdir -p /dev/mtdblk/
+for i in /sys/class/block/mtdblock* ; do
+    name=$(cat $i/device/name | sed 's/ /_/g')
+    devname=$(basename $i)
+    ln -sf /dev/$devname /dev/mtdblk/$name
 done
