@@ -24,11 +24,11 @@ For NAND booting
 setenv basebootargs 'console=ttyS4,115200 root=ubi0:rootfs mtdparts=atmel_nand:4m(kernel1),32m(rootfs1),4m(kernel2),32m(rootfs2),4m(conf) rootfstype=ubifs'
 setenv kernel_mtdpart 'mtd0'
 setenv rootfs_mtdpart 'mtd1'
-setenv loadkernel 'if test "${kernel_mtdpart}" = "mtd0" ; then nboot 70000000 0 0 ; else nboot 70000000 0 2400000 ; fi'
+setenv loadkernel 'if test "${kernel_mtdpart}" = "mtd0" ; then nboot.e 70000000 0 0 ; else nboot.e 70000000 0 2400000 ; fi'
 setenv setbootargs 'if test "${rootfs_mtdpart}" = "mtd1" ; then setenv bootargs ubi.mtd=1 ${basebootargs} ; else setenv bootargs ubi.mtd=3 ${basebootargs} ; fi'
 setenv bootcmd 'run loadkernel; run setbootargs; bootm'
-setenv flashkernel 'nand erase 0 400000; tftp 70000000 uImage; nand write 70000000 0 400000; setenv kernel_mtdpart mtd0'
-setenv flashrootfs 'nand erase 400000 2400000; tftp 70000000 rootfs.ubi; nand write 70000000 400000 ${filesize}; setenv rootfs_mtdpart mtd1'
+setenv flashkernel 'nand erase 0 400000; tftp 70000000 uImage; nand write.e 70000000 0 400000; setenv kernel_mtdpart mtd0'
+setenv flashrootfs 'nand erase 400000 2400000; tftp 70000000 rootfs.ubi; nand write.e 70000000 400000 ${filesize}; setenv rootfs_mtdpart mtd1'
 setenv eraseconfig 'nand erase 0x4800000 0x400000'
 setenv flashall 'run flashkernel; run flashrootfs; saveenv'
 
@@ -63,4 +63,14 @@ Flashing
 
  *) Start SAM-BA with the flashing script :
 
-    ./sam-ba /dev/ttyACM0 at91sam9g45-ekes board/getinge/netcom/samba-script.tcl
+    ./sam-ba /dev/ttyUSB0 at91sam9g45-ekes board/getinge/netcom/samba-script.tcl
+
+Generate a firmware image
+=========================
+
+./output/host/usr/bin/fwupgrade-tool -o output/images/fw.img -p kernel:./output/images/uImage -p rootfs:./output/images/rootfs.ubi -i 0x2424
+
+Start the upgrade process from the command line
+===============================================
+
+curl -F "file=@./output/images/fw.img" http://IPADDR/cgi-bin/fwupgrade-cgi
