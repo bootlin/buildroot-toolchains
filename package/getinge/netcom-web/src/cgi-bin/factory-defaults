@@ -2,6 +2,6 @@
 echo "Content-Type: text/plain"
 echo
 echo "Resetting to factory defaults"
-flash_erase /dev/mtd/conf 0 0
+rm -f /etc/conf.d/version
 echo "Rebooting"
 reboot

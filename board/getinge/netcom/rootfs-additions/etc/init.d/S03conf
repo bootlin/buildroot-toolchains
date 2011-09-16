@@ -5,26 +5,82 @@
 # installed root filesystem, the conf partition is reflashed with the
 # factory defaults.
 
+# Mountpoint of the configuration filesystem
+CONF_MNTPNT=/etc/conf.d/
+
+# Block device corresponding to the MTD partition that contains the
+# configuration
+CONF_MTDBLK=/dev/mtdblk/conf
+
+# Char device corresponding to the MTD partition that contains the
+# configuration
+CONF_MTDCHR=/dev/mtd/conf
+
+# Location of the filesystem image containing the default
+# configuration
+CONF_DEFAULT_IMAGE=/usr/share/conf.d/defaults.img
+
+# Temporary location to backup/restore persistent configuration files
+CONF_PERSISTENT_TMPDIR=/tmp/conf.d.persistent/
+
+# Configuration file that lists the persistent configuration files
+# that should be kept accross factory reset.
+CONF_PERSISTENT_CONF_FILE=/etc/persistent-files.conf
+
 reflash() {
     echo "Reflashing conf.d partition"
-    flash_erase -q /dev/mtd/conf 0 0
-    nandwrite -q -p /dev/mtd/conf /usr/share/conf.d/defaults.img
+    flash_erase -j -q $CONF_MTDCHR 0 0
+    nandwrite -q -p $CONF_MTDCHR $CONF_DEFAULT_IMAGE
 }
 
-mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+backup_persistent() {
+    echo "Backing up persistent conf.d files"
+    mkdir $CONF_PERSISTENT_TMPDIR
+    for f in $(cat $CONF_PERSISTENT_CONF_FILE) ; do
+	cp $f $CONF_PERSISTENT_TMPDIR ;
+    done
+}
+
+restore_persistent() {
+    echo "Restoring persistent conf.d files"
+    cp $CONF_PERSISTENT_TMPDIR/* $CONF_MNTPNT
+    rm -rf $CONF_PERSISTENT_TMPDIR
+}
+
+mount -t jffs2 $CONF_MTDBLK $CONF_MNTPNT
 if [ $? -ne 0 ] ; then
+    # If mounting is not possible, something is really wrong, try to
+    # recover by reflashing the partition with factory defaults.
     reflash
-    mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+    mount -t jffs2 $CONF_MTDBLK $CONF_MNTPNT
 fi
 
-if [ ! -f /etc/conf.d/version ] ; then
-    umount /etc/conf.d/
+if [ ! -f $CONF_MNTPNT/version ] ; then
+    # We can be here for two reasons:
+    #
+    # * the partition is completely empty because this is the first
+    #   time the device is being booted. In this case the
+    #   backup/restore of persistent files will not do anything since
+    #   there is nothing to back up.
+    #
+    # * the 'version' file has been removed by the factory-defaults
+    #   cgi-bin script from the web interface has an indication that
+    #   we should restore the factory defaults. In this case, backing
+    #   up and restoring the persistent files will actually be useful.
+    #
+    backup_persistent
+    umount $CONF_MNTPNT
     reflash
-    mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+    mount -t jffs2 $CONF_MTDBLK $CONF_MNTPNT
+    restore_persistent
 fi
 
-if [ $(cat /etc/conf.d/version) != $(cat /usr/share/conf.d/version) ] ; then
-    umount /etc/conf.d/
+if [ $(cat $CONF_MNTPNT/version) != $(cat /usr/share/conf.d/version) ] ; then
+    # We are here when the system has been upgraded to a version
+    # containing changes to the configuration format, so we must force
+    # a restore to the factory defaults, even for the persistent
+    # files as those might have changed.
+    umount $CONF_MNTPNT
     reflash
-    mount -t jffs2 /dev/mtdblk/conf /etc/conf.d/
+    mount -t jffs2 $CONF_MTDBLK $CONF_MNTPNT
 fi
