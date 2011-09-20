@@ -518,6 +518,7 @@ source "package/getinge/ipsetd/Config.in"
 source "package/getinge/respawnd/Config.in"
 source "package/getinge/fwupgrade/Config.in"
 source "package/getinge/netcom-web/Config.in"
+source "package/getinge/sersrvd/Config.in"
 endmenu
 
 endmenu

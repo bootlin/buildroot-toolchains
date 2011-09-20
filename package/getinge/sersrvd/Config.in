@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SERSRVD
+	bool "sersrvd"
+	help
+	  Serial-over-TCP server.
