@@ -1,0 +1,5 @@
+config BR2_PACKAGE_ETC_CONFD
+        bool "conf.d default image"
+	help
+	  This is a special package dedicated to building the default
+	  filesystem image for the /etc/conf.d/ directory.
