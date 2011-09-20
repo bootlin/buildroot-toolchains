@@ -311,6 +311,7 @@ endmenu
 endif
 
 menu "Networking"
+source "package/cgic/Config.in"
 source "package/libcgi/Config.in"
 source "package/libcgicc/Config.in"
 source "package/libcurl/Config.in"

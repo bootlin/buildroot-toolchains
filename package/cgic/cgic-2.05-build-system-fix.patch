@@ -1,0 +1,54 @@
+Index: cgic205/Makefile
+===================================================================
+--- cgic205.orig/Makefile
++++ cgic205/Makefile
+@@ -1,28 +1,36 @@
+-CFLAGS=-g -Wall
+-CC=gcc
+-AR=ar
+-RANLIB=ranlib
++CFLAGS?=-g -Wall
++CC?=gcc
++AR?=ar
++RANLIB?=ranlib
+ LIBS=-L./ -lcgic
+-
+-all: libcgic.a cgictest.cgi capture
+-
+-install: libcgic.a
+-	cp libcgic.a /usr/local/lib
+-	cp cgic.h /usr/local/include
+-	@echo libcgic.a is in /usr/local/lib. cgic.h is in /usr/local/include.
++VERSIONMAJOR=2
++VERSION=$(VERSIONMAJOR).0.5
++PREFIX?=/usr
++
++all: libcgic.a libcgic.so.$(VERSION) cgictest.cgi capture
++
++install: libcgic.a libcgic.so.$(VERSION)
++	install -D -m 0644 libcgic.a $(DESTDIR)$(PREFIX)/lib/libcgic.a
++	install -D -m 0755 libcgic.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libcgic.so.$(VERSION)
++	ln -sf libcgic.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libcgic.so.$(VERSIONMAJOR)
++	ln -sf libcgic.so.$(VERSION) $(DESTDIR)$(PREFIX)/lib/libcgic.so
++	install -D -m 0644 cgic.h $(DESTDIR)$(PREFIX)/include/cgic.h
+ 
+ libcgic.a: cgic.o cgic.h
+ 	rm -f libcgic.a
+ 	$(AR) rc libcgic.a cgic.o
+ 	$(RANLIB) libcgic.a
+ 
++libcgic.so.$(VERSION): cgic.o cgic.h
++	$(CC) $(CFLAGS) -shared -Wl,-soname,libcgic.so.$(VERSIONMAJOR) -o $@ cgic.o
++
+ #mingw32 and cygwin users: replace .cgi with .exe
+ 
+ cgictest.cgi: cgictest.o libcgic.a
+-	gcc cgictest.o -o cgictest.cgi ${LIBS}
++	$(CC) cgictest.o -o cgictest.cgi ${LIBS}
+ 
+ capture: capture.o libcgic.a
+-	gcc capture.o -o capture ${LIBS}
++	$(CC) capture.o -o capture ${LIBS}
+ 
+ clean:
+ 	rm -f *.o *.a cgictest.cgi capture

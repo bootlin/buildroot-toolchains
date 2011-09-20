@@ -1,0 +1,6 @@
+config BR2_PACKAGE_CGIC
+	bool "cgic"
+	help
+	  cgic is an ANSI C-language library for the creation of
+	  CGI-based World Wide Web applications.
+
