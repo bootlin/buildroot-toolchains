@@ -39,6 +39,10 @@ endif
 
 U_BOOT_TARGETS:=$(BINARIES_DIR)/$(U_BOOT_BIN)
 
+ifeq ($(BR2_TARGET_UBOOT_ENVIMAGE),y)
+U_BOOT_TARGETS += $(BINARIES_DIR)/u-boot-env.bin
+endif
+
 U_BOOT_ARCH=$(KERNEL_ARCH)
 
 # u-boot in the past used arch=ppc for powerpc
@@ -144,6 +148,14 @@ u-boot-source: $(DL_DIR)/$(U_BOOT_SOURCE)
 u-boot-unpacked: $(U_BOOT_DIR)/.patched
 
 u-boot-configured: $(U_BOOT_DIR)/.header_modified
+
+# U-Boot environment image
+$(BINARIES_DIR)/u-boot-env.bin: host-uboot-tools
+	$(HOST_DIR)/usr/bin/mkenvimage \
+		$(if $(BR2_TARGET_UBOOT_ENVIMAGE_REDUND),-r) 	\
+		-s $(BR2_TARGET_UBOOT_ENVIMAGE_SIZE)		\
+		-o $@						\
+		$(BR2_TARGET_UBOOT_ENVIMAGE_FILE)
 
 #############################################################
 #

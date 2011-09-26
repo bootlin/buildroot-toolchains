@@ -127,4 +127,32 @@ config BR2_TARGET_UBOOT_ETH1ADDR
 
 endif # BR2_TARGET_UBOOT_NETWORK
 
+config BR2_TARGET_UBOOT_ENVIMAGE
+        bool "generate environment image?"
+	help
+	  This option allows to generate an image of a pre-defined
+	  environment.
+
+if BR2_TARGET_UBOOT_ENVIMAGE
+
+config BR2_TARGET_UBOOT_ENVIMAGE_FILE
+        string "Path to the environment file"
+	help
+	  Path to a key=value, newline separated text file, that lists
+	  the contents of the environment.
+
+config BR2_TARGET_UBOOT_ENVIMAGE_SIZE
+        string "Environment image size"
+	help
+	  Size of the desired environment image.
+
+config BR2_TARGET_UBOOT_ENVIMAGE_REDUND
+        bool "Is 'redund' feature enabled?"
+	help
+	  This option allows to set whether the U-Boot 'REDUND'
+	  mechanism is used to replicate the environment in multiple
+	  copies.
+
+endif
+
 endif # BR2_TARGET_UBOOT
