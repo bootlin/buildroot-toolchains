@@ -11,6 +11,10 @@ This is only needed if the U-Boot binary version from Adeneo is used:
 With the U-Boot binary built by Buildroot, the machine number is
 already properly set.
 
+The MAC address also needs to be set:
+
+  setenv ethaddr xx:yy:zz:aa:bb:cc
+
 For TFTP/NFS booting
 --------------------
 
@@ -20,6 +24,10 @@ setenv bootcmd 'tftp 70000000 uImage; bootm'
 
 For NAND booting
 ----------------
+
+Note: instead of setting the environment manually, you may want to use
+the pre-generated image in output/images/u-boot-env.bin. In this case,
+don't forget that the MAC address must also be set separatly.
 
 setenv basebootargs 'console=ttyS4,115200 root=ubi0:rootfs mtdparts=atmel_nand:4m(kernel1),32m(rootfs1),4m(kernel2),32m(rootfs2),4m(conf) rootfstype=ubifs'
 setenv kernel_mtdpart 'mtd0'
