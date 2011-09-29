@@ -12,7 +12,7 @@ define NETCOM_WEB_INSTALL_TARGET_CMDS
 	install -D -m 0755 $($(PKG)_DIR_PREFIX)/netcom-web/nclic $(TARGET_DIR)/bin/nclic
 	# Needed for compatibility with the Axis device, on which
 	# haserl is installed in /bin/haserl.
-	(cd $(TARGET_DIR) ; ln -sf /usr/bin/haserl bin/haserl)
+	(cd $(TARGET_DIR) ; ln -sf ../usr/bin/haserl bin/haserl)
 endef
 
 $(eval $(call GENTARGETS,package/getinge,netcom-web))
