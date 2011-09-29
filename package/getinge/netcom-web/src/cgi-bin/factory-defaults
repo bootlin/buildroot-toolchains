@@ -1,7 +1,0 @@
-#!/bin/sh
-echo "Content-Type: text/plain"
-echo
-echo "Resetting to factory defaults"
-rm -f /etc/conf.d/version
-echo "Rebooting"
-reboot

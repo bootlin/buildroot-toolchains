@@ -5,7 +5,7 @@
 
 start() {
  	echo -n "Starting httpd: "
-	start-stop-daemon -S -q -p /var/run/httpd.pid --exec /usr/sbin/httpd -- -h /usr/share/html
+	start-stop-daemon -S -q -p /var/run/httpd.pid --exec /usr/sbin/httpd -- -h /usr/share/html -c /etc/httpd.conf
 	echo "OK"
 }
 stop() {
