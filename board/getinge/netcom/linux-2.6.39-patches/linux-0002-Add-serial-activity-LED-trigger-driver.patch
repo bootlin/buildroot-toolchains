@@ -1,4 +1,4 @@
-From 815324bc8376fa9ce5ef721e1abf03b32474f7d2 Mon Sep 17 00:00:00 2001
+From 40b10a7bddc28601221bd69fce163e3218fdd90a Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 18:09:10 +0200
 Subject: [PATCH] Add serial activity LED trigger driver
@@ -10,12 +10,13 @@ activity LED trigger.
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
- drivers/leds/Kconfig          |    8 ++++
- drivers/leds/Makefile         |    1 +
- drivers/leds/ledtrig-serial.c |   91 +++++++++++++++++++++++++++++++++++++++++
- include/linux/leds.h          |    7 +++
- include/linux/serial_core.h   |   14 ++++++-
- 5 files changed, 120 insertions(+), 1 deletions(-)
+ drivers/leds/Kconfig              |    8 +++
+ drivers/leds/Makefile             |    1 +
+ drivers/leds/ledtrig-serial.c     |   91 +++++++++++++++++++++++++++++++++++++
+ drivers/tty/serial/atmel_serial.c |    2 +-
+ include/linux/leds.h              |    7 +++
+ include/linux/serial_core.h       |   21 ++++++++-
+ 6 files changed, 128 insertions(+), 2 deletions(-)
  create mode 100644 drivers/leds/ledtrig-serial.c
 
 diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
@@ -146,6 +147,19 @@ index 0000000..b52d240
 +MODULE_AUTHOR("Florian Fainelli <florian@openwrt.org>");
 +MODULE_DESCRIPTION("LED Serial Activity trigger");
 +MODULE_LICENSE("GPL");
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index f119d17..b989ec2 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -802,7 +802,7 @@ static void atmel_rx_from_dma(struct uart_port *port)
+ 			 */
+ 			count = head - tail;
+ 
+-			tty_insert_flip_string(tty, pdc->buf + pdc->ofs, count);
++			uart_insert_string(tty, pdc->buf + pdc->ofs, count);
+ 
+ 			dma_sync_single_for_device(port->dev, pdc->dma_addr,
+ 					pdc->dma_size, DMA_FROM_DEVICE);
 diff --git a/include/linux/leds.h b/include/linux/leds.h
 index 27bee0b..72e1295 100644
 --- a/include/linux/leds.h
@@ -165,7 +179,7 @@ index 27bee0b..72e1295 100644
  /*
   * Generic LED platform data for describing LED names and default triggers.
 diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index 758c5b0..afc52ae 100644
+index 758c5b0..1ec53f3 100644
 --- a/include/linux/serial_core.h
 +++ b/include/linux/serial_core.h
 @@ -21,6 +21,7 @@
@@ -203,6 +217,20 @@ index 758c5b0..afc52ae 100644
  	if ((status & port->ignore_status_mask & ~overrun) == 0)
  		tty_insert_flip_char(tty, ch, flag);
  
+@@ -601,6 +613,13 @@ uart_insert_char(struct uart_port *port, unsigned int status,
+ 		tty_insert_flip_char(tty, 0, TTY_OVERRUN);
+ }
+ 
++static inline int
++uart_insert_string(struct uart_port *port, const unsigned char *chars, size_t size)
++{
++	ledtrig_serial_rx_activity();
++	return tty_insert_flip_string(port->state->port.tty, chars, size);
++}
++
+ /*
+  *	UART_ENABLE_MS - determine if port should enable modem status irqs
+  */
 -- 
 1.7.4.1
 
