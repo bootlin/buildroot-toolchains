@@ -4,7 +4,7 @@ rootfs_mtdpart=mtd1
 loadkernel=if test "${kernel_mtdpart}" = "mtd0" ; then nboot.e 70000000 0 0 ; else nboot.e 70000000 0 2400000 ; fi
 setbootargs=if test "${rootfs_mtdpart}" = "mtd1" ; then setenv bootargs ubi.mtd=1 ${basebootargs} ; else setenv bootargs ubi.mtd=3 ${basebootargs} ; fi
 bootcmd=run loadkernel; run setbootargs; bootm
-flashkernel=nand erase 0 400000; tftp 70000000 uImage; nand write.e 70000000 0 400000; setenv kernel_mtdpart mtd0
-flashrootfs=nand erase 400000 2400000; tftp 70000000 rootfs.ubi; nand write.e 70000000 400000 ${filesize}; setenv rootfs_mtdpart mtd1
+flashkernel=if tftp 70000000 uImage; then nand erase 0 400000; nand write.e 70000000 0 400000; setenv kernel_mtdpart mtd0; fi
+flashrootfs=if tftp 70000000 rootfs.ubi; then nand erase 400000 2400000; nand write.e 70000000 400000 ${filesize}; setenv rootfs_mtdpart mtd1; fi
 eraseconfig=nand erase 0x4800000 0x400000
 flashall=run flashkernel; run flashrootfs; saveenv
