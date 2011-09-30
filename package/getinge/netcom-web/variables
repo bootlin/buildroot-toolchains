@@ -1,0 +1,6 @@
+MOUNT="mount -t jffs2 /dev/flash2 /mnt/flash -o noauto"
+RELEASE="Getinge NetCOM STANDARD 4+16 V1.2 release 2.00"
+BUILD="58"
+BUILDTIME="May 10 2011 10:31"
+PART="00000"
+SWNUM="02100012"
