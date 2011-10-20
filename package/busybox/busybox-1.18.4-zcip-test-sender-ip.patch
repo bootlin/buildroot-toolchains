@@ -1,0 +1,67 @@
+zcip: test sender IP address when detecting conflicts
+
+The RFC 5227 suggests that:
+
+   In addition, if during this period the host receives any ARP Probe
+   where the packet's 'target IP address' is the address being probed
+   for, and the packet's 'sender hardware address' is not the hardware
+   address of any of the host's interfaces, then the host SHOULD
+   similarly treat this as an address conflict and signal an error to
+   the configuring agent as above.  This can occur if two (or more)
+   hosts have, for whatever reason, been inadvertently configured with
+   the same address, and both are simultaneously in the process of
+   probing that address to see if it can safely be used.
+
+The Busybox zcip applet implements this, but with the following
+drawback: if another host is doing a normal ARP request for the IP
+address currently being probed by zcip, then zcip thinks this IP
+address is in use and gives up. This is because zcip thinks that since
+someone is going an ARP request with a target IP address equal to the
+IP address it is currently trying to probe, then, there is a
+conflict. But in fact, the ARP request might just be from an host that
+has an IP address and which is just trying to contact the machine
+running zcip which currently tries to obtain an IP address.
+
+This is a scenario that you can have with a web server on an embedded
+device with a reboot CGI script and a Javascript that reloads the page
+every second. Once the CGI script has rebooted the embedded system,
+the web browser on the PC tries to contact the embedded system at the
+same IP address, therefore making ARP requests. When the embedded
+system boots up, zcip sees those ARP requests and therefore does not
+take the IP address suggested from the MAC address because zcip think
+there is a conflict.
+
+To separate those cases, we simply test if the sender IP address of
+the ARP request is zero or not. If it's zero, then it might be another
+host probing to see if an IP address is in use or not, and this case,
+there is a conflict. However, if it's not-zero, then the host making
+the ARP request is not probing, but only trying to reach the device.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>Index: busybox-1.18.4/networking/zcip.c
+===================================================================
+--- busybox-1.18.4.orig/networking/zcip.c
++++ busybox-1.18.4/networking/zcip.c
+@@ -319,6 +319,7 @@
+ 		struct arp_packet p;
+ 		int source_ip_conflict;
+ 		int target_ip_conflict;
++		struct in_addr zero_ip;
+ 
+ 		fds[0].fd = sock_fd;
+ 		fds[0].events = POLLIN;
+@@ -488,6 +489,7 @@
+ 
+ 			source_ip_conflict = 0;
+ 			target_ip_conflict = 0;
++			memset(& zero_ip, 0, sizeof(struct in_addr));
+ 
+ 			if (memcmp(p.arp.arp_spa, &ip.s_addr, sizeof(struct in_addr)) == 0
+ 			 && memcmp(&p.arp.arp_sha, &eth_addr, ETH_ALEN) != 0
+@@ -497,6 +499,7 @@
+ 			if (p.arp.arp_op == htons(ARPOP_REQUEST)
+ 			 && memcmp(p.arp.arp_tpa, &ip.s_addr, sizeof(struct in_addr)) == 0
+ 			 && memcmp(&p.arp.arp_tha, &eth_addr, ETH_ALEN) != 0
++			 && memcmp(&p.arp.arp_spa, &zero_ip, sizeof(struct in_addr)) == 0
+ 			) {
+ 				target_ip_conflict = 1;
+ 			}
