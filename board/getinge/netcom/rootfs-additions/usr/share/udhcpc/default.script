@@ -13,8 +13,10 @@ err() {
 
 if [ "$1" = deconfig ]; then
     . /etc/conf.d/mac
-    c=$(echo $MAC | cut -f 5 -d ':')
-    d=$(echo $MAC | cut -f 6 -d ':')
+    # Take the 5th and 6th elements of the MAC address and convert the
+    # hexadecimal values to decimal.
+    c=$((0x$(echo $MAC | cut -f 5 -d ':')))
+    d=$((0x$(echo $MAC | cut -f 6 -d ':')))
     /sbin/zcip -q -f -r 169.254.${c}.${d} $interface /usr/share/zcip/default.script || err "$interface: ifconfig failed to configure autoip!" : exit 1
     echo 1 > /var/run/init.d/net.$iface || err "Failed to write status to /var/run/init.d/net.$interface"
     exit 0
