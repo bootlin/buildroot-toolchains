@@ -1,5 +1,5 @@
 FWUPGRADE_SITE = git://gitorious.org/embedded-linux-firmware-upgrade-tool/embedded-linux-firmware-upgrade-tool.git
-FWUPGRADE_VERSION = b0cc4fd10a49c9a9fd86bec2dd61f70074b6577e
+FWUPGRADE_VERSION = master
 
 define FWUPGRADE_BUILD_CMDS
 	$(MAKE) CC="$(TARGET_CC)" HOSTCC="$(HOSTCC)" -C $(@D)
