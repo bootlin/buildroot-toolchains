@@ -179,7 +179,7 @@ $(LINUX26_BUILD_DIR)/.stamp_installed: $(LINUX26_BUILD_DIR)/.stamp_compiled
 linux linux26: host-module-init-tools $(LINUX26_DEPENDENCIES) $(LINUX26_BUILD_DIR)/.stamp_installed
 
 linux-config linux-menuconfig linux-xconfig linux-gconfig linux-nconfig linux26-menuconfig linux26-xconfig linux26-gconfig linux26-nconfig: dirs $(LINUX26_BUILD_DIR)/.stamp_configured
-	$(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_BUILD_DIR) \
+	$(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) \
 		$(subst linux-,,$(subst linux26-,,$@))
 
 # Support for rebuilding the kernel after the initramfs file list has
