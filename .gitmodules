@@ -1,5 +1,5 @@
-[submodule "linux/linux-2.6.x"]
-	path = linux/linux-2.6.x
+[submodule "linux/linux-kernel"]
+	path = linux/linux-kernel
 	url = git://nwd2cvs1.corp.analog.com/git/unreleased/linux-kernel.git
 [submodule "testsuites"]
 	path = testsuites
