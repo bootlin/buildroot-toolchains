@@ -1,11 +1,14 @@
 choice
 	prompt "Board"
-	default BR2_TARGET_ANALOGDEVICES_devonshire-ezkit
+	default BR2_TARGET_ANALOGDEVICES_bf609-ezkit
 	help
 	  Select the Blackfin core based evaluation board from Analog Devices.
 
-config BR2_TARGET_ANALOGDEVICES_devonshire-ezkit
-	bool "Devonshire Ezkit"
+config BR2_TARGET_ANALOGDEVICES_bf537-stamp
+	bool "BF537 STAMP"
+
+config BR2_TARGET_ANALOGDEVICES_bf609-ezkit
+	bool "BF609 Ezkit"
 
 endchoice
 

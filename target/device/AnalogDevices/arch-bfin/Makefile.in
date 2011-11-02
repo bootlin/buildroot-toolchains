@@ -3,8 +3,11 @@ TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_ELF_SHARED) += romfs.shared.libs.elf
 TARGETS-$(BR2_TARGET_ANALOGDEVICES_INSTALL_FLAT_SHARED) += romfs.shared.libs.flat
 TARGETS += $(TARGETS-y)
 TARGET_CFLAGS += -D__NOMMU__
-ifeq ($(BR2_TARGET_ANALOGDEVICES_devonshire-ezkit),y)
-ADI_BFIN_BOARD = devonshire-ezkit
+ifeq ($(BR2_TARGET_ANALOGDEVICES_bf537-stamp),y)
+ADI_BFIN_BOARD = bf537-stamp
+endif
+ifeq ($(BR2_TARGET_ANALOGDEVICES_bf609-ezkit),y)
+ADI_BFIN_BOARD = bf609-ezkit
 endif
 
 ADI_BFIN_PATH = target/device/AnalogDevices/arch-bfin/$(ADI_BFIN_BOARD)
