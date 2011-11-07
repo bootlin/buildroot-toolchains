@@ -1,0 +1,23 @@
+haserl: do not take an argument to -u
+
+This allows haserl 0.9.29 to be compatible with previous versions of
+haserl by not taking an argument to the -u option to enable
+upload. The compile-time upload limit is therefore taken into account.
+
+This is not suitable for upstream integration.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+
+Index: haserl-0.9.29/src/haserl.c
+===================================================================
+--- haserl-0.9.29.orig/src/haserl.c
++++ haserl-0.9.29/src/haserl.c
+@@ -142,7 +142,7 @@
+   {0, 0, 0, 0}
+ };
+ 
+-const char *gs_short_options = "+vhdu:U:H:ans:S";
++const char *gs_short_options = "+vhduU:H:ans:S";
+ 
+ /*
+  * Convert 2 char hex string into char it represents
