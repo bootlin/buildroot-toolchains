@@ -1,0 +1,5 @@
+config BR2_PACKAGE_NETCOM_CGIC
+	bool "Special cgic library for NetCOM"
+	help
+	   This is a modified version of the cgic library for NetCOM
+	   devices.
