@@ -1,4 +1,0 @@
-config BR2_PACKAGE_WEBSETUP
-	bool "websetup"
-	help
-	  CGI application to configure Getinge applications
