@@ -1,0 +1,53 @@
+config BR2_PACKAGE_NETCOM_APPS
+	bool "NetCOM applications"
+	help
+	  All NetCOM specific applications
+
+if BR2_PACKAGE_NETCOM_APPS
+
+config BR2_PACKAGE_NETCOM_APPS_DATABUFFERD
+	bool "databufferd"
+
+config BR2_PACKAGE_NETCOM_APPS_DEVCOMD
+	bool "devcomd"
+
+config BR2_PACKAGE_NETCOM_APPS_MODBUSD
+	bool "modbusd"
+
+config BR2_PACKAGE_NETCOM_APPS_NCLIC
+	bool "nclic"
+
+config BR2_PACKAGE_NETCOM_APPS_NCUTILD
+	bool "ncutild"
+
+config BR2_PACKAGE_NETCOM_APPS_NETCOMLOCATOR
+	bool "netcomlocator"
+
+config BR2_PACKAGE_NETCOM_APPS_PACS2000D
+	bool "pacs2000d"
+
+config BR2_PACKAGE_NETCOM_APPS_PACSBUFFERD
+	bool "pacsbufferd"
+
+config BR2_PACKAGE_NETCOM_APPS_PRINTLOGD
+	bool "printlogd"
+
+config BR2_PACKAGE_NETCOM_APPS_PRINTSCAND
+	bool "printscand"
+
+config BR2_PACKAGE_NETCOM_APPS_PRTUTIL
+	bool "prtutil"
+
+config BR2_PACKAGE_NETCOM_APPS_REMOTEAGENT
+	bool "remoteAgent"
+
+config BR2_PACKAGE_NETCOM_APPS_SERSRVD
+	bool "sersrvd"
+
+config BR2_PACKAGE_NETCOM_APPS_SNTPDATE
+	bool "sntpdate"
+
+config BR2_PACKAGE_NETCOM_APPS_WEBSETUP
+	bool "websetup"
+
+endif
