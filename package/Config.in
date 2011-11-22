@@ -521,7 +521,6 @@ source "package/getinge/fwupgrade/Config.in"
 source "package/getinge/netcom-web/Config.in"
 source "package/getinge/sersrvd/Config.in"
 source "package/getinge/etc-confd/Config.in"
-source "package/getinge/websetup/Config.in"
 source "package/getinge/netcom-cgic/Config.in"
 source "package/getinge/netcom-apps/Config.in"
 endmenu
