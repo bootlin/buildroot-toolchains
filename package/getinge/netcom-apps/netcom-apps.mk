@@ -21,8 +21,7 @@ NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_PRINTSCAND),printscand)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_PRTUTIL),prtutil)
 # Disabled, needs AeOSLocal.h, origin unknown
 # NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_REMOTEAGENT),remoteAgent)
-# Disabled, already packaged separatly. What to do ?
-# NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SERSRVD),sersrvd)
+NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SERSRVD),sersrvd)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SNTPDATE),sntpdate)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_WEBSETUP),websetup)
 
@@ -30,15 +29,23 @@ NETCOM_APPS_BUILD_FLAGS = 		\
 	CC="$(TARGET_CC)" 		\
 	CXX="$(TARGET_CXX)" 		\
 	LD="$(TARGET_LD)" 		\
+	AR="$(TARGET_AR)"		\
+	RANLIB="$(TARGET_RANLIB)"	\
 	CFLAGS="$(TARGET_CFLAGS)" 	\
 	CXXFLAGS="$(TARGET_CXXFLAGS)" 	\
 	LDFLAGS="$(TARGET_LDFLAGS)"	\
 	BUILDROOT=1
 
 define NETCOM_APPS_BUILD_CMDS
+	# We have a special case for sersrvd, that has a src/
+	# subdirectory
 	for app in $(NETCOM_APPS) ; do \
 		$(MAKE) -C $(@D)/$$app $(NETCOM_APPS_BUILD_FLAGS) clean || exit 1 ; \
 		$(MAKE) -C $(@D)/$$app $(NETCOM_APPS_BUILD_FLAGS) || exit 1 ; \
+		if [ $$app = "sersrvd" ] ; then \
+			$(MAKE) -C $(@D)/$$app/src $(NETCOM_APPS_BUILD_FLAGS) clean || exit 1 ; \
+			$(MAKE) -C $(@D)/$$app/src $(NETCOM_APPS_BUILD_FLAGS) || exit 1 ; \
+		fi ; \
 	done
 endef
 
@@ -48,8 +55,13 @@ NETCOM_APPS_INSTALL_FLAGS = 		\
 	INSTALL="$(INSTALL)"
 
 define NETCOM_APPS_INSTALL_TARGET_CMDS
+	# We have a special case for sersrvd, that has a src/
+	# subdirectory
 	for app in $(NETCOM_APPS) ; do \
 		$(MAKE) -C $(@D)/$$app $(NETCOM_APPS_INSTALL_FLAGS) install || exit 1 ; \
+		if [ $$app = "sersrvd" ] ; then \
+			$(MAKE) -C $(@D)/$$app/src $(NETCOM_APPS_INSTALL_FLAGS) install || exit 1 ; \
+		fi ; \
 	done
 endef
 
