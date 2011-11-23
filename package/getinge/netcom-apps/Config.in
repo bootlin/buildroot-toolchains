@@ -1,5 +1,6 @@
 config BR2_PACKAGE_NETCOM_APPS
 	bool "NetCOM applications"
+	select BR2_PACKAGE_NETCOM_CGIC
 	help
 	  All NetCOM specific applications
 
