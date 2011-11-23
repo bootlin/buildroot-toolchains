@@ -11,8 +11,8 @@ define NETCOM_CGIC_BUILD_CMDS
 endef
 
 define NETCOM_CGIC_INSTALL_STAGING_CMDS
-	install -D -m 0644 $(@D)/cgic.h $(STAGING_DIR)/usr/include/
-	install -D -m 0644 $(@D)/libcgic.a $(STAGING_DIR)/usr/lib/
+	install -D -m 0644 $(@D)/cgic.h $(STAGING_DIR)/usr/include/cgic.h
+	install -D -m 0644 $(@D)/libcgic.a $(STAGING_DIR)/usr/lib/libcgic.a
 endef
 
 $(eval $(call GENTARGETS,package/getinge,netcom-cgic))
