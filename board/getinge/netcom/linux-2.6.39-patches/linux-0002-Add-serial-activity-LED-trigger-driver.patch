@@ -1,4 +1,4 @@
-From 40b10a7bddc28601221bd69fce163e3218fdd90a Mon Sep 17 00:00:00 2001
+From 57d34bb16e1557bcb755a151163b0bf2e1121141 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 18:09:10 +0200
 Subject: [PATCH] Add serial activity LED trigger driver
@@ -148,7 +148,7 @@ index 0000000..b52d240
 +MODULE_DESCRIPTION("LED Serial Activity trigger");
 +MODULE_LICENSE("GPL");
 diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-index f119d17..b989ec2 100644
+index f119d17..2c22810 100644
 --- a/drivers/tty/serial/atmel_serial.c
 +++ b/drivers/tty/serial/atmel_serial.c
 @@ -802,7 +802,7 @@ static void atmel_rx_from_dma(struct uart_port *port)
@@ -156,7 +156,7 @@ index f119d17..b989ec2 100644
  			count = head - tail;
  
 -			tty_insert_flip_string(tty, pdc->buf + pdc->ofs, count);
-+			uart_insert_string(tty, pdc->buf + pdc->ofs, count);
++			uart_insert_string(port, pdc->buf + pdc->ofs, count);
  
  			dma_sync_single_for_device(port->dev, pdc->dma_addr,
  					pdc->dma_size, DMA_FROM_DEVICE);
