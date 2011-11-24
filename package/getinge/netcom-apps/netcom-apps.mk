@@ -62,6 +62,10 @@ define NETCOM_APPS_INSTALL_TARGET_CMDS
 			$(MAKE) -C $(@D)/$$app/src $(NETCOM_APPS_INSTALL_FLAGS) install || exit 1 ; \
 		fi ; \
 	done
+	# Put the configuration files in a separate directories, since
+	# they belong to a different filesystem.
+	mkdir -p $(BINARIES_DIR)/conf.d/
+	mv $(TARGET_DIR)/etc/conf.d/* $(BINARIES_DIR)/conf.d/
 endef
 
 $(eval $(call GENTARGETS,package/getinge,netcom-apps))
