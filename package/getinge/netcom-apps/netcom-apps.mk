@@ -7,6 +7,7 @@ define NETCOM_APPS_EXTRACT_CMDS
 	cp -a $(NETCOM_APPS_SITE)/* $(@D)/
 endef
 
+# List of apps to install
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_DATABUFFERD),databufferd)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_DEVCOMD),devcomd)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_MODBUSD),modbusd)
@@ -23,6 +24,17 @@ NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_PRTUTIL),prtutil)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SERSRVD),sersrvd)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SNTPDATE),sntpdate)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_WEBSETUP),websetup)
+
+# List of daemons that need init scripts
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_DATABUFFERD),databufferd)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_DEVCOMD),devcomd)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_MODBUSD),modbusd)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_NCUTILD),ncutild)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PACS2000D),pacs2000d)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PACSBUFFERD),pacsbufferd)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PRINTLOGD),printlogd)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PRINTSCAND),printscand)
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_SERSRVD),sersrvd)
 
 NETCOM_APPS_BUILD_FLAGS = 		\
 	CC="$(TARGET_CC)" 		\
@@ -66,6 +78,11 @@ define NETCOM_APPS_INSTALL_TARGET_CMDS
 	# they belong to a different filesystem.
 	mkdir -p $(BINARIES_DIR)/conf.d/
 	mv $(TARGET_DIR)/etc/conf.d/* $(BINARIES_DIR)/conf.d/
+	install -D -m 0755 package/getinge/netcom-apps/netcom-common \
+		 $(TARGET_DIR)/etc/init.d/netcom-common
+	for daemon in $(NETCOM_DAEMONS) ; do \
+		ln -sf netcom-common $(TARGET_DIR)/etc/init.d/S80$$daemon ; \
+	done
 endef
 
 $(eval $(call GENTARGETS,package/getinge,netcom-apps))

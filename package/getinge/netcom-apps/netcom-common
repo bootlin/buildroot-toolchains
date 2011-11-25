@@ -1,0 +1,49 @@
+#!/bin/sh
+
+# Extract the daemon name from the symbolic link used to call ourself,
+# and remove the S80 prefix.
+DAEMON=$(basename $0 | sed 's/^S80//')
+
+. /etc/init.d/functions.sh
+
+if test -f /etc/conf.d/$DAEMON.service ; then
+    . /etc/conf.d/$DAEMON.service
+else
+    enabled=0
+fi
+
+start() {
+	if test $enabled -eq 1 ; then
+	    begin "Starting $DAEMON"
+	    start_daemon /usr/bin/$DAEMON
+	    end $?
+	fi
+}
+stop() {
+	if test $enabled -eq 1 ; then
+	    begin "Stopping $DAEMON"
+	    stop_daemon /usr/bin/$DAEMON
+	    end $?
+	fi
+}
+restart() {
+        stop
+        start
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        restart
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
