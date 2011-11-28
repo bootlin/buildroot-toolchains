@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot 2011.05-00137-g2a0a439-dirty Configuration
-# Wed Nov  2 14:43:03 2011
+# Buildroot 2011.05-00140-g6c4e065-dirty Configuration
+# Mon Nov 28 15:24:40 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 # BR2_arm is not set
@@ -462,7 +462,7 @@ BR2_PACKAGE_MTD_UBIUPDATEVOL=y
 # libarchive requires a toolchain with WCHAR support
 #
 # BR2_PACKAGE_LZO is not set
-# BR2_PACKAGE_ZLIB is not set
+BR2_PACKAGE_ZLIB=y
 
 #
 # Crypto
@@ -615,6 +615,7 @@ BR2_PACKAGE_MTD_UBIUPDATEVOL=y
 #
 # trial only, disabled, latest xenomai is for kernel 2.6.33, also not supported by latest toolchain
 #
+BR2_PACKAGE_EVENT_TEST=y
 
 #
 # Networking applications

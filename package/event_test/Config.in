@@ -1,0 +1,5 @@
+config BR2_PACKAGE_EVENT_TEST
+	bool "event test"
+	help
+	  Input event test suite
+
