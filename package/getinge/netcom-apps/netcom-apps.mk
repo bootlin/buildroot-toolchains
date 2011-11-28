@@ -8,6 +8,7 @@ define NETCOM_APPS_EXTRACT_CMDS
 endef
 
 # List of apps to install
+NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_AGS),AGS)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_DATABUFFERD),databufferd)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_DEVCOMD),devcomd)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_MODBUSD),modbusd)
@@ -26,6 +27,7 @@ NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SNTPDATE),sntpdate)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_WEBSETUP),websetup)
 
 # List of daemons that need init scripts
+NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_AGS),ags_mach_intf table_intf shuttle_intf ags_super ags_mach_intf2)
 NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_DATABUFFERD),databufferd)
 NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_DEVCOMD),devcomd)
 NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_MODBUSD),modbusd)

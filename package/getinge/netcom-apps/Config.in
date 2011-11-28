@@ -6,6 +6,9 @@ config BR2_PACKAGE_NETCOM_APPS
 
 if BR2_PACKAGE_NETCOM_APPS
 
+config BR2_PACKAGE_NETCOM_APPS_AGS
+        bool "ags"
+
 config BR2_PACKAGE_NETCOM_APPS_DATABUFFERD
 	bool "databufferd"
 
