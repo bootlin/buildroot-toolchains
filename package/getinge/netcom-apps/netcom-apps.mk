@@ -26,18 +26,6 @@ NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SERSRVD),sersrvd)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_SNTPDATE),sntpdate)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_WEBSETUP),websetup)
 
-# List of daemons that need init scripts
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_AGS),ags_mach_intf table_intf shuttle_intf ags_super ags_mach_intf2)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_DATABUFFERD),databufferd)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_DEVCOMD),devcomd)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_MODBUSD),modbusd)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_NCUTILD),ncutild)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PACS2000D),pacs2000d)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PACSBUFFERD),pacsbufferd)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PRINTLOGD),printlogd)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_PRINTSCAND),printscand)
-NETCOM_DAEMONS += $(if $(BR2_PACKAGE_NETCOM_APPS_SERSRVD),sersrvd)
-
 NETCOM_APPS_BUILD_FLAGS = 		\
 	CC="$(TARGET_CC)" 		\
 	CXX="$(TARGET_CXX)" 		\
@@ -82,8 +70,10 @@ define NETCOM_APPS_INSTALL_TARGET_CMDS
 	mv $(TARGET_DIR)/etc/conf.d/* $(BINARIES_DIR)/conf.d/
 	install -D -m 0755 package/getinge/netcom-apps/netcom-common \
 		 $(TARGET_DIR)/etc/init.d/netcom-common
-	for daemon in $(NETCOM_DAEMONS) ; do \
-		ln -sf netcom-common $(TARGET_DIR)/etc/init.d/S80$$daemon ; \
+	for daemon in `find $(@D) -name '*.startupdb'` ; do \
+		 initscript=`cat $$daemon | grep "^initscript" | sed 's/initscript="\([^"]*\)"/\1/'` ; \
+		 priority=`cat $$daemon | grep "^priority" | sed 's/priority="\([0-9]*\)"/\1/'` ; \
+		 ln -sf netcom-common $(TARGET_DIR)/etc/init.d/S$${priority}$${initscript} ; \
 	done
 endef
 

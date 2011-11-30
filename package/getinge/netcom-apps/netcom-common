@@ -2,7 +2,7 @@
 
 # Extract the daemon name from the symbolic link used to call ourself,
 # and remove the S80 prefix.
-DAEMON=$(basename $0 | sed 's/^S80//')
+DAEMON=$(basename $0 | sed 's/^S[0-9][0-9]//')
 
 . /etc/init.d/functions.sh
 
@@ -12,20 +12,30 @@ else
     enabled=0
 fi
 
-start() {
-	if test $enabled -eq 1 ; then
+manual_start() {
 	    begin "Starting $DAEMON"
 	    start_daemon /usr/bin/$DAEMON
 	    end $?
+}
+
+start() {
+	if test $enabled -eq 1 ; then
+	    manual_start
 	fi
 }
-stop() {
-	if test $enabled -eq 1 ; then
+
+manual_stop() {
 	    begin "Stopping $DAEMON"
 	    stop_daemon /usr/bin/$DAEMON
 	    end $?
+}
+
+stop() {
+	if test $enabled -eq 1 ; then
+	    manual_stop
 	fi
 }
+
 restart() {
         stop
         start
@@ -38,11 +48,17 @@ case "$1" in
   stop)
         stop
         ;;
+  manual-start)
+	manual_start
+	;;
+  manual-stop)
+	manual_stop
+	;;
   restart|reload)
         restart
         ;;
   *)
-        echo $"Usage: $0 {start|stop|restart}"
+        echo $"Usage: $0 {start|stop|manual-start|manual-stop|restart}"
         exit 1
 esac
 
