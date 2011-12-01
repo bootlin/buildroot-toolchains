@@ -1,7 +1,10 @@
 
-NETCOM_WEB_SITE = git@github.com:gsiftar/NetCOM-web.git
-NETCOM_WEB_SITE_METHOD = git
-NETCOM_WEB_VERSION = master
+NETCOM_WEB_SOURCE =
+NETCOM_WEB_SITE = $(BR2_PACKAGE_GETINGE_AXIS_SDK_PATH)/packages/netcom/web/html/
+
+define NETCOM_WEB_EXTRACT_CMDS
+	cp -a $(NETCOM_APPS_SITE)/* $(@D)/
+endef
 
 define NETCOM_WEB_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/usr/share/html/
