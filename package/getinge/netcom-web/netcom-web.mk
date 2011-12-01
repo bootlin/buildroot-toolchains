@@ -12,7 +12,6 @@ define NETCOM_WEB_INSTALL_TARGET_CMDS
 	ln -sf /usr/bin/fwupgrade-cgi $(TARGET_DIR)/usr/share/html/cgi-bin/fwupgrade-cgi
 	install -D -m 0755 $($(PKG)_DIR_PREFIX)/netcom-web/S98httpd $(TARGET_DIR)/etc/init.d/S98httpd
 	install -D -m 0644 $($(PKG)_DIR_PREFIX)/netcom-web/httpd.conf $(TARGET_DIR)/etc/httpd.conf
-	install -D -m 0755 $($(PKG)_DIR_PREFIX)/netcom-web/nclic $(TARGET_DIR)/bin/nclic
 	install -D -m 0644 $($(PKG)_DIR_PREFIX)/netcom-web/variables $(TARGET_DIR)/usr/share/release/variables
 endef
 
