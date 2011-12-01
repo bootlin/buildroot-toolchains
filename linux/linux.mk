@@ -130,11 +130,6 @@ else
 	$(call KCONFIG_DISABLE_OPT,CONFIG_AEABI,$(@D)/.config)
 endif
 ifeq ($(BR2_TARGET_ROOTFS_INITRAMFS),y)
-	# As the kernel gets compiled before root filesystems are
-	# built, we create a fake initramfs file list. It'll be
-	# replaced later by the real list, and the kernel will be
-	# rebuilt using the linux26-rebuild-with-initramfs target.
-	touch $(BINARIES_DIR)/rootfs.initramfs
 	$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config)
 	$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,\"$(BINARIES_DIR)/rootfs.initramfs\",$(@D)/.config)
 	$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_UID,0,$(@D)/.config)
@@ -156,10 +151,23 @@ endif
 # configuration has changed.
 $(LINUX26_BUILD_DIR)/.stamp_compiled: $(LINUX26_BUILD_DIR)/.stamp_configured $(LINUX26_BUILD_DIR)/.config
 	@$(call MESSAGE,"Compiling kernel")
+ifeq ($(BR2_TARGET_ROOTFS_INITRAMFS),y)
+	# Remove the any previously generated initramfs if do recompilation.
+	$(RM) -f $(BINARIES_DIR)/rootfs.initramfs
+	$(RM) -f $(@D)/usr/initramfs_data.cpio*
+	# As the kernel gets compiled before root filesystems are
+	# built, we create a fake initramfs file list. It'll be
+	# replaced later by the real list, and the kernel will be
+	# rebuilt using the linux26-rebuild-with-initramfs target.
+	touch $(BINARIES_DIR)/rootfs.initramfs
+endif
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) $(LINUX26_IMAGE_NAME)
 	@if [ $(shell grep -c "CONFIG_MODULES=y" $(LINUX26_BUILD_DIR)/.config) != 0 ] ; then 	\
 		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) modules ;	\
 	fi
+ifeq ($(BR2_TARGET_ROOTFS_INITRAMFS),y)
+	cp $(LINUX26_IMAGE_PATH) $(KERNEL_ARCH_PATH)/boot/vmImage
+endif
 	$(Q)touch $@
 
 # Installation
@@ -193,6 +201,7 @@ $(LINUX26_BUILD_DIR)/.stamp_initramfs_rebuilt: $(LINUX26_BUILD_DIR)/.stamp_insta
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) $(LINUX26_IMAGE_NAME)
 	# Copy the kernel image to its final destination
 	cp $(LINUX26_IMAGE_PATH) $(BINARIES_DIR)
+	cp $(KERNEL_ARCH_PATH)/boot/vmImage $(BINARIES_DIR)
 	$(Q)touch $@
 
 # The initramfs building code must make sure this target gets called
