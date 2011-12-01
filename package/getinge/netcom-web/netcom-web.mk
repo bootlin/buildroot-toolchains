@@ -3,7 +3,7 @@ NETCOM_WEB_SOURCE =
 NETCOM_WEB_SITE = $(BR2_PACKAGE_GETINGE_AXIS_SDK_PATH)/packages/netcom/web/html/
 
 define NETCOM_WEB_EXTRACT_CMDS
-	cp -a $(NETCOM_APPS_SITE)/* $(@D)/
+	cp -a $(NETCOM_WEB_SITE)/* $(@D)/
 endef
 
 define NETCOM_WEB_INSTALL_TARGET_CMDS
