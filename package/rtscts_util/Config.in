@@ -1,0 +1,5 @@
+config BR2_PACKAGE_RTSCTS_UTIL
+	bool "UART flow control test utility"
+	help
+	  UART flow control test utility
+
