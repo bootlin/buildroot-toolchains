@@ -1,7 +1,7 @@
 #
 # Automatically generated make config: don't edit
-# Buildroot 2011.05-00140-g6c4e065-dirty Configuration
-# Mon Nov 28 15:24:40 2011
+# Buildroot 2011.05-00144-g2598755-dirty Configuration
+# Thu Dec  8 18:40:05 2011
 #
 BR2_HAVE_DOT_CONFIG=y
 # BR2_arm is not set
@@ -616,6 +616,7 @@ BR2_PACKAGE_ZLIB=y
 # trial only, disabled, latest xenomai is for kernel 2.6.33, also not supported by latest toolchain
 #
 BR2_PACKAGE_EVENT_TEST=y
+BR2_PACKAGE_RTSCTS_UTIL=y
 
 #
 # Networking applications
