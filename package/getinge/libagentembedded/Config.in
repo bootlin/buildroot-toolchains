@@ -1,2 +1,6 @@
 config BR2_PACKAGE_LIBAGENTEMBEDDED
 	bool "libagentembedded"
+	select BR2_PACKAGE_ZLIB
+	select BR2_PACKAGE_EXPAT
+	select BR2_PACKAGE_OPENSSL
+
