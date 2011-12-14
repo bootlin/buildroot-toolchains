@@ -1,0 +1,15 @@
+Index: Bootstrap-v1.16/main.c
+===================================================================
+--- Bootstrap-v1.16.orig/main.c
++++ Bootstrap-v1.16/main.c
+@@ -79,6 +79,10 @@
+ 	linux_arg(LINUX_ARG);	/* NOT IMPLEMENTED YET */
+ #endif /* LINUX_ARG */
+ 
++#ifdef CFG_DEBUG
++	dbg_print("Jumping from AT91Bootstrap to U-Boot...\n\r");
++#endif /* CFG_DEBUG */
++
+ 	/* Jump to the Image Address */
+ 	return JUMP_ADDR;
+ }

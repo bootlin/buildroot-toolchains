@@ -1,0 +1,13 @@
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/dataflash/at91sam9m10g45ek.h
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/dataflash/at91sam9m10g45ek.h
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/dataflash/at91sam9m10g45ek.h
+@@ -93,7 +93,7 @@
+ /* ******************************************************************* */
+ /* Application Settings                                                */
+ /* ******************************************************************* */
+-#undef CFG_DEBUG
++#define CFG_DEBUG
+ #undef DEBUG
+ #undef CFG_NANDFLASH
+ 
