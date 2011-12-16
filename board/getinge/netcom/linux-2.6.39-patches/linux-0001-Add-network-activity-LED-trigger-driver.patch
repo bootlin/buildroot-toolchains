@@ -1,4 +1,4 @@
-From 1d36afaa34aaf3b64e640ac267e1c18f6e7bbd5f Mon Sep 17 00:00:00 2001
+From 1b99a4fd56633fa05c42836362638fb39a357fb6 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 16:03:09 +0200
 Subject: [PATCH] Add network activity LED trigger driver
@@ -18,10 +18,10 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  drivers/leds/Kconfig           |    9 ++++
  drivers/leds/Makefile          |    1 +
- drivers/leds/ledtrig-network.c |   93 ++++++++++++++++++++++++++++++++++++++++
+ drivers/leds/ledtrig-network.c |   99 ++++++++++++++++++++++++++++++++++++++++
  include/linux/leds.h           |    5 ++
  net/core/dev.c                 |    5 ++
- 5 files changed, 113 insertions(+), 0 deletions(-)
+ 5 files changed, 119 insertions(+), 0 deletions(-)
  create mode 100644 drivers/leds/ledtrig-network.c
 
 diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
@@ -58,10 +58,10 @@ index 39c80fc..1bc2c66 100644
  obj-$(CONFIG_LEDS_TRIGGER_GPIO)		+= ledtrig-gpio.o
 diff --git a/drivers/leds/ledtrig-network.c b/drivers/leds/ledtrig-network.c
 new file mode 100644
-index 0000000..bc6c25e
+index 0000000..969d347
 --- /dev/null
 +++ b/drivers/leds/ledtrig-network.c
-@@ -0,0 +1,93 @@
+@@ -0,0 +1,99 @@
 +/*
 + * LED Network Activity Trigger
 + * based on ledtrig-ide-disk by Richard Purdie
@@ -89,6 +89,7 @@ index 0000000..bc6c25e
 +DEFINE_LED_TRIGGER(ledtrig_network);
 +static DEFINE_TIMER(ledtrig_network_timer, ledtrig_network_timerfunc, 0, 0);
 +static int network_activity, network_lastactivity;
++static int network_next_led_state = LED_OFF;
 +
 +void ledtrig_network_activity(void)
 +{
@@ -103,10 +104,15 @@ index 0000000..bc6c25e
 +{
 +	if (network_lastactivity != network_activity) {
 +		network_lastactivity = network_activity;
-+		led_trigger_event(ledtrig_network, LED_OFF);
++		led_trigger_event(ledtrig_network, network_next_led_state);
++		if (network_next_led_state == LED_OFF)
++			network_next_led_state = LED_FULL;
++		else
++			network_next_led_state = LED_OFF;
 +		mod_timer(&ledtrig_network_timer, jiffies +
 +			  msecs_to_jiffies(LEDTRIG_NETWORK_ON_DURATION_MSECS));
 +	} else {
++		network_next_led_state = LED_OFF;
 +		led_trigger_event(ledtrig_network, LED_FULL);
 +	}
 +}

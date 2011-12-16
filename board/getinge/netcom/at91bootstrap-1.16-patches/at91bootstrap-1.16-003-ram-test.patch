@@ -6,8 +6,8 @@ and placed under #ifdef CFG_DEBUG).
 
 Index: Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
 ===================================================================
---- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:09:08.576073723 +0200
-+++ Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c	2011-08-01 14:15:08.546073917 +0200
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/at91sam9m10g45ek.c
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
 @@ -149,6 +149,77 @@
  };
  
@@ -15,7 +15,7 @@ Index: Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
 +/* \fn    ddramc_hw_test							*/
 +/* \brief This function performs DDRAMC HW testing      			*/
 +/*------------------------------------------------------------------------------*/
-+#ifdef CFG_DEBUG
++#ifdef CFG_RAM_TEST
 +static void ddramc_hw_test(void)
 +{
 +	unsigned int i=0;
@@ -91,7 +91,7 @@ Index: Bootstrap-v1.16/board/at91sam9m10g45ek/at91sam9m10g45ek.c
  	/* EBI DDRAM controller */
  	//ddram_init(AT91C_BASE_DDR2CP1, AT91C_EBI_CS1, &ddram_config);
 +
-+#ifdef CFG_DEBUG
++#ifdef CFG_RAM_TEST
 +	ddramc_hw_test();
 +#endif
  }
