@@ -1,4 +1,4 @@
-From 1b99a4fd56633fa05c42836362638fb39a357fb6 Mon Sep 17 00:00:00 2001
+From 0ca6af9f2c4d6054bc96fcda792326ea0dddff22 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 16:03:09 +0200
 Subject: [PATCH] Add network activity LED trigger driver
@@ -16,12 +16,12 @@ updated to the latest kernel, and added :
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
- drivers/leds/Kconfig           |    9 ++++
+ drivers/leds/Kconfig           |    9 +++
  drivers/leds/Makefile          |    1 +
- drivers/leds/ledtrig-network.c |   99 ++++++++++++++++++++++++++++++++++++++++
+ drivers/leds/ledtrig-network.c |  108 ++++++++++++++++++++++++++++++++++++++++
  include/linux/leds.h           |    5 ++
  net/core/dev.c                 |    5 ++
- 5 files changed, 119 insertions(+), 0 deletions(-)
+ 5 files changed, 128 insertions(+), 0 deletions(-)
  create mode 100644 drivers/leds/ledtrig-network.c
 
 diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
@@ -58,10 +58,10 @@ index 39c80fc..1bc2c66 100644
  obj-$(CONFIG_LEDS_TRIGGER_GPIO)		+= ledtrig-gpio.o
 diff --git a/drivers/leds/ledtrig-network.c b/drivers/leds/ledtrig-network.c
 new file mode 100644
-index 0000000..969d347
+index 0000000..18f7b4e
 --- /dev/null
 +++ b/drivers/leds/ledtrig-network.c
-@@ -0,0 +1,99 @@
+@@ -0,0 +1,108 @@
 +/*
 + * LED Network Activity Trigger
 + * based on ledtrig-ide-disk by Richard Purdie
@@ -90,6 +90,7 @@ index 0000000..969d347
 +static DEFINE_TIMER(ledtrig_network_timer, ledtrig_network_timerfunc, 0, 0);
 +static int network_activity, network_lastactivity;
 +static int network_next_led_state = LED_OFF;
++static int network_haslink;
 +
 +void ledtrig_network_activity(void)
 +{
@@ -102,6 +103,11 @@ index 0000000..969d347
 +
 +static void ledtrig_network_timerfunc(unsigned long data)
 +{
++	if (! network_haslink) {
++		led_trigger_event(ledtrig_network, LED_OFF);
++		return;
++	}
++
 +	if (network_lastactivity != network_activity) {
 +		network_lastactivity = network_activity;
 +		led_trigger_event(ledtrig_network, network_next_led_state);
@@ -128,11 +134,14 @@ index 0000000..969d347
 +	if (strcmp(netdev->name, "eth0"))
 +		return 0;
 +
-+	if (netif_carrier_ok(netdev))
++	if (netif_carrier_ok(netdev)) {
 +		led_trigger_event(ledtrig_network, LED_FULL);
++		network_haslink = 1;
++	}
 +	else {
 +		del_timer(&ledtrig_network_timer);
 +		led_trigger_event(ledtrig_network, LED_OFF);
++		network_haslink = 0;
 +	}
 +
 +	return 0;
