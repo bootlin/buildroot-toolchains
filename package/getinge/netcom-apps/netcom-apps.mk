@@ -7,10 +7,6 @@ ifeq ($(BR2_PACKAGE_NETCOM_APPS_REMOTEAGENT),y)
 NETCOM_APPS_DEPENDENCIES += libagentembedded
 endif
 
-define NETCOM_APPS_EXTRACT_CMDS
-	cp -a $(NETCOM_APPS_SITE)/* $(@D)/
-endef
-
 # List of apps to install
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_AGS),AGS)
 NETCOM_APPS += $(if $(BR2_PACKAGE_NETCOM_APPS_DATABUFFERD),databufferd)
@@ -40,14 +36,24 @@ NETCOM_APPS_BUILD_FLAGS = 		\
 	LDFLAGS="$(TARGET_LDFLAGS)"	\
 	BUILDROOT=1
 
-define NETCOM_APPS_BUILD_CMDS
+define NETCOM_APPS_EXTRACT_CMDS
+	cp -a $(NETCOM_APPS_SITE)/* $(@D)/
 	# We have a special case for sersrvd, that has a src/
 	# subdirectory
 	for app in $(NETCOM_APPS) ; do \
 		$(MAKE) -C $(@D)/$$app $(NETCOM_APPS_BUILD_FLAGS) clean || exit 1 ; \
-		$(MAKE) -C $(@D)/$$app $(NETCOM_APPS_BUILD_FLAGS) || exit 1 ; \
 		if [ $$app = "sersrvd" ] ; then \
 			$(MAKE) -C $(@D)/$$app/src $(NETCOM_APPS_BUILD_FLAGS) clean || exit 1 ; \
+		fi ; \
+	done
+endef
+
+define NETCOM_APPS_BUILD_CMDS
+	# We have a special case for sersrvd, that has a src/
+	# subdirectory
+	for app in $(NETCOM_APPS) ; do \
+		$(MAKE) -C $(@D)/$$app $(NETCOM_APPS_BUILD_FLAGS) || exit 1 ; \
+		if [ $$app = "sersrvd" ] ; then \
 			$(MAKE) -C $(@D)/$$app/src $(NETCOM_APPS_BUILD_FLAGS) || exit 1 ; \
 		fi ; \
 	done
