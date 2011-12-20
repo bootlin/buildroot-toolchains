@@ -20,12 +20,9 @@ CONF_MTDCHR=/dev/mtd/conf
 # configuration
 CONF_DEFAULT_IMAGE=/usr/share/conf.d/defaults.img
 
-# Temporary location to backup/restore persistent configuration files
-CONF_PERSISTENT_TMPDIR=/tmp/conf.d.persistent/
-
-# Configuration file that lists the persistent configuration files
-# that should be kept accross factory reset.
-CONF_PERSISTENT_CONF_FILE=/etc/persistent-files.conf
+# Temporary location to backup/restore configuration files that must
+# be preserved accross factory reset.
+CONF_TMPDIR=/tmp/conf.d/
 
 reflash() {
     echo "Reflashing conf.d partition"
@@ -34,21 +31,21 @@ reflash() {
 }
 
 backup_persistent() {
-    echo "Backing up persistent conf.d files"
-    mkdir $CONF_PERSISTENT_TMPDIR
-    for f in $(cat $CONF_PERSISTENT_CONF_FILE) ; do
+    echo "Backing up permanent conf.d files"
+    mkdir $CONF_TMPDIR
+    for f in /etc/conf.d/net.eth* /etc/conf.d/mac /etc/conf.d/hostname /etc/conf.d/license.dat ; do
 	if test -f $f ; then
-	    cp $f $CONF_PERSISTENT_TMPDIR ;
+	    cp $f $CONF_TMPDIR ;
 	fi
     done
 }
 
 restore_persistent() {
-    echo "Restoring persistent conf.d files"
-    if test ! -z "`ls -A $CONF_PERSISTENT_TMPDIR/`" ; then
-	cp $CONF_PERSISTENT_TMPDIR/* $CONF_MNTPNT
+    echo "Restoring permanent conf.d files"
+    if test ! -z "`ls -A $CONF_TMPDIR/`" ; then
+	cp $CONF_TMPDIR/* $CONF_MNTPNT
     fi
-    rm -rf $CONF_PERSISTENT_TMPDIR
+    rm -rf $CONF_TMPDIR
 }
 
 mount -t jffs2 $CONF_MTDBLK $CONF_MNTPNT
