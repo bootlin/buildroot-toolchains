@@ -37,13 +37,17 @@ backup_persistent() {
     echo "Backing up persistent conf.d files"
     mkdir $CONF_PERSISTENT_TMPDIR
     for f in $(cat $CONF_PERSISTENT_CONF_FILE) ; do
-	cp $f $CONF_PERSISTENT_TMPDIR ;
+	if test -f $f ; then
+	    cp $f $CONF_PERSISTENT_TMPDIR ;
+	fi
     done
 }
 
 restore_persistent() {
     echo "Restoring persistent conf.d files"
-    cp $CONF_PERSISTENT_TMPDIR/* $CONF_MNTPNT
+    if test ! -z "`ls -A $CONF_PERSISTENT_TMPDIR/`" ; then
+	cp $CONF_PERSISTENT_TMPDIR/* $CONF_MNTPNT
+    fi
     rm -rf $CONF_PERSISTENT_TMPDIR
 }
 
