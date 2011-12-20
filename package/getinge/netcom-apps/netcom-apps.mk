@@ -79,6 +79,10 @@ define NETCOM_APPS_INSTALL_TARGET_CMDS
 	if test ! -z "`ls -A $(TARGET_DIR)/etc/conf.d/`" ; then \
 		mv $(TARGET_DIR)/etc/conf.d/* $(BINARIES_DIR)/conf.d/ ; \
 	fi
+	install -D -m 0755 package/getinge/netcom-apps/S40ncutild \
+		 $(TARGET_DIR)/etc/init.d/S40ncutild
+	# Install the common init script and create the symbolic links
+	# as needed
 	install -D -m 0755 package/getinge/netcom-apps/netcom-common \
 		 $(TARGET_DIR)/etc/init.d/netcom-common
 	for daemon in `find $(@D) -name '*.startupdb'` ; do \
