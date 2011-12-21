@@ -126,4 +126,11 @@ config BR2_ROOTFS_POST_BUILD_SCRIPT
 	  only argument. Make sure the exit code of that script is 0,
 	  otherwise make will stop after calling it.
 
+config BR2_ROOTFS_POST_IMAGE_SCRIPT
+	string "Custom script to run after creating filesystem images"
+	default ""
+	help
+	  Specify a script to be run after the build has finished and after
+	  Buildroot has packed the files into selected filesystem images.
+
 endmenu

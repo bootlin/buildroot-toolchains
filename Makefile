@@ -334,6 +334,8 @@ include fs/common.mk
 
 TARGETS+=erase-fakeroots
 
+TARGETS+=post-image
+
 TARGETS_CLEAN:=$(patsubst %,%-clean,$(TARGETS))
 TARGETS_SOURCE:=$(patsubst %,%-source,$(TARGETS) $(BASE_TARGETS))
 TARGETS_DIRCLEAN:=$(patsubst %,%-dirclean,$(TARGETS))
@@ -531,6 +533,11 @@ target-purgelocales:
 			grep -qx $$lang $(LOCALE_WHITELIST) || rm -rf $$dir/$$lang; \
 		done; \
 	done
+endif
+
+post-image:
+ifneq ($(BR2_ROOTFS_POST_IMAGE_SCRIPT),)
+	$(BR2_ROOTFS_POST_IMAGE_SCRIPT) $(BINARIES_DIR)
 endif
 
 source: $(TARGETS_SOURCE) $(HOST_SOURCE)
