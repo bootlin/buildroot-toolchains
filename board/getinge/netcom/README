@@ -67,7 +67,7 @@ Flashing
 Generate a firmware image
 =========================
 
-./output/host/usr/bin/fwupgrade-tool -o output/images/fw.img -p kernel:./output/images/uImage -p rootfs:./output/images/rootfs.ubi -i 0x2424
+./output/host/usr/bin/fwupgrade-tool -o output/images/fw.img -p kernel:./output/images/uImage -p rootfs:./output/images/rootfs.jffs2 -i 0x2424
 
 Start the upgrade process from the command line
 ===============================================
