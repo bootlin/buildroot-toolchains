@@ -6,5 +6,11 @@ setbootargs=if test "${rootfs_mtdpart}" = "mtd1" ; then setenv bootargs root=/de
 bootcmd=run loadkernel; run setbootargs; bootm
 flashkernel=if tftp 70000000 uImage.netcom; then nand erase 0 400000; nand write.e 70000000 0 400000; setenv kernel_mtdpart mtd0; fi
 flashrootfs=if tftp 70000000 rootfs.jffs2.netcom; then nand erase 400000 2400000; nand write.e 70000000 400000 ${filesize}; setenv rootfs_mtdpart mtd1; fi
+flashenv=if tftp 70000000 u-boot-env.bin.netcom; then cp.b 70000000 C0004200 4200; fi
 eraseconfig=nand erase 0x4800000 0x400000
 flashall=run flashkernel; run flashrootfs; saveenv
+BOOTBLOCK_PCBSERNO=Z999999
+BOOTBLOCK_BRAND=GETINGE
+BOOTBLOCK_HWID=2012
+BOOTBLOCK_HWCONFIG=1
+BOOTBLOCK_SERNO=E4751E040643
