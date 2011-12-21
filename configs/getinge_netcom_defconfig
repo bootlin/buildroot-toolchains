@@ -7,6 +7,7 @@ BR2_TARGET_GENERIC_ISSUE="Welcome to Getinge NetCOM"
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_DEVTMPFS=y
 BR2_TARGET_GENERIC_GETTY_PORT="ttyS4"
 BR2_ROOTFS_POST_BUILD_SCRIPT="board/getinge/netcom/post-build.sh"
+BR2_ROOTFS_POST_IMAGE_SCRIPT="board/getinge/netcom/post-image.sh"
 BR2_PACKAGE_BUSYBOX_CONFIG="board/getinge/netcom/busybox-1.18.4.config"
 # BR2_PACKAGE_MTD_FLASHCP is not set
 # BR2_PACKAGE_MTD_FLASH_ERASEALL is not set
