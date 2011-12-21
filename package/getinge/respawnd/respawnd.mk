@@ -1,5 +1,9 @@
 RESPAWND_SOURCE =
-RESPAWND_VERSION = 0.1
+RESPAWND_SITE   = $(BR2_PACKAGE_GETINGE_AXIS_SDK_PATH)/apps/sys-utils/respawnd-R1_3_0/
+
+define RESPAWND_EXTRACT_CMDS
+	cp -a $(RESPAWND_SITE)/* $(@D)/
+endef
 
 define RESPAWND_BUILD_CMDS
 	(cd $(@D); \
@@ -11,7 +15,7 @@ define RESPAWND_INSTALL_TARGET_CMDS
 	(cd $(TARGET_DIR)/sbin;		\
 		ln -sf respawnd respawn-on;	\
 		ln -sf respawnd respawn-off)
-	$(INSTALL) -D -m 0755 $(@D)/S12respawnd $(TARGET_DIR)/etc/init.d/S12respawnd
+	$(INSTALL) -D -m 0755 package/getinge/respawnd/S12respawnd $(TARGET_DIR)/etc/init.d/S12respawnd
 endef
 
 define RESPAWND_UNINSTALL_TARGET_CMDS
@@ -22,9 +26,3 @@ define RESPAWND_UNINSTALL_TARGET_CMDS
 endef
 
 $(eval $(call GENTARGETS,package/getinge,respawnd))
-
-$(BUILD_DIR)/respawnd-$(RESPAWND_VERSION)/.stamp_extracted:
-	@$(call MESSAGE,"Extracting")
-	$(Q)mkdir -p $(@D)
-	$(Q)cp $($(PKG)_DIR_PREFIX)/respawnd/src/* $(@D)
-	$(Q)touch $@
