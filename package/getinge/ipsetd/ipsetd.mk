@@ -1,5 +1,9 @@
 IPSETD_SOURCE =
-IPSETD_VERSION = 0.1
+IPSETD_SITE   = $(BR2_PACKAGE_GETINGE_AXIS_SDK_PATH)/apps/ipsetd-R1_2_2/
+
+define IPSETD_EXTRACT_CMDS
+	cp $(IPSETD_SITE)/* $(@D)/
+endef
 
 define IPSETD_BUILD_CMDS
 	(cd $(@D); \
@@ -7,8 +11,8 @@ define IPSETD_BUILD_CMDS
 endef
 
 define IPSETD_INSTALL_TARGET_CMDS
-	$(INSTALL) -D $(@D)/ipsetd $(TARGET_DIR)/usr/sbin/ipsetd
-	$(INSTALL) -D $(@D)/S11ipsetd $(TARGET_DIR)/etc/init.d/S11ipsetd
+	$(INSTALL) -m 0755 -D $(@D)/ipsetd $(TARGET_DIR)/usr/sbin/ipsetd
+	$(INSTALL) -m 0755 -D package/getinge/ipsetd/S11ipsetd $(TARGET_DIR)/etc/init.d/S11ipsetd
 endef
 
 define IPSETD_UNINSTALL_TARGET_CMDS
@@ -17,9 +21,3 @@ define IPSETD_UNINSTALL_TARGET_CMDS
 endef
 
 $(eval $(call GENTARGETS,package/getinge,ipsetd))
-
-$(BUILD_DIR)/ipsetd-$(IPSETD_VERSION)/.stamp_extracted:
-	@$(call MESSAGE,"Extracting")
-	$(Q)mkdir -p $(@D)
-	$(Q)cp $($(PKG)_DIR_PREFIX)/ipsetd/src/* $(@D)
-	$(Q)touch $@
