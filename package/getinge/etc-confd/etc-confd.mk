@@ -2,7 +2,14 @@
 ETC_CONFD_SOURCE  =
 ETC_CONFD_VERSION = 1.0
 
-ETC_CONFD_DEPENDENCIES = host-mtd netcom-apps
+# We need mkfs.jffs2
+ETC_CONFD_DEPENDENCIES = host-mtd
+
+# These are listed as dependencies because they install files in in
+# $(BINARIES_DIR)/conf.d/, so their installation procedure must be
+# executed before ours.
+
+ETC_CONFD_DEPENDENCIES += netcom-apps netcom-web
 
 define ETC_CONFD_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/usr/share/conf.d/

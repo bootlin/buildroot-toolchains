@@ -13,6 +13,10 @@ define NETCOM_WEB_INSTALL_TARGET_CMDS
 	install -D -m 0755 $($(PKG)_DIR_PREFIX)/netcom-web/S98httpd $(TARGET_DIR)/etc/init.d/S98httpd
 	install -D -m 0644 $($(PKG)_DIR_PREFIX)/netcom-web/httpd.conf $(TARGET_DIR)/etc/httpd.conf
 	install -D -m 0644 $($(PKG)_DIR_PREFIX)/netcom-web/variables $(TARGET_DIR)/usr/share/release/variables
+	install -D -m 0755 $($(PKG)_DIR_PREFIX)/netcom-web/update-http-passwords $(TARGET_DIR)/usr/bin/update-http-passwords
+	install -D -m 0644 $($(PKG)_DIR_PREFIX)/netcom-web/http-passwords $(BINARIES_DIR)/conf.d/http-passwords
+	grep -q "^/etc/conf.d/http-passwords" $(TARGET_DIR)/etc/persistent-files.conf || \
+		echo "/etc/conf.d/http-passwords" >> $(TARGET_DIR)/etc/persistent-files.conf
 endef
 
 $(eval $(call GENTARGETS,package/getinge,netcom-web))

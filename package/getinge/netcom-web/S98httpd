@@ -5,6 +5,7 @@
 
 start() {
  	echo -n "Starting httpd: "
+	/usr/bin/update-http-passwords
 	start-stop-daemon -S -q -b -m -p /var/run/httpd.pid --exec /usr/sbin/httpd -- -h /usr/share/html -c /etc/httpd.conf -f
 	echo "OK"
 }
