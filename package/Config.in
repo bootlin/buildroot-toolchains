@@ -529,6 +529,7 @@ source "package/getinge/netcom-cgic/Config.in"
 source "package/getinge/netcom-apps/Config.in"
 source "package/getinge/libagentembedded/Config.in"
 source "package/getinge/netcom-usbrun/Config.in"
+source "package/getinge/netcom-common/Config.in"
 endmenu
 
 endmenu
