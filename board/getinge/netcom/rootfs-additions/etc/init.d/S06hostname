@@ -12,7 +12,7 @@ case "$1" in
 		begin "Setting hostname"
 
 		if [ "$HOSTNAME" = "" ]; then
-		        serno=$(echo $MAC | cut -f 4-6 -d':' | sed 's/://g')
+		        serno=$(echo $MAC | sed 's/://g' | tr A-Z a-z)
 			if [ -z "$serno" ]; then
 				warning "$0: Cannot determine serial number!"
 				HOSTNAME="Getinge"
