@@ -1,0 +1,42 @@
+#!/bin/sh
+
+. /etc/init.d/functions.sh
+
+start() {
+	    begin "Starting netcomlocator"
+	    route | grep -q "^224.0.0.0 .* eth0\$"
+	    if [ $? -ne 0 ] ; then
+		route add -net 224.0.0.0 netmask 224.0.0.0 eth0 \
+		    || end 1 "$0: route failed!"
+	    fi
+	    start_daemon /usr/bin/netcomlocator
+	    end $?
+}
+
+stop() {
+	    begin "Stopping netcomlocator"
+	    stop_daemon /usr/bin/netcomlocator
+	    end $?
+}
+
+restart() {
+        stop
+        start
+}
+
+case "$1" in
+  start)
+        start
+        ;;
+  stop)
+        stop
+        ;;
+  restart|reload)
+        restart
+        ;;
+  *)
+        echo $"Usage: $0 {start|stop|restart}"
+        exit 1
+esac
+
+exit $?
