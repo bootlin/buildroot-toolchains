@@ -1,0 +1,14 @@
+--- openssl/apps/speed.c	2011-12-26 17:03:11.942047813 +0800
++++ openssl.nommu/apps/speed.c	2011-12-26 17:02:39.818984347 +0800
+@@ -2611,7 +2611,11 @@
+ 		pipe(fd);
+ 		fflush(stdout);
+ 		fflush(stderr);
++#ifdef __NOMMU__
++		if(vfork())
++#else
+ 		if(fork())
++#endif
+ 			{
+ 			close(fd[1]);
+ 			fds[n]=fd[0];
