@@ -1,0 +1,38 @@
+--- libgcrypt/tests/random.c	2011-12-26 16:39:10.754047150 +0800
++++ libgcrypt.nommu/tests/random.c	2011-12-26 16:39:27.122297025 +0800
+@@ -40,7 +40,11 @@
+   va_start (arg_ptr, format);
+   vfprintf (stderr, format, arg_ptr);
+   va_end (arg_ptr);
++#ifdef __NOMMU__
++  _exit (1);
++#else
+   exit (1);
++#endif
+ }
+ 
+ 
+@@ -127,7 +131,11 @@
+   if (pipe (rp) == -1)
+     die ("pipe failed: %s\n", strerror (errno));
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+   if (pid == (pid_t)(-1))
+     die ("fork failed: %s\n", strerror (errno));
+   if (!pid)
+@@ -186,7 +194,11 @@
+   if (pipe (rp) == -1)
+     die ("pipe failed: %s\n", strerror (errno));
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+   if (pid == (pid_t)(-1))
+     die ("fork failed: %s\n", strerror (errno));
+   if (!pid)
