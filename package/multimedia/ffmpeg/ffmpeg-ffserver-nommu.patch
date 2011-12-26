@@ -1,5 +1,5 @@
---- ffmpeg-0.6.1/ffserver.c	2011-12-26 14:37:55.290047459 +0800
-+++ ffmpeg-0.6.1.nommu/ffserver.c	2011-12-26 14:42:34.830048194 +0800
+--- ffmpeg/ffserver.c	2011-12-26 14:37:55.290047459 +0800
++++ ffmpeg.nommu/ffserver.c	2011-12-26 14:42:34.830048194 +0800
 @@ -440,12 +440,19 @@
      for (; feed; feed = feed->next) {
          if (feed->child_argv && !feed->pid) {
