@@ -1,0 +1,61 @@
+--- ffmpeg-0.6.1/ffserver.c	2011-12-26 14:37:55.290047459 +0800
++++ ffmpeg-0.6.1.nommu/ffserver.c	2011-12-26 14:42:34.830048194 +0800
+@@ -440,12 +440,19 @@
+     for (; feed; feed = feed->next) {
+         if (feed->child_argv && !feed->pid) {
+             feed->pid_start = time(0);
+-
++#ifdef __NOMMU__
++            feed->pid = vfork();
++#else
+             feed->pid = fork();
++#endif
+ 
+             if (feed->pid < 0) {
+                 http_log("Unable to create children\n");
++#ifdef __NOMMU__
++                _exit(1);
++#else
+                 exit(1);
++#endif
+             }
+             if (!feed->pid) {
+                 /* In child */
+@@ -4661,13 +4668,25 @@
+     if (ffserver_daemon) {
+         int pid;
+ 
++#ifdef __NOMMU__
++        pid = vfork();
++#else
+         pid = fork();
++#endif
+         if (pid < 0) {
+             perror("fork");
++#ifdef __NOMMU__
++            _exit(1);
++#else
+             exit(1);
++#endif
+         } else if (pid > 0) {
+             /* parent : exit */
++#ifdef __NOMMU__
++            _exit(0);
++#else
+             exit(0);
++#endif
+         } else {
+             /* child */
+             setsid();
+@@ -4690,7 +4709,11 @@
+ 
+     if (http_server() < 0) {
+         http_log("Could not start server\n");
++#ifdef __NOMMU__
++        _exit(1);
++#else
+         exit(1);
++#endif
+     }
+ 
+     return 0;
