@@ -1,0 +1,66 @@
+--- lirc/daemons/hw_i2cuser.c	2011-12-26 16:44:52.382047701 +0800
++++ lirc.nommu/daemons/hw_i2cuser.c	2011-12-26 16:45:47.638047527 +0800
+@@ -190,7 +190,11 @@
+ 		goto fail;
+ 	}
+ 
++#ifdef __NOMMU__
++	child = vfork();
++#else
+ 	child = fork();
++#endif
+ 	if (child == -1) {
+ 		logprintf(LOG_ERR, "Cannot fork child process: %s",
+ 		          strerror(errno));
+--- lirc/daemons/hw_tira.c	2011-12-26 16:49:18.534047203 +0800
++++ lirc.nommu/daemons/hw_tira.c	2011-12-26 16:50:04.862297162 +0800
+@@ -336,7 +336,11 @@
+ 	
+ 	/* Spawn the child process */
+ 	
++#ifdef __NOMMU__
++	child_pid = vfork();
++#else
+ 	child_pid = fork();
++#endif
+ 	if (child_pid == -1)
+ 	{
+ 		logperror(LOG_ERR, "unable to fork child process");
+--- lirc/tools/irpty.c	2011-12-26 16:54:54.546047541 +0800
++++ lirc.nommu/tools/irpty.c	2011-12-26 16:56:55.266045930 +0800
+@@ -65,7 +65,11 @@
+ 	vfprintf(stderr, fmt, args);
+ 	lirc_freeconfig(lconfig);
+ 	lirc_deinit();
++#ifdef __NOMMU__
++	_exit(1);
++#else
+ 	exit(1);
++#endif
+ }
+ 
+ static void sig_term(int sig)
+@@ -81,7 +85,11 @@
+ 	char buf[BUFFSIZE];
+ 	struct sigaction act;
+ 
++#ifdef __NOMMU__
++	if ((child = vfork()) < 0) {
++#else
+ 	if ((child = fork()) < 0) {
++#endif
+ 		die("fork error");
+ 	} else if (!child) {
+ 		fd_set fds;
+@@ -255,7 +263,11 @@
+ 	if (slave_name)
+ 		strcpy(slave_name, pts_name);
+ 
++#ifdef __NOMMU__
++	if ((pid = vfork()) < 0)
++#else
+ 	if ((pid = fork()) < 0)
++#endif
+ 		die("fork error\n");
+ 	if (!pid) {
+ 		if (setsid() < 0)
