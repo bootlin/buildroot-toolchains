@@ -1,0 +1,5 @@
+config BR2_PACKAGE_LIBBFGDOTS
+	bool "libbfgdots"
+	help
+	  blackfin g.729 codec library
+
