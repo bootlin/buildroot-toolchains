@@ -1,0 +1,11 @@
+--- linphone-3.5.0/console/shell.c	2011-12-27 18:24:00.990046613 +0800
++++ linphone-3.5.0.nommu/console/shell.c	2011-12-27 18:24:14.778296736 +0800
+@@ -142,7 +142,7 @@
+ 	}
+ 	args[j++]=NULL;
+ 
+-#ifdef __uClinux__
++#ifdef __NOMMU__
+ 	pid = vfork();
+ #else
+ 	pid = fork();

@@ -1,0 +1,20 @@
+config BR2_PACKAGE_LINPHONE
+	bool "linphone"
+	select BR2_PACKAGE_SPEEX
+	select BR2_PACKAGE_OSIP2
+	select BR2_PACKAGE_LIBEXOSIP2
+	select BR2_PACKAGE_READLINE
+	select BR2_PACKAGE_NCURSES
+	select BR2_PACKAGE_ALSA_LIB
+
+	help
+	  A network phone.
+
+	  http://www.linphone.org/
+
+config BF2_PACKAGE_LINPHONE_VIDEO
+        bool "Enable video"
+        depends on BR2_PACKAGE_LINPHONE
+        select BR2_PACKAGE_SDL
+        select BR2_PACKAGE_FFMPEG
+
