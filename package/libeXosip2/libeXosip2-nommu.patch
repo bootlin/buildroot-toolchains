@@ -1,0 +1,21 @@
+--- libeXosip2/tools/sip_reg.c	2011-12-27 16:48:30.774047312 +0800
++++ libeXosip2.nommu/tools/sip_reg.c	2011-12-27 16:49:12.614046850 +0800
+@@ -270,10 +270,18 @@
+ #ifndef _WIN32_WCE
+   if (!nofork)
+     {
++# ifdef __NOMMU__
++      int cpid = vfork ();
++#else
+       int cpid = fork ();
++#endif
+ 
+       if (cpid)                 /* parent */
++# ifdef __NOMMU__
++        _exit (0);
++# else
+         exit (0);
++# endif
+       /* child */
+       close (0);
+       close (1);
