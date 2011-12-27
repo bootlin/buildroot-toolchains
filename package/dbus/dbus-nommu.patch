@@ -1,0 +1,174 @@
+--- dbus/tools/dbus-launch.c	2011-12-27 15:57:16.030046685 +0800
++++ dbus.nommu/tools/dbus-launch.c	2011-12-27 16:01:07.260874153 +0800
+@@ -588,8 +588,12 @@
+                strerror (errno));
+       /* continue, why not */
+     }
+-  
++
++#ifdef __NOMMU__  
++  ret = vfork ();
++#else
+   ret = fork ();
++#endif
+ 
+   if (ret < 0)
+     {
+@@ -610,12 +614,20 @@
+         {
+           /* shouldn't happen */
+           fprintf (stderr, "Failed waitpid() waiting for bus daemon's parent\n");
++#ifdef __NOMMU__  
++          _exit (1);
++#else
+           exit (1);
++#endif
+         }
+ 
+       verbose ("Babysitter's intermediate parent exiting\n");
+       
++#ifdef __NOMMU__  
++      _exit (0);
++#else
+       exit (0);
++#endif
+     }
+ 
+   /* Child continues */
+@@ -629,12 +641,20 @@
+       break;
+     case READ_STATUS_EOF:
+       fprintf (stderr, "EOF in dbus-launch reading PID from bus daemon\n");
++#ifdef __NOMMU__  
++      _exit (1);
++#else
+       exit (1);
++#endif
+       break;
+     case READ_STATUS_ERROR:
+       fprintf (stderr, "Error in dbus-launch reading PID from bus daemon: %s\n",
+ 	       strerror (errno));
++#ifdef __NOMMU__  
++      _exit (1);
++#else
+       exit (1);
++#endif
+       break;
+     }
+ 
+@@ -653,7 +673,11 @@
+ 
+   verbose ("Babysitter exiting\n");
+   
++#ifdef __NOMMU__  
++  _exit (0);
++#else
+   exit (0);
++#endif
+ }
+ 
+ static void
+@@ -963,7 +987,11 @@
+       exit (1);
+     }
+ 
++#ifdef __NOMMU__
++  ret = vfork ();
++#else
+   ret = fork ();
++#endif
+   if (ret < 0)
+     {
+       fprintf (stderr, "Failed to fork: %s\n",
+@@ -989,7 +1017,11 @@
+ 
+       /* Fork once more to create babysitter */
+       
++#ifdef __NOMMU__
++      ret = vfork ();
++#else
+       ret = fork ();
++#endif
+       if (ret < 0)
+         {
+           fprintf (stderr, "Failed to fork: %s\n",
+@@ -1014,7 +1046,11 @@
+            */
+           babysit (exit_with_session, ret,
+                    bus_pid_to_babysitter_pipe[READ_END]);
++#ifdef __NOMMU__
++          _exit (0);
++#else
+           exit (0);
++#endif
+         }
+ 
+       verbose ("=== Bus exec process created\n");
+@@ -1085,7 +1121,11 @@
+       fprintf (stderr,
+                "Failed to execute message bus daemon: %s\n",
+                strerror (errno));
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+   else
+     {
+--- dbus/dbus/dbus-spawn.c	2011-12-27 15:51:55.774296574 +0800
++++ dbus.nommu/dbus/dbus-spawn.c	2011-12-27 15:53:15.554251585 +0800
+@@ -1162,8 +1162,12 @@
+     }
+ 
+   _DBUS_ASSERT_ERROR_IS_CLEAR (error);
+-  
++ 
++#ifdef __NOMMU__ 
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+   
+   if (pid < 0)
+     {
+@@ -1188,7 +1192,11 @@
+       close_and_invalidate (&babysitter_pipe[0]);
+       
+       /* Create the child that will exec () */
++#ifdef __NOMMU__ 
++      grandchild_pid = vfork ();
++#else
+       grandchild_pid = fork ();
++#endif
+       
+       if (grandchild_pid < 0)
+ 	{
+--- dbus/dbus/dbus-sysdeps-util-unix.c	2011-12-27 15:54:19.766046002 +0800
++++ dbus.nommu/dbus/dbus-sysdeps-util-unix.c	2011-12-27 15:54:56.226046882 +0800
+@@ -89,7 +89,11 @@
+     }
+ 
+   _dbus_verbose ("forking...\n");
++#ifdef __NOMMU__
++  switch ((child_pid = vfork ()))
++#else
+   switch ((child_pid = fork ()))
++#endif
+     {
+     case -1:
+       _dbus_verbose ("fork failed\n");
+--- dbus/dbus/dbus-sysdeps-unix.c	2011-12-27 15:53:29.422047465 +0800
++++ dbus.nommu/dbus/dbus-sysdeps-unix.c	2011-12-27 15:56:42.906045584 +0800
+@@ -2948,7 +2948,11 @@
+       goto out;
+     }
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+   if (pid < 0)
+     {
+       dbus_set_error (error, _dbus_error_from_errno (errno),
