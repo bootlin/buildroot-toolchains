@@ -1,0 +1,11 @@
+--- gstreamer/configure	2011-12-27 13:32:12.738296912 +0800
++++ gstreamer.bfin/configure	2011-12-27 13:32:29.218046597 +0800
+@@ -15063,7 +15063,7 @@
+ $as_echo_n "checking if unaligned memory access works correctly... " >&6; }
+   if test x"$as_cv_unaligned_access" = x ; then
+     case $host in
+-      alpha*|arm*|hp*|mips*|sh*|sparc*|ia64*)
++      alpha*|arm*|bfin*|hp*|mips*|sh*|sparc*|ia64*)
+         $as_echo_n "(blacklisted) " >&6
+         as_cv_unaligned_access=no
+ 	;;

@@ -1,0 +1,57 @@
+--- gstreamer/libs/gst/check/libcheck/check_run.c	2011-12-27 13:39:34.970296425 +0800
++++ gstreamer.nommu/libs/gst/check/libcheck/check_run.c	2011-12-27 13:42:33.682045867 +0800
+@@ -362,7 +362,11 @@
+   pid_t pid;
+   int status = 0;
+ 
++# ifdef __NOMMU__
++  pid = vfork ();
++# else
+   pid = fork ();
++#endif
+   if (pid == -1)
+     eprintf ("Error in call to fork:", __FILE__, __LINE__ - 2);
+   if (pid == 0) {
+@@ -371,7 +375,11 @@
+     tcase_run_checked_setup (sr, tc);
+     tfun->fn (i);
+     tcase_run_checked_teardown (tc);
++# ifdef __NOMMU__
++    _exit (EXIT_SUCCESS);
++# else
+     exit (EXIT_SUCCESS);
++# endif
+   } else {
+     group_pid = pid;
+   }
+@@ -569,7 +577,11 @@
+ check_fork (void)
+ {
+ #ifdef _POSIX_VERSION
++# ifdef __NOMMU__
++  pid_t pid = vfork ();
++# else
+   pid_t pid = fork ();
++# endif
+   /* Set the process to a process group to be able to kill it easily. */
+   setpgid (pid, group_pid);
+   return pid;
+@@ -591,10 +603,18 @@
+       pid_w = waitpid (pid, &status, 0);
+     } while (pid_w == -1);
+     if (waserror (status, 0)) {
++# ifdef __NOMMU__
++      _exit (EXIT_FAILURE);
++# else
+       exit (EXIT_FAILURE);
++# endif
+     }
+   }
++# ifdef __NOMMU__
++  _exit (EXIT_SUCCESS);
++# else
+   exit (EXIT_SUCCESS);
++# endif
+ #else /* _POSIX_VERSION */
+   eprintf ("This version does not support fork", __FILE__, __LINE__);
+ #endif /* _POSIX_VERSION */
