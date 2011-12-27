@@ -1,0 +1,232 @@
+--- bluez_utils/tools/main.c	2011-12-27 16:11:23.626297083 +0800
++++ bluez_utils.nommu/tools/main.c	2011-12-27 16:11:41.531412878 +0800
+@@ -277,7 +277,11 @@
+ 		cmdargv[i] = (strcmp(argv[i], "{}") == 0) ? devname : argv[i];
+ 	cmdargv[i] = NULL;
+ 
++#ifdef __NOMMU__
++	pid = vfork();
++#else
+ 	pid = fork();
++#endif
+ 
+ 	switch (pid) {
+ 	case 0:
+--- bluez_utils/tools/hciattach.c	2011-12-27 16:21:41.646046531 +0800
++++ bluez_utils.nommu/tools/hciattach.c	2011-12-27 16:21:59.751154005 +0800
+@@ -1405,7 +1405,11 @@
+ 	sigaction(SIGHUP, &sa, NULL);
+ 
+ 	if (detach) {
++#ifdef __NOMMU__
++		if ((pid = vfork())) {
++#else
+ 		if ((pid = fork())) {
++#endif
+ 			if (printpid)
+ 				printf("%d\n", pid);
+ 			return 0;
+--- bluez_utils/plugins/hciops.c	2011-12-27 16:23:11.358047440 +0800
++++ bluez_utils.nommu/plugins/hciops.c	2011-12-27 16:24:38.802296171 +0800
+@@ -2216,7 +2216,11 @@
+ 	start_hci_dev(index);
+ 
+ 	/* Do initialization in the separate process */
++#ifdef __NOMMU__
++	pid = vfork();
++#else
+ 	pid = fork();
++#endif
+ 	switch (pid) {
+ 		case 0:
+ 			atexit(at_child_exit);
+@@ -2246,11 +2250,19 @@
+ 	}
+ 
+ 	hci_close_dev(dd);
++#ifdef __NOMMU__
++	_exit(0);
++#else
+ 	exit(0);
++#endif
+ 
+ fail:
+ 	hci_close_dev(dd);
++#ifdef __NOMMU__
++	_exit(1);
++#else
+ 	exit(1);
++#endif
+ }
+ 
+ static void init_conn_list(int index)
+--- bluez_utils/test/scotest.c	2011-12-27 16:14:59.818047303 +0800
++++ bluez_utils.nommu/test/scotest.c	2011-12-27 16:21:07.116997399 +0800
+@@ -166,7 +166,11 @@
+ 							strerror(errno), errno);
+ 			goto error;
+ 		}
++#ifdef __NOMMU__
++		if (vfork()) {
++#else
+ 		if (fork()) {
++#endif
+ 			/* Parent */
+ 			close(nsk);
+ 			continue;
+@@ -193,14 +197,22 @@
+ 		handler(nsk);
+ 
+ 		syslog(LOG_INFO, "Disconnect");
++#ifdef __NOMMU__
++		_exit(0);
++#else
+ 		exit(0);
++#endif
+ 	}
+ 
+ 	return;
+ 
+ error:
+ 	close(sk);
++#ifdef __NOMMU__
++	_exit(1);
++#else
+ 	exit(1);
++#endif
+ }
+ 
+ static void dump_mode(int sk)
+@@ -308,7 +320,11 @@
+ 		int i, sk;
+ 
+ 		for (i = 0; i < 10; i++){
++#ifdef __NOMMU__
++			if (vfork())
++#else
+ 			if (fork())
++#endif
+ 				continue;
+ 
+ 			/* Child */
+@@ -318,7 +334,11 @@
+ 							strerror(errno), errno);
+ 			}
+ 			close(sk);
++#ifdef __NOMMU__
++			_exit(0);
++#else
+ 			exit(0);
++#endif
+ 		}
+ 
+ 		sleep(19);
+--- bluez_utils/test/l2test.c	2011-12-27 16:14:46.238046524 +0800
++++ bluez_utils.nommu/test/l2test.c	2011-12-27 16:16:43.346794493 +0800
+@@ -462,7 +462,11 @@
+ 							strerror(errno), errno);
+ 			goto error;
+ 		}
++#ifdef __NOMMU__
++		if (vfork()) {
++#else
+ 		if (fork()) {
++#endif
+ 			/* Parent */
+ 			close(nsk);
+ 			continue;
+@@ -807,7 +811,11 @@
+ 	fcntl(sk, F_SETFL, flags | O_NONBLOCK);
+ 
+ 	/* fork for duplex channel */
++#ifdef __NOMMU__
++	if (vfork())
++#else
+ 	if (fork())
++#endif
+ 		send_mode(sk);
+ 	else
+ 		recv_mode(sk);
+@@ -851,14 +859,22 @@
+ 	while (1) {
+ 		for (n = 0; n < argc; n++) {
+ 			for (i = 0; i < count; i++) {
++#ifdef __NOMMU__
++				if (vfork())
++#else
+ 				if (fork())
++#endif
+ 					continue;
+ 
+ 				/* Child */
+ 				sk = do_connect(argv[n]);
+ 				usleep(500);
+ 				close(sk);
++#ifdef __NOMMU__
++				_exit(0);
++#else
+ 				exit(0);
++#endif
+ 			}
+ 		}
+ 		sleep(4);
+--- bluez_utils/test/rctest.c	2011-12-27 16:35:18.482046901 +0800
++++ bluez_utils.nommu/test/rctest.c	2011-12-27 16:36:37.032906124 +0800
+@@ -329,7 +329,11 @@
+ 							strerror(errno), errno);
+ 			goto error;
+ 		}
++#ifdef __NOMMU__
++		if (vfork()) {
++#else
+ 		if (fork()) {
++#endif
+ 			/* Parent */
+ 			close(nsk);
+ 			continue;
+@@ -393,14 +397,22 @@
+ 		handler(nsk);
+ 
+ 		syslog(LOG_INFO, "Disconnect: %m");
++#ifdef __NOMMU__
++		_exit(0);
++#else
+ 		exit(0);
++#endif
+ 	}
+ 
+ 	return;
+ 
+ error:
+ 	close(sk);
++#ifdef __NOMMU__
++	_exit(1);
++#else
+ 	exit(1);
++#endif
+ }
+ 
+ static void dump_mode(int sk)
+@@ -549,14 +561,22 @@
+ 	while (1) {
+ 		for (n = 0; n < argc; n++) {
+ 			for (i = 0; i < count; i++) {
++#ifdef __NOMMU__
++				if (vfork())
++#else
+ 				if (fork())
++#endif
+ 					continue;
+ 
+ 				/* Child */
+ 				sk = do_connect(argv[n]);
+ 				usleep(500);
+ 				close(sk);
++#ifdef __NOMMU__
++				_exit(0);
++#else
+ 				exit(0);
++#endif
+ 			}
+ 		}
+ 		sleep(4);
