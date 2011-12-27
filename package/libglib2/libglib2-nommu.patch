@@ -1,0 +1,362 @@
+--- libglib2/glib/gbacktrace.c	2011-12-27 12:33:49.990046734 +0800
++++ libglib2.nommu/glib/gbacktrace.c	2011-12-27 12:35:22.752358294 +0800
+@@ -177,7 +177,11 @@
+   args[1] = (gchar*) prg_name;
+   args[2] = buf;
+ 
++# ifdef __NOMMU__
++  pid = vfork ();
++# else
+   pid = fork ();
++# endif
+   if (pid == 0)
+     {
+       stack_trace (args);
+@@ -230,7 +234,11 @@
+       _exit (0);
+     }
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+   if (pid == 0)
+     {
+       close (0); dup (in_fd[0]);   /* set the stdin to the in pipe */
+--- libglib2/glib/gspawn.c	2011-12-27 12:30:24.370046455 +0800
++++ libglib2.nommu/glib/gspawn.c	2011-12-27 12:37:48.394045370 +0800
+@@ -1200,7 +1200,11 @@
+   if (standard_error && !make_pipe (stderr_pipe, error))
+     goto cleanup_and_fail;
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+ 
+   if (pid < 0)
+     {
+@@ -1244,7 +1248,11 @@
+            */
+           GPid grandchild_pid;
+ 
++#ifdef __NOMMU__
++          grandchild_pid = vfork ();
++#else
+           grandchild_pid = fork ();
++#endif
+ 
+           if (grandchild_pid < 0)
+             {
+--- libglib2/glib/gtestutils.c	2011-12-27 12:32:35.310046793 +0800
++++ libglib2.nommu/glib/gtestutils.c	2011-12-27 12:32:51.592566142 +0800
+@@ -1649,7 +1649,11 @@
+   if (pipe (stdout_pipe) < 0 || pipe (stderr_pipe) < 0 || pipe (stdtst_pipe) < 0)
+     g_error ("failed to create pipes to fork test program: %s", g_strerror (errno));
+   signal (SIGCHLD, SIG_DFL);
++#ifdef __NOMMU__
++  test_trap_last_pid = vfork ();
++#else
+   test_trap_last_pid = fork ();
++#endif
+   if (test_trap_last_pid < 0)
+     g_error ("failed to fork test program: %s", g_strerror (errno));
+   if (test_trap_last_pid == 0)  /* child */
+--- libglib2/gio/libasyncns/asyncns.c	2011-12-27 12:43:30.538052455 +0800
++++ libglib2.nommu/gio/libasyncns/asyncns.c	2011-12-27 12:44:12.358046924 +0800
+@@ -804,7 +804,11 @@
+     for (asyncns->valid_workers = 0; asyncns->valid_workers < n_proc; asyncns->valid_workers++) {
+ 
+ #ifndef HAVE_PTHREAD
++# ifdef __NOMMU__
++        if ((asyncns->workers[asyncns->valid_workers] = vfork()) < 0)
++# else
+         if ((asyncns->workers[asyncns->valid_workers] = fork()) < 0)
++# endif
+             goto fail;
+         else if (asyncns->workers[asyncns->valid_workers] == 0) {
+             int ret;
+--- libglib2/gio/tests/gapplication.c	2011-12-27 12:44:32.930047143 +0800
++++ libglib2.nommu/gio/tests/gapplication.c	2011-12-27 12:45:07.180323701 +0800
+@@ -145,7 +145,11 @@
+   s = pipe (pipefd);
+   g_assert_cmpint (s, ==, 0);
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+ 
+   if (pid == 0)
+     {
+@@ -170,7 +174,11 @@
+       g_strfreev (args);
+ 
+       g_print ("exit status: %d\n", status);
++#ifdef __NOMMU__
++      _exit (0);
++#else
+       exit (0);
++#endif
+     }
+   else if (pid > 0)
+     {
+--- libglib2/gio/tests/gdbus-sessionbus.c	2011-12-27 12:46:58.222046589 +0800
++++ libglib2.nommu/gio/tests/gdbus-sessionbus.c	2011-12-27 12:47:27.670297004 +0800
+@@ -178,7 +178,11 @@
+           g_warning ("pipe() failed: %m");
+           g_assert_not_reached ();
+         }
++#ifdef __NOMMU__
++      switch (vfork ())
++#else
+       switch (fork ())
++#endif
+         {
+         case -1:
+           g_warning ("fork() failed: %m");
+--- libglib2/gio/tests/gdbus-non-socket.c	2011-12-27 12:48:28.030046895 +0800
++++ libglib2.nommu/gio/tests/gdbus-non-socket.c	2011-12-27 12:48:47.018297144 +0800
+@@ -222,7 +222,11 @@
+   g_assert_cmpint (pipe (in_pipes), ==, 0);
+   g_assert_cmpint (pipe (out_pipes), ==, 0);
+ 
++#ifdef __NOMMU__
++  switch ((child = vfork ()))
++#else
+   switch ((child = fork ()))
++#endif
+     {
+     case -1:
+       g_assert_not_reached ();
+--- libglib2/gio/tests/socket.c	2011-12-27 12:45:25.674046990 +0800
++++ libglib2.nommu/gio/tests/socket.c	2011-12-27 12:46:04.735134260 +0800
+@@ -105,7 +105,11 @@
+   status = socketpair (PF_UNIX, SOCK_STREAM, 0, sv);
+   g_assert_cmpint (status, ==, 0);
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+   g_assert_cmpint (pid, >=, 0);
+ 
+   /* Child: close its copy of the write end of the pipe, receive it
+@@ -136,7 +140,11 @@
+ 	len = write (fd, TEST_DATA, sizeof (TEST_DATA));
+       while (len == -1 && errno == EINTR);
+       g_assert_cmpint (len, ==, sizeof (TEST_DATA));
++#ifdef __NOMMU__
++      _exit (0);
++#else
+       exit (0);
++#endif
+     }
+   else
+     {
+--- libglib2/tests/timeloop.c	2011-12-27 12:50:36.634297014 +0800
++++ libglib2.nommu/tests/timeloop.c	2011-12-27 12:59:04.606046347 +0800
+@@ -22,8 +22,12 @@
+ 
+   if (pipe(fds) < 0)
+     {
+-      fprintf (stderr, "Cannot create pipe %s\n", g_strerror (errno));
++      printf (stderr, "Cannot create pipe %s\n", g_strerror (errno));
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ 
+   channels[0] = g_io_channel_unix_new (fds[0]);
+@@ -94,7 +98,11 @@
+   write_all (out_channel, (char *)&val, sizeof (val));
+   g_timer_destroy (timer);
+ 
++#ifdef __NOMMU__
++  _exit (0);
++#else
+   exit (0);
++#endif
+ }
+ 
+ static gboolean
+@@ -108,7 +116,11 @@
+   if (!read_all (source, (char *)&val, sizeof(val)))
+     {
+       fprintf (stderr, "Unexpected EOF\n");
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ 
+   if (val)
+@@ -143,7 +155,11 @@
+   io_pipe (in_channels);
+   io_pipe (out_channels);
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+ 
+   if (pid > 0)			/* Parent */
+     {
+@@ -165,7 +181,11 @@
+   else				/* Error */
+     {
+       fprintf (stderr, "Cannot fork: %s\n", g_strerror (errno));
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ }
+ 
+--- libglib2/tests/timeloop-basic.c	2011-12-27 12:53:57.502046569 +0800
++++ libglib2.nommu/tests/timeloop-basic.c	2011-12-27 12:55:26.142046234 +0800
+@@ -26,7 +26,11 @@
+   if (pipe(fds) < 0)
+     {
+       fprintf (stderr, "Cannot create pipe %s\n", strerror (errno));
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ }
+ 
+@@ -89,7 +93,11 @@
+   val = 0;
+   write_all (out_fd, (char *)&val, sizeof (val));
+ 
++#ifdef __NOMMU__
++  _exit (0);
++#else
+   exit (0);
++#endif
+ }
+ 
+ int
+@@ -100,7 +108,11 @@
+   if (!read_all (source, (char *)&val, sizeof(val)))
+     {
+       fprintf (stderr,"Unexpected EOF\n");
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ 
+   if (val)
+@@ -128,7 +140,11 @@
+   my_pipe (in_fds);
+   my_pipe (out_fds);
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+ 
+   if (pid > 0)			/* Parent */
+     {
+@@ -151,7 +167,11 @@
+   else				/* Error */
+     {
+       fprintf (stderr,"Cannot fork: %s\n", strerror (errno));
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ }
+ 
+--- libglib2/tests/child-test.c	2011-12-27 12:57:22.702046539 +0800
++++ libglib2.nommu/tests/child-test.c	2011-12-27 12:58:12.678046510 +0800
+@@ -77,7 +77,11 @@
+ 
+   return pid;
+ #else
++# ifdef __NOMMU__
++  pid = vfork ();
++# else
+   pid = fork ();
++#endif
+   if (pid < 0)
+     exit (1);
+ 
+--- libglib2/tests/timeloop-closure.c	2011-12-27 12:55:41.102046409 +0800
++++ libglib2./tests/timeloop-closure.c	2011-12-27 12:57:14.094047108 +0800
+@@ -24,7 +24,11 @@
+   if (pipe(fds) < 0)
+     {
+       fprintf (stderr, "Cannot create pipe %s\n", g_strerror (errno));
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ 
+   channels[0] = g_io_channel_unix_new (fds[0]);
+@@ -95,7 +99,11 @@
+   write_all (out_channel, (char *)&val, sizeof (val));
+   g_timer_destroy (timer);
+ 
++#ifdef __NOMMU__
++  _exit (0);
++#else
+   exit (0);
++#endif
+ }
+ 
+ static gboolean
+@@ -109,7 +117,11 @@
+   if (!read_all (source, (char *)&val, sizeof(val)))
+     {
+       fprintf (stderr, "Unexpected EOF\n");
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ 
+   if (val)
+@@ -145,7 +157,11 @@
+   io_pipe (in_channels);
+   io_pipe (out_channels);
+ 
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+ 
+   if (pid > 0)			/* Parent */
+     {
+@@ -169,7 +185,11 @@
+   else				/* Error */
+     {
+       fprintf (stderr, "Cannot fork: %s\n", g_strerror (errno));
++#ifdef __NOMMU__
++      _exit (1);
++#else
+       exit (1);
++#endif
+     }
+ }
+ 
