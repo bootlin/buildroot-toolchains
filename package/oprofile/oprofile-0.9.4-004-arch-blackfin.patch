@@ -1,0 +1,69 @@
+diff -urN oprofile/events/bfin/events oprofile.bfin/events/bfin/events
+--- oprofile/events/bfin/events	1970-01-01 08:00:00.000000000 +0800
++++ oprofile.bfin/events/bfin/events	2011-12-27 15:12:52.466046365 +0800
+@@ -0,0 +1,37 @@
++# Blackfin events
++#
++event:0x00 counters:1,2 um:zero minimum:500 name:LOOP0_ITER : Loop 0 iterations
++event:0x01 counters:1,2 um:zero minimum:500 name:LOOP1_ITER : Loop 1 iterations
++event:0x02 counters:1,2 um:zero minimum:500 name:LOOP_BUF0_NOT_OPTIM : Loop buffer 0 not optimized
++event:0x03 counters:1,2 um:zero minimum:500 name:LOOP_BUF1_NOT_OPTIM : Loop buffer 1 not optimized
++event:0x04 counters:1,2 um:zero minimum:500 name:PC_INVAR_BRANCH : PC invariant branches (requires trace buffer to be enabled)
++event:0x06 counters:1,2 um:zero minimum:500 name:COND_BRANCH : Conditional branches
++event:0x09 counters:1,2 um:zero minimum:500 name:TOTAL_BRANCH : Total branches including calls, returns, branches, but not interrupts(requires trace buffer to be enabled)
++event:0x0a counters:1,2 um:zero minimum:500 name:STALL_CSYNC_SSYNC : Stalls due to CSYNC,SSYNC
++event:0x0b counters:1,2 um:zero minimum:500 name:EXCEPT_INSN : EXCEPT instrcution
++event:0x0c counters:1,1 um:zero minimum:500 name:CSYNC_SSYNC_INSN : CSYNC,SSYNC instructions
++event:0x0d counters:1,2 um:zero minimum:500 name:CMIT_INSN : Committed instrcutions
++event:0x0e counters:1,2 um:zero minimum:500 name:INTERRUPTS_TAKEN : interrupts taken
++event:0x0f counters:1,2 um:zero minimum:500 name:MISALIGN_ADDR_EXT : Misaligned address violation exception
++event:0x10 counters:1,2 um:zero minimum:500 name:STALL_DAG : Stall cycles due to read after write hazards on DAG registers
++event:0x13 counters:1,2 um:zero minimum:500 name:STALL_RAW : Stall cycles due to RAW data hazards in computers
++event:0x80 counters:1,2 um:zero minimum:500 name:FETCH_POSTPON_BY_DMA : Code memory fetches postponed due to DMA collisions(minimum count of two per event)
++event:0x81 counters:1,2 um:zero minimum:500 name:TAG_STALL : Code memory TAG stalls (cache misses, or FlushI operations, count of 3 per FlushI). Note code memory stall results in a processor stall only if instruction assembly unit FIFO empties.
++event:0x82 counters:1,2 um:zero minimum:500 name:FILL_STALL : Code memory fill stalls (cacheable or non-cacheable). Note code memory stall results in a processor stall only if instruction assembly unit FIFO empties.
++event:0x83 counters:1,2 um:zero minimum:500 name:64_DELIVER : Code memory 64-bit words delibered to processor instruction assembly unit
++event:0x90 counters:1,2 um:zero minimum:500 name:STALL_MEMORY : Processors stalls to memory
++event:0x91 counters:1,2 um:zero minimum:500 name:DATA_MEMORY_STALL : Data memory stalls to processor not hidden by processor stall
++event:0x92 counters:1,2 um:zero minimum:500 name:DATA_STORE_FULL_STALL : Data memory store buffer full stalls
++event:0x93 counters:1,2 um:zero minimum:500 name:DATA_WRITE_FULL_STALL : Data memory write buffer full stalls due to high-to-low priority code transition
++event:0x94 counters:1,2 um:zero minimum:500 name:DATA_STORE_FORWORD)STALL : Data memory store buffer forward stalls due to lack of committed data from processor
++event:0x95 counters:1,2 um:zero minimum:500 name:DATA_FILL_STALL : Data memory fill buffer stalls
++event:0x96 counters:1,2 um:zero minimum:500 name:DATA_TAG_STALL : Data memory array or TAG collision stalls (DAG to DAG, or DMA to DAG)
++event:0x97 counters:1,2 um:zero minimum:500 name:DATA_COLLI_STALL : Data memory array collision stalls (DAG to DAG ot DMA to DAG)
++event:0x98 counters:1,2 um:zero minimum:500 name:DATA_MEM_STALL : Data memory stalls
++event:0x99 counters:1,2 um:zero minimum:500 name:DATA_STALL_TO_PROC : Data memory stalls sent to processor
++event:0x9A counters:1,2 um:zero minimum:500 name:DATA_FILL_BANK_A : Data memory cache fills completed to Bank A
++event:0x9B counters:1,2 um:zero minimum:500 name:DATA_FILL_BANK_B : Data memory cache fills completed to Bank B
++event:0x9C counters:1,2 um:zero minimum:500 name:DATA_VICTIMS_BANK_A : Data memory cache victims delivered from Bank A
++event:0x9D counters:1,2 um:zero minimum:500 name:DATA_VICTIMS_BANK_B : Data memory cache victims delivered from Bank B
++event:0x9E counters:1,2 um:zero minimum:500 name:DATA_HIGH_FILL : Data memory cache high priority fills requested
++event:0x9F counters:1,2 um:zero minimum:500 name:DATA_LOW_FILL: Data memory cache low priority
+diff -urN oprofile/events/bfin/unit_masks oprofile.bin/events/bfin/unit_masks
+--- oprofile/events/bfin/unit_masks	1970-01-01 08:00:00.000000000 +0800
++++ oprofile.bin/events/bfin/unit_masks	2011-12-27 15:14:06.785464444 +0800
+@@ -0,0 +1,4 @@
++# Blackfin possible unit masks
++#
++name:zero type:mandatory default:0x9
++	0x0 No unit mask
+--- oprofile/libop/op_cpu_type.h	2011-12-27 14:52:27.326046826 +0800
++++ oprofile.bfin/libop/op_cpu_type.h	2011-12-27 14:52:45.962046176 +0800
+@@ -72,6 +72,7 @@
+ 	CPU_PPC64_POWER5pp,  /**< ppc64 Power5++ family */
+ 	CPU_PPC_E300, /**< e300 */
+ 	CPU_AVR32, /**< AVR32 */
++	CPU_BLACKFIN, /**< BLACKFIN */
+ 	MAX_CPU_TYPE
+ } op_cpu;
+ 
+--- oprofile/libop/op_cpu_type.c	2011-12-27 14:51:32.646297409 +0800
++++ oprofile.bfin/libop/op_cpu_type.c	2011-12-27 14:52:15.442046715 +0800
+@@ -74,6 +74,7 @@
+ 	{ "ppc64 POWER5++", "ppc64/power5++", CPU_PPC64_POWER5pp, 6 },
+ 	{ "e300", "ppc/e300", CPU_PPC_E300, 4 },
+ 	{ "AVR32", "avr32", CPU_AVR32, 3 },
++	{ "Blackfin", "blackfin", CPU_BLACKFIN, 2},
+ };
+  
+ static size_t const nr_cpu_descrs = sizeof(cpu_descrs) / sizeof(struct cpu_descr);
