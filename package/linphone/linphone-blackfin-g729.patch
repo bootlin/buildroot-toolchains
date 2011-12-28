@@ -1,0 +1,324 @@
+--- linphone/mediastreamer2/include/mediastreamer2/allfilters.h
++++ linphone.bfin/mediastreamer2/include/mediastreamer2/allfilters.h
+@@ -45,6 +45,8 @@
+ 	MS_SPEEX_DEC_ID,
+ 	MS_GSM_ENC_ID,
+ 	MS_GSM_DEC_ID,
++	MS_G729_ENC_ID,
++	MS_G729_DEC_ID,
+ 	MS_V4L_ID,
+ 	MS_SDL_OUT_ID,
+ 	MS_H263_ENC_ID,
+--- linphone/mediastreamer2/src/g729.c
++++ linphone.bfin/mediastreamer2/src/g729.c
+@@ -0,0 +1,264 @@
++/*
++mediastreamer2 library - modular sound and video processing and streaming
++Copyright (C) 2006  Simon MORLAT (simon.morlat@linphone.org)
++
++enable linphone to using ADI's libbfgdots g729 lib. 
++
++This program is free software; you can redistribute it and/or
++modify it under the terms of the GNU General Public License
++as published by the Free Software Foundation; either version 2
++of the License, or (at your option) any later version.
++
++This program is distributed in the hope that it will be useful,
++but WITHOUT ANY WARRANTY; without even the implied warranty of
++MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++GNU General Public License for more details.
++
++You should have received a copy of the GNU General Public License
++along with this program; if not, write to the Free Software
++Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++*/
++
++
++/**
++ * bitstream format of libbfgdots - g729a/g729ab lib
++ * 
++ * using 0x6b21 as SYNC word for each frame
++ *   [SYNCWORD][BIT_NUM][bits]
++ * 
++ * Packed mode:
++ * 
++ * - g729a:
++ *   [0x6b21][0x0050][80-bit]
++ *
++ * - g729ab:
++ *   three kinds of frames
++ *   -- BIT_NUM = 0x0050
++ *   -- BIT_NUM = 0x0010
++ *   -- BIT_NUM = 0x0000
++ *
++ * Unpacked mode:
++ *   each bit is encoded using a 16-bit word:
++ *   - 0x007F for 0
++ *   - 0x0081 for 1
++ */
++
++/*
++ * This code makes linphone talk with some SIP phones, e.g, POLYCOM SoundPoint IP300 SIP.
++ * Those devices use g729a codec. Each RTP packet contains two frames.
++ * The bitstream format looks like:
++ * 
++ *        [80-bit data][80-bit data]
++ *
++ * There is no [SYCWORD][BIT_NUM] header.
++ * 
++ * */
++
++#include "mediastreamer2/msfilter.h"
++
++#include <g729ab_codec.h>
++
++#define VAD_ENABLE 1
++#define VAD_DISABLE 0 
++
++#define FMT_PACKED 0
++#define FMT_UNPACKED 1
++
++#define SYNCWORD 0x6b21
++#define BITNUM_G729A 0x0050
++#define BITNUM_G729AB_1 0x0050
++#define BITNUM_G729AB_2 0x0010
++#define BITNUM_G729AB_3 0x0000
++
++#define _ADSP_G729_H_LEN 2
++#define _PCK_BITSTREAM_LEN 80
++#define _PCK_BITSTREAM_LEN_BYTES (_PCK_BITSTREAM_LEN/8)
++#define _PCK_LEN_MS 10
++#define _SAMPLES (_PCK_LEN_MS * 8)
++#define _PCK_SIZE (_SAMPLES * sizeof(short))
++
++
++typedef struct EncState{
++	G729_EncObj state;
++	uint32_t ts;
++	int enc_vad;
++	int pck_len;
++	MSBufferizer *bufferizer; /* a queue */
++} EncState;
++
++static void enc_init(MSFilter *f){
++	EncState *s=ms_new(EncState, 1);
++	memset(s, 0 , sizeof(*s));
++	
++	g729ab_enc_process = G729AB_ENC_PROCESS; /* function pointers: special for FDPIC g729 lib */
++	G729AB_ENC_RESET(&s->state);
++	
++	G729AB_ENC_CONFIG(&s->state, G729_ENC_OUTPUTFORMAT, FMT_UNPACKED); /* unpacked */ 
++	
++	//G729AB_ENC_CONFIG(&s->state, G729_ENC_VAD, VAD_ENALBE); /* g729ab */
++	G729AB_ENC_CONFIG(&s->state, G729_ENC_VAD, VAD_DISABLE); /* g729a */
++	
++	s->enc_vad = VAD_DISABLE;
++	s->ts=0;
++	s->pck_len = 20;
++	s->bufferizer=ms_bufferizer_new();
++	f->data=s;
++}
++
++static void enc_uninit(MSFilter *f){
++	EncState *s=(EncState*)f->data;
++	ms_bufferizer_destroy(s->bufferizer);
++	ms_free(s);
++}
++
++static void enc_process(MSFilter *f){
++	EncState *s=(EncState*)f->data;
++	mblk_t *im;
++	const int n_pck = s->pck_len/_PCK_LEN_MS;
++	int pck;
++	int i,byte,bit;
++	short ibuf[_SAMPLES * n_pck] __attribute__ ((aligned (4)));
++	short obuf[_ADSP_G729_H_LEN + _PCK_BITSTREAM_LEN] __attribute__ ((aligned (4)));
++	int obuf_len_byte = n_pck * _PCK_BITSTREAM_LEN_BYTES;
++
++	while((im=ms_queue_get(f->inputs[0]))!=NULL){
++		ms_bufferizer_put(s->bufferizer,im);
++	}
++	while(ms_bufferizer_read(s->bufferizer,(uint8_t*)ibuf,sizeof(ibuf))==sizeof(ibuf)) {
++		mblk_t *om=allocb(obuf_len_byte,0); 
++		memset(om->b_wptr,0,obuf_len_byte);
++		for (pck=0;pck<n_pck;++pck){
++			G729AB_ENC(&s->state, ibuf + (pck * _SAMPLES), obuf);
++			/* unpacked -> packed */
++			for(i=0; i<_PCK_BITSTREAM_LEN; i++) {
++				byte = i>>3;
++				bit = i & 0x7;
++				if (obuf[i+2] == 0x81)
++					om->b_wptr[byte] |= 1 << (7-bit);
++			}
++
++			om->b_wptr += _PCK_BITSTREAM_LEN_BYTES;
++		}
++		mblk_set_timestamp_info(om,s->ts);
++		ms_queue_put(f->outputs[0],om); /* two frames per message */
++		s->ts+=sizeof(ibuf)/sizeof(short);
++	}
++}
++
++#ifdef _MSC_VER
++
++MSFilterDesc ms_g729_enc_desc={
++	MS_G729_ENC_ID,
++	"MSG729Enc",
++	"The G729a(b) codec",
++	MS_FILTER_ENCODER,
++	"g729",
++	1,
++	1,
++	enc_init,
++	NULL,
++	enc_process,
++	NULL,
++	enc_uninit,
++	NULL
++};
++
++#else
++
++MSFilterDesc ms_g729_enc_desc={
++	.id=MS_G729_ENC_ID,
++	.name="MSG729Enc",
++	.text="The G729a(b) codec",
++	.category=MS_FILTER_ENCODER,
++	.enc_fmt="g729",
++	.ninputs=1,
++	.noutputs=1,
++	.init=enc_init,
++	.process=enc_process,
++	.uninit=enc_uninit,
++};
++
++#endif
++
++typedef G729_DecObj DecState;
++static void dec_init(MSFilter *f){
++	DecState *s = ms_new(DecState, 1);
++	g729ab_dec_process = G729AB_DEC_PROCESS;
++	G729AB_DEC_RESET(s);
++	G729AB_DEC_CONFIG(s, G729_DEC_INPUTFORMAT, FMT_UNPACKED); /* unpacked */
++	f->data= s;
++}
++
++static void dec_uninit(MSFilter *f){
++	DecState *s=(DecState*)f->data;
++	ms_free(s);
++}
++
++static void dec_process(MSFilter *f){
++	DecState *s=(DecState*)f->data;
++	mblk_t *im;
++	mblk_t *om;
++	int i,byte,bit;
++	short __attribute__ ((aligned (4))) _pck[_ADSP_G729_H_LEN + _PCK_BITSTREAM_LEN];
++	_pck[0] = SYNCWORD;
++	_pck[1] = BITNUM_G729A;
++	while((im=ms_queue_get(f->inputs[0]))!=NULL){
++		/* two frames in each message */
++		while (im->b_wptr - im->b_rptr >= _PCK_BITSTREAM_LEN_BYTES){
++			/* packed -> unpacked */
++			for(i=0; i<_PCK_BITSTREAM_LEN; i++) {
++				byte = i>>3;
++				bit = i & 0x7;
++				if ((im->b_rptr[byte] >> (7-bit)) & 0x1)
++					_pck[i+2] = 0x81;
++				else
++					_pck[i+2] = 0x7f;
++			}
++
++			om=allocb(_PCK_SIZE,0); /* 80 * 2 */
++			G729AB_DEC(s, _pck, (short *)om->b_wptr);
++			om->b_wptr += _PCK_SIZE;
++			ms_queue_put(f->outputs[0],om);
++			im->b_rptr += _PCK_BITSTREAM_LEN_BYTES;
++		}
++		freemsg(im);
++	}
++}
++
++#ifdef _MSC_VER
++
++MSFilterDesc ms_g729_dec_desc={
++	MS_G729_DEC_ID,
++	"MSG729Dec",
++	"The G729 codec",
++	MS_FILTER_DECODER,
++	"g729",
++	1,
++	1,
++	dec_init,
++	NULL,
++	dec_process,
++	NULL,
++	dec_uninit,
++	NULL
++};
++
++#else
++
++MSFilterDesc ms_g729_dec_desc={
++	.id=MS_G729_DEC_ID,
++	.name="MSG729Dec",
++	.text="The G729 codec",
++	.category=MS_FILTER_DECODER,
++	.enc_fmt="g729",
++	.ninputs=1,
++	.noutputs=1,
++	.init=dec_init,
++	.process=dec_process,
++	.uninit=dec_uninit
++};
++
++#endif
++
++MS_FILTER_DESC_EXPORT(ms_g729_dec_desc)
++MS_FILTER_DESC_EXPORT(ms_g729_enc_desc)
+--- linphone/mediastreamer2/src/Makefile.in
++++ linphone.bfin/mediastreamer2/src/Makefile.in
+@@ -82,7 +82,7 @@
+ 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+ 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+ 	$(am__DEPENDENCIES_2)
+-am__libmediastreamer_la_SOURCES_DIST = mscommon.c msfilter.c msqueue.c \
++am__libmediastreamer_la_SOURCES_DIST = g729.c mscommon.c msfilter.c msqueue.c \
+ 	msticker.c alaw.c ulaw.c mssndcard.c msfileplayer.c msrtp.c \
+ 	dtmfgen.c msfilerec.c ice.c tee.c msconf.c msjoin.c \
+ 	g711common.h msvolume.c mswebcam.c mtu.c void.c audiostream.c \
+@@ -107,7 +107,7 @@
+ @BUILD_THEORA_TRUE@am__objects_11 = theora.lo
+ @BUILD_SPEEX_TRUE@am__objects_12 = msspeex.lo speexec.lo
+ @BUILD_GSM_TRUE@am__objects_13 = gsm.lo
+-am_libmediastreamer_la_OBJECTS = mscommon.lo msfilter.lo msqueue.lo \
++am_libmediastreamer_la_OBJECTS = g729.lo mscommon.lo msfilter.lo msqueue.lo \
+ 	msticker.lo alaw.lo ulaw.lo mssndcard.lo msfileplayer.lo \
+ 	msrtp.lo dtmfgen.lo msfilerec.lo ice.lo tee.lo msconf.lo \
+ 	msjoin.lo msvolume.lo mswebcam.lo mtu.lo void.lo \
+@@ -326,7 +326,7 @@
+ CLEANFILES = alldescs.h filterdescs.txt
+ INCLUDES = -I$(top_srcdir)/include/
+ lib_LTLIBRARIES = libmediastreamer.la
+-libmediastreamer_la_SOURCES = mscommon.c msfilter.c msqueue.c \
++libmediastreamer_la_SOURCES = g729.c mscommon.c msfilter.c msqueue.c \
+ 	msticker.c alaw.c ulaw.c mssndcard.c msfileplayer.c msrtp.c \
+ 	dtmfgen.c msfilerec.c ice.c tee.c msconf.c msjoin.c \
+ 	g711common.h msvolume.c mswebcam.c mtu.c void.c audiostream.c \
+@@ -336,7 +336,7 @@
+ 	$(am__append_10) $(am__append_11) $(am__append_12) \
+ 	$(am__append_13)
+ libmediastreamer_la_LIBADD = $(ORTP_LIBS) $(PORTAUDIO_LIBS) \
+-	$(ALSA_LIBS) $(ARTS_LIBS) $(SPEEX_LIBS) $(GSM_LIBS) \
++	$(ALSA_LIBS) $(ARTS_LIBS) $(SPEEX_LIBS) $(GSM_LIBS) -lg729ab \
+ 	$(THEORA_LIBS) $(am__append_14)
+ libmediastreamer_la_LDFLAGS = -rdynamic
+ AM_CFLAGS = -I$(top_srcdir) $(ORTP_CFLAGS) $(SPEEX_CFLAGS) \
+@@ -423,6 +423,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ice.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/macsnd.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mire.Plo@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g729.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mscommon.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msconf.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msfileplayer.Plo@am__quote@
