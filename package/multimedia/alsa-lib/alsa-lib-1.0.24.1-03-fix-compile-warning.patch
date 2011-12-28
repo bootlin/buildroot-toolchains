@@ -1,0 +1,12 @@
+Index: alsa-lib/src/ucm/parser.c
+===================================================================
+--- alsa-lib/src/ucm/parser.c	(revision 10344)
++++ alsa-lib/src/ucm/parser.c	(revision 10345)
+@@ -32,6 +32,7 @@
+ 
+ #include "ucm_local.h"
+ #include <dirent.h>
++#include <ctype.h>
+ 
+ /** The name of the environment variable containing the UCM directory */
+ #define ALSA_CONFIG_UCM_VAR "ALSA_CONFIG_UCM"

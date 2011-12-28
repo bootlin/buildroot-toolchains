@@ -1,0 +1,188 @@
+Index: alsa-lib/src/conf/cards/SSM2602.conf
+===================================================================
+--- alsa-lib/src/conf/cards/SSM2602.conf	(revision 10418)
++++ alsa-lib/src/conf/cards/SSM2602.conf	(revision 10419)
+@@ -1,21 +0,0 @@
+-SSM2602.pcm.default {
+-	@args [ CARD ]
+-	@args.CARD {
+-		type string
+-	}
+-	type asym
+-	playback.pcm {
+-		type plug
+-		slave.pcm {
+-			@func concat
+-			strings [ "dmix:CARD=" $CARD ]
+-		}
+-	}
+-	capture.pcm {
+-		type plug
+-		slave.pcm {
+-			@func concat
+-			strings [ "dsnoop:CARD=" $CARD ]
+-		}
+-	}
+-}
+Index: alsa-lib/src/conf/cards/AD73311.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD73311.conf	(revision 10418)
++++ alsa-lib/src/conf/cards/AD73311.conf	(revision 10419)
+@@ -1,21 +0,0 @@
+-AD73311.pcm.default {
+-	@args [ CARD ]
+-	@args.CARD {
+-		type string
+-	}
+-	type asym
+-	playback.pcm {
+-		type plug
+-		slave.pcm {
+-			@func concat
+-			strings [ "dmix:CARD=" $CARD ]
+-		}
+-	}
+-	capture.pcm {
+-		type plug
+-		slave.pcm {
+-			@func concat
+-			strings [ "dsnoop:CARD=" $CARD ]
+-		}
+-	}
+-}
+Index: alsa-lib/src/conf/cards/AD193X.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD193X.conf	(revision 10418)
++++ alsa-lib/src/conf/cards/AD193X.conf	(revision 10419)
+@@ -1,16 +0,0 @@
+-AD193X.pcm.default {
+-	@args [ CARD ]
+-	@args.CARD {
+-		type string
+-	}
+-	type plug
+-	slave.pcm {
+-		type mmap_emul
+-		slave.pcm {
+-			type hw
+-			card $CARD
+-			format S32_LE
+-			rate 48000
+-		}
+-	}
+-}
+Index: alsa-lib/src/conf/cards/AD183X.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD183X.conf	(revision 10418)
++++ alsa-lib/src/conf/cards/AD183X.conf	(revision 10419)
+@@ -1,16 +0,0 @@
+-AD183X.pcm.default {
+-	@args [ CARD ]
+-	@args.CARD {
+-		type string
+-	}
+-	type plug
+-	slave.pcm {
+-		type mmap_emul
+-		slave.pcm {
+-			type hw
+-			card $CARD
+-			format S32_LE
+-			rate 48000
+-		}
+-	}
+-}
+Index: alsa-lib/src/conf/cards/bfin-ad73311.conf
+===================================================================
+--- alsa-lib/src/conf/cards/bfin-ad73311.conf	(revision 0)
++++ alsa-lib/src/conf/cards/bfin-ad73311.conf	(revision 10419)
+@@ -0,0 +1,21 @@
++bfin-ad73311.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/bfin-ssm2602.conf
+===================================================================
+--- alsa-lib/src/conf/cards/bfin-ssm2602.conf	(revision 0)
++++ alsa-lib/src/conf/cards/bfin-ssm2602.conf	(revision 10419)
+@@ -0,0 +1,21 @@
++bfin-ssm2602.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/bfin-ad193x.conf
+===================================================================
+--- alsa-lib/src/conf/cards/bfin-ad193x.conf	(revision 0)
++++ alsa-lib/src/conf/cards/bfin-ad193x.conf	(revision 10419)
+@@ -0,0 +1,16 @@
++bfin-ad193x.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type plug
++	slave.pcm {
++		type mmap_emul
++		slave.pcm {
++			type hw
++			card $CARD
++			format S32_LE
++			rate 48000
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/bfin-ad1836.conf
+===================================================================
+--- alsa-lib/src/conf/cards/bfin-ad1836.conf	(revision 0)
++++ alsa-lib/src/conf/cards/bfin-ad1836.conf	(revision 10419)
+@@ -0,0 +1,16 @@
++bfin-ad1836.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type plug
++	slave.pcm {
++		type mmap_emul
++		slave.pcm {
++			type hw
++			card $CARD
++			format S32_LE
++			rate 48000
++		}
++	}
++}

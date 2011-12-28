@@ -1,0 +1,325 @@
+Index: alsa-lib/src/conf/cards/AD1980-no-mmap.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD1980-no-mmap.conf	(revision 0)
++++ alsa-lib/src/conf/cards/AD1980-no-mmap.conf	(revision 10340)
+@@ -0,0 +1,14 @@
++AD1980.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type plug
++	slave.pcm {
++		type mmap_emul
++		slave.pcm {
++			type hw
++			card $CARD
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/AD73322.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD73322.conf	(revision 0)
++++ alsa-lib/src/conf/cards/AD73322.conf	(revision 10340)
+@@ -0,0 +1,14 @@
++AD73322.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type plug
++	slave.pcm {
++		type mmap_emul
++		slave.pcm {
++			type hw
++			card $CARD
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/SSM2602.conf
+===================================================================
+--- alsa-lib/src/conf/cards/SSM2602.conf	(revision 0)
++++ alsa-lib/src/conf/cards/SSM2602.conf	(revision 10340)
+@@ -0,0 +1,21 @@
++SSM2602.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/AD73311.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD73311.conf	(revision 0)
++++ alsa-lib/src/conf/cards/AD73311.conf	(revision 10340)
+@@ -0,0 +1,21 @@
++AD73311.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/ADAU1371.conf
+===================================================================
+--- alsa-lib/src/conf/cards/ADAU1371.conf	(revision 0)
++++ alsa-lib/src/conf/cards/ADAU1371.conf	(revision 10340)
+@@ -0,0 +1,21 @@
++ADAU1371.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/AD193X.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD193X.conf	(revision 0)
++++ alsa-lib/src/conf/cards/AD193X.conf	(revision 10340)
+@@ -0,0 +1,16 @@
++AD193X.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type plug
++	slave.pcm {
++		type mmap_emul
++		slave.pcm {
++			type hw
++			card $CARD
++			format S32_LE
++			rate 48000
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/AD73322.asound.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD73322.asound.conf	(revision 0)
++++ alsa-lib/src/conf/cards/AD73322.asound.conf	(revision 10340)
+@@ -0,0 +1,57 @@
++#Copy this file as /etc/asound.conf to use device "plughw:x,y".
++#x:index of card, from 0 to 1; y:index of device,from 0 to 7.
++pcm.!plughw {
++	@args [ CARD DEV SUBDEV ]
++	@args.CARD {
++		type string
++		default {
++			@func getenv
++			vars [
++				ALSA_PCM_CARD
++				ALSA_CARD
++			]
++			default {
++				@func refer
++				name defaults.pcm.card
++			}
++		}
++	}
++	@args.DEV {
++		type integer
++		default {
++			@func igetenv
++			vars [
++				ALSA_PCM_DEVICE
++			]
++			default {
++				@func refer
++				name defaults.pcm.device
++			}
++		}
++	}
++	@args.SUBDEV {
++		type integer
++		default {
++			@func refer
++			name defaults.pcm.subdevice
++		}
++	}		
++
++	type plug
++	slave {
++		pcm {
++			type mmap_emul
++			slave {
++				pcm {
++					type hw
++					card $CARD
++					device $DEV
++					format S16_LE
++					rate 8000
++					channels 1
++				}
++			}
++		}
++	}
++}
++
+Index: alsa-lib/src/conf/cards/AD1980.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD1980.conf	(revision 0)
++++ alsa-lib/src/conf/cards/AD1980.conf	(revision 10340)
+@@ -0,0 +1,48 @@
++<confdir:pcm/front.conf>
++
++AD1980.pcm.front.0 {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type hw
++	card $CARD
++	device 0
++}	
++
++AD1980.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++			format S16_LE
++			rate 48000
++			channels 2
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++			format S16_LE
++			rate 48000
++			channels 2
++		}
++	}
++}
++
++<confdir:pcm/surround40.conf>
++<confdir:pcm/surround41.conf>
++<confdir:pcm/surround50.conf>
++<confdir:pcm/surround51.conf>
++
++AD1980.pcm.surround40.0 cards.AD1980.pcm.front.0
++AD1980.pcm.surround51.0 cards.AD1980.pcm.front.0
++
+Index: alsa-lib/src/conf/cards/AD183X.conf
+===================================================================
+--- alsa-lib/src/conf/cards/AD183X.conf	(revision 0)
++++ alsa-lib/src/conf/cards/AD183X.conf	(revision 10340)
+@@ -0,0 +1,16 @@
++AD183X.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type plug
++	slave.pcm {
++		type mmap_emul
++		slave.pcm {
++			type hw
++			card $CARD
++			format S32_LE
++			rate 48000
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/ADAU1361.conf
+===================================================================
+--- alsa-lib/src/conf/cards/ADAU1361.conf	(revision 0)
++++ alsa-lib/src/conf/cards/ADAU1361.conf	(revision 10340)
+@@ -0,0 +1,21 @@
++ADAU1361.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++		}
++	}
++}
+Index: alsa-lib/src/conf/cards/ADAU1373.conf
+===================================================================
+--- alsa-lib/src/conf/cards/ADAU1373.conf	(revision 0)
++++ alsa-lib/src/conf/cards/ADAU1373.conf	(revision 10340)
+@@ -0,0 +1,21 @@
++ADAU1373.pcm.default {
++	@args [ CARD ]
++	@args.CARD {
++		type string
++	}
++	type asym
++	playback.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dmix:CARD=" $CARD ]
++		}
++	}
++	capture.pcm {
++		type plug
++		slave.pcm {
++			@func concat
++			strings [ "dsnoop:CARD=" $CARD ]
++		}
++	}
++}
