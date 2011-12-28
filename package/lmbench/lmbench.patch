@@ -230,7 +230,7 @@ diff --git a/src/lat_sem.c b/src/lat_sem.c
 index 192ef04..cd0fd3f 100644
 --- a/src/lat_sem.c
 +++ b/src/lat_sem.c
-@@ -77,7 +77,11 @@ initialize(iter_t iterations, void* cookie)
+@@ -77,7 +77,15 @@ initialize(iter_t iterations, void* cookie)
  	semctl(state->semid, 1, SETVAL, 0);
  
  	handle_scheduler(benchmp_childid(), 0, 1);
@@ -240,8 +240,14 @@ index 192ef04..cd0fd3f 100644
  	switch (state->pid = fork()) {
 +#endif
  	    case 0:
++#ifdef CONFIG_NOMMU
++ 		signal(SIGTERM, _exit);
++#else
  		signal(SIGTERM, exit);
++#endif
  		handle_scheduler(benchmp_childid(), 1, 1);
+		writer(state->semid);
+		return;
 diff --git a/src/lat_tcp.c b/src/lat_tcp.c
 index 6a11996..d1e79e7 100644
 --- a/src/lat_tcp.c
