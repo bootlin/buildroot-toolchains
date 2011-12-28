@@ -1,0 +1,49 @@
+--- boa-0.94.14rc21/src/boa.c
++++ boa-0.94.14rc21/src/boa.c
+@@ -91,34 +91,21 @@
+ 
+     /* background ourself */
+     if (do_fork) {
+-        pid = fork();
+-    } else {
+-        pid = getpid();
++        if (daemon(1, 1)) {
++            perror("daemon");
++            exit(EXIT_FAILURE);
++        }
+     }
+ 
+-    switch (pid) {
+-    case -1:
+-        /* error */
+-        perror("fork/getpid");
+-        exit(EXIT_FAILURE);
+-    case 0:
+-        /* child, success */
+-        break;
+-    default:
+-        /* parent, success */
+-        if (pid_file != NULL) {
+-            FILE *PID_FILE = fopen(pid_file, "w");
+-            if (PID_FILE != NULL) {
+-                fprintf(PID_FILE, "%d", pid);
+-                fclose(PID_FILE);
+-            } else {
+-                perror("fopen pid file");
+-            }
++    pid = getpid();
++    if (pid_file != NULL) {
++        FILE *PID_FILE = fopen(pid_file, "w");
++        if (PID_FILE != NULL) {
++            fprintf(PID_FILE, "%d", pid);
++            fclose(PID_FILE);
++        } else {
++            perror("fopen pid file");
+         }
+-
+-        if (do_fork)
+-            exit(EXIT_SUCCESS);
+-        break;
+     }
+ 
+     drop_privs();

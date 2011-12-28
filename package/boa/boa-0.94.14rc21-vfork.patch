@@ -1,0 +1,40 @@
+--- boa-0.94.14rc21/src/cgi.c	2011-12-28 17:08:11.566047149 +0800
++++ boa-0.94.14rc21/src/cgi.c	2011-12-28 17:07:09.562295518 +0800
+@@ -445,7 +445,11 @@
+         }
+     }
+ 
++#ifdef __NOMMU__
++    child_pid = vfork();
++#else
+     child_pid = fork();
++#endif
+     switch (child_pid) {
+     case -1:
+         /* fork unsuccessful */
+--- boa-0.94.14rc21/src/sublog.c	2011-12-28 17:08:43.742296346 +0800
++++ boa-0.94.14rc21/src/sublog.c	2011-12-28 17:09:24.978297073 +0800
+@@ -48,7 +48,11 @@
+      * filedes[1] is for writing. */
+     if (pipe(pipe_fds) == -1)
+         return -1;
++#ifdef __NOMMU__
++    pid = vfork();
++#else
+     pid = fork();
++#endif
+     if (pid == 0) {             /* child */
+         close(pipe_fds[1]);
+         if (pipe_fds[0] != 0) {
+@@ -56,7 +60,11 @@
+             close(pipe_fds[0]);
+         }
+         execl("/bin/sh", "sh", "-c", command, (char *) 0);
++#ifdef __NOMMU__
++        _exit(EXIT_FAILURE);
++#else
+         exit(EXIT_FAILURE);
++#endif
+     }
+     close(pipe_fds[0]);
+     if (pid < 0) {
