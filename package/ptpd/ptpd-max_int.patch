@@ -1,0 +1,10 @@
+--- a/src/arith.c	2010-07-16 11:09:06.000000000 +0300
++++ b/src/arith.c	2010-07-16 11:09:06.000000000 +0300
+@@ -1,6 +1,7 @@
+ /* arith.c */
+  
+ #include "ptpd.h"
++#include <limits.h>
+ 
+ /* from annex C of the spec */
+ UInteger32 crc_algorithm(Octet *buf, Integer16 length)

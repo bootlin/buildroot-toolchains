@@ -1,0 +1,6 @@
+config BR2_PACKAGE_PTPD
+	bool "ptpd"
+	help
+	  Precision Time Protocol (PTP) as defined by the IEEE 1588 standard
+
+	  http://sourceforge.net/projects/ptpd
