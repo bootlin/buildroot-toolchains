@@ -1,0 +1,5 @@
+config BR2_PACKAGE_VERSION
+	bool "version command"
+	help
+	  version command display kernel toolchain user version
+
