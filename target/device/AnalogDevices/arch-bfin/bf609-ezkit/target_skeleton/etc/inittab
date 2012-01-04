@@ -22,7 +22,7 @@ null::sysinit:/bin/sh /etc/rc
 null::respawn:/sbin/inetd -f
 null::respawn:/sbin/watchdog -F -T 20 -t 10 /dev/watchdog
 
-console::respawn:/sbin/getty -L ttyBF0 57600 vt102 # GENERIC_SERIAL
+console::respawn:-/bin/sh
 
 # Logging junk
 null::sysinit:/bin/touch /var/log/messages
