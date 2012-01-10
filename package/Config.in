@@ -368,6 +368,7 @@ endmenu
 endmenu
 
 menu "Miscellaneous"
+source "package/bfin-dma/Config.in"
 source "package/shared-mime-info/Config.in"
 source "package/xenomai/Config.in"
 comment "trial only, disabled, latest xenomai is for kernel 2.6.33, also not supported by latest toolchain"

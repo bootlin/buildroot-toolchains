@@ -1,0 +1,4 @@
+config BR2_PACKAGE_BFIN_DMA
+	bool "bfin dma test"
+	help
+	  Bfin dma test suite
