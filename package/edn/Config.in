@@ -1,0 +1,4 @@
+config BR2_PACKAGE_EDN
+	bool "EDN's DSP benchmark"
+	help
+	  EDN investigated the quality of code that DSP compilers produce.
