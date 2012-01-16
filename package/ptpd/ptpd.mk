@@ -3,12 +3,12 @@
 # ptpd
 #
 #############################################################
-PTPD_VERSION:=1.0.0
-PTPD_SOURCE:=ptpd-$(PTPD_VERSION).tar.gz
-PTPD_SITE:=http://downloads.sourceforge.net/ptpd
+PTPD_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/ptpd
+PTPD_SITE_METHOD = svn
+PTPD_VERSION = 10459
 
 define PTPD_BUILD_CMDS
-	$(MAKE) CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS) -DPTPD_DBGV" LDFLAGS="$(TARGET_LDFLAGS)" -C $(@D)/src
+	$(MAKE) CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS)" LDFLAGS="$(TARGET_LDFLAGS)" -C $(@D)/src
 endef
 
 define PTPD_INSTALL_TARGET_CMDS
