@@ -1,14 +1,16 @@
 basebootargs=console=ttyS4,115200 mtdparts=atmel_nand:4m(kernel1),32m(rootfs1),4m(kernel2),32m(rootfs2),4m(conf) rootfstype=jffs2
-kernel_mtdpart=mtd0
-rootfs_mtdpart=mtd1
 loadkernel=if test "${kernel_mtdpart}" = "mtd0" ; then nboot.e 70000000 0 0 ; else nboot.e 70000000 0 2400000 ; fi
 setbootargs=if test "${rootfs_mtdpart}" = "mtd1" ; then setenv bootargs root=/dev/mtdblock1 ${basebootargs} ; else setenv bootargs root=/dev/mtdblock3 ${basebootargs} ; fi
-bootcmd=run loadkernel; run setbootargs; bootm
+bootcmd=if run checkserialized && run checkflashed; then setenv bootcmd "run loadkernel; run setbootargs; bootm"; boot; fi
 flashkernel=if tftp 70000000 uImage.netcom; then nand erase 0 400000; nand write.e 70000000 0 400000; setenv kernel_mtdpart mtd0; fi
 flashrootfs=if tftp 70000000 rootfs.jffs2.netcom; then nand erase 400000 2400000; nand write.e 70000000 400000 ${filesize}; setenv rootfs_mtdpart mtd1; fi
 flashenv=if tftp 70000000 u-boot-env.bin.netcom; then cp.b 70000000 C0004200 4200; fi
 eraseconfig=nand erase 0x4800000 0x400000
 flashall=run flashkernel; run flashrootfs; saveenv
+checkserialized=test "${ethaddr}" <> "" || echo "MAC address not set" && test 0
+checktestvars=test "${testposition}" <> "" || echo "Test vars not set" && test 0
+factoryflash=if run checktestvars; then setenv serverip 192.168.199.250 ; setenv ipaddr 192.168.199.1${testposition} ; run flashall ; echo Complete ; fi
+checkflashed=test "${kernel_mtdpart}" <> "" || echo "Flash not programmed" && run factoryflash || test 0
 BOOTBLOCK_PCBSERNO=Z999999
 BOOTBLOCK_BRAND=GETINGE
 BOOTBLOCK_HWID=2012
