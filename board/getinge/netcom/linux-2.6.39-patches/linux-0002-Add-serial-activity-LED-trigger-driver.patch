@@ -125,7 +125,7 @@ index 0000000..b52d240
 +		led_trigger_event(ledtrig_serial_tx, LED_OFF);
 +
 +	if (has_activity)
-+		mod_timer(&ledtrig_serial_timer, jiffies + msecs_to_jiffies(10));
++		mod_timer(&ledtrig_serial_timer, jiffies + msecs_to_jiffies(LEDTRIG_SERIAL_ON_DURATION_MSECS));
 +}
 +
 +static int __init ledtrig_serial_init(void)
