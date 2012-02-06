@@ -186,7 +186,7 @@ diff -urN lmbench-3.0-a9.bak/src/lat_cmd.c lmbench-3.0-a9/src/lat_cmd.c
 +int
 +cmd_thread_function(void *t)
 +{
-+	struct state_t *state = (struct state_t *)t;
++	state_t *state = (state_t *)t;
 +	execvp(state->argv[0], state->argv);
 +	return 0;
 +}
