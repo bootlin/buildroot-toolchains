@@ -1,0 +1,11 @@
+--- a/src/lat_ctx.c	2012-02-06 17:28:31.106045340 +0800
++++ b/src/lat_ctx.c	2012-02-07 10:12:35.966046601 +0800
+@@ -88,6 +88,8 @@
+ 		}
+ 	}
+ 
++	optind++;
++
+ 	if (optind > ac - 1)
+ 		lmbench_usage(ac, av, usage);
+ 
