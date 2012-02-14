@@ -1,0 +1,4 @@
+config BR2_PACKAGE_CRC_TEST
+	bool "bfin CRC test"
+	help
+	  Bfin CRC test suite
