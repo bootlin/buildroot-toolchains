@@ -2,6 +2,23 @@ diff --git a/Makefile b/Makefile
 index 5045c77..1e565f4 100644
 --- a/Makefile
 +++ b/Makefile
+@@ -20,6 +20,7 @@
+ # compiled into the executable.
+ 
+ CC = gcc
++HOST_CC = gcc
+ 
+ # generic options for gcc
+ CFLAGS = -s -static -Wall -O3
+@@ -119,7 +120,7 @@
+ 		-c emfloat.c
+ 
+ pointer.h: pointer Makefile
+-	$(CC) $(MACHINE) $(DEFINES) $(CFLAGS)\
++	$(HOST_CC) $(MACHINE) $(DEFINES) $(CFLAGS)\
+ 		-o pointer pointer.c
+ 	rm -f pointer.h
+ 	if [ "4" = `./pointer` ] ; then touch pointer.h ;\
 @@ -151,3 +150,9 @@ clean:
  
  mrproper: clean
