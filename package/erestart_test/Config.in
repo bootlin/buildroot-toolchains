@@ -1,0 +1,4 @@
+config BR2_PACKAGE_ERESTART_TEST
+	bool "erestart test"
+	help
+	  erestart test suite

@@ -1,0 +1,4 @@
+config BR2_PACKAGE_TRAPS_TEST
+	bool "traps tests"
+	help
+	  traps test suite

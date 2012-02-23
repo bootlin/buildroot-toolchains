@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PTHREAD_TEST
+	bool "pthread test"
+	help
+	  pthread test suite
