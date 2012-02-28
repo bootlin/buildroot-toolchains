@@ -1,0 +1,4 @@
+config BR2_PACKAGE_BFIN_GPTIMER
+	bool "bfin gptimer test"
+	help
+	  Bfin gptimer test suite

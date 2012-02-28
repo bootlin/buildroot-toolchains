@@ -370,6 +370,7 @@ endmenu
 
 menu "Miscellaneous"
 source "package/bfin-dma/Config.in"
+source "package/bfin-gptimer/Config.in"
 source "package/crc_test/Config.in"
 source "package/pthread_test/Config.in"
 source "package/erestart_test/Config.in"
