@@ -1,0 +1,4 @@
+config BR2_PACKAGE_MALLOC_PERF_TEST
+	bool "malloc perf test"
+	help
+	  malloc perf test suite

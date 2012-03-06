@@ -1,0 +1,4 @@
+config BR2_PACKAGE_MMAP_TEST
+	bool "mmap test"
+	help
+	  mmap test suite

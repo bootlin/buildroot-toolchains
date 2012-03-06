@@ -1,0 +1,4 @@
+config BR2_PACKAGE_FIXED_CODE_TEST
+	bool "fixed code test"
+	help
+	  fixed code test suite
