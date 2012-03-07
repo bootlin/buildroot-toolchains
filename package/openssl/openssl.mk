@@ -3,121 +3,78 @@
 # openssl
 #
 #############################################################
+OPENSSL_VERSION:=0.9.8t
+OPENSSL_SITE:=http://www.openssl.org/source
 
-OPENSSL_VERSION = 1.0.0d
-OPENSSL_SITE = http://www.openssl.org/source
-OPENSSL_INSTALL_STAGING = YES
-OPENSSL_DEPENDENCIES = zlib
-OPENSSL_TARGET_ARCH = generic32
-OPENSSL_CFLAGS = $(TARGET_CFLAGS)
-
-ifeq ($(BR2_PACKAGE_OPENSSL_OCF),y)
-OPENSSL_CFLAGS += -DHAVE_CRYPTODEV -DUSE_CRYPTODEV_DIGESTS
-
-define OPENSSL_INSTALL_CRYPTODEV_H
-$(INSTALL) -D package/openssl/ocf-cryptodev-20101223.h \
-	$(STAGING_DIR)/usr/include/crypto/cryptodev.h
-endef
-
-OPENSSL_POST_EXTRACT_HOOKS += OPENSSL_INSTALL_CRYPTODEV_H
-endif
+OPENSSL_TARGET_ARCH=generic32
 
 # Some architectures are optimized in OpenSSL
-ifeq ($(ARCH),arm)
-ifneq ($(BR2_generic_arm),y)
-ifneq ($(BR2_arm610),y)
-ifneq ($(BR2_arm710),y)
-	OPENSSL_TARGET_ARCH = armv4
-endif
-endif
-endif
+ifeq ($(ARCH),ia64)
+OPENSSL_TARGET_ARCH=ia64
 endif
 ifeq ($(ARCH),powerpc)
-	OPENSSL_TARGET_ARCH = ppc
+OPENSSL_TARGET_ARCH=ppc
 endif
 ifeq ($(ARCH),x86_64)
-	OPENSSL_TARGET_ARCH = x86_64
+OPENSSL_TARGET_ARCH=x86_64
 endif
 
-# Workaround for bug #3445
-ifeq ($(BR2_x86_i386),y)
-	OPENSSL_TARGET_ARCH = generic32 386
-endif
+OPENSSL_INSTALL_STAGING = YES
+OPENSSL_INSTALL_STAGING_OPT = INSTALL_PREFIX=$(STAGING_DIR) install
 
-define OPENSSL_CONFIGURE_CMDS
-	(cd $(@D); \
+OPENSSL_INSTALL_TARGET_OPT = INSTALL_PREFIX=$(TARGET_DIR) install
+
+OPENSSL_DEPENDENCIES = zlib
+
+$(eval $(call AUTOTARGETS,package,openssl))
+
+$(OPENSSL_TARGET_CONFIGURE):
+	(cd $(OPENSSL_DIR); \
 		$(TARGET_CONFIGURE_ARGS) \
 		$(TARGET_CONFIGURE_OPTS) \
 		./Configure \
 			linux-$(OPENSSL_TARGET_ARCH) \
 			--prefix=/usr \
 			--openssldir=/etc/ssl \
-			--libdir=/lib \
 			threads \
 			shared \
 			no-idea \
+			no-mdc2 \
 			no-rc5 \
-			enable-camellia \
-			enable-mdc2 \
-			enable-tlsext \
 			zlib-dynamic \
 	)
-	$(SED) "s:-march=[-a-z0-9] ::" -e "s:-mcpu=[-a-z0-9] ::g" $(@D)/Makefile
-	$(SED) "s:-O[0-9]:$(OPENSSL_CFLAGS):" $(@D)/Makefile
-endef
+	$(SED) "s:-march=[-a-z0-9] ::" -e "s:-mcpu=[-a-z0-9] ::g" $(OPENSSL_DIR)/Makefile
+	$(SED) "s:-O[0-9]:$(TARGET_CFLAGS):" $(OPENSSL_DIR)/Makefile
+	touch $@
 
-define OPENSSL_BUILD_CMDS
-	$(MAKE1) -C $(@D) all build-shared
-	$(MAKE1) -C $(@D) do_linux-shared
-endef
+$(OPENSSL_TARGET_BUILD):
+	$(MAKE1) CC=$(TARGET_CC) -C $(OPENSSL_DIR) all build-shared
+	$(MAKE1) CC=$(TARGET_CC) -C $(OPENSSL_DIR) do_linux-shared
+	touch $@
 
-define OPENSSL_INSTALL_STAGING_CMDS
-	$(MAKE1) -C $(@D) INSTALL_PREFIX=$(STAGING_DIR) install
-endef
-
-define OPENSSL_INSTALL_TARGET_CMDS
-	$(MAKE1) -C $(@D) INSTALL_PREFIX=$(TARGET_DIR) install
-endef
-
-define OPENSSL_REMOVE_DEV_FILES
-	rm -rf $(TARGET_DIR)/usr/lib/ssl
-endef
-
-ifneq ($(BR2_HAVE_DEVFILES),y)
-OPENSSL_POST_INSTALL_TARGET_HOOKS += OPENSSL_REMOVE_DEV_FILES
-endif
-
-define OPENSSL_REMOVE_OPENSSL_BIN
+$(OPENSSL_HOOK_POST_INSTALL):
+	$(if $(BR2_HAVE_DEVFILES),,rm -rf $(TARGET_DIR)/usr/lib/ssl)
+ifeq ($(BR2_PACKAGE_OPENSSL_BIN),y)
+	$(STRIPCMD) $(STRIP_STRIP_ALL) $(TARGET_DIR)/usr/bin/openssl
+else
 	rm -f $(TARGET_DIR)/usr/bin/openssl
-endef
-
-ifneq ($(BR2_PACKAGE_OPENSSL_BIN),y)
-OPENSSL_POST_INSTALL_TARGET_HOOKS += OPENSSL_REMOVE_OPENSSL_BIN
 endif
-
-define OPENSSL_INSTALL_FIXUPS
 	rm -f $(TARGET_DIR)/usr/bin/c_rehash
 	# libraries gets installed read only, so strip fails
-	chmod +w $(TARGET_DIR)/usr/lib/engines/lib*.so
 	for i in $(addprefix $(TARGET_DIR)/usr/lib/,libcrypto.so.* libssl.so.*); \
-	do chmod +w $$i; done
-endef
-
-OPENSSL_POST_INSTALL_TARGET_HOOKS += OPENSSL_INSTALL_FIXUPS
-
-define OPENSSL_REMOVE_OPENSSL_ENGINES
-	rm -rf $(TARGET_DIR)/usr/lib/engines
-endef
-
+	do chmod +w $$i; $(STRIPCMD) $(STRIP_STRIP_UNNEEDED) $$i; done
 ifneq ($(BR2_PACKAGE_OPENSSL_ENGINES),y)
-OPENSSL_POST_INSTALL_TARGET_HOOKS += OPENSSL_REMOVE_OPENSSL_ENGINES
+	rm -rf $(TARGET_DIR)/usr/lib/engines
+else
+	chmod +w $(TARGET_DIR)/usr/lib/engines/lib*.so
+	$(STRIPCMD) $(STRIP_STRIP_UNNEEDED) $(TARGET_DIR)/usr/lib/engines/lib*.so
 endif
+	touch $@
 
-define OPENSSL_UNINSTALL_CMDS
+$(OPENSSL_TARGET_UNINSTALL):
+	$(call MESSAGE,"Uninstalling")
 	rm -rf $(addprefix $(TARGET_DIR)/,etc/ssl usr/bin/openssl usr/include/openssl)
 	rm -rf $(addprefix $(TARGET_DIR)/usr/lib/,ssl engines libcrypto* libssl* pkgconfig/libcrypto.pc)
 	rm -rf $(addprefix $(STAGING_DIR)/,etc/ssl usr/bin/openssl usr/include/openssl)
 	rm -rf $(addprefix $(STAGING_DIR)/usr/lib/,ssl engines libcrypto* libssl* pkgconfig/libcrypto.pc)
-endef
-
-$(eval $(call GENTARGETS,package,openssl))
+	rm -f $(OPENSSL_TARGET_INSTALL_TARGET) $(OPENSSL_HOOK_POST_INSTALL)
