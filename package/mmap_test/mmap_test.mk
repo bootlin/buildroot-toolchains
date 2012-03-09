@@ -5,7 +5,7 @@
 #############################################################
 MMAP_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/mmap_test
 MMAP_TEST_SITE_METHOD = svn
-MMAP_TEST_VERSION = 10630
+MMAP_TEST_VERSION = HEAD
 
 define MMAP_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MMAP_MODULE_DIR=$(BASE_DIR)/build/mmap_test-$(MMAP_TEST_VERSION) $(TARGET_CONFIGURE_OPTS)
