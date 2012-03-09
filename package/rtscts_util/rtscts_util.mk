@@ -5,7 +5,7 @@
 #############################################################
 RTSCTS_UTIL_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/rtscts_test
 RTSCTS_UTIL_SITE_METHOD = svn
-RTSCTS_UTIL_VERSION = 10459
+RTSCTS_UTIL_VERSION = HEAD
 
 define RTSCTS_UTIL_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)
