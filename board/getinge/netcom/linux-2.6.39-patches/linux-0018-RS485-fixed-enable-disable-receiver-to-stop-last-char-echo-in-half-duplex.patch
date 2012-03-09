@@ -1,0 +1,22 @@
+Index: linux-2.6.39/drivers/tty/serial/atmel_serial.c
+===================================================================
+--- linux-2.6.39.orig/drivers/tty/serial/atmel_serial.c	2012-03-09 09:00:46.576022150 -0500
++++ linux-2.6.39/drivers/tty/serial/atmel_serial.c	2012-03-09 09:01:19.718546000 -0500
+@@ -383,6 +383,8 @@
+ {
+ 	UART_PUT_CR(port, ATMEL_US_RSTSTA);  /* reset status and receiver */
+ 
++  UART_PUT_CR(port, ATMEL_US_RXEN);
++
+ 	if (atmel_use_dma_rx(port)) {
+ 		/* enable PDC controller */
+ 		UART_PUT_IER(port, ATMEL_US_ENDRX | ATMEL_US_TIMEOUT |
+@@ -398,6 +400,8 @@
+  */
+ static void atmel_stop_rx(struct uart_port *port)
+ {
++	UART_PUT_CR(port, ATMEL_US_RXDIS);
++
+ 	if (atmel_use_dma_rx(port)) {
+ 		/* disable PDC receive */
+ 		UART_PUT_PTCR(port, ATMEL_PDC_RXTDIS);

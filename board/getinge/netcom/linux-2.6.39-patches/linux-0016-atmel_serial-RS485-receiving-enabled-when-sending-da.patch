@@ -1,0 +1,82 @@
+From a2a129c9f381a15fcb4447035e35bb85eb7217b2 Mon Sep 17 00:00:00 2001
+From: Bernhard Roth <br@pwrnet.de>
+Date: Wed, 24 Aug 2011 09:48:23 +0200
+Subject: [PATCH 16/17] atmel_serial: RS485: receiving enabled when sending data
+
+By default the atmel_serial driver in RS485 mode disables receiving data until
+all data in the send buffer has been sent. This flag allows to receive data
+even whilst sending data.
+
+Signed-off-by: Bernhard Roth <br@pwrnet.de>
+Signed-off-by: Claudio Scordino <claudio@evidence.eu.com>
+Acked-by: Alan Cox <alan@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+---
+ Documentation/serial/serial-rs485.txt |    3 +++
+ drivers/tty/serial/atmel_serial.c     |    9 ++++++---
+ include/linux/serial.h                |    1 +
+ 3 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/serial/serial-rs485.txt b/Documentation/serial/serial-rs485.txt
+index a493238..c8878f8 100644
+--- a/Documentation/serial/serial-rs485.txt
++++ b/Documentation/serial/serial-rs485.txt
+@@ -104,6 +104,9 @@
+ 	rs485conf.flags |= SER_RS485_RTS_AFTER_SEND;
+ 	rs485conf.delay_rts_after_send = ...;
+ 
++	/* Set this flag if you want to receive data even whilst sending data */
++	rs485conf.flags |= SER_RS485_RX_DURING_TX;
++
+ 	if (ioctl (fd, TIOCSRS485, &rs485conf) < 0) {
+ 		/* Error handling. See errno. */
+ 	}
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index 0553a16..9e028e0 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -347,7 +347,8 @@ static void atmel_stop_tx(struct uart_port *port)
+ 	/* Disable interrupts */
+ 	UART_PUT_IDR(port, atmel_port->tx_done_mask);
+ 
+-	if (atmel_port->rs485.flags & SER_RS485_ENABLED)
++	if ((atmel_port->rs485.flags & SER_RS485_ENABLED) &&
++	    !(atmel_port->rs485.flags & SER_RS485_RX_DURING_TX))
+ 		atmel_start_rx(port);
+ }
+ 
+@@ -364,7 +365,8 @@ static void atmel_start_tx(struct uart_port *port)
+ 			   really need this.*/
+ 			return;
+ 
+-		if (atmel_port->rs485.flags & SER_RS485_ENABLED)
++		if ((atmel_port->rs485.flags & SER_RS485_ENABLED) &&
++		    !(atmel_port->rs485.flags & SER_RS485_RX_DURING_TX))
+ 			atmel_stop_rx(port);
+ 
+ 		/* re-enable PDC transmit */
+@@ -688,7 +690,8 @@ static void atmel_tx_dma(struct uart_port *port)
+ 		/* Enable interrupts */
+ 		UART_PUT_IER(port, atmel_port->tx_done_mask);
+ 	} else {
+-		if (atmel_port->rs485.flags & SER_RS485_ENABLED) {
++		if ((atmel_port->rs485.flags & SER_RS485_ENABLED) &&
++		    !(atmel_port->rs485.flags & SER_RS485_RX_DURING_TX)) {
+ 			/* DMA done, stop TX, start RX for RS485 */
+ 			atmel_start_rx(port);
+ 		}
+diff --git a/include/linux/serial.h b/include/linux/serial.h
+index 8a4d294..cdaa484 100644
+--- a/include/linux/serial.h
++++ b/include/linux/serial.h
+@@ -212,6 +212,7 @@ struct serial_rs485 {
+ #define SER_RS485_RTS_AFTER_SEND	(1 << 2)
+ #define SER_RS485_RTS_BEFORE_SEND	(1 << 3)
+ #define SER_RS485_FULL_DUPLEX		(1 << 4)
++#define SER_RS485_RX_DURING_TX		(1 << 5)
+ 	__u32	delay_rts_before_send;	/* Milliseconds */
+ 	__u32	delay_rts_after_send;	/* Milliseconds */
+ 	__u32	padding[5];		/* Memory is cheap, new structs
+-- 
+1.7.4.1
+
