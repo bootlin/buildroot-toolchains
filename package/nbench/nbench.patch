@@ -28,7 +28,7 @@ index 5045c77..1e565f4 100644
 +	if [ ! -d $(BASE) ]; then mkdir $(BASE); fi
 +	if [ ! -d $(BASE)/bin ]; then mkdir $(BASE)/bin; fi
 +	if [ ! -d $(BASE)/lib ]; then mkdir $(BASE)/lib; fi
-+	cp nbench $(BASE)/bin
++	cp nbench COM.DAT NNET.DAT $(BASE)/bin
 diff --git a/pointer.h b/pointer.h
 new file mode 100644
 index 0000000..0badd44
