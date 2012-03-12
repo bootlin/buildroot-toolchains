@@ -1,15 +1,15 @@
-From 471cea568de55bd46a6475fb975af69d39102b50 Mon Sep 17 00:00:00 2001
+From 2160b9bb87b19172d9dd844e5b98b1301f3bece3 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
-Subject: [PATCH] getinge: Add support for Getinge NetCOM v3 platform
+Subject: [PATCH 10/18] getinge: Add support for Getinge NetCOM v3 platform
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  arch/arm/mach-at91/Kconfig                  |    6 +
  arch/arm/mach-at91/Makefile                 |    1 +
- arch/arm/mach-at91/board-getinge-netcomv3.c |  288 +++++++++++++++++++++++++++
+ arch/arm/mach-at91/board-getinge-netcomv3.c |  298 +++++++++++++++++++++++++++
  arch/arm/tools/mach-types                   |    1 +
- 4 files changed, 296 insertions(+), 0 deletions(-)
+ 4 files changed, 306 insertions(+), 0 deletions(-)
  create mode 100644 arch/arm/mach-at91/board-getinge-netcomv3.c
 
 diff --git a/arch/arm/mach-at91/Kconfig b/arch/arm/mach-at91/Kconfig
@@ -43,10 +43,10 @@ index a83835e..aee938d 100644
  obj-$(CONFIG_MACH_AT91CAP9ADK)	+= board-cap9adk.o
 diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
 new file mode 100644
-index 0000000..914369f
+index 0000000..8a5b5e7
 --- /dev/null
 +++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
-@@ -0,0 +1,288 @@
+@@ -0,0 +1,298 @@
 +/*
 + *  Board-specific setup code for the Getinge NetCOM v3
 + *  platform. Largely inspired from the board-sam9m10g45ek.c file.
@@ -155,17 +155,27 @@ index 0000000..914369f
 +	{
 +		.name   = "at91bootstrap",
 +		.offset = 0,
-+		.size   = 0x4200,
++		.size   = 0x2100,
 +	},
 +	{
 +		.name   = "u-boot-env",
 +		.offset = MTDPART_OFS_NXTBLK,
-+		.size   = 0x4200,
++		.size   = 0x2100,
 +	},
 +	{
 +		.name   = "u-boot",
 +		.offset = MTDPART_OFS_NXTBLK,
-+		.size   = MTDPART_SIZ_FULL,
++		.size   = 0x33900,
++	},
++	{
++		.name   = "test-script",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = 0x6300,
++	},
++	{
++		.name   = "u-boot-env-bak",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = 0x2100,
 +	},
 +};
 +
