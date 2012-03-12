@@ -1,0 +1,21 @@
+From ff524933e91370d62d4080c70143d163e100904c Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 12 Mar 2012 20:38:33 +0100
+Subject: [PATCH 3/3] getinge/netcomv3: identify build with a specific version name
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ localversion-getinge |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+ create mode 100644 localversion-getinge
+
+diff --git a/localversion-getinge b/localversion-getinge
+new file mode 100644
+index 0000000..36a8d18
+--- /dev/null
++++ b/localversion-getinge
+@@ -0,0 +1 @@
++-getinge-netcom
+-- 
+1.7.4.1
+

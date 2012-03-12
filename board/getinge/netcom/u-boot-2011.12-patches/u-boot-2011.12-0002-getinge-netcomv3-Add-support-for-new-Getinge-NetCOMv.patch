@@ -1,0 +1,701 @@
+From 752c9a0e0c88fc2b3b2e8b2484a79cafc797e0ca Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 12 Mar 2012 20:34:50 +0100
+Subject: [PATCH 2/3] getinge/netcomv3: Add support for new Getinge NetCOMv3 board
+
+The code has been taken from the AT91SAM9M10G45-EK board, with the
+following differences:
+
+ * Different GPIOs for enabling USB
+ * No LCD
+ * Different sent of commands compiled in
+ * Different dataflash partition table
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/include/asm/mach-types.h  |   13 ++
+ board/getinge/netcomv3/Makefile    |   52 +++++++
+ board/getinge/netcomv3/config.mk   |    1 +
+ board/getinge/netcomv3/netcomv3.c  |  289 ++++++++++++++++++++++++++++++++++++
+ board/getinge/netcomv3/partition.c |   40 +++++
+ boards.cfg                         |    1 +
+ include/configs/getinge_netcomv3.h |  214 ++++++++++++++++++++++++++
+ 7 files changed, 610 insertions(+), 0 deletions(-)
+ create mode 100644 board/getinge/netcomv3/Makefile
+ create mode 100644 board/getinge/netcomv3/config.mk
+ create mode 100644 board/getinge/netcomv3/netcomv3.c
+ create mode 100644 board/getinge/netcomv3/partition.c
+ create mode 100644 include/configs/getinge_netcomv3.h
+
+diff --git a/arch/arm/include/asm/mach-types.h b/arch/arm/include/asm/mach-types.h
+index 2d5c3bc..469a179 100644
+--- a/arch/arm/include/asm/mach-types.h
++++ b/arch/arm/include/asm/mach-types.h
+@@ -1104,6 +1104,7 @@ extern unsigned int __machine_arch_type;
+ #define MACH_TYPE_THALES_ADC           3492
+ #define MACH_TYPE_UBISYS_P9D_EVP       3493
+ #define MACH_TYPE_ATDGP318             3494
++#define MACH_TYPE_GETINGE_NETCOMV3     3602
+ #define MACH_TYPE_OMAP5_SEVM           3777
+ 
+ #ifdef CONFIG_ARCH_EBSA110
+@@ -14210,6 +14211,18 @@ extern unsigned int __machine_arch_type;
+ # define machine_is_atdgp318()	(0)
+ #endif
+ 
++#ifdef CONFIG_MACH_GETINGE_NETCOMV3
++# ifdef machine_arch_type
++#  undef machine_arch_type
++#  define machine_arch_type    __machine_arch_type
++# else
++#  define machine_arch_type    MACH_TYPE_GETINGE_NETCOMV3
++# endif
++# define machine_is_getinge_netcomv3() (machine_arch_type == MACH_TYPE_GETINGE_NETCOMV3)
++#else
++# define machine_is_getinge_netcomv3() (0)
++#endif
++
+ #ifdef CONFIG_MACH_OMAP5_SEVM
+ # ifdef machine_arch_type
+ #  undef machine_arch_type
+diff --git a/board/getinge/netcomv3/Makefile b/board/getinge/netcomv3/Makefile
+new file mode 100644
+index 0000000..765a247
+--- /dev/null
++++ b/board/getinge/netcomv3/Makefile
+@@ -0,0 +1,52 @@
++#
++# (C) Copyright 2003-2008
++# Wolfgang Denk, DENX Software Engineering, wd@denx.de.
++#
++# (C) Copyright 2008
++# Stelian Pop <stelian@popies.net>
++# Lead Tech Design <www.leadtechdesign.com>
++#
++# (C) Copyright 2012
++# Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
++#
++# See file CREDITS for list of people who contributed to this
++# project.
++#
++# This program is free software; you can redistribute it and/or
++# modify it under the terms of the GNU General Public License as
++# published by the Free Software Foundation; either version 2 of
++# the License, or (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++# MA 02111-1307 USA
++#
++
++include $(TOPDIR)/config.mk
++
++LIB	= $(obj)lib$(BOARD).o
++
++COBJS-y += netcomv3.o
++COBJS-y += partition.o
++
++SRCS	:= $(SOBJS:.o=.S) $(COBJS-y:.o=.c)
++OBJS	:= $(addprefix $(obj),$(COBJS-y))
++SOBJS	:= $(addprefix $(obj),$(SOBJS))
++
++$(LIB):	$(obj).depend $(OBJS) $(SOBJS)
++	$(call cmd_link_o_target, $(OBJS) $(SOBJS))
++
++#########################################################################
++
++# defines $(obj).depend target
++include $(SRCTREE)/rules.mk
++
++sinclude $(obj).depend
++
++#########################################################################
+diff --git a/board/getinge/netcomv3/config.mk b/board/getinge/netcomv3/config.mk
+new file mode 100644
+index 0000000..9d3c5ae
+--- /dev/null
++++ b/board/getinge/netcomv3/config.mk
+@@ -0,0 +1 @@
++CONFIG_SYS_TEXT_BASE = 0x73f00000
+diff --git a/board/getinge/netcomv3/netcomv3.c b/board/getinge/netcomv3/netcomv3.c
+new file mode 100644
+index 0000000..d34c810
+--- /dev/null
++++ b/board/getinge/netcomv3/netcomv3.c
+@@ -0,0 +1,289 @@
++/*
++ * (C) Copyright 2007-2012
++ * Stelian Pop <stelian@popies.net>
++ * Lead Tech Design <www.leadtechdesign.com>
++ * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
++ *
++ * See file CREDITS for list of people who contributed to this
++ * project.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ */
++
++#include <common.h>
++#include <asm/io.h>
++#include <asm/arch/at91sam9g45_matrix.h>
++#include <asm/arch/at91sam9_smc.h>
++#include <asm/arch/at91_common.h>
++#include <asm/arch/at91_pmc.h>
++#include <asm/arch/at91_rstc.h>
++#include <asm/arch/gpio.h>
++#include <asm/arch/clk.h>
++#include <lcd.h>
++#include <atmel_lcdc.h>
++#if defined(CONFIG_RESET_PHY_R) && defined(CONFIG_MACB)
++#include <net.h>
++#endif
++#include <netdev.h>
++#include <status_led.h>
++
++DECLARE_GLOBAL_DATA_PTR;
++
++/* ------------------------------------------------------------------------- */
++/*
++ * Miscelaneous platform dependent initialisations
++ */
++
++#ifdef CONFIG_CMD_LED
++static unsigned int led_state[2] = { 0, 0 };
++
++void __led_init(led_id_t mask, int state)
++{
++        __led_set(mask, state);
++}
++
++void __led_toggle(led_id_t mask)
++{
++	if (mask >= 2)
++		return;
++
++	if (led_state[mask]) {
++		__led_set(mask, 0);
++		led_state[mask] = 0;
++	} else {
++		__led_set(mask, 1);
++		led_state[mask] = 1;
++	}
++}
++
++void __led_set(led_id_t mask, int state)
++{
++	if (mask == 0)
++		at91_set_gpio_value(AT91_PIN_PE20, !state);
++	else
++		at91_set_gpio_value(AT91_PIN_PE18, !state);
++}
++
++void getinge_netcomv3_led_init(void)
++{
++	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
++	writel(1 << ATMEL_ID_PIODE, &pmc->pcer);
++
++	at91_set_gpio_output(AT91_PIN_PE20, 0);
++	at91_set_gpio_output(AT91_PIN_PE18, 1);
++}
++#endif
++
++#ifdef CONFIG_CMD_NAND
++void getinge_netcomv3_nand_hw_init(void)
++{
++	struct at91_smc *smc = (struct at91_smc *)ATMEL_BASE_SMC;
++	struct at91_matrix *matrix = (struct at91_matrix *)ATMEL_BASE_MATRIX;
++	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
++	unsigned long csa;
++
++	/* Enable CS3 */
++	csa = readl(&matrix->ebicsa);
++	csa |= AT91_MATRIX_EBI_CS3A_SMC_SMARTMEDIA;
++	writel(csa, &matrix->ebicsa);
++
++	/* Configure SMC CS3 for NAND/SmartMedia */
++	writel(AT91_SMC_SETUP_NWE(1) | AT91_SMC_SETUP_NCS_WR(0) |
++	       AT91_SMC_SETUP_NRD(1) | AT91_SMC_SETUP_NCS_RD(0),
++	       &smc->cs[3].setup);
++	writel(AT91_SMC_PULSE_NWE(4) | AT91_SMC_PULSE_NCS_WR(3) |
++	       AT91_SMC_PULSE_NRD(3) | AT91_SMC_PULSE_NCS_RD(2),
++	       &smc->cs[3].pulse);
++	writel(AT91_SMC_CYCLE_NWE(7) | AT91_SMC_CYCLE_NRD(4),
++	       &smc->cs[3].cycle);
++	writel(AT91_SMC_MODE_RM_NRD | AT91_SMC_MODE_WM_NWE |
++	       AT91_SMC_MODE_EXNW_DISABLE |
++#ifdef CONFIG_SYS_NAND_DBW_16
++	       AT91_SMC_MODE_DBW_16 |
++#else /* CONFIG_SYS_NAND_DBW_8 */
++	       AT91_SMC_MODE_DBW_8 |
++#endif
++	       AT91_SMC_MODE_TDF_CYCLE(3),
++	       &smc->cs[3].mode);
++
++	writel(1 << ATMEL_ID_PIOC, &pmc->pcer);
++
++	/* Configure RDY/BSY */
++	at91_set_gpio_input(CONFIG_SYS_NAND_READY_PIN, 1);
++
++	/* Enable NandFlash */
++	at91_set_gpio_output(CONFIG_SYS_NAND_ENABLE_PIN, 1);
++}
++#endif
++
++#ifdef CONFIG_CMD_USB
++static void getinge_netcomv3_usb_hw_init(void)
++{
++	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
++
++	writel(1 << ATMEL_ID_PIOB, &pmc->pcer);
++
++	at91_set_gpio_output(AT91_PIN_PB28, 1);
++	at91_set_gpio_output(AT91_PIN_PB31, 1);
++}
++#endif
++
++#ifdef CONFIG_MACB
++static void getinge_netcomv3_macb_hw_init(void)
++{
++	struct at91_pmc *pmc = (struct at91_pmc *)ATMEL_BASE_PMC;
++	struct at91_port *pioa = (struct at91_port *)ATMEL_BASE_PIOA;
++	struct at91_rstc *rstc = (struct at91_rstc *)ATMEL_BASE_RSTC;
++	unsigned long erstl;
++
++	/* Enable clock */
++	writel(1 << ATMEL_ID_EMAC, &pmc->pcer);
++
++	/*
++	 * Disable pull-up on:
++	 *      RXDV (PA15) => PHY normal mode (not Test mode)
++	 *      ERX0 (PA12) => PHY ADDR0
++	 *      ERX1 (PA13) => PHY ADDR1 => PHYADDR = 0x0
++	 *
++	 * PHY has internal pull-down
++	 */
++	writel(pin_to_mask(AT91_PIN_PA15) |
++	       pin_to_mask(AT91_PIN_PA12) |
++	       pin_to_mask(AT91_PIN_PA13),
++	       &pioa->pudr);
++
++	erstl = readl(&rstc->mr) & AT91_RSTC_MR_ERSTL_MASK;
++
++	/* Need to reset PHY -> 500ms reset */
++	writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(13) |
++		AT91_RSTC_MR_URSTEN, &rstc->mr);
++
++	writel(AT91_RSTC_KEY | AT91_RSTC_CR_EXTRST, &rstc->cr);
++
++	/* Wait for end hardware reset */
++	while (!(readl(&rstc->sr) & AT91_RSTC_SR_NRSTL))
++		;
++
++	/* Restore NRST value */
++	writel(AT91_RSTC_KEY | erstl | AT91_RSTC_MR_URSTEN,
++		&rstc->mr);
++
++	/* Re-enable pull-up */
++	writel(pin_to_mask(AT91_PIN_PA15) |
++	       pin_to_mask(AT91_PIN_PA12) |
++	       pin_to_mask(AT91_PIN_PA13),
++	       &pioa->puer);
++
++	/* And the pins. */
++	at91_macb_hw_init();
++}
++#endif
++
++int board_early_init_f(void)
++{
++	at91_seriald_hw_init();
++	return 0;
++}
++
++int board_init(void)
++{
++	/* Enable Ctrlc */
++	console_init_f();
++
++	/* Machine number */
++	gd->bd->bi_arch_number = MACH_TYPE_GETINGE_NETCOMV3;
++
++	/* adress of boot parameters */
++	gd->bd->bi_boot_params = CONFIG_SYS_SDRAM_BASE + 0x100;
++
++#ifdef CONFIG_CMD_NAND
++	getinge_netcomv3_nand_hw_init();
++#endif
++#ifdef CONFIG_CMD_USB
++	getinge_netcomv3_usb_hw_init();
++#endif
++#ifdef CONFIG_HAS_DATAFLASH
++	at91_spi0_hw_init(1 << 0);
++#endif
++#ifdef CONFIG_ATMEL_SPI
++	at91_spi0_hw_init(1 << 4);
++#endif
++#ifdef CONFIG_MACB
++	getinge_netcomv3_macb_hw_init();
++#endif
++#ifdef CONFIG_CMD_LED
++	getinge_netcomv3_led_init();
++#endif
++	return 0;
++}
++
++int dram_init(void)
++{
++	gd->ram_size = get_ram_size((void *) CONFIG_SYS_SDRAM_BASE,
++				    CONFIG_SYS_SDRAM_SIZE);
++	return 0;
++}
++
++#ifdef CONFIG_RESET_PHY_R
++void reset_phy(void)
++{
++}
++#endif
++
++int board_eth_init(bd_t *bis)
++{
++	int rc = 0;
++#ifdef CONFIG_MACB
++	rc = macb_eth_initialize(0, (void *)ATMEL_BASE_EMAC, 0x00);
++#endif
++	return rc;
++}
++
++/* SPI chip select control */
++#ifdef CONFIG_ATMEL_SPI
++#include <spi.h>
++
++int spi_cs_is_valid(unsigned int bus, unsigned int cs)
++{
++	return bus == 0 && cs < 2;
++}
++
++void spi_cs_activate(struct spi_slave *slave)
++{
++	switch(slave->cs) {
++		case 1:
++			at91_set_gpio_output(AT91_PIN_PB18, 0);
++			break;
++		case 0:
++		default:
++			at91_set_gpio_output(AT91_PIN_PB3, 0);
++			break;
++	}
++}
++
++void spi_cs_deactivate(struct spi_slave *slave)
++{
++	switch(slave->cs) {
++		case 1:
++			at91_set_gpio_output(AT91_PIN_PB18, 1);
++			break;
++		case 0:
++		default:
++			at91_set_gpio_output(AT91_PIN_PB3, 1);
++		break;
++	}
++}
++#endif /* CONFIG_ATMEL_SPI */
+diff --git a/board/getinge/netcomv3/partition.c b/board/getinge/netcomv3/partition.c
+new file mode 100644
+index 0000000..02946bc
+--- /dev/null
++++ b/board/getinge/netcomv3/partition.c
+@@ -0,0 +1,40 @@
++/*
++ * (C) Copyright 2008-2012
++ * Ulf Samuelsson <ulf@atmel.com>
++ * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ *
++ */
++#include <common.h>
++#include <config.h>
++#include <asm/hardware.h>
++#include <dataflash.h>
++
++AT91S_DATAFLASH_INFO dataflash_info[CONFIG_SYS_MAX_DATAFLASH_BANKS];
++
++struct dataflash_addr cs[CONFIG_SYS_MAX_DATAFLASH_BANKS] = {
++	{CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0, 0},	/* Logical adress, CS */
++};
++
++/*define the area offsets*/
++dataflash_protect_t area_list[NB_DATAFLASH_AREA] = {
++	{0x00000000, 0x000020FF, FLAG_PROTECT_SET,   0, "Bootstrap"},
++	{0x00002100, 0x000041FF, FLAG_PROTECT_CLEAR, 0, "Environment"},
++	{0x00004200, 0x00037AFF, FLAG_PROTECT_SET,   0, "U-Boot"},
++	{0x00037B00, 0x0003DDFF, FLAG_PROTECT_CLEAR, 0, "Test script"},
++	{0x0003DE00, 0x0003FEFF, FLAG_PROTECT_CLEAR, 0, "Env. backup"},
++};
+diff --git a/boards.cfg b/boards.cfg
+index 1e5b3e0..bd77ddb 100644
+--- a/boards.cfg
++++ b/boards.cfg
+@@ -160,6 +160,7 @@ zmx25                        arm         arm926ejs   zmx25               syteco
+ imx27lite                    arm         arm926ejs   imx27lite           logicpd        mx27
+ magnesium                    arm         arm926ejs   imx27lite           logicpd        mx27
+ m28evk                       arm         arm926ejs   -                   denx           mx28
++getinge_netcomv3             arm         arm926ejs   netcomv3            getinge        at91        getinge_netcomv3:AT91SAM9M10G45,SYS_USE_DATAFLASH_CS0
+ nhk8815                      arm         arm926ejs   nhk8815             st             nomadik
+ nhk8815_onenand              arm         arm926ejs   nhk8815             st             nomadik       nhk8815:BOOT_ONENAND
+ omap1610h2		     arm	 arm926ejs   omap1610inn	 ti		omap	    omap1610inn:CS3_BOOT
+diff --git a/include/configs/getinge_netcomv3.h b/include/configs/getinge_netcomv3.h
+new file mode 100644
+index 0000000..bb269b5
+--- /dev/null
++++ b/include/configs/getinge_netcomv3.h
+@@ -0,0 +1,214 @@
++/*
++ * (C) Copyright 2007-2012
++ * Stelian Pop <stelian@popies.net>
++ * Lead Tech Design <www.leadtechdesign.com>
++ * Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
++ *
++ * Configuation settings for the Getinge NetCOMv3 board.
++ *
++ * See file CREDITS for list of people who contributed to this
++ * project.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of
++ * the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston,
++ * MA 02111-1307 USA
++ */
++
++#ifndef __CONFIG_H
++#define __CONFIG_H
++
++#include <asm/hardware.h>
++
++#define CONFIG_AT91_LEGACY
++#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
++
++/* ARM asynchronous clock */
++#define CONFIG_SYS_AT91_SLOW_CLOCK      32768
++#define CONFIG_SYS_AT91_MAIN_CLOCK      12000000 /* from 12 MHz crystal */
++#define CONFIG_SYS_HZ		        1000
++
++#define CONFIG_AT91SAM9M10G45EK
++#define CONFIG_AT91FAMILY
++#define CONFIG_ARCH_CPU_INIT
++#undef CONFIG_USE_IRQ			/* we don't need IRQ/FIQ stuff	*/
++
++#define CONFIG_CMDLINE_TAG		/* enable passing of ATAGs	*/
++#define CONFIG_SETUP_MEMORY_TAGS
++#define CONFIG_INITRD_TAG
++#define CONFIG_SKIP_LOWLEVEL_INIT
++#define CONFIG_BOARD_EARLY_INIT_F
++#define CONFIG_DISPLAY_CPUINFO
++
++/* general purpose I/O */
++#define CONFIG_ATMEL_LEGACY		/* required until (g)pio is fixed */
++#define CONFIG_AT91_GPIO
++#define CONFIG_AT91_GPIO_PULLUP	1	/* keep pullups on peripheral pins */
++
++/* serial console */
++#define CONFIG_ATMEL_USART
++#define CONFIG_USART_BASE		ATMEL_BASE_DBGU
++#define	CONFIG_USART_ID			ATMEL_ID_SYS
++
++/*
++ * This needs to be defined for the OHCI code to work but it is defined as
++ * ATMEL_ID_UHPHS in the CPU specific header files.
++ */
++#define ATMEL_ID_UHP		ATMEL_ID_UHPHS
++
++/*
++ * Specify the clock enable bit in the PMC_SCER register.
++ */
++#define ATMEL_PMC_UHP		AT91SAM926x_PMC_UHP
++
++/* LED */
++#define CONFIG_CMD_LED
++#define CONFIG_BOARD_SPECIFIC_LED
++#define STATUS_LED_BIT  0
++#define STATUS_LED_BIT1 1
++
++#define CONFIG_BOOTDELAY	3
++
++/*
++ * Command line configuration.
++ */
++#include <config_cmd_default.h>
++#undef CONFIG_CMD_BDI
++#undef CONFIG_CMD_FPGA
++#undef CONFIG_CMD_IMI
++#undef CONFIG_CMD_IMLS
++#undef CONFIG_CMD_LOADS
++#undef CONFIG_CMD_DHCP
++#undef CONFIG_CMD_XIMG
++#undef CONFIG_CMD_NFS
++
++#define CONFIG_CMD_PING
++#define CONFIG_CMD_NAND
++#define CONFIG_CMD_USB
++#define CONFIG_CMD_FAT
++#define CONFIG_CMD_SOURCE
++
++/* SDRAM */
++#define CONFIG_NR_DRAM_BANKS		1
++#define CONFIG_SYS_SDRAM_BASE           ATMEL_BASE_CS6
++#define CONFIG_SYS_SDRAM_SIZE		0x08000000
++
++#define CONFIG_SYS_INIT_SP_ADDR \
++	(CONFIG_SYS_SDRAM_BASE + 4 * 1024 - GENERATED_GBL_DATA_SIZE)
++
++/* DataFlash */
++#define CONFIG_ATMEL_DATAFLASH_SPI
++#define CONFIG_HAS_DATAFLASH		1
++#define CONFIG_SYS_SPI_WRITE_TOUT		(5*CONFIG_SYS_HZ)
++#define CONFIG_SYS_MAX_DATAFLASH_BANKS		1
++#define CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0	0xC0000000	/* CS0 */
++#define AT91_SPI_CLK			15000000
++#define DATAFLASH_TCSS			(0x1a << 16)
++#define DATAFLASH_TCHS			(0x1 << 24)
++
++/* No NOR flash */
++#define CONFIG_SYS_NO_FLASH
++
++/* NAND flash */
++#ifdef CONFIG_CMD_NAND
++#define CONFIG_NAND_MAX_CHIPS			1
++#define CONFIG_NAND_ATMEL
++#define CONFIG_SYS_MAX_NAND_DEVICE		1
++#define CONFIG_SYS_NAND_BASE			ATMEL_BASE_CS3
++#define CONFIG_SYS_NAND_DBW_8
++/* our ALE is AD21 */
++#define CONFIG_SYS_NAND_MASK_ALE		(1 << 21)
++/* our CLE is AD22 */
++#define CONFIG_SYS_NAND_MASK_CLE		(1 << 22)
++#define CONFIG_SYS_NAND_ENABLE_PIN		AT91_PIN_PC14
++#define CONFIG_SYS_NAND_READY_PIN		AT91_PIN_PC8
++
++#endif
++
++/* Ethernet */
++#define CONFIG_MACB
++#define CONFIG_RMII
++#define CONFIG_NET_RETRY_COUNT		20
++#define CONFIG_RESET_PHY_R
++
++/* USB */
++#define CONFIG_USB_ATMEL
++#define CONFIG_USB_OHCI_NEW
++#define CONFIG_DOS_PARTITION
++#define CONFIG_SYS_USB_OHCI_CPU_INIT
++#define CONFIG_SYS_USB_OHCI_REGS_BASE	ATMEL_BASE_HCI
++#define CONFIG_SYS_USB_OHCI_SLOT_NAME	"at91sam9g45"
++#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS	2
++#define CONFIG_USB_STORAGE
++
++#define CONFIG_SYS_LOAD_ADDR		0x22000000	/* load address */
++
++#define CONFIG_SYS_MEMTEST_START	CONFIG_SYS_SDRAM_BASE
++#define CONFIG_SYS_MEMTEST_END		0x23e00000
++
++#ifdef CONFIG_SYS_USE_DATAFLASH_CS0
++/* bootstrap + u-boot + env in dataflash */
++#define CONFIG_ENV_IS_IN_DATAFLASH
++#define CONFIG_SYS_MONITOR_BASE (CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + 0x4200)
++#define CONFIG_ENV_OFFSET 0x2100
++#define CONFIG_ENV_ADDR (CONFIG_SYS_DATAFLASH_LOGIC_ADDR_CS0 + CONFIG_ENV_OFFSET)
++#define CONFIG_ENV_SIZE 0x2100
++#else
++/* bootstrap + u-boot + env in nandflash */
++#define CONFIG_ENV_IS_IN_NAND
++#define CONFIG_ENV_OFFSET		0x60000
++#define CONFIG_ENV_OFFSET_REDUND	0x80000
++#define CONFIG_ENV_SIZE			0x20000
++
++#endif
++
++#define CONFIG_BOOTCOMMAND	"nand read 0x70000000 0x100000 0x200000;" \
++	"bootm 0x70000000"
++#define CONFIG_BOOTARGS							\
++	"console=ttyS0,115200 earlyprintk "				\
++	"root=/dev/mtdblock5 "						\
++	"mtdparts=atmel_nand:128k(bootstrap)ro,"			\
++	"256k(uboot)ro,128k(env1)ro,128k(env2)ro,"			\
++	"2M@1M(linux),-(root) "						\
++	"rw rootfstype=jffs2"
++
++#define CONFIG_BAUDRATE			115200
++#define CONFIG_SYS_BAUDRATE_TABLE	{115200 , 19200, 38400, 57600, 9600 }
++
++#define CONFIG_SYS_PROMPT		"U-Boot> "
++#define CONFIG_SYS_CBSIZE		256
++#define CONFIG_SYS_MAXARGS		16
++#define CONFIG_SYS_PBSIZE		(CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
++#define CONFIG_CMDLINE_EDITING
++#define CONFIG_AUTO_COMPLETE
++#define CONFIG_SYS_HUSH_PARSER
++#define CONFIG_SYS_PROMPT_HUSH_PS2	"> "
++
++#define CONFIG_AUTOBOOT_KEYED           /* Enable password protection   */
++#define CONFIG_AUTOBOOT_PROMPT          \
++        "\nBooting... stop with ENTER\n"
++#define CONFIG_AUTOBOOT_DELAY_STR       "\r"    /* 1st "password"       */
++#define CONFIG_AUTOBOOT_DELAY_STR2      "\n"    /* 2nd "password"       */
++
++/*
++ * Size of malloc() pool
++ */
++#define CONFIG_SYS_MALLOC_LEN		ROUND(3 * CONFIG_ENV_SIZE + 128*1024, 0x1000)
++
++#define CONFIG_STACKSIZE	(32*1024)	/* regular stack */
++
++#ifdef CONFIG_USE_IRQ
++#error CONFIG_USE_IRQ not supported
++#endif
++
++#endif
+-- 
+1.7.4.1
+
