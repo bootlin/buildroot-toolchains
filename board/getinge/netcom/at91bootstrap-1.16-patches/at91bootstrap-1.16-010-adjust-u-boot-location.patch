@@ -1,0 +1,17 @@
+Adjust U-Boot location from 0x8400 to 0x4200
+
+The bootstrap is from 0x0 to 0x2100, and the U-Boot environment from
+0x2100 to 0x4200, then comes U-Boot.
+Index: Bootstrap-v1.16/board/at91sam9m10g45ek/dataflash/at91sam9m10g45ek.h
+===================================================================
+--- Bootstrap-v1.16.orig/board/at91sam9m10g45ek/dataflash/at91sam9m10g45ek.h
++++ Bootstrap-v1.16/board/at91sam9m10g45ek/dataflash/at91sam9m10g45ek.h
+@@ -84,7 +84,7 @@
+ /* ******************************************************************* */
+ #define AT91C_SPI_PCS_DATAFLASH		AT91C_SPI_PCS0_DATAFLASH	/* Boot on SPI NCS0 */
+ 
+-#define IMG_ADDRESS 		0x8400			/* Image Address in DataFlash */
++#define IMG_ADDRESS 		0x4200			/* Image Address in DataFlash */
+ #define	IMG_SIZE		0x33900			/* Image Size in DataFlash */
+ 
+ #define MACH_TYPE		0x726			/* AT91SAM9M10G45-EK */
