@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SQLITE_TEST
+	bool "sqlite test"
+	help
+	  sqlite test suite
