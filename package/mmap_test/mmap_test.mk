@@ -12,7 +12,7 @@ define MMAP_TEST_BUILD_CMDS
 endef
 
 define MMAP_TEST_INSTALL_TARGET_CMDS
-        $(INSTALL)  $(@D)/simple.ko $(TARGET_DIR)/lib/modules
+        cp -a $(@D)/simple.ko $(TARGET_DIR)/lib/modules
 endef
 
 define MMAP_TEST_CLEAN_CMDS
