@@ -9,7 +9,7 @@ ROOT_BASE_DIR=$(BASE_DIR)
 # avoid infinite recursion
 ifneq ($(LINUXDIR),)
 MAKE_KERNEL = CC="" LD="" CFLAGS="" CPPFLAGS="" LDFLAGS="" \
-	$(MAKEARCH_KERNEL) -C $(ROOT_BASE_DIR)/$(LINUXDIR) SUBDIRS=$$MMAP_MODULE_DIR
+	$(MAKEARCH_KERNEL) -C $(ROOT_BASE_DIR)/$(LINUXDIR) SUBDIRS=$$MODULE_DIR
 else
 MAKE_KERNEL = echo
 endif
@@ -19,7 +19,6 @@ EXTRA_CFLAGS += -Wall
 all: module
 
 module:
-	 @echo $(MMAP_MODULE_DIR)
 	 $(MAKE_KERNEL) modules
 
 clean:

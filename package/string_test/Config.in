@@ -1,0 +1,4 @@
+config BR2_PACKAGE_STRING_TEST
+	bool "string test"
+	help
+	  string test suite
