@@ -12,7 +12,7 @@ define STRING_TEST_BUILD_CMDS
 endef
 
 define STRING_TEST_INSTALL_TARGET_CMDS
-        cp -a $(@D)/string_test.o $(TARGET_DIR)/
+        cp -a $(@D)/string_test.ko $(TARGET_DIR)/lib/modules
 endef
 
 define STRING_TEST_CLEAN_CMDS
