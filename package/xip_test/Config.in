@@ -1,0 +1,4 @@
+config BR2_PACKAGE_XIP_TEST
+	bool "xip test"
+	help
+	  xip test suite
