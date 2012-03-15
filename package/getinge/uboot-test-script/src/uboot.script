@@ -293,6 +293,19 @@ if nand bad; then echo "Pass"; else echo "Fail"; failtext="$failtext 7A"; fi;
 echo "Ping test: \c";
 if ping $serverip; then echo "Pass"; else echo "Fail"; failtext="$failtext 8A"; fi;
 
+#Test J14 USB
+echo "===== Testing J14 =====";
+echo "Enabling USB: \c";
+#mw.l FFFFF430 90000000;
+if usb start; then echo "Pass"; else failtext="$failtext 9A"; fi
+echo "Looking for device: \c";
+if usb storage; then echo "Pass";
+  echo "Accessing for device: \c";
+  if fatinfo usb 0:1; then echo "Pass";
+  else failtext="$failtext 9C"; fi
+else failtext="$failtext 9B"; fi
+usb stop
+
 #Test LEDs
 echo "===== TST Button and LEDs =====";
 echo "";
@@ -300,7 +313,7 @@ echo "";
 mw.l 0xFFFFFA30 3C0000;
 
 echo "Checking for stuck TST button: \c";
-if itest.b *0xFFFFFA3E == f0; then echo "Fail"; failtext="$failtext 9A"; else echo "Pass"; fi;
+if itest.b *0xFFFFFA3E == f0; then echo "Fail"; failtext="$failtext 10A"; else echo "Pass"; fi;
 echo "";
 sleep 0.2;
 
@@ -317,7 +330,6 @@ while itest.b *0xfffffa3e == b0; do sleep 0.1; done;
 sleep 0.1;
 
 echo "Push TST button again to test remaining LEDs.";
-md.l 0xfffffa3e;
 while itest.b *0xfffffa3e == f0; do sleep 0.1; done;
 mw.l fffffa34 300000;
 # Ensure button is released
