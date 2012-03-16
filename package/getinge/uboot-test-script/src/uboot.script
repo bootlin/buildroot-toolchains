@@ -7,9 +7,10 @@
 testVer="1.0";
 
 #Clear vars
-failtext="";
+summarytext="";
 
 # Memory test - writes some values to memory and verifies them.  This test *could* corrupt memory that u-boot is using, be warned.
+echo "===== Starting RAM Test =====";
 mw.w 70000000 0000
 mw.w 70000002 0001
 mw.w 70000004 0002
@@ -37,236 +38,243 @@ mw.w 70800000 0440
 mw.w 71000000 0880
 mw.w 72000000 1100
 
-itest.w *70000000 == 0000 || failtext="$failtext 0AA";
-itest.w *70000002 == 0001 || failtext="$failtext 0AB";
-itest.w *70000004 == 0002 || failtext="$failtext 0AC";
-itest.w *70000008 == 0004 || failtext="$failtext 0AD";
-itest.w *70000010 == 0008 || failtext="$failtext 0AE";
-itest.w *70000020 == 0010 || failtext="$failtext 0AF";
-itest.w *70000040 == 0020 || failtext="$failtext 0AG";
-itest.w *70000080 == 0040 || failtext="$failtext 0AH";
-itest.w *70000100 == 0080 || failtext="$failtext 0AI";
-itest.w *70000200 == 0100 || failtext="$failtext 0AJ";
-itest.w *70000400 == 0200 || failtext="$failtext 0AK";
-itest.w *70000800 == 0400 || failtext="$failtext 0AL";
-itest.w *70001000 == 0800 || failtext="$failtext 0AM";
-itest.w *70002000 == 1000 || failtext="$failtext 0AN";
-itest.w *70004000 == 2000 || failtext="$failtext 0AO";
-itest.w *70008000 == 4000 || failtext="$failtext 0AP";
-itest.w *70010000 == 8000 || failtext="$failtext 0AQ";
-itest.w *70020000 == 0011 || failtext="$failtext 0AR";
-itest.w *70040000 == 0022 || failtext="$failtext 0AS";
-itest.w *70080000 == 0044 || failtext="$failtext 0AT";
-itest.w *70100000 == 0088 || failtext="$failtext 0AU";
-itest.w *70200000 == 0110 || failtext="$failtext 0AV";
-itest.w *70400000 == 0220 || failtext="$failtext 0AW";
-itest.w *70800000 == 0440 || failtext="$failtext 0AX";
-itest.w *71000000 == 0880 || failtext="$failtext 0AY";
-itest.w *72000000 == 1100 || failtext="$failtext 0AZ";
+itest.w *70000000 == 0000 || summarytext="${summarytext}0AA";
+itest.w *70000002 == 0001 || summarytext="${summarytext}0AB";
+itest.w *70000004 == 0002 || summarytext="${summarytext}0AC";
+itest.w *70000008 == 0004 || summarytext="${summarytext}0AD";
+itest.w *70000010 == 0008 || summarytext="${summarytext}0AE";
+itest.w *70000020 == 0010 || summarytext="${summarytext}0AF";
+itest.w *70000040 == 0020 || summarytext="${summarytext}0AG";
+itest.w *70000080 == 0040 || summarytext="${summarytext}0AH";
+itest.w *70000100 == 0080 || summarytext="${summarytext}0AI";
+itest.w *70000200 == 0100 || summarytext="${summarytext}0AJ";
+itest.w *70000400 == 0200 || summarytext="${summarytext}0AK";
+itest.w *70000800 == 0400 || summarytext="${summarytext}0AL";
+itest.w *70001000 == 0800 || summarytext="${summarytext}0AM";
+itest.w *70002000 == 1000 || summarytext="${summarytext}0AN";
+itest.w *70004000 == 2000 || summarytext="${summarytext}0AO";
+itest.w *70008000 == 4000 || summarytext="${summarytext}0AP";
+itest.w *70010000 == 8000 || summarytext="${summarytext}0AQ";
+itest.w *70020000 == 0011 || summarytext="${summarytext}0AR";
+itest.w *70040000 == 0022 || summarytext="${summarytext}0AS";
+itest.w *70080000 == 0044 || summarytext="${summarytext}0AT";
+itest.w *70100000 == 0088 || summarytext="${summarytext}0AU";
+itest.w *70200000 == 0110 || summarytext="${summarytext}0AV";
+itest.w *70400000 == 0220 || summarytext="${summarytext}0AW";
+itest.w *70800000 == 0440 || summarytext="${summarytext}0AX";
+itest.w *71000000 == 0880 || summarytext="${summarytext}0AY";
+itest.w *72000000 == 1100 || summarytext="${summarytext}0AZ";
 
 echo "===== Starting GPIO Test =====";
 #Start clock on ARM9 module
-mw.l 0xfffffc10 0xFFFFFFFC;
+mw.l Fffffc10 FFFFFFFC;
 
 #PIO Enable Register
 # PIOA - IN=0x01000000, OUT=0x00800000
 # PIOB - IN=0x600482A0, OUT=0x903A0150
 # PIOD - IN=0x10020000, OUT=0x00010000
 # PIOE - IN=0x14030000, OUT=0x233CC000
-mw.l 0xFFFFF200 0x01800000; mw.l 0xFFFFF400 0xF03E83F0; mw.l 0xFFFFF600 200; mw.l 0xFFFFF800 0x10030000; mw.l 0xFFFFFA00 0x373FC000
+mw.l FFFFF200 0x01800000; mw.l FFFFF400 F03E83F0; mw.l FFFFF600 200; mw.l FFFFF800 0x10030000; mw.l FFFFFA00 0x373FC000
 
 #Disable PIO for ADC channels
-mw.l 0xFFFFF804 7B00000;
+mw.l FFFFF804 7B00000;
 
 #PIO Output Enable Registers
 # Pins on PIOA PIOB PIOD PIOE that we use
-mw.l 0xFFFFF210 0x00800000; mw.l 0xFFFFF410 0x903A0150; mw.l 0xFFFFF610 200; mw.l 0xFFFFF810 0x4410000; mw.l 0xFFFFFA10 0x233CC000
+mw.l FFFFF210 0x00800000; mw.l FFFFF410 0x903A0150; mw.l FFFFF610 200; mw.l FFFFF810 0x4410000; mw.l FFFFFA10 0x233CC000
 
 #Set PoE ADC to 0
 mw.l FFFFF834 400000;
 
 # Set unused pins to outputs (to keep them from floating)
-mw.l 0xFFFFF210 FE7003FF; mw.l 0xFFFFF410 FC14000; mw.l 0xFFFFF810 E80CFFDF; mw.l 0xFFFFFA10 C8003F00
+mw.l FFFFF210 FE7003FF; mw.l FFFFF410 FC14000; mw.l FFFFF810 E80CFFDF; mw.l FFFFFA10 C8003F00
 
 #Undo the stuff that the initial jumper test did.
-mw.l 0xFFFFFA04 FFFFFFFF; mw.l 0xFFFFFA00 ffffffff; mw.l FFFFFA34 FFFFFFFF; mw.l FFFFFA30 4c400ff; 
+mw.l FFFFFA04 FFFFFFFF; mw.l FFFFFA00 ffffffff; mw.l FFFFFA34 FFFFFFFF; mw.l FFFFFA30 4c400ff; 
 
 #Reset other values from previous test runs
 mw.l FFFFF234 FFFFFFFF; mw.l FFFFF434 FFFFFFFF; mw.l FFFFF634 FFFFFFFF; mw.l FFFFF834 FFFFFFFF; mw.l FFFFFA34 FFFFFFFF;
-#The next line is specific to Gabe's board
 mw.l FFFFF230 80000; mw.l FFFFF430 7004BC8A; mw.l FFFFF630 FFFFE503; mw.l FFFFF830 13500020; mw.l FFFFFA30 04C400ff;
-#mw.l FFFFF230 80000; mw.l FFFFF430 7004bc8a; mw.l FFFFF630 ffffe503; mw.l FFFFF830 13900020; mw.l FFFFFA30 4c400ff;
 
 # Make sure LEDs CR16, CR17, CR18 are on, and CR19 is off
-mw.l 0xFFFFFA34 380000; mw.l 0xFFFFFA30 40000
+mw.l FFFFFA34 380000; mw.l FFFFFA30 40000
 
 echo "";
 
 #Test J10 - mask 0x30000
 echo "===== Testing J10 ====="
-echo "Check J10 state: \c"; mw.l FFFFFA34 C000; if itest *0xFFFFFA3C == 04c400ff; then echo "Pass"; else failtext="$failtext 1A"; md.l 0xFFFFFA3C 1; fi
-echo "Set J10.2, Check J10.4: \c"; mw.l 0xFFFFFA30 4000; if itest *0xFFFFFA3C == 04c540ff; then echo "Pass"; else failtext="$failtext 1B"; md.l 0xFFFFFA3C 1; fi
-echo "Set J10.3, Check J10.5: \c"; mw.l 0xFFFFFA30 8000; if itest *0xFFFFFA3C == 04c7c0ff; then echo "Pass"; else failtext="$failtext 1C"; md.l 0xFFFFFA3C 1; fi
+echo "Check J10 state: \c"; mw.l FFFFFA34 C000; if itest *FFFFFA3C == 04c400ff; then echo "Pass"; else summarytext="${summarytext}1A"; md.l FFFFFA3C 1; fi
+echo "Set J10.2, Check J10.4: \c"; mw.l FFFFFA30 4000; if itest *FFFFFA3C == 04c540ff; then echo "Pass"; else summarytext="${summarytext}1B"; md.l FFFFFA3C 1; fi
+echo "Set J10.3, Check J10.5: \c"; mw.l FFFFFA30 8000; if itest *FFFFFA3C == 04c7c0ff; then echo "Pass"; else summarytext="${summarytext}1C"; md.l FFFFFA3C 1; fi
 #Clear J10.4 & J10.5
-mw.l 0xFFFFFA34 C000
+mw.l FFFFFA34 C000
+
 echo "";
 
 #Test J11 - Check PD first, then PB
 # Port D test values were 17530020 and 17500020 in first two tests below
 echo "===== Testing J11 =====";
-echo "Check J11 state: \c"; mw.l 0xFFFFF830 10000; mw.l 0xFFFFF430 10;
-if itest.b *0xFFFFF83E == 53 && itest *0xFFFFF43C == 7004bcba; then echo "Pass"; else failtext="$failtext 2A"; md.b 0xFFFFF83E 1; md.l 0xFFFFF43C 1; fi
-echo "Clear J11.3, Check J11.2: \c"; mw.l 0xFFFFF834 10000;
-if itest.b *0xFFFFF83E == 50; then echo "Pass"; else failtext="$failtext 2B"; md.b 0xFFFFF83E 1; fi
-echo "Clear J11.5, Check J11.4: \c"; mw.l 0xFFFFF434 10;
-if itest *0xFFFFF43C == 7004bc8a; then echo "Pass"; else failtext="$failtext 2C"; md.l 0xFFFFF43C 1; fi
+echo "Check J11 state: \c"; mw.l FFFFF830 10000; mw.l FFFFF430 10;
+if itest.b *FFFFF83E == 53 && itest *FFFFF43C == 7004bcbb; then echo "Pass"; else summarytext="${summarytext}2A"; md.b FFFFF83E 1; md.l FFFFF43C 1; fi
+echo "Clear J11.3, Check J11.2: \c"; mw.l FFFFF834 10000;
+if itest.b *FFFFF83E == 50; then echo "Pass"; else summarytext="${summarytext}2B"; md.b FFFFF83E 1; fi
+echo "Clear J11.5, Check J11.4: \c"; mw.l FFFFF434 10;
+if itest *FFFFF43C == 7004bc8b; then echo "Pass"; else summarytext="${summarytext}2C"; md.l FFFFF43C 1; fi
 #Reset J11.3 and J11.5
-mw.l 0xFFFFF830 10000; mw.l 0xFFFFF430 10
+mw.l FFFFF830 10000; mw.l FFFFF430 10
+
 echo "";
+
 
 #Test J13 - Check PA first, then PB
 echo "===== Testing J13 =====";
 echo "Check J13 state: \c";
-mw.l 0xFFFFF230 800000; mw.l 0xFFFFF430 100;
-if itest.b *0xFFFFF23F == 1 && itest *0xFFFFF43C == 7004bfba; then echo Pass; else failtext="$failtext 3A"; md.l 0xFFFFF23C 1; md.l 0xFFFFF43C 1; fi
-echo "Clear J13.3, Check J13.2: \c"; mw.l 0xFFFFF234 800000;
-if itest.b *0xFFFFF23F == 0; then echo "Pass"; else failtext="$failtext 3B"; md.l 0xFFFFF23C 1; fi
-echo "Clear J13.6, Check J13.4: \c"; mw.l 0xFFFFF434 100;
-if itest *0xFFFFF43C == 7004bcba; then echo "Pass"; else failtext="$failtext 3C"; md.l 0xFFFFF43C 1; fi
+mw.l FFFFF230 800000; mw.l FFFFF430 100;
+if itest.b *FFFFF23F == 1 && itest *FFFFF43C == 7004bfbb; then echo Pass; else summarytext="${summarytext}3A"; md.l FFFFF23C 1; md.l FFFFF43C 1; fi
+echo "Clear J13.3, Check J13.2: \c"; mw.l FFFFF234 800000;
+if itest.b *FFFFF23F == 0; then echo "Pass"; else summarytext="${summarytext}3B"; md.l FFFFF23C 1; fi
+echo "Clear J13.6, Check J13.4: \c"; mw.l FFFFF434 100;
+if itest *FFFFF43C == 7004bcbb; then echo "Pass"; else summarytext="${summarytext}3C"; md.l FFFFF43C 1; fi
 #Reset PE, PB
-mw.l 0xFFFFF230 800000; mw.l 0xFFFFF430 100;
+mw.l FFFFF230 800000; mw.l FFFFF430 100;
+
 echo "";
 
 #Test J8
 echo "===== Testing J8 =====";
 
-echo "Check J8 state: \c"; mw.l 0xFFFFFA34 2000000; mw.l 0xFFFFF434 A000;
-if itest *0xFFFFFA3C == 04c400ff && itest *0xFFFFF43C == 7004bfba; then echo "Pass"; else failtext="$failtext 4A"; md.l 0xFFFFFA3C 1; md.l 0xFFFFF43C 1; fi
-echo "Set J8.4, Check J8.3 without UART: \c"; mw.l 0xFFFFFA34 1000000; mw.l 0xFFFFFA34 2000000;
-if itest *0xFFFFFA3C == 04c400ff; then echo "Pass"; else failtext="$failtext 4B"; md.l 0xFFFFFA3C 1; fi
-echo "Set J8.4, Check J8.3 with UART: \c"; mw.l 0xFFFFFA30 1000000; mw.l 0xFFFFFA34 2000000;
-if itest *0xFFFFFA3C == 01c400ff; then echo Pass; else failtext="$failtext 4C"; md.l 0xFFFFFA3C 1; fi
-echo "Set J8.6, Check J8.5 \c"; mw.l 0xFFFFF430 20000;
-if itest *0xFFFFF43C == 7002bfba; then echo Pass; else failtext="$failtext 4D"; md.l 0xFFFFF43C 1; fi
-echo "Set J8.8, Check J8.7, without UART \c"; mw.l 0xFFFFFA30 1000000; mw.l 0xFFFFF434 80000;
-if itest *0xFFFFF43C == 7002bfba; then echo "Pass"; else failtext="$failtext 4E"; md.l 0xFFFFF43C 1; fi
+echo "Check J8 state: \c"; mw.l FFFFFA34 2000000; mw.l FFFFF434 A000;
+if itest *FFFFFA3C == 04c400ff && itest *FFFFF43C == 7004bfbb; then echo "Pass"; else summarytext="${summarytext}4A"; md.l FFFFFA3C 1; md.l FFFFF43C 1; fi
+echo "Set J8.4, Check J8.3 without UART: \c"; mw.l FFFFFA34 1000000; mw.l FFFFFA34 2000000;
+if itest *FFFFFA3C == 04c400ff; then echo "Pass"; else summarytext="${summarytext}4B"; md.l FFFFFA3C 1; fi
+echo "Set J8.4, Check J8.3 with UART: \c"; mw.l FFFFFA30 1000000; mw.l FFFFFA34 2000000;
+if itest *FFFFFA3C == 01c400ff; then echo Pass; else summarytext="${summarytext}4C"; md.l FFFFFA3C 1; fi
+echo "Set J8.6, Check J8.5 \c"; mw.l FFFFF430 20000;
+if itest *FFFFF43C == 7002bfbb; then echo Pass; else summarytext="${summarytext}4D"; md.l FFFFF43C 1; fi
+echo "Set J8.8, Check J8.7, without UART \c"; mw.l FFFFFA30 1000000; mw.l FFFFF434 80000;
+if itest *FFFFF43C == 7002bfbb; then echo "Pass"; else summarytext="${summarytext}4E"; md.l FFFFF43C 1; fi
 #Reset PE, PB
-mw.l 0xFFFFFA34 2000000; mw.l 0xFFFFF434 A000;
+mw.l FFFFFA34 2000000; mw.l FFFFF434 A000;
+
 echo "";
 
 #Test J6/J7
 echo "===== Testing J6/J7 =====";
 echo "";
 
+
 # Phase 1 - Tests J7 RTS and H/F
 echo "Phase 1";
-mw.l 0xFFFFF434 200000;  # CLEAR PB21 J6 UART1_H/F_SEL
-mw.l 0xFFFFF430 100000;  # SET PB20 J7 UART2_H/F_SEL
-mw.l 0xFFFFF834 10000;   # CLEAR PD16 J6 RTS
-mw.l 0xFFFFF634 200;     # CLEAR PC09 J7 RTS
+mw.l FFFFF434 200000;  # CLEAR PB21 J6 UART1_H/F_SEL
+mw.l FFFFF430 100000;  # SET PB20 J7 UART2_H/F_SEL
+mw.l FFFFF834 10000;   # CLEAR PD16 J6 RTS
+mw.l FFFFF634 200;     # CLEAR PC09 J7 RTS
 # Check J7 in half-duplex, with RTS high/low (Test harness should be connected at this point)
-mw.l 0xFFFFF434 10; # CLEAR PB4 J6TX
-mw.l 0xFFFFF434 40; # CLEAR PB6 J7TX
+mw.l FFFFF434 10; # CLEAR PB4 J6TX
+mw.l FFFFF434 40; # CLEAR PB6 J7TX
 echo "RTS Low, set J7 Tx = 0, check J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7012bf8a; then echo "Pass"; else failtext="$failtext 5A"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF430 40; # SET PB6 J7TX
+if itest.l *FFFFF43C == 7012bf8b; then echo "Pass"; else summarytext="${summarytext}5A"; md.l FFFFF43C 1; fi
+mw.l FFFFF430 40; # SET PB6 J7TX
 echo "RTS Low, set J7 Tx = 1, check J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7012bfca; then echo "Pass"; else failtext="$failtext 5B"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF630 200;  # SET PC09 J7 RTS
+if itest.l *FFFFF43C == 7012bfcb; then echo "Pass"; else summarytext="${summarytext}5B"; md.l FFFFF43C 1; fi
+mw.l FFFFF630 200;  # SET PC09 J7 RTS
 echo "RTS High, set J7 Tx = 1, check J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7012bfca; then echo "Pass"; else failtext="$failtext 5C"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF434 40; # CLEAR PB6 J7TX
+if itest.l *FFFFF43C == 7012bfcb; then echo "Pass"; else summarytext="${summarytext}5C"; md.l FFFFF43C 1; fi
+mw.l FFFFF434 40; # CLEAR PB6 J7TX
 echo "RTS High, set J7 Tx = 0, check J7 Rx = 0: \c";
-if itest.l *0xFFFFF43C == 7012bf0a; then echo "Pass"; else failtext="$failtext 5D"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF434 100000;  # CLEAR PB20 J7 UART2_H/F_SEL
+if itest.l *FFFFF43C == 7012bf0b; then echo "Pass"; else summarytext="${summarytext}5D"; md.l FFFFF43C 1; fi
+mw.l FFFFF434 100000;  # CLEAR PB20 J7 UART2_H/F_SEL
 echo "H/F Low, check J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7002bf8a; then echo "Pass"; else failtext="$failtext 5E"; md.l 0xFFFFF43C 1; fi
+if itest.l *FFFFF43C == 7002bf8b; then echo "Pass"; else summarytext="${summarytext}5E"; md.l FFFFF43C 1; fi
+
+
 echo "";
 
 # Phase 2
 echo "Phase 2";
-mw.l 0xFFFFF834 10000; # CLEAR PD16 J6 RTS
-mw.l 0xFFFFF634 200;   # CLEAR PC09 J7 RTS
+mw.l FFFFF834 10000; # CLEAR PD16 J6 RTS
+mw.l FFFFF634 200;   # CLEAR PC09 J7 RTS
 # Check full duplex communication between J6 and J7, J7 RTS low.
-mw.l 0xFFFFF434 40; mw.l 0xFFFFF434 10; # Clear both TX lines
+mw.l FFFFF434 40; mw.l FFFFF434 10; # Clear both TX lines
 echo "RTS Low, set J7 Tx = 0, check J6 Rx = 0, J7 RX = 1: \c";
-if itest.l *0xFFFFF43C == 7002bf8a; then echo "Pass"; else failtext="$failtext 5F"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF830 10000; # SET PD16 J6 RTS
+if itest.l *FFFFF43C == 7002bf8b; then echo "Pass"; else summarytext="${summarytext}5F"; md.l FFFFF43C 1; fi
+mw.l FFFFF830 10000; # SET PD16 J6 RTS
 echo "Set J6 RTS, check J6 Rx = 0, J7 RX = 0: \c";
-if itest.l *0xFFFFF43C == 7002bf0a; then echo "Pass"; else failtext="$failtext 5G"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF430 40; # SET PB6 J7TX
+if itest.l *FFFFF43C == 7002bf0b; then echo "Pass"; else summarytext="${summarytext}5G"; md.l FFFFF43C 1; fi
+mw.l FFFFF430 40; # SET PB6 J7TX
 echo "Set J7 Tx = 1, check J6 Rx = 0: \c";
-if itest.l *0xFFFFF43C == 7002bf4a; then echo "Pass"; else failtext="$failtext 5H"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF430 10;  # SET PB4 J6TX
+
+if itest.l *FFFFF43C == 7002bf4b; then echo "Pass"; else summarytext="${summarytext}5H"; md.l FFFFF43C 1; fi
+mw.l FFFFF430 10;  # SET PB4 J6TX
 echo "Set J6 Tx = 1, check J6 Rx = 1, J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7002bffa; then echo "Pass"; else failtext="$failtext 5I"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF630 200; # SET PC09 J7 RTS
+
+if itest.l *FFFFF43C == 7002bffb; then echo "Pass"; else summarytext="${summarytext}5I"; md.l FFFFF43C 1; fi
+mw.l FFFFF630 200; # SET PC09 J7 RTS
 echo "Set J7 RTS High, check J6 Rx = 1, J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7002bffa; then echo "Pass"; else failtext="$failtext 5J"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF434 40;  # CLEAR PB6 J7TX
+if itest.l *FFFFF43C == 7002bffb; then echo "Pass"; else summarytext="${summarytext}5J"; md.l FFFFF43C 1; fi
+mw.l FFFFF434 40;  # CLEAR PB6 J7TX
 echo "Set J7 Tx = 0, check J6 Rx = 0, J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7002bf9a; then echo "Pass"; else failtext="$failtext 5K"; md.l 0xFFFFF43C 1; fi
-mw.l 0xFFFFF430 200000;  # SET PB21 J6 UART1_H/F_SEL
+if itest.l *FFFFF43C == 7002bf9b; then echo "Pass"; else summarytext="${summarytext}5K"; md.l FFFFF43C 1; fi
+mw.l FFFFF430 200000;  # SET PB21 J6 UART1_H/F_SEL
 echo "Set J6 H/F, check J6 Rx = 1, J7 Rx = 1: \c";
-if itest.l *0xFFFFF43C == 7022bfba; then echo "Pass"; else failtext="$failtext 5L"; md.l 0xFFFFF43C 1; fi
+if itest.l *FFFFF43C == 7022bfbb; then echo "Pass"; else summarytext="${summarytext}5L"; md.l FFFFF43C 1; fi
 echo "";
+
 
 #Test ADC
 echo "===== ADC Test =====";
 echo "";
 
-#Disable PIO for ADC channel on pin 22
-mw.l 0xFFFFF804 400000;
 
-#Configure input
-mw.l FFFFF804 FF00000;
-sleep 0.2;
-#Configure ADC
-mw.l FFFB0004 800FF00;
-mw.l FFFB0010 FF;
-sleep 0.2;
+
+#Disable PIO for ADC channel on pin 22
+mw.l FFFFF804 400000;
+
+#Disable PIO for all ADC channels
+mw.l FFFFF804 7F00000;
+
 #Enable USB Power
 mw.l FFFFF430 90000000;
-sleep 0.2;
+sleep 1;
+#Reset converter
+mw.l FFFB0000 1;
+#Configure input
+mw.l FFFFF804 FF00000;
+#Configure ADC
+mw.l FFFB0004 8000F00;
+mw.l FFFB0010 FF;
+sleep 1;
 #Start converter
 mw.l FFFB0000 2;
-sleep 0.2;
 
 #VP3V3
 echo "Checking VP3V3: \c";
-if itest *0xFFFB0030 < 387 && itest *0xFFFb0030 > 342; then echo "Pass"; else echo "Fail"; failtext="$failtext 6A"; fi; md.l 0xFFFB0030 1;
-sleep 0.2;
+if itest *FFFB0030 < 387 && itest *FFFb0030 > 342; then echo "Pass"; else echo "Fail"; md.l FFFB0030 1; summarytext="${summarytext}6A"; fi;
 
 #VUSB
 echo "Checking VUSB: \c";
-if itest *0xFFFB0034 < 36D && itest *0xFFFb0034 > 2D8; then echo "Pass"; else echo "Fail"; failtext="$failtext 6B"; fi; md.l 0xFFFB0034 1;
-sleep 0.2;
+if itest *FFFB0034 < 36D && itest *FFFb0034 > 2D8; then echo "Pass"; else echo "Fail"; md.l FFFB0034 1; summarytext="${summarytext}6B"; fi;
 
 #VP5_poe
 echo "Checking VP5_poe: \c";
-if itest *0xFFFB0038 < 377 && itest *0xFFFb0038 > 312; then echo "Pass"; else echo "Fail"; failtext="$failtext 6C"; md.l 0xFFFB0038 1; fi
-sleep 0.2;
+if itest *FFFB0038 < 377 && itest *FFFb0038 > 312; then echo "Pass"; else echo "Fail"; md.l FFFB0038 1; summarytext="${summarytext}6C"; fi
 
 #VP5_ext
 echo "Checking VP5_ext: \c";
-if itest *0xFFFB003C < 377; then echo "Pass"; else echo "Fail"; failtext="$failtext 6D"; fi; md.l 0xFFFB003C 1;
-sleep 0.2;
+if itest *FFFB003C < 377 && itest *FFFB003C > 312; then echo "Pass"; else echo "Fail"; md.l FFFB003C 1; summarytext="${summarytext}6D"; fi;
 
 #VP1V8
 echo "Checking VP1V8: \c";
-if itest *0xFFFB0044 < 32A && itest *0xFFFb0044 > 297; then echo "Pass"; else echo "Fail"; failtext="$failtext 6E"; fi; md.l 0xFFFB0044 1;
-sleep 0.2;
+if itest *FFFB0044 < 32A && itest *FFFb0044 > 297; then echo "Pass"; else echo "Fail"; md.l FFFB0044 1; summarytext="${summarytext}6E"; fi;
 
 #VP1V
 echo "Checking VP1V: \c";
-if itest *0xFFFB0048 < 1C2 && itest *0xFFFb0048 > 170; then echo "Pass"; else echo "Fail"; failtext="$failtext 6F"; fi; md.l 0xFFFB0048 1;
-sleep 0.2;
+if itest *FFFB0048 < 1C2 && itest *FFFb0048 > 170; then echo "Pass"; else echo "Fail"; md.l FFFB0048 1; summarytext="${summarytext}6F"; fi;
 
 #VPTemp
-#Must be between 20 and 57 degrees C
+#Must be between 0 and 60 degrees C
 echo "Checking VPTemp: \c";
-if itest *0xFFFB0040 < 147 && itest *0xFFFb0040 > AE; then echo "Pass"; else echo "Fail"; failtext="$failtext 6G"; fi; md.l 0xFFFB0040 1;
-sleep 0.2;
+if itest *FFFB0040 < 147 && itest *FFFb0040 > AE; then echo "Pass"; else echo "Fail"; md.l FFFB0040 1; summarytext="${summarytext}6G"; fi;
 
 #Disable USB Power, Convert again and Re-test
 #(Tests J2 and M_EN_USBB)
@@ -274,46 +282,91 @@ mw.l FFFFF434 90000000;
 sleep 3;
 #Start converter
 mw.l FFFB0000 2;
-sleep 0.2;
 
 #VP5_ext (0V)
 echo "Checking VP5_ext (0V): \c";
-if itest *0xFFFB003C < F0; then echo "Pass"; else echo "Fail"; failtext="$failtext 6H"; fi; md.l 0xFFFB003C 1;
+if itest *FFFB003C < F0; then echo "Pass"; else echo "Fail"; md.l FFFB003C 1; summarytext="${summarytext}6H"; fi;
 echo "";
 
 #Disable ADC channels
 mw.l FFFB0014 FF;
-sleep 0.2;
 echo "";
+
+
 
 #Check for flash, kind of a hack but "nand bad" returns true as long as the nand chip has been detected, otherwise false
 echo "Checking for flash: \c";
-if nand bad; then echo "Pass"; else echo "Fail"; failtext="$failtext 7A"; fi;
+if nand bad; then echo "Pass"; else echo "Fail"; summarytext="${summarytext}7A"; fi;
 
 echo "Ping test: \c";
-if ping $serverip; then echo "Pass"; else echo "Fail"; failtext="$failtext 8A"; fi;
+if ping $serverip; then echo "Pass"; else echo "Fail"; summarytext="${summarytext}8A"; fi;
+
+
 
 #Test J14 USB
 echo "===== Testing J14 =====";
 echo "Enabling USB: \c";
-#mw.l FFFFF430 90000000;
-if usb start; then echo "Pass"; else failtext="$failtext 9A"; fi
-echo "Looking for device: \c";
-if usb storage; then echo "Pass";
-  echo "Accessing for device: \c";
-  if fatinfo usb 0:1; then echo "Pass";
-  else failtext="$failtext 9C"; fi
-else failtext="$failtext 9B"; fi
+mw.l FFFFF430 90000000;
+sleep 1.5;
+if usb start; then echo "Pass"; 
+echo "Looking for device: \c"; if usb storage; then echo "Pass"; echo "Accessing device: \c";
+if fatinfo usb 0:1; then echo "Pass"; else summarytext="${summarytext}9C"; fi
+else summarytext="${summarytext}9B"; fi;
+else summarytext="${summarytext}9A"; fi;
 usb stop
+mw.l FFFFF434 90000000;
+
+#Test RTC
+echo "===== TEST RTC =====";
+# Select 32kHz osc. as slow clock source
+mw.l FFFFFD50 A;
+
+# Stop RTC
+mw.l FFFFFDB0 1;
+
+# Give it some time for ACKUPD to be set
+sleep 1;
+
+# Clear ACKCLR
+mw.l FFFFFDCC 1E;
+
+echo "Waiting for ACK: \c";
+# Clear Status registers and Wait for ACKUPD
+if itest.b *FFFFFDC8 == 1; then;
+echo "Pass";
+
+# Clear ACKUPD
+mw.l FFFFFDCC 1;
+
+# Set time to 1:23:45
+mw.l FFFFFDB8 00012345;
+
+#Start RTC
+mw.b FFFFFDB0 0;
+
+#Verify time
+echo "1s: \c";
+sleep 1; if itest.b *FFFFFDB8 != 00012346; then echo "Fail"; md.l FFFFFDB8 1; summarytext="${summarytext}10B"; else echo "Pass"; fi;
+echo "2s: \c";
+sleep 1; if itest.b *FFFFFDB8 != 00012347; then echo "Fail"; md.l FFFFFDB8 1; summarytext="${summarytext}10C"; else echo "Pass"; fi;
+echo "3s: \c";
+sleep 1; if itest.b *FFFFFDB8 != 00012348; then echo "Fail"; md.l FFFFFDB8 1; summarytext="${summarytext}10D"; else echo "Pass"; fi;
+
+else;
+echo "Fail"; summarytext="${summarytext}10A";
+fi;
+
+# Ensure RTC is started
+mw.b FFFFFDB0 0;
 
 #Test LEDs
 echo "===== TST Button and LEDs =====";
 echo "";
 
-mw.l 0xFFFFFA30 3C0000;
+mw.l FFFFFA30 3C0000;
 
 echo "Checking for stuck TST button: \c";
-if itest.b *0xFFFFFA3E == f0; then echo "Fail"; failtext="$failtext 10A"; else echo "Pass"; fi;
+if itest.b *FFFFFA3E == f0; then echo "Fail"; summarytext="${summarytext}11A"; else echo "Pass"; fi;
 echo "";
 sleep 0.2;
 
@@ -321,25 +374,28 @@ sleep 0.2;
 mw.l fffffa34 100000;
 
 echo "Push TST button to test first two LEDs.";
-while itest.b *0xfffffa3e == ec; do sleep 0.1; done;
+while itest.b *Fffffa3e == ec; do sleep 0.1; done;
 mw.l fffffa34 C0000;
 mw.l fffffa30 100000; # YL off
 # Ensure button is released
-while itest.b *0xfffffa3e == b0; do sleep 0.1; done;
+while itest.b *Fffffa3e == b0; do sleep 0.1; done;
 
 sleep 0.1;
 
 echo "Push TST button again to test remaining LEDs.";
-while itest.b *0xfffffa3e == f0; do sleep 0.1; done;
+while itest.b *Fffffa3e == f0; do sleep 0.1; done;
 mw.l fffffa34 300000;
 # Ensure button is released
-while itest.b *0xfffffa3e == 80; do sleep 0.1; done;
+while itest.b *Fffffa3e == 80; do sleep 0.1; done;
 
 sleep 1;
 
-mw.l 0xFFFFFA30 3C0000;
+mw.l FFFFFA30 3C0000;
+
+# Sometimes longer variables get corrupted, so rather than have a false positive we'll just report a general error
+echo "$summarytext" || summarytext="Internal script error" && showvar;
 
 # Print Errors
 echo "HW Test Complete: \c";
-if test "$failtext" <> ""; then setenv hwtestpass ""; setenv hwtestfail "$failtext"; saveenv; echo "Failed: "; echo "$failtext"; mw.l FFFFFA34 80000; 
+if test "$summarytext" -ne ""; then setenv hwtestpass ""; setenv hwtestfail "$summarytext"; saveenv; echo "Failed: "; echo "$summarytext"; mw.l FFFFFA34 80000; 
 else setenv hwtestpass "hwtest v$testVer pass ok"; setenv hwtestfail ""; echo "$hwtestpass"; saveenv; mw.l FFFFFA34 200000; fi
