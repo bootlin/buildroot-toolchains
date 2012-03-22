@@ -1,0 +1,4 @@
+config BR2_PACKAGE_TWI_KEYPAD_TEST
+	bool "twi keypad test"
+	help
+	  twi keypad test suite

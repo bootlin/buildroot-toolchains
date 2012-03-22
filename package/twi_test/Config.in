@@ -1,0 +1,4 @@
+config BR2_PACKAGE_TWI_TEST
+	bool "twi test"
+	help
+	  twi test suite

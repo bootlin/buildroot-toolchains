@@ -1,0 +1,4 @@
+config BR2_PACKAGE_TWI_LCD_TEST
+	bool "twi lcd test"
+	help
+	  twi lcd test suite
