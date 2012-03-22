@@ -1,0 +1,155 @@
+--- can-utils.old/bcmserver.c	2012-03-22 12:09:28.662725005 +0800
++++ can-utils/bcmserver.c	2012-03-22 12:12:54.934974761 +0800
+@@ -188,8 +188,11 @@
+ 	while (1) { 
+ 		sa = accept(sl,(struct sockaddr *)&clientaddr, &sin_size);
+ 		if (sa > 0 ){
+-
++#ifdef __NOMMU__
++			if (vfork())
++#else
+ 			if (fork())
++#endif
+ 				close(sa);
+ 			else
+ 				break;
+@@ -258,7 +261,7 @@
+ 			int items;
+ 
+ 			if (read(sa, buf+idx, 1) < 1)
+-				exit(1);
++				_exit(1);
+ 
+ 			if (!idx) {
+ 				if (buf[0] == '<')
+@@ -342,7 +345,7 @@
+ 				break;
+ 			default:
+ 				printf("unknown command '%c'.\n", cmd);
+-				exit(1);
++				_exit(1);
+ 			}
+ 
+ 			if (!ioctl(sc, SIOCGIFINDEX, &ifr)) {
+--- can-utils.old/canlogserver.c	2012-03-22 12:13:14.262974318 +0800
++++ can-utils/canlogserver.c	2012-03-22 12:14:51.251702791 +0800
+@@ -129,7 +129,7 @@
+ 
+ 	if (i == MAXDEV) {
+ 		printf("Interface index cache only supports %d interfaces.\n", MAXDEV);
+-		exit(1);
++		_exit(1);
+ 	}
+ 
+ 	dindex[i] = ifidx;
+@@ -295,7 +295,11 @@
+ 		accsocket = accept(socki, (struct sockaddr*)&clientaddr, &sin_size);
+ 		if (accsocket > 0) {
+ 			//printf("accepted\n");
++#ifdef __NOMMU__
++			if (!vfork())
++#else
+ 			if (!fork())
++#endif
+ 				break;
+ 			else
+ 				close(accsocket);
+@@ -355,7 +359,7 @@
+ 			strcpy(ifr.ifr_name, argv[optind+i]);
+ 			if (ioctl(s[i], SIOCGIFINDEX, &ifr) < 0) {
+ 				perror("SIOCGIFINDEX");
+-				exit(1);
++				_exit(1);
+ 			}
+ 			addr.can_ifindex = ifr.ifr_ifindex;
+ 		}
+--- can-utils.old/slcand.c	2012-03-22 12:15:47.374724156 +0800
++++ can-utils/slcand.c	2012-03-22 12:18:44.754725336 +0800
+@@ -87,13 +87,13 @@
+ 	switch (signum)
+ 	{
+ 	case SIGALRM:
+-		exit (EXIT_FAILURE);
++		_exit (EXIT_FAILURE);
+ 		break;
+ 	case SIGUSR1:
+-		exit (EXIT_SUCCESS);
++		_exit (EXIT_SUCCESS);
+ 		break;
+ 	case SIGCHLD:
+-		exit (EXIT_FAILURE);
++		_exit (EXIT_FAILURE);
+ 		break;
+ 	}
+ }
+@@ -142,7 +142,11 @@
+ 	signal (SIGALRM, child_handler);
+ 
+ 	/* Fork off the parent process */
++#ifdef __NOMMU__
++	pid = vfork ();
++#else
+ 	pid = fork ();
++#endif
+ 	if (pid < 0)
+ 	{
+ 		syslog (LOG_ERR, "unable to fork daemon, code=%d (%s)",
+@@ -181,7 +185,7 @@
+ 	{
+ 		syslog (LOG_ERR, "unable to create a new session, code %d (%s)",
+ 			errno, strerror (errno));
+-		exit (EXIT_FAILURE);
++		_exit (EXIT_FAILURE);
+ 	}
+ 
+ 	pFile = fopen (pidfile,"w");
+@@ -189,7 +193,7 @@
+ 	{
+ 		syslog (LOG_ERR, "unable to create pid file %s, code=%d (%s)",
+ 			pidfile, errno, strerror (errno));
+-		exit (EXIT_FAILURE);
++		_exit (EXIT_FAILURE);
+ 	}
+ 	fprintf (pFile, "%d\n", sid);
+ 	fclose (pFile);
+@@ -200,7 +204,7 @@
+ 	{
+ 		syslog (LOG_ERR, "unable to change directory to %s, code %d (%s)",
+ 			"/", errno, strerror (errno));
+-		exit (EXIT_FAILURE);
++		_exit (EXIT_FAILURE);
+ 	}
+ 
+ 	/* Redirect standard files to /dev/null */
+@@ -255,19 +259,19 @@
+ 	if ((fd = open (ttypath, O_WRONLY | O_NOCTTY )) < 0) {
+ 	    syslog (LOG_NOTICE, "failed to open TTY device %s\n", ttypath);
+ 		perror(ttypath);
+-		exit(1);
++		_exit(1);
+ 	}
+ 
+ 	/* set slcan like discipline on given tty */
+ 	if (ioctl (fd, TIOCSETD, &ldisc) < 0) {
+ 		perror("ioctl TIOCSETD");
+-		exit(1);
++		_exit(1);
+ 	}
+ 	
+ 	/* retrieve the name of the created CAN netdevice */
+ 	if (ioctl (fd, SIOCGIFNAME, buf) < 0) {
+ 		perror("ioctl SIOCGIFNAME");
+-		exit(1);
++		_exit(1);
+ 	}
+ 
+ 	syslog (LOG_NOTICE, "attached TTY %s to netdevice %s\n", ttypath, buf);
+@@ -285,7 +289,7 @@
+ 			if (ioctl(s, SIOCSIFNAME, &ifr) < 0) {
+ 				syslog (LOG_NOTICE, "netdevice %s rename to %s failed\n", buf, name);
+ 				perror("ioctl SIOCSIFNAME rename");
+-                exit(1);
++                _exit(1);
+ 			} else
+ 				syslog (LOG_NOTICE, "netdevice %s renamed to %s\n", buf, name);
+ 
