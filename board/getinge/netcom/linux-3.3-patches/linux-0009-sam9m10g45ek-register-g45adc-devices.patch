@@ -1,0 +1,40 @@
+From 96545e121ac4314d060b95e753eb10f8e886f13b Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Wed, 6 Jul 2011 16:26:59 +0200
+Subject: [PATCH 09/11] sam9m10g45ek: register g45adc devices
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/mach-at91/board-sam9m10g45ek.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-at91/board-sam9m10g45ek.c b/arch/arm/mach-at91/board-sam9m10g45ek.c
+index 6d20eb7..578c101 100644
+--- a/arch/arm/mach-at91/board-sam9m10g45ek.c
++++ b/arch/arm/mach-at91/board-sam9m10g45ek.c
+@@ -245,6 +245,13 @@ static struct at91_tsadcc_data ek_tsadcc_data = {
+ 	.ts_sample_hold_time	= 0x0a,
+ };
+ 
++/*
++ * ADC
++ */
++static struct at91_g45adc_data g45adc_data = {
++	.adc_clock		= 300000,
++};
++
+ 
+ /*
+  * GPIO Buttons
+@@ -405,6 +412,8 @@ static void __init ek_board_init(void)
+ 	at91_add_device_lcdc(&ek_lcdc_data);
+ 	/* Touch Screen */
+ 	at91_add_device_tsadcc(&ek_tsadcc_data);
++	/* ADC */
++	at91_add_device_g45adc(&g45adc_data);
+ 	/* Push Buttons */
+ 	ek_add_device_buttons();
+ 	/* AC97 */
+-- 
+1.7.4.1
+

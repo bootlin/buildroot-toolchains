@@ -1,0 +1,501 @@
+From c300b6d6736b8ffa46767b9f06bad7e1c71be9b5 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Wed, 6 Jul 2011 16:26:16 +0200
+Subject: [PATCH 07/11] g45adg-hwmon: new hwmon driver for AT91 ADCs
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ drivers/hwmon/Kconfig        |    6 +
+ drivers/hwmon/Makefile       |    1 +
+ drivers/hwmon/g45adc-hwmon.c |  450 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 457 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/hwmon/g45adc-hwmon.c
+
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index dad895f..7e77658 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -402,6 +402,12 @@ config SENSORS_G760A
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called g760a.
+ 
++config SENSORS_G45ADC
++	tristate "Embedded ADC on AT91SAM9G45"
++	depends on SYSFS && ARCH_AT91SAM9G45
++	---help---
++	This driver supports the ADC on Atmel's AT91SAM9G45.
++
+ config SENSORS_GL518SM
+ 	tristate "Genesys Logic GL518SM"
+ 	depends on I2C
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index 8251ce8..7376159 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -125,6 +125,7 @@ obj-$(CONFIG_SENSORS_W83L785TS)	+= w83l785ts.o
+ obj-$(CONFIG_SENSORS_W83L786NG)	+= w83l786ng.o
+ obj-$(CONFIG_SENSORS_WM831X)	+= wm831x-hwmon.o
+ obj-$(CONFIG_SENSORS_WM8350)	+= wm8350-hwmon.o
++obj-$(CONFIG_SENSORS_G45ADC)	+= g45adc-hwmon.o
+ 
+ obj-$(CONFIG_PMBUS)		+= pmbus/
+ 
+diff --git a/drivers/hwmon/g45adc-hwmon.c b/drivers/hwmon/g45adc-hwmon.c
+new file mode 100644
+index 0000000..d99750e
+--- /dev/null
++++ b/drivers/hwmon/g45adc-hwmon.c
+@@ -0,0 +1,450 @@
++/*
++ *  
++ * drivers/hwmon/g45adc-hwmon.c - Getinge NetCOM G45 hardware monitoring
++ * 
++ *   This code was based on drivers/input/touch/g45adc.c
++ *   and wm8350-hwmon.c from Wolfson Microelectronics plc                                 
++ *     by Mark Brown <broonie@opensource.wolfsonmicro.com>
++ *
++ *
++ * Copyright (C) 2011 Getinge
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2 as
++ *  published by the Free Software Foundation.
++ */
++#include <linux/init.h>
++#include <linux/err.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/interrupt.h>
++#include <linux/clk.h>
++#include <linux/platform_device.h>
++#include <linux/io.h>
++#include <mach/board.h>
++#include <mach/cpu.h>
++#include <linux/delay.h>
++
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++
++/* Register definitions based on AT91SAM9RL64 preliminary draft datasheet */
++
++#define ATMEL_TSADCC_CR		0x00	/* Control register */
++#define   ATMEL_TSADCC_SWRST	(1 << 0)	/* Software Reset*/
++#define	  ATMEL_TSADCC_START	(1 << 1)	/* Start conversion */
++
++#define ATMEL_TSADCC_MR		0x04	/* Mode register */
++#define	  ATMEL_TSADCC_TSAMOD	(3    <<  0)	/* ADC mode */
++#define	    ATMEL_TSADCC_TSAMOD_ADC_ONLY_MODE	(0x0)	/* ADC Mode */
++#define	    ATMEL_TSADCC_TSAMOD_TS_ONLY_MODE	(0x1)	/* Touch Screen Only Mode */
++#define	  ATMEL_TSADCC_LOWRES	(1    <<  4)	/* Resolution selection */
++#define	  ATMEL_TSADCC_SLEEP	(1    <<  5)	/* Sleep mode */
++#define	  ATMEL_TSADCC_PENDET	(1    <<  6)	/* Pen Detect selection */
++#define	  ATMEL_TSADCC_PRES	(1    <<  7)	/* Pressure Measurement Selection */
++#define	  ATMEL_TSADCC_PRESCAL	(0x3f <<  8)	/* Prescalar Rate Selection */
++#define	  ATMEL_TSADCC_EPRESCAL	(0xff <<  8)	/* Prescalar Rate Selection (Extended) */
++#define	  ATMEL_TSADCC_STARTUP	(0x7f << 16)	/* Start Up time */
++#define	  ATMEL_TSADCC_SHTIM	(0xf  << 24)	/* Sample & Hold time */
++#define	  ATMEL_TSADCC_PENDBC	(0xf  << 28)	/* Pen Detect debouncing time */
++
++#define ATMEL_TSADCC_TRGR	0x08	/* Trigger register */
++#define	  ATMEL_TSADCC_TRGMOD	(7      <<  0)	/* Trigger mode */
++#define	    ATMEL_TSADCC_TRGMOD_NONE		(0 << 0)
++#define     ATMEL_TSADCC_TRGMOD_EXT_RISING	(1 << 0)
++#define     ATMEL_TSADCC_TRGMOD_EXT_FALLING	(2 << 0)
++#define     ATMEL_TSADCC_TRGMOD_EXT_ANY		(3 << 0)
++#define     ATMEL_TSADCC_TRGMOD_PENDET		(4 << 0)
++#define     ATMEL_TSADCC_TRGMOD_PERIOD		(5 << 0)
++#define     ATMEL_TSADCC_TRGMOD_CONTINUOUS	(6 << 0)
++#define   ATMEL_TSADCC_TRGPER	(0xffff << 16)	/* Trigger period */
++
++#define ATMEL_TSADCC_TSR	0x0C	/* Touch Screen register */
++#define	  ATMEL_TSADCC_TSFREQ	(0xf <<  0)	/* TS Frequency in Interleaved mode */
++#define	  ATMEL_TSADCC_TSSHTIM	(0xf << 24)	/* Sample & Hold time */
++
++#define ATMEL_TSADCC_CHER	0x10	/* Channel Enable register */
++#define ATMEL_TSADCC_CHDR	0x14	/* Channel Disable register */
++#define ATMEL_TSADCC_CHSR	0x18	/* Channel Status register */
++#define	  ATMEL_TSADCC_CH(n)	(1 << (n))	/* Channel number */
++
++#define ATMEL_TSADCC_SR		0x1C	/* Status register */
++#define	  ATMEL_TSADCC_EOC(n)	(1 << ((n)+0))	/* End of conversion for channel N */
++#define	  ATMEL_TSADCC_OVRE(n)	(1 << ((n)+8))	/* Overrun error for channel N */
++#define	  ATMEL_TSADCC_DRDY	(1 << 16)	/* Data Ready */
++#define	  ATMEL_TSADCC_GOVRE	(1 << 17)	/* General Overrun Error */
++#define	  ATMEL_TSADCC_ENDRX	(1 << 18)	/* End of RX Buffer */
++#define	  ATMEL_TSADCC_RXBUFF	(1 << 19)	/* TX Buffer full */
++#define	  ATMEL_TSADCC_PENCNT	(1 << 20)	/* Pen contact */
++#define	  ATMEL_TSADCC_NOCNT	(1 << 21)	/* No contact */
++
++#define ATMEL_TSADCC_LCDR	0x20	/* Last Converted Data register */
++#define	  ATMEL_TSADCC_DATA	(0x3ff << 0)	/* Channel data */
++
++#define ATMEL_TSADCC_IER	0x24	/* Interrupt Enable register */
++#define ATMEL_TSADCC_IDR	0x28	/* Interrupt Disable register */
++#define ATMEL_TSADCC_IMR	0x2C	/* Interrupt Mask register */
++#define ATMEL_TSADCC_CDR0	0x30	/* Channel Data 0 */
++#define ATMEL_TSADCC_CDR1	0x34	/* Channel Data 1 */
++#define ATMEL_TSADCC_CDR2	0x38	/* Channel Data 2 */
++#define ATMEL_TSADCC_CDR3	0x3C	/* Channel Data 3 */
++#define ATMEL_TSADCC_CDR4	0x40	/* Channel Data 4 */
++#define ATMEL_TSADCC_CDR5	0x44	/* Channel Data 5 */
++
++#define ATMEL_TSADCC_XPOS	0x50
++#define ATMEL_TSADCC_Z1DAT	0x54
++#define ATMEL_TSADCC_Z2DAT	0x58
++
++#define PRESCALER_VAL(x)	((x) >> 8)
++
++#define ADC_DEFAULT_CLOCK	100000
++
++struct g45adc {
++        struct device           *hwmon;
++	unsigned int		ch_val[8];
++	char			phys[32];
++	struct clk		*clk;
++	int			irq;
++	unsigned char		init;
++};
++
++static void __iomem		*tsc_base;
++
++#define ATMEL_TSADCC_read(reg)		__raw_readl(tsc_base + (reg))
++#define ATMEL_TSADCC_write(reg, val)	__raw_writel((val), tsc_base + (reg))
++
++#define G45ADC_VP3V3    0
++#define G45ADC_VUSB     1
++#define G45ADC_VP5_POE  2
++#define G45ADC_VP5_EXT  3
++#define G45ADC_TEMP    4
++#define G45ADC_AUX5     5
++#define G45ADC_AUX6     6
++#define G45ADC_AUX7     7
++
++/* Voltage scaling for voltage dividers
++ *  mV_in = (ADC_VAL * VREF * (_R1+_R2)) / (_R2 * FS)
++ */
++#define VREF_MV			2500
++#define ADC_FULL_SCALE  	0x3FF		
++#define G45ADC_CONVERT_V(x, r1, r2) 	(x * VREF_MV * (r1 + r2)) / (r2 * ADC_FULL_SCALE)
++
++/* Temperature scaling for LM60 Sensor - +6.25 mV/°C, +424 mV Offset 
++ * Tin = (((ADC_VAL * VREF) / FS) - 424) * 16
++ * Tin is in units of 0.01C
++ */
++#define G45ADC_CONVERT_T(x) 	(((x * VREF_MV) / ADC_FULL_SCALE) - 424) * 16
++
++static const char *input_names[] = {
++	[G45ADC_VP3V3]    = "3V3",
++	[G45ADC_VUSB]     = "USB",
++	[G45ADC_VP5_POE]  = "POE",
++	[G45ADC_VP5_EXT]  = "EXT",
++	[G45ADC_TEMP]    = "TEMP",
++};
++
++static ssize_t show_value(struct device *dev,
++			    struct device_attribute *attr, char *buf)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct g45adc	*ts_dev = platform_get_drvdata(pdev);
++
++	int channel = to_sensor_dev_attr(attr)->index;
++	unsigned int val;
++
++	val = ts_dev->ch_val[channel];
++	if (channel == G45ADC_TEMP)
++		return sprintf(buf, "%d\n", val);
++	else
++		return sprintf(buf, "%u\n", val);
++}
++
++static ssize_t show_label(struct device *dev,
++			  struct device_attribute *attr, char *buf)
++{
++	int channel = to_sensor_dev_attr(attr)->index;
++
++	return sprintf(buf, "%s\n", input_names[channel]);
++}
++
++static ssize_t show_name(struct device *dev,
++			 struct device_attribute *attr, char *buf)
++{
++	return sprintf(buf, "g45adc\n");
++}
++
++#define G45ADC_NAMED_VOLTAGE(id, name) \
++	static SENSOR_DEVICE_ATTR(in##id##_input, S_IRUGO, show_value,\
++				  NULL, name);		\
++	static SENSOR_DEVICE_ATTR(in##id##_label, S_IRUGO, show_label,	\
++				  NULL, name)
++
++static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
++
++G45ADC_NAMED_VOLTAGE(0, G45ADC_VP3V3);
++G45ADC_NAMED_VOLTAGE(1, G45ADC_VUSB);
++G45ADC_NAMED_VOLTAGE(2, G45ADC_VP5_POE);
++G45ADC_NAMED_VOLTAGE(3, G45ADC_VP5_EXT);
++G45ADC_NAMED_VOLTAGE(4, G45ADC_TEMP);
++
++static struct attribute *g45adc_attributes[] = {
++	&dev_attr_name.attr,
++
++	&sensor_dev_attr_in0_input.dev_attr.attr,
++	&sensor_dev_attr_in0_label.dev_attr.attr,
++	&sensor_dev_attr_in1_input.dev_attr.attr,
++	&sensor_dev_attr_in1_label.dev_attr.attr,
++	&sensor_dev_attr_in2_input.dev_attr.attr,
++	&sensor_dev_attr_in2_label.dev_attr.attr,
++	&sensor_dev_attr_in3_input.dev_attr.attr,
++	&sensor_dev_attr_in3_label.dev_attr.attr,
++	&sensor_dev_attr_in4_input.dev_attr.attr,
++	&sensor_dev_attr_in4_label.dev_attr.attr,
++
++	NULL,
++};
++
++static const struct attribute_group g45adc_attr_group = {
++	.attrs	= g45adc_attributes,
++};
++
++static irqreturn_t g45adc_interrupt(int irq, void *dev)
++{
++	struct g45adc	*ts_dev = (struct g45adc *)dev;
++
++	unsigned int status;
++
++	status = ATMEL_TSADCC_read(ATMEL_TSADCC_SR);
++	
++	status &= ATMEL_TSADCC_read(ATMEL_TSADCC_IMR);
++
++	if (status & ATMEL_TSADCC_DRDY) {
++		/* Conversion finished */
++		ATMEL_TSADCC_read(ATMEL_TSADCC_LCDR);  /* resets inturrupt */
++		ts_dev->ch_val[G45ADC_VP3V3] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR0),10,10);
++		ts_dev->ch_val[G45ADC_VUSB] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR1),20,10);
++		ts_dev->ch_val[G45ADC_VP5_POE] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR2),20,10);
++		ts_dev->ch_val[G45ADC_VP5_EXT] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR3),20,10);
++		ts_dev->ch_val[G45ADC_TEMP] 	= G45ADC_CONVERT_T(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR4));
++		ts_dev->init = 1;
++	}
++
++	return IRQ_HANDLED;
++}
++
++/*
++ * The functions for inserting/removing us as a module.
++ */
++
++static int __devinit g45adc_probe(struct platform_device *pdev)
++{
++	struct g45adc	*ts_dev;
++	struct resource		*res;
++	struct at91_g45adc_data *pdata = pdev->dev.platform_data;
++	int		err = 0;
++	unsigned int	prsc;
++	unsigned int	reg;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		dev_err(&pdev->dev, "no mmio resource defined.\n");
++		return -ENXIO;
++	}
++
++	/* Allocate memory for device */
++	ts_dev = kzalloc(sizeof(struct g45adc), GFP_KERNEL);
++	if (!ts_dev) {
++		dev_err(&pdev->dev, "failed to allocate memory.\n");
++		return -ENOMEM;
++	}
++	platform_set_drvdata(pdev, ts_dev);
++	
++
++	ts_dev->irq = platform_get_irq(pdev, 0);
++	if (ts_dev->irq < 0) {
++		dev_err(&pdev->dev, "no irq ID is designated.\n");
++		err = -ENODEV;
++		goto err_free_mem;
++	}
++
++	if (!request_mem_region(res->start, resource_size(res),
++				"atmel tsadcc regs")) {
++		dev_err(&pdev->dev, "resources is unavailable.\n");
++		err = -EBUSY;
++		goto err_free_mem;
++	}
++
++	tsc_base = ioremap(res->start, resource_size(res));
++	if (!tsc_base) {
++		dev_err(&pdev->dev, "failed to map registers.\n");
++		err = -ENOMEM;
++		goto err_release_mem;
++	}
++
++	err = request_irq(ts_dev->irq, g45adc_interrupt, IRQF_DISABLED,
++			pdev->dev.driver->name, ts_dev);
++	if (err) {
++		dev_err(&pdev->dev, "failed to allocate irq.\n");
++		goto err_unmap_regs;
++	}
++
++	ts_dev->clk = clk_get(&pdev->dev, "tsc_clk");
++	if (IS_ERR(ts_dev->clk)) {
++		dev_err(&pdev->dev, "failed to get ts_clk\n");
++		err = PTR_ERR(ts_dev->clk);
++		goto err_free_irq;
++	}
++
++	ts_dev->init = 0;
++
++	/* clk_enable() always returns 0, no need to check it */
++	clk_enable(ts_dev->clk);
++
++	prsc = clk_get_rate(ts_dev->clk);
++	dev_info(&pdev->dev, "Master clock is set at: %d Hz\n", prsc);
++
++	if (!pdata)
++		goto err_fail;
++
++	if (!pdata->adc_clock)
++		pdata->adc_clock = ADC_DEFAULT_CLOCK;
++
++	prsc = (prsc / (2 * pdata->adc_clock)) - 1;
++	dev_info(&pdev->dev, "Attempting to set prescaler to: %d\n", prsc);
++
++	/* saturate if this value is too high */
++	if (cpu_is_at91sam9rl()) {
++		if (prsc > PRESCALER_VAL(ATMEL_TSADCC_PRESCAL))
++			prsc = PRESCALER_VAL(ATMEL_TSADCC_PRESCAL);
++	} else {
++		if (prsc > PRESCALER_VAL(ATMEL_TSADCC_EPRESCAL))
++			prsc = PRESCALER_VAL(ATMEL_TSADCC_EPRESCAL);
++	}
++	dev_info(&pdev->dev, "Prescaler is set at: %d\n", prsc);
++
++	reg = ATMEL_TSADCC_TSAMOD_ADC_ONLY_MODE		|
++		((0x00 << 5) & ATMEL_TSADCC_SLEEP)	|	/* Normal Mode */
++		(prsc << 8)				|
++		((0x26 << 16) & ATMEL_TSADCC_STARTUP);
++
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CR, ATMEL_TSADCC_SWRST);  /* issue reset to ADC */
++	ATMEL_TSADCC_write(ATMEL_TSADCC_MR, reg);
++
++	/* calculate the sample period */
++	reg = clk_get_rate(ts_dev->clk);
++	reg = ((reg / 1000) * 100) - 1;  /* period = 100mS */
++
++	dev_info(&pdev->dev, "TRGPER set at: %d\n", reg);
++	ATMEL_TSADCC_write(ATMEL_TSADCC_TRGR, ATMEL_TSADCC_TRGMOD_PERIOD | 
++		((reg << 16) & ATMEL_TSADCC_TRGPER));  /* periodic trigger */
++
++	ATMEL_TSADCC_read(ATMEL_TSADCC_SR);
++
++	/* enable channels */
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHER, ATMEL_TSADCC_CH(0));
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHER, ATMEL_TSADCC_CH(1));
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHER, ATMEL_TSADCC_CH(2));
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHER, ATMEL_TSADCC_CH(3));
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHER, ATMEL_TSADCC_CH(4));
++
++	/* disable unused channels */
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHDR, ATMEL_TSADCC_CH(5));
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHDR, ATMEL_TSADCC_CH(6));
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CHDR, ATMEL_TSADCC_CH(7));
++
++	ATMEL_TSADCC_write(ATMEL_TSADCC_IER, ATMEL_TSADCC_DRDY);  /* Interrupt on data ready (all channels converted) */
++
++	/* All went ok, so register to the sysfs system */
++	err = sysfs_create_group(&pdev->dev.kobj, &g45adc_attr_group);
++	if (err)
++		goto err_fail;
++
++        ts_dev->hwmon = hwmon_device_register(&pdev->dev);
++	if (IS_ERR(ts_dev->hwmon)) {
++		err = PTR_ERR(ts_dev->hwmon);
++		goto err_group;
++	}
++
++        /* start a conversion */
++	ATMEL_TSADCC_write(ATMEL_TSADCC_CR, ATMEL_TSADCC_START);
++	
++	/* wait for conversion */
++	mdelay(10);  /* 10ms */
++
++	if (ts_dev->init)  /* print first set of values returned */
++		dev_info(&pdev->dev, "%s=%u %s=%u %s=%u %s=%u %s=%d\n",
++			input_names[G45ADC_VP3V3], 	ts_dev->ch_val[G45ADC_VP3V3],
++			input_names[G45ADC_VUSB], 	ts_dev->ch_val[G45ADC_VUSB],
++			input_names[G45ADC_VP5_POE], 	ts_dev->ch_val[G45ADC_VP5_POE],
++			input_names[G45ADC_VP5_EXT], 	ts_dev->ch_val[G45ADC_VP5_EXT],
++			input_names[G45ADC_TEMP], 	ts_dev->ch_val[G45ADC_TEMP]);
++
++	return 0;
++
++err_group:
++	sysfs_remove_group(&pdev->dev.kobj, &g45adc_attr_group);
++err_fail:
++	clk_disable(ts_dev->clk);
++	clk_put(ts_dev->clk);
++err_free_irq:
++	free_irq(ts_dev->irq, ts_dev);
++err_unmap_regs:
++	iounmap(tsc_base);
++err_release_mem:
++	release_mem_region(res->start, resource_size(res));
++err_free_mem:
++	kfree(ts_dev);
++	return err;
++}
++
++static int __devexit g45adc_remove(struct platform_device *pdev)
++{
++	struct g45adc *ts_dev = dev_get_drvdata(&pdev->dev);
++	struct resource *res;
++
++	ATMEL_TSADCC_write(ATMEL_TSADCC_IDR, 0xFFFFFFFF);  /* Disable all interrupts */
++
++	free_irq(ts_dev->irq, ts_dev);
++
++	hwmon_device_unregister(ts_dev->hwmon);
++	sysfs_remove_group(&pdev->dev.kobj, &g45adc_attr_group);
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	iounmap(tsc_base);
++	release_mem_region(res->start, resource_size(res));
++
++	clk_disable(ts_dev->clk);
++	clk_put(ts_dev->clk);
++
++	kfree(ts_dev);
++
++	return 0;
++}
++
++static struct platform_driver g45adc_driver = {
++	.probe		= g45adc_probe,
++	.remove		= __devexit_p(g45adc_remove),
++	.driver		= {
++		.name	= "g45adc",
++	},
++};
++
++static int __init g45adc_init(void)
++{
++	return platform_driver_register(&g45adc_driver);
++}
++
++static void __exit g45adc_exit(void)
++{
++	platform_driver_unregister(&g45adc_driver);
++}
++
++module_init(g45adc_init);
++module_exit(g45adc_exit);
++
++
++MODULE_LICENSE("GPL");
++MODULE_DESCRIPTION("Getinge NetCOM ADC Driver");
++MODULE_AUTHOR("Gabe Siftar <gabe.siftar@getingeusa.com>");
++
+-- 
+1.7.4.1
+

@@ -1,0 +1,40 @@
+From 3ca3388cd7b647ca8913cf2f3ad52133993d9bda Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Thu, 7 Jul 2011 10:29:42 +0200
+Subject: [PATCH 10/11] getinge-netcomv3: add ADC device registration
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/mach-at91/board-getinge-netcomv3.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
+index e135ae8..eedac34 100644
+--- a/arch/arm/mach-at91/board-getinge-netcomv3.c
++++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
+@@ -238,6 +238,13 @@ static struct gpio_led netcom_leds[] = {
+ 	},
+ };
+ 
++/*
++ * ADC
++ */
++static struct at91_g45adc_data g45adc_data = {
++	.adc_clock		= 300000,
++};
++
+ static struct gpio netcom_gpios[] = {
+ 	{ AT91_PIN_PE14, GPIOF_OUT_INIT_HIGH, "out1" },
+ 	{ AT91_PIN_PE15, GPIOF_OUT_INIT_HIGH, "out0" },
+@@ -268,6 +275,8 @@ static void __init netcom_board_init(void)
+ 	netcom_add_device_nand();
+ 	/* LEDs */
+ 	at91_gpio_leds(netcom_leds, ARRAY_SIZE(netcom_leds));
++	/* ADC */
++	at91_add_device_g45adc(&g45adc_data);
+ 	/* GPIOs */
+ 	gpio_request_array(netcom_gpios, ARRAY_SIZE(netcom_gpios));
+ 	for (i = 0; i < ARRAY_SIZE(netcom_gpios); i++) {
+-- 
+1.7.4.1
+

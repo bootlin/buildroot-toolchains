@@ -1,0 +1,351 @@
+From 2dd8627fa634ec0ea7ff2271522feb82f39dc4fe Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 4 Jul 2011 15:26:18 +0200
+Subject: [PATCH 06/11] getinge: Add support for Getinge NetCOM v3 platform
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/mach-at91/Kconfig                  |    6 +
+ arch/arm/mach-at91/Makefile                 |    1 +
+ arch/arm/mach-at91/board-getinge-netcomv3.c |  287 +++++++++++++++++++++++++++
+ arch/arm/tools/mach-types                   |    1 +
+ 4 files changed, 295 insertions(+), 0 deletions(-)
+ create mode 100644 arch/arm/mach-at91/board-getinge-netcomv3.c
+
+diff --git a/arch/arm/mach-at91/Kconfig b/arch/arm/mach-at91/Kconfig
+index 71feb00..807dc21 100644
+--- a/arch/arm/mach-at91/Kconfig
++++ b/arch/arm/mach-at91/Kconfig
+@@ -443,6 +443,12 @@ config MACH_AT91SAM9M10G45EK
+ 	  "ES" at the end of the name means that this board is an
+ 	  Engineering Sample.
+ 
++config MACH_GETINGE_NETCOMV3
++	bool "Getinge NetCOM v3"
++	select HAVE_NAND_ATMEL_BUSWIDTH_16
++	help
++	  Select this if you are using Getinge NetCOM v3 platform.
++
+ endif
+ 
+ # ----------------------------------------------------------
+diff --git a/arch/arm/mach-at91/Makefile b/arch/arm/mach-at91/Makefile
+index 705e1fb..a084004 100644
+--- a/arch/arm/mach-at91/Makefile
++++ b/arch/arm/mach-at91/Makefile
+@@ -77,6 +77,7 @@ obj-$(CONFIG_MACH_SNAPPER_9260)	+= board-snapper9260.o
+ 
+ # AT91SAM9G45 board-specific support
+ obj-$(CONFIG_MACH_AT91SAM9M10G45EK) += board-sam9m10g45ek.o
++obj-$(CONFIG_MACH_GETINGE_NETCOMV3) += board-getinge-netcomv3.o
+ 
+ # AT91SAM board with device-tree
+ obj-$(CONFIG_MACH_AT91SAM_DT) += board-dt.o
+diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
+new file mode 100644
+index 0000000..e135ae8
+--- /dev/null
++++ b/arch/arm/mach-at91/board-getinge-netcomv3.c
+@@ -0,0 +1,287 @@
++/*
++ *  Board-specific setup code for the Getinge NetCOM v3
++ *  platform. Largely inspired from the board-sam9m10g45ek.c file.
++ *
++ *  Copyright (C) 2011 Getinge
++ *  Copyright (C) 2009 Atmel Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ */
++
++#include <linux/types.h>
++#include <linux/init.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/spi/spi.h>
++#include <linux/spi/flash.h>
++#include <linux/fb.h>
++#include <linux/gpio_keys.h>
++#include <linux/input.h>
++#include <linux/leds.h>
++#include <linux/clk.h>
++#include <linux/gpio.h>
++
++#include <mach/hardware.h>
++
++#include <asm/setup.h>
++#include <asm/mach-types.h>
++#include <asm/irq.h>
++
++#include <asm/mach/arch.h>
++#include <asm/mach/map.h>
++#include <asm/mach/irq.h>
++
++#include <mach/board.h>
++#include <mach/gpio.h>
++#include <mach/at91sam9_smc.h>
++#include <mach/at91_shdwc.h>
++
++#include "sam9_smc.h"
++#include "generic.h"
++
++static void __init netcom_init_early(void)
++{
++	/* Initialize processor: 12.000 MHz crystal */
++	at91_initialize(12000000);
++
++	/* DGBU on ttyS4. (Rx & Tx only) */
++	at91_register_uart(0, 4, 0, -EINVAL);
++
++	/* UART0 on ttyS3, with CTS, RTS, DTR, DSR for RS-232 on J8 */
++	at91_register_uart(AT91SAM9G45_ID_US0, 3,
++			   ATMEL_UART_CTS | ATMEL_UART_RTS | ATMEL_UART_DTR | ATMEL_UART_DSR,
++			   -EINVAL);
++
++	/* UART1 on ttyS1, with CTS, RTS for TTL on J11 and RS485 on
++	   J6. RS485 duplex selection pin is PB21 */
++	at91_register_uart(AT91SAM9G45_ID_US1, 1,
++			   ATMEL_UART_CTS | ATMEL_UART_RTS, AT91_PIN_PB21);
++
++	/* UART2 on ttyS2, with RTS for RS-485 on J7. RS485 duplex
++	   selection pin in PB20 */
++	at91_register_uart(AT91SAM9G45_ID_US2, 2,
++			   ATMEL_UART_RTS, AT91_PIN_PB20);
++
++	/* UART3 on ttyS0, with RTS, CTS for RS-232 on J13 */
++	at91_register_uart(AT91SAM9G45_ID_US3, 0,
++			   ATMEL_UART_CTS | ATMEL_UART_RTS,
++			   -EINVAL);
++
++	/* set serial console to ttyS4 (ie, DBGU) */
++	at91_set_serial_console(4);
++}
++
++/*
++ * USB HS Host port (common to OHCI & EHCI)
++ */
++static struct at91_usbh_data __initdata netcom_usbh_hs_data = {
++	.ports		= 2,
++	.vbus_pin	= {AT91_PIN_PB28, AT91_PIN_PB31},
++	.vbus_pin_active_low = { 1, 1 },
++	.overcurrent_pin = {AT91_PIN_PB29, AT91_PIN_PB30},
++};
++
++
++/*
++ * USB HS Device port
++ */
++static struct usba_platform_data __initdata netcom_usba_udc_data = {
++	.vbus_pin	= AT91_PIN_PD28,
++};
++
++/*
++ * SPI devices.
++ */
++
++static struct mtd_partition netcom_dataflash_partitions[] = {
++	{
++		.name   = "at91bootstrap",
++		.offset = 0,
++		.size   = 0x2100,
++	},
++	{
++		.name   = "u-boot-env",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = 0x2100,
++	},
++	{
++		.name   = "u-boot",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = 0x33900,
++	},
++	{
++		.name   = "test-script",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = 0x6300,
++	},
++	{
++		.name   = "u-boot-env-bak",
++		.offset = MTDPART_OFS_NXTBLK,
++		.size   = 0x2100,
++	},
++};
++
++static struct flash_platform_data netcom_dataflash_data = {
++	.name = "Boot DataFlash",
++	.parts = netcom_dataflash_partitions,
++	.nr_parts = ARRAY_SIZE(netcom_dataflash_partitions),
++};
++
++static struct spi_board_info netcom_spi_devices[] = {
++	{	/* DataFlash chip */
++		.modalias	= "mtd_dataflash",
++		.chip_select	= 0,
++		.max_speed_hz	= 15 * 1000 * 1000,
++		.bus_num	= 0,
++		.platform_data  = &netcom_dataflash_data,
++	},
++};
++
++/*
++ * MACB Ethernet device
++ */
++static struct macb_platform_data __initdata netcom_macb_data = {
++	.phy_irq_pin	= AT91_PIN_PD5,
++	.is_rmii	= 1,
++};
++
++
++/*
++ * NAND flash
++ */
++static struct mtd_partition __initdata netcom_nand_partitions[] = {
++	{
++		.name	= "Partition 1",
++		.offset	= 0,
++		.size	= SZ_64M,
++	},
++	{
++		.name	= "Partition 2",
++		.offset	= MTDPART_OFS_NXTBLK,
++		.size	= MTDPART_SIZ_FULL,
++	},
++};
++
++/* det_pin is not connected */
++static struct atmel_nand_data __initdata netcom_nand_data = {
++	.ale		= 21,
++	.cle		= 22,
++	.rdy_pin	= AT91_PIN_PC8,
++	.enable_pin	= AT91_PIN_PC14,
++	.det_pin	= -EINVAL,
++	.parts	        = netcom_nand_partitions,
++	.num_parts      = ARRAY_SIZE(netcom_nand_partitions),
++};
++
++static struct sam9_smc_config __initdata netcom_nand_smc_config = {
++	.ncs_read_setup		= 0,
++	.nrd_setup		= 2,
++	.ncs_write_setup	= 0,
++	.nwe_setup		= 2,
++
++	.ncs_read_pulse		= 4,
++	.nrd_pulse		= 4,
++	.ncs_write_pulse	= 4,
++	.nwe_pulse		= 4,
++
++	.read_cycle		= 7,
++	.write_cycle		= 7,
++
++	.mode			= AT91_SMC_READMODE | AT91_SMC_WRITEMODE | AT91_SMC_EXNWMODE_DISABLE,
++	.tdf_cycles		= 3,
++};
++
++static void __init netcom_add_device_nand(void)
++{
++	netcom_nand_data.bus_width_16 = 0;
++
++	/* setup bus-width (8 or 16) */
++	if (netcom_nand_data.bus_width_16)
++		netcom_nand_smc_config.mode |= AT91_SMC_DBW_16;
++	else
++		netcom_nand_smc_config.mode |= AT91_SMC_DBW_8;
++
++	/* configure chip-select 3 (NAND) */
++	sam9_smc_configure(0, 3, &netcom_nand_smc_config);
++
++	at91_add_device_nand(&netcom_nand_data);
++}
++
++static struct gpio_led netcom_leds[] = {
++	{
++		.name = "serial-rx",
++		.gpio = AT91_PIN_PE18,
++		.active_low = 1,
++		.default_trigger = "serial-rx",
++	},
++	{
++		.name = "error",
++		.gpio = AT91_PIN_PE19,
++		.active_low = 1,
++	},
++	{
++		.name = "serial-tx",
++		.gpio = AT91_PIN_PE20,
++		.active_low = 1,
++		.default_trigger = "serial-tx",
++	},
++	{
++		.name = "pwr-lan",
++		.gpio = AT91_PIN_PE21,
++		.active_low = 1,
++		.default_trigger = "network",
++	},
++};
++
++static struct gpio netcom_gpios[] = {
++	{ AT91_PIN_PE14, GPIOF_OUT_INIT_HIGH, "out1" },
++	{ AT91_PIN_PE15, GPIOF_OUT_INIT_HIGH, "out0" },
++	{ AT91_PIN_PE16, GPIOF_IN, "in1" },
++	{ AT91_PIN_PE17, GPIOF_IN, "in0" },
++	{ AT91_PIN_PE22, GPIOF_IN, "button0" },
++	{ AT91_PIN_PE28, GPIOF_IN, "tst-mode" },
++	{ AT91_PIN_PE29, GPIOF_IN, "spare" },
++
++};
++
++static void __init netcom_board_init(void)
++{
++	int i;
++
++	/* Serial */
++	at91_add_device_serial();
++	/* USB HS Host */
++	at91_add_device_usbh_ohci(&netcom_usbh_hs_data);
++	at91_add_device_usbh_ehci(&netcom_usbh_hs_data);
++	/* USB HS Device */
++	at91_add_device_usba(&netcom_usba_udc_data);
++	/* SPI */
++	at91_add_device_spi(netcom_spi_devices, ARRAY_SIZE(netcom_spi_devices));
++	/* Ethernet */
++	at91_add_device_eth(&netcom_macb_data);
++	/* NAND */
++	netcom_add_device_nand();
++	/* LEDs */
++	at91_gpio_leds(netcom_leds, ARRAY_SIZE(netcom_leds));
++	/* GPIOs */
++	gpio_request_array(netcom_gpios, ARRAY_SIZE(netcom_gpios));
++	for (i = 0; i < ARRAY_SIZE(netcom_gpios); i++) {
++		gpio_sysfs_set_active_low(netcom_gpios[i].gpio, 1);
++		gpio_export(netcom_gpios[i].gpio, 0);
++	}
++
++}
++
++MACHINE_START(GETINGE_NETCOMV3, "Getinge NetCOM V3")
++	/* Maintainer: Getinge */
++	.timer		= &at91sam926x_timer,
++	.map_io		= at91_map_io,
++	.init_early	= netcom_init_early,
++	.init_irq	= at91_init_irq_default,
++	.init_machine	= netcom_board_init,
++MACHINE_END
+diff --git a/arch/arm/tools/mach-types b/arch/arm/tools/mach-types
+index f9c9f33..4ad5540 100644
+--- a/arch/arm/tools/mach-types
++++ b/arch/arm/tools/mach-types
+@@ -723,6 +723,7 @@ ecuv5			MACH_ECUV5		ECUV5			3421
+ hsgx6d			MACH_HSGX6D		HSGX6D			3422
+ dawad7			MACH_DAWAD7		DAWAD7			3423
+ sam9repeater		MACH_SAM9REPEATER	SAM9REPEATER		3424
++<<<<<<< HEAD
+ gt_i5700		MACH_GT_I5700		GT_I5700		3425
+ ctera_plug_c2		MACH_CTERA_PLUG_C2	CTERA_PLUG_C2		3426
+ marvelct		MACH_MARVELCT		MARVELCT		3427
+-- 
+1.7.4.1
+

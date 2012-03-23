@@ -1,0 +1,221 @@
+From a343f13494feb78b16a52928cefa1968809ad90e Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 20 Jun 2011 16:03:09 +0200
+Subject: [PATCH 01/11] Add network activity LED trigger driver
+
+Patch taken from
+http://www.mail-archive.com/netdev@vger.kernel.org/msg38825.html,
+updated to the latest kernel, and added :
+
+ * a call to the LED trigger from the network reception path (the
+   original patch was only hooking into the network transmit path)
+
+ * a hook into the network notifier mechanism, so that the LED is on
+   when the Ethernet link is present. Support is hardcoded to the
+   "eth0" interface.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ drivers/leds/Kconfig           |    9 +++
+ drivers/leds/Makefile          |    1 +
+ drivers/leds/ledtrig-network.c |  108 ++++++++++++++++++++++++++++++++++++++++
+ include/linux/leds.h           |    5 ++
+ net/core/dev.c                 |    5 ++
+ 5 files changed, 128 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/leds/ledtrig-network.c
+
+diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
+index 9ca28fc..d9bedf8 100644
+--- a/drivers/leds/Kconfig
++++ b/drivers/leds/Kconfig
+@@ -439,6 +439,15 @@ config LEDS_TRIGGER_IDE_DISK
+ 	  This allows LEDs to be controlled by IDE disk activity.
+ 	  If unsure, say Y.
+ 
++config LEDS_TRIGGER_NETWORK_ACT
++	tristate "LED Network Activity Trigger"
++	depends on LEDS_TRIGGERS
++	depends on NET
++	help
++	  This allow LEDs to be controlled by network activity at
++	  layer-3 networking.
++	  If unsure, say Y.
++
+ config LEDS_TRIGGER_HEARTBEAT
+ 	tristate "LED Heartbeat Trigger"
+ 	depends on LEDS_TRIGGERS
+diff --git a/drivers/leds/Makefile b/drivers/leds/Makefile
+index 1fc6875..bb59bda 100644
+--- a/drivers/leds/Makefile
++++ b/drivers/leds/Makefile
+@@ -53,6 +53,7 @@ obj-$(CONFIG_LEDS_DAC124S085)		+= leds-dac124s085.o
+ # LED Triggers
+ obj-$(CONFIG_LEDS_TRIGGER_TIMER)	+= ledtrig-timer.o
+ obj-$(CONFIG_LEDS_TRIGGER_IDE_DISK)	+= ledtrig-ide-disk.o
++obj-$(CONFIG_LEDS_TRIGGER_NETWORK_ACT)	+= ledtrig-network.o
+ obj-$(CONFIG_LEDS_TRIGGER_HEARTBEAT)	+= ledtrig-heartbeat.o
+ obj-$(CONFIG_LEDS_TRIGGER_BACKLIGHT)	+= ledtrig-backlight.o
+ obj-$(CONFIG_LEDS_TRIGGER_GPIO)		+= ledtrig-gpio.o
+diff --git a/drivers/leds/ledtrig-network.c b/drivers/leds/ledtrig-network.c
+new file mode 100644
+index 0000000..18f7b4e
+--- /dev/null
++++ b/drivers/leds/ledtrig-network.c
+@@ -0,0 +1,108 @@
++/*
++ * LED Network Activity Trigger
++ * based on ledtrig-ide-disk by Richard Purdie
++ *
++ * Copyright 2007 Florian Fainelli <florian@openwrt.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License version 2 as
++ * published by the Free Software Foundation.
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/jiffies.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/timer.h>
++#include <linux/leds.h>
++#include <linux/netdevice.h>
++
++#define LEDTRIG_NETWORK_ON_DURATION_MSECS 100
++
++static void ledtrig_network_timerfunc(unsigned long data);
++
++DEFINE_LED_TRIGGER(ledtrig_network);
++static DEFINE_TIMER(ledtrig_network_timer, ledtrig_network_timerfunc, 0, 0);
++static int network_activity, network_lastactivity;
++static int network_next_led_state = LED_OFF;
++static int network_haslink;
++
++void ledtrig_network_activity(void)
++{
++	network_activity++;
++	if (!timer_pending(&ledtrig_network_timer))
++		mod_timer(&ledtrig_network_timer, jiffies +
++			  msecs_to_jiffies(LEDTRIG_NETWORK_ON_DURATION_MSECS));
++}
++EXPORT_SYMBOL(ledtrig_network_activity);
++
++static void ledtrig_network_timerfunc(unsigned long data)
++{
++	if (! network_haslink) {
++		led_trigger_event(ledtrig_network, LED_OFF);
++		return;
++	}
++
++	if (network_lastactivity != network_activity) {
++		network_lastactivity = network_activity;
++		led_trigger_event(ledtrig_network, network_next_led_state);
++		if (network_next_led_state == LED_OFF)
++			network_next_led_state = LED_FULL;
++		else
++			network_next_led_state = LED_OFF;
++		mod_timer(&ledtrig_network_timer, jiffies +
++			  msecs_to_jiffies(LEDTRIG_NETWORK_ON_DURATION_MSECS));
++	} else {
++		network_next_led_state = LED_OFF;
++		led_trigger_event(ledtrig_network, LED_FULL);
++	}
++}
++
++static int ledtrig_network_device_notification(struct notifier_block *notifier,
++					       ulong event, void *ptr)
++{
++	struct net_device *netdev = ptr;
++
++	if (event != NETDEV_UP && event != NETDEV_CHANGE)
++		return 0;
++
++	if (strcmp(netdev->name, "eth0"))
++		return 0;
++
++	if (netif_carrier_ok(netdev)) {
++		led_trigger_event(ledtrig_network, LED_FULL);
++		network_haslink = 1;
++	}
++	else {
++		del_timer(&ledtrig_network_timer);
++		led_trigger_event(ledtrig_network, LED_OFF);
++		network_haslink = 0;
++	}
++
++	return 0;
++}
++
++static struct notifier_block ledtrig_network_notifier = {
++	.notifier_call = ledtrig_network_device_notification,
++};
++
++static int __init ledtrig_network_init(void)
++{
++	register_netdevice_notifier(&ledtrig_network_notifier);
++	led_trigger_register_simple("network", &ledtrig_network);
++	return 0;
++}
++
++static void __exit ledtrig_network_exit(void)
++{
++	led_trigger_unregister_simple(ledtrig_network);
++	unregister_netdevice_notifier(&ledtrig_network_notifier);
++}
++
++module_init(ledtrig_network_init);
++module_exit(ledtrig_network_exit);
++
++MODULE_AUTHOR("Florian Fainelli <florian@openwrt.org>");
++MODULE_DESCRIPTION("LED Network Activity trigger");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/leds.h b/include/linux/leds.h
+index 5884def..36abea1 100644
+--- a/include/linux/leds.h
++++ b/include/linux/leds.h
+@@ -166,6 +166,11 @@ extern void ledtrig_ide_activity(void);
+ #else
+ #define ledtrig_ide_activity() do {} while(0)
+ #endif
++#ifdef CONFIG_LEDS_TRIGGER_NETWORK_ACT
++extern void ledtrig_network_activity(void);
++#else
++#define ledtrig_network_activity() do {} while(0)
++#endif
+ 
+ /*
+  * Generic LED platform data for describing LED names and default triggers.
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 6ca32f6..ecb6c05 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -136,6 +136,7 @@
+ #include <linux/net_tstamp.h>
+ #include <linux/jump_label.h>
+ #include <net/flow_keys.h>
++#include <linux/leds.h>
+ 
+ #include "net-sysfs.h"
+ 
+@@ -2526,6 +2527,8 @@ int dev_queue_xmit(struct sk_buff *skb)
+ 	struct Qdisc *q;
+ 	int rc = -ENOMEM;
+ 
++	ledtrig_network_activity();
++
+ 	/* Disable soft irqs for various locks below. Also
+ 	 * stops preemption for RCU.
+ 	 */
+@@ -3308,6 +3311,8 @@ int netif_receive_skb(struct sk_buff *skb)
+ 	if (skb_defer_rx_timestamp(skb))
+ 		return NET_RX_SUCCESS;
+ 
++	ledtrig_network_activity();
++
+ #ifdef CONFIG_RPS
+ 	if (static_branch(&rps_needed)) {
+ 		struct rps_dev_flow voidflow, *rflow = &voidflow;
+-- 
+1.7.4.1
+

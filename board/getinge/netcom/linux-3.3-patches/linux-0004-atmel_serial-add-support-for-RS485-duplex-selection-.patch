@@ -1,0 +1,108 @@
+From dde80c14594d611790eed51315e8868993abfafe Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 27 Jun 2011 14:35:34 +0200
+Subject: [PATCH 04/11] atmel_serial: add support for RS485 duplex selection pin
+
+We extend the driver platform_data structure with two new fields:
+
+ - has_rs485_duplex_pin, which allows the board file to tell whether
+   this serial link has a pin for duplex mode selection in RS485
+
+ - rs485_duplex_pin, which allows the board file to tell the serial
+   driver which GPIO pin to use to configure the duplex mode
+
+The atmel_serial driver then drives the duplex pin low or high
+depending on whether full or half duplex mode is selected.
+
+Technically speaking, the patch isn't entirely correct: the
+association between pin low/high and duplex half/full is specific to
+the transceiver, which is outside of the AT91 chip. So, the code to
+actually switch between duplex modes should instead call into callback
+functions provided by the board file. This would however complexify
+the implementation, without any real gain in the context of Getinge's
+system.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/mach-at91/include/mach/board.h |    2 ++
+ drivers/tty/serial/atmel_serial.c       |   30 ++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-at91/include/mach/board.h b/arch/arm/mach-at91/include/mach/board.h
+index 3b33f07..87fdd1e 100644
+--- a/arch/arm/mach-at91/include/mach/board.h
++++ b/arch/arm/mach-at91/include/mach/board.h
+@@ -141,6 +141,8 @@ struct atmel_uart_data {
+ 	short			use_dma_rx;	/* use receive DMA? */
+ 	void __iomem		*regs;		/* virt. base address, if any */
+ 	struct serial_rs485	rs485;		/* rs485 settings */
++	short                   has_rs485_duplex_pin; /* has a pin for RS485 duplex selection ? */
++	u8                      rs485_duplex_pin;     /* the pin for RS485 duplex selection */
+ };
+ extern void __init at91_add_device_serial(void);
+ 
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index fa6b975..77ee438 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -155,6 +155,8 @@ struct atmel_uart_port {
+ 	struct circ_buf		rx_ring;
+ 
+ 	struct serial_rs485	rs485;		/* rs485 settings */
++	short                   has_rs485_duplex_pin;
++	u8                      rs485_duplex_pin;
+ 	unsigned int		tx_done_mask;
+ };
+ 
+@@ -232,6 +234,10 @@ void atmel_config_rs485(struct uart_port *port, struct serial_rs485 *rs485conf)
+ 		if ((rs485conf->delay_rts_after_send) > 0)
+ 			UART_PUT_TTGR(port, rs485conf->delay_rts_after_send);
+ 		mode |= ATMEL_US_USMODE_RS485;
++
++		if (atmel_port->has_rs485_duplex_pin)
++			gpio_set_value(atmel_port->rs485_duplex_pin,
++				       (atmel_port->rs485.flags & SER_RS485_FULL_DUPLEX) ? 0 : 1);
+ 	} else {
+ 		dev_dbg(port->dev, "Setting UART to RS232\n");
+ 		if (atmel_use_dma_tx(port))
+@@ -1507,6 +1513,27 @@ static void __devinit atmel_init_port(struct atmel_uart_port *atmel_port,
+ 	} else {
+ 		atmel_port->tx_done_mask = ATMEL_US_TXRDY;
+ 	}
++
++	/* Request and configure the RS 485 duplex GPIO pin */
++	atmel_port->rs485_duplex_pin = pdata->rs485_duplex_pin;
++	atmel_port->has_rs485_duplex_pin = pdata->has_rs485_duplex_pin;
++
++	if (atmel_port->has_rs485_duplex_pin) {
++		int ret = gpio_request(atmel_port->rs485_duplex_pin, "rs485_duplex");
++		if (ret) {
++			pr_err("atmel_serial: Cannot initialize RS485 duplex pin %d\n", ret);
++			atmel_port->rs485_duplex_pin = -EINVAL;
++			atmel_port->has_rs485_duplex_pin = 0;
++		} else
++			gpio_direction_output(atmel_port->rs485_duplex_pin, 0);
++	}
++
++	/* Set the RS 485 duplex GPIO pin to the correct value if RS
++	 * 485 has been requested at initialization time */
++	if (atmel_port->rs485.flags & SER_RS485_ENABLED &&
++	    atmel_port->has_rs485_duplex_pin)
++		gpio_set_value(atmel_port->rs485_duplex_pin,
++			       (atmel_port->rs485.flags & SER_RS485_FULL_DUPLEX) ? 0 : 1);
+ }
+ 
+ /*
+@@ -1856,6 +1883,9 @@ static int __devexit atmel_serial_remove(struct platform_device *pdev)
+ 
+ 	ret = uart_remove_one_port(&atmel_uart, port);
+ 
++	if (gpio_is_valid(atmel_port->rs485_duplex_pin))
++		gpio_free(atmel_port->rs485_duplex_pin);
++
+ 	tasklet_kill(&atmel_port->tasklet);
+ 	kfree(atmel_port->rx_ring.buf);
+ 
+-- 
+1.7.4.1
+

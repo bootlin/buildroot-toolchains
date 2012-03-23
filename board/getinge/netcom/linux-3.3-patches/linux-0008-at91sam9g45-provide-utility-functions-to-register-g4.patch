@@ -1,0 +1,91 @@
+From 35b748e0f31e80097275de9d23dd7d9fbc636893 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Wed, 6 Jul 2011 16:26:46 +0200
+Subject: [PATCH 08/11] at91sam9g45: provide utility functions to register g45adc devices
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/mach-at91/at91sam9g45_devices.c |   49 ++++++++++++++++++++++++++++++
+ arch/arm/mach-at91/include/mach/board.h  |    6 ++++
+ 2 files changed, 55 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-at91/at91sam9g45_devices.c b/arch/arm/mach-at91/at91sam9g45_devices.c
+index a4b8d50..0c51764 100644
+--- a/arch/arm/mach-at91/at91sam9g45_devices.c
++++ b/arch/arm/mach-at91/at91sam9g45_devices.c
+@@ -1091,6 +1091,55 @@ void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data) {}
+ 
+ 
+ /* --------------------------------------------------------------------
++ *  ADC
++ * -------------------------------------------------------------------- */
++
++static u64 g45adc_dmamask = DMA_BIT_MASK(32);
++static struct at91_g45adc_data g45adc_data;
++
++static struct resource g45adc_resources[] = {
++	[0] = {
++		.start	= AT91SAM9G45_BASE_TSC,
++		.end	= AT91SAM9G45_BASE_TSC + SZ_16K - 1,
++		.flags	= IORESOURCE_MEM,
++	},
++	[1] = {
++		.start	= AT91SAM9G45_ID_TSC,
++		.end	= AT91SAM9G45_ID_TSC,
++		.flags	= IORESOURCE_IRQ,
++	}
++};
++
++static struct platform_device at91sam9g45_g45adc_device = {
++	.name		= "g45adc",
++	.id		= -1,
++	.dev		= {
++				.dma_mask		= &g45adc_dmamask,
++				.coherent_dma_mask	= DMA_BIT_MASK(32),
++				.platform_data		= &g45adc_data,
++	},
++	.resource	= g45adc_resources,
++	.num_resources	= ARRAY_SIZE(g45adc_resources),
++};
++
++void __init at91_add_device_g45adc(struct at91_g45adc_data *data)
++{
++
++	if (!data)
++		return;
++
++	at91_set_gpio_input(AT91_PIN_PD20, 0);	/* AD0 */
++	at91_set_gpio_input(AT91_PIN_PD21, 0);	/* AD1 */
++	at91_set_gpio_input(AT91_PIN_PD22, 0);	/* AD2 */
++	at91_set_gpio_input(AT91_PIN_PD23, 0);	/* AD3 */
++	at91_set_gpio_input(AT91_PIN_PD24, 0);	/* AD4 */
++
++	g45adc_data = *data;
++	platform_device_register(&at91sam9g45_g45adc_device);
++
++}
++
++/* --------------------------------------------------------------------
+  *  RTT
+  * -------------------------------------------------------------------- */
+ 
+diff --git a/arch/arm/mach-at91/include/mach/board.h b/arch/arm/mach-at91/include/mach/board.h
+index 55e95e6..d178854 100644
+--- a/arch/arm/mach-at91/include/mach/board.h
++++ b/arch/arm/mach-at91/include/mach/board.h
+@@ -192,6 +192,12 @@ struct at91_tsadcc_data {
+ };
+ extern void __init at91_add_device_tsadcc(struct at91_tsadcc_data *data);
+ 
++ /* ADC */
++struct at91_g45adc_data {
++	unsigned int    adc_clock;
++};
++extern void __init at91_add_device_g45adc(struct at91_g45adc_data *data);
++
+ /* CAN */
+ struct at91_can_data {
+ 	void (*transceiver_switch)(int on);
+-- 
+1.7.4.1
+

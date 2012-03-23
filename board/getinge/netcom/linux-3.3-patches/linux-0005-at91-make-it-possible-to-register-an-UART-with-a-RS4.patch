@@ -1,0 +1,97 @@
+From 5a2fe72e4993951ca6cedaae225940724ab7a620 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 27 Jun 2011 15:07:03 +0200
+Subject: [PATCH 05/11] at91: make it possible to register an UART with a RS485 duplex pin
+
+We add a new parameter to at91_register_uart() to specify an
+additional RS485 duplex pin. It's a bit unfortunate that AT91 has
+organized the UART device registration code without allowing each
+board to supply additional platform_data information.
+
+This change only works with the AT91SAM9M10G45-EK board. We haven't
+bothered updating other boards.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/mach-at91/at91sam9g45_devices.c |   10 +++++++++-
+ arch/arm/mach-at91/board-sam9m10g45ek.c  |    6 ++++--
+ arch/arm/mach-at91/include/mach/board.h  |    3 ++-
+ 3 files changed, 15 insertions(+), 4 deletions(-)
+
+diff --git a/arch/arm/mach-at91/at91sam9g45_devices.c b/arch/arm/mach-at91/at91sam9g45_devices.c
+index 96e2adc..a4b8d50 100644
+--- a/arch/arm/mach-at91/at91sam9g45_devices.c
++++ b/arch/arm/mach-at91/at91sam9g45_devices.c
+@@ -1567,7 +1567,8 @@ static inline void configure_usart3_pins(unsigned pins)
+ static struct platform_device *__initdata at91_uarts[ATMEL_MAX_UART];	/* the UARTs to use */
+ struct platform_device *atmel_default_console_device;	/* the serial console device */
+ 
+-void __init at91_register_uart(unsigned id, unsigned portnr, unsigned pins)
++void __init at91_register_uart(unsigned id, unsigned portnr, unsigned pins,
++			       unsigned rs485_duplex_pin)
+ {
+ 	struct platform_device *pdev;
+ 	struct atmel_uart_data *pdata;
+@@ -1599,6 +1600,13 @@ void __init at91_register_uart(unsigned id, unsigned portnr, unsigned pins)
+ 	pdata = pdev->dev.platform_data;
+ 	pdata->num = portnr;		/* update to mapped ID */
+ 
++	if (gpio_is_valid(rs485_duplex_pin)) {
++		struct atmel_uart_data *pdata = pdev->dev.platform_data;
++		pdata->rs485_duplex_pin     = rs485_duplex_pin;
++		pdata->has_rs485_duplex_pin = 1;
++		at91_set_GPIO_periph(rs485_duplex_pin, 0);
++	}
++
+ 	if (portnr < ATMEL_MAX_UART)
+ 		at91_uarts[portnr] = pdev;
+ }
+diff --git a/arch/arm/mach-at91/board-sam9m10g45ek.c b/arch/arm/mach-at91/board-sam9m10g45ek.c
+index ea0d1b9..6d20eb7 100644
+--- a/arch/arm/mach-at91/board-sam9m10g45ek.c
++++ b/arch/arm/mach-at91/board-sam9m10g45ek.c
+@@ -53,11 +53,11 @@ static void __init ek_init_early(void)
+ 	at91_initialize(12000000);
+ 
+ 	/* DGBU on ttyS0. (Rx & Tx only) */
+-	at91_register_uart(0, 0, 0);
++	at91_register_uart(0, 0, 0, -EINVAL);
+ 
+ 	/* USART0 not connected on the -EK board */
+ 	/* USART1 on ttyS2. (Rx, Tx, RTS, CTS) */
+-	at91_register_uart(AT91SAM9G45_ID_US1, 2, ATMEL_UART_CTS | ATMEL_UART_RTS);
++	at91_register_uart(AT91SAM9G45_ID_US1, 2, ATMEL_UART_CTS | ATMEL_UART_RTS, -EINVAL);
+ 
+ 	/* set serial console to ttyS0 (ie, DBGU) */
+ 	at91_set_serial_console(0);
+@@ -341,11 +341,13 @@ static struct ac97c_platform_data ek_ac97_data = {
+  * LEDs ... these could all be PWM-driven, for variable brightness
+  */
+ static struct gpio_led ek_leds[] = {
++#if 0
+ 	{	/* "top" led, red, powerled */
+ 		.name			= "d8",
+ 		.gpio			= AT91_PIN_PD30,
+ 		.default_trigger	= "heartbeat",
+ 	},
++#endif
+ 	{	/* "left" led, green, userled2, pwm3 */
+ 		.name			= "d6",
+ 		.gpio			= AT91_PIN_PD0,
+diff --git a/arch/arm/mach-at91/include/mach/board.h b/arch/arm/mach-at91/include/mach/board.h
+index 87fdd1e..55e95e6 100644
+--- a/arch/arm/mach-at91/include/mach/board.h
++++ b/arch/arm/mach-at91/include/mach/board.h
+@@ -130,7 +130,8 @@ extern void __init at91_add_device_spi(struct spi_board_info *devices, int nr_de
+ #define ATMEL_UART_DCD	0x10
+ #define ATMEL_UART_RI	0x20
+ 
+-extern void __init at91_register_uart(unsigned id, unsigned portnr, unsigned pins);
++extern void __init at91_register_uart(unsigned id, unsigned portnr, unsigned pins,
++	                              unsigned rs485_duplex_pin);
+ extern void __init at91_set_serial_console(unsigned portnr);
+ 
+ extern struct platform_device *atmel_default_console_device;
+-- 
+1.7.4.1
+

@@ -1,0 +1,71 @@
+From a5a8c3804fa7de814881f015fdfb3d1f5e3f6ddd Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Wed, 13 Jul 2011 16:05:31 +0200
+Subject: [PATCH 11/11] gpiolib: expose a "label" sysfs attribute
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ drivers/gpio/gpiolib.c |   28 ++++++++++++++++++++++++----
+ 1 files changed, 24 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 17fdf4b..b964d8b 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -64,9 +64,7 @@ struct gpio_desc {
+ #define GPIO_FLAGS_MASK		((1 << ID_SHIFT) - 1)
+ #define GPIO_TRIGGER_MASK	(BIT(FLAG_TRIG_FALL) | BIT(FLAG_TRIG_RISE))
+ 
+-#ifdef CONFIG_DEBUG_FS
+ 	const char		*label;
+-#endif
+ };
+ static struct gpio_desc gpio_desc[ARCH_NR_GPIOS];
+ 
+@@ -76,9 +74,7 @@ static DEFINE_IDR(dirent_idr);
+ 
+ static inline void desc_set_label(struct gpio_desc *d, const char *label)
+ {
+-#ifdef CONFIG_DEBUG_FS
+ 	d->label = label;
+-#endif
+ }
+ 
+ /* Warn when drivers omit gpio_request() calls -- legal but ill-advised
+@@ -543,9 +539,33 @@ static ssize_t gpio_active_low_store(struct device *dev,
+ static const DEVICE_ATTR(active_low, 0644,
+ 		gpio_active_low_show, gpio_active_low_store);
+ 
++static ssize_t gpio_label_show(struct device *dev,
++		struct device_attribute *attr, char *buf)
++{
++	const struct gpio_desc	*desc = dev_get_drvdata(dev);
++	ssize_t			status;
++
++	mutex_lock(&sysfs_lock);
++
++	if (desc->label)
++		status = sprintf(buf, "%s\n", desc->label);
++	else
++		status = sprintf(buf, "?\n");
++
++	mutex_unlock(&sysfs_lock);
++
++	return status;
++}
++
++struct device_attribute dev_attr_gpiolabel = {
++	.attr = { .name = "label", .mode = 0444 },
++	.show = gpio_label_show,
++};
++
+ static const struct attribute *gpio_attrs[] = {
+ 	&dev_attr_value.attr,
+ 	&dev_attr_active_low.attr,
++	&dev_attr_gpiolabel.attr,
+ 	NULL,
+ };
+ 
+-- 
+1.7.4.1
+
