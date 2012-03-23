@@ -11,7 +11,10 @@ define LIBAGENTEMBEDDED_EXTRACT_CMDS
 	cp -a $(LIBAGENTEMBEDDED_SITE)/* $(@D)/
 endef
 
+# We first do a make clean to ensure that no object file from a
+# previous build by the Axis SDK remains in the source directory.
 define LIBAGENTEMBEDDED_BUILD_CMDS
+	$(MAKE) -C $(@D) CROSS_COMPILE="$(TARGET_CROSS)" BUILDROOT=1 clean
 	$(MAKE) -C $(@D) CROSS_COMPILE="$(TARGET_CROSS)" BUILDROOT=1
 endef
 
