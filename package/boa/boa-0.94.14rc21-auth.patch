@@ -23,7 +23,7 @@ http://sourceforge.net/tracker/?func=detail&aid=935995&group_id=78&atid=300078
  	@ASYNCIO_SOURCE@ @ACCESSCONTROL_SOURCE@
 --- boa-0.94.14rc21/src/auth.c
 +++ boa-0.94.14rc21-auth/src/auth.c
-@@ -0,0 +1,464 @@
+@@ -0,0 +1,463 @@
 +/*
 + *  Boa, an http server
 + *  Copyright (C) 1995 Paul Phillips <psp@well.com>
