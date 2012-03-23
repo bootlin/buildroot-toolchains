@@ -1,0 +1,72 @@
+diff -urN iproute2-2.6.38.old/misc/ifstat.c iproute2-2.6.38/misc/ifstat.c
+--- iproute2-2.6.38.old/misc/ifstat.c	2012-03-23 11:18:26.010726101 +0800
++++ iproute2-2.6.38/misc/ifstat.c	2012-03-23 11:22:36.750974516 +0800
+@@ -515,7 +515,11 @@
+ 				pid_t pid;
+ 				if (children >= 5) {
+ 					close(clnt);
++#ifdef __NOMMU__
++				} else if ((pid = vfork()) != 0) {
++#else
+ 				} else if ((pid = fork()) != 0) {
++#endif
+ 					if (pid>0)
+ 						children++;
+ 					close(clnt);
+@@ -526,7 +530,7 @@
+ 							update_db(tdiff);
+ 						dump_raw_db(fp, 0);
+ 					}
+-					exit(0);
++					_exit(0);
+ 				}
+ 			}
+ 		}
+diff -urN iproute2-2.6.38.old/misc/nstat.c iproute2-2.6.38/misc/nstat.c
+--- iproute2-2.6.38.old/misc/nstat.c	2012-03-23 11:18:26.010726101 +0800
++++ iproute2-2.6.38/misc/nstat.c	2012-03-23 11:23:05.537215129 +0800
+@@ -399,7 +399,11 @@
+ 				pid_t pid;
+ 				if (children >= 5) {
+ 					close(clnt);
++#ifdef __NOMMU__
++				} else if ((pid = vfork()) != 0) {
++#else
+ 				} else if ((pid = fork()) != 0) {
++#endif
+ 					if (pid>0)
+ 						children++;
+ 					close(clnt);
+@@ -410,7 +414,7 @@
+ 							update_db(tdiff);
+ 						dump_kern_db(fp, 0);
+ 					}
+-					exit(0);
++					_exit(0);
+ 				}
+ 			}
+ 		}
+diff -urN iproute2-2.6.38.old/misc/rtacct.c iproute2-2.6.38/misc/rtacct.c
+--- iproute2-2.6.38.old/misc/rtacct.c	2012-03-23 11:18:26.010726101 +0800
++++ iproute2-2.6.38/misc/rtacct.c	2012-03-23 11:23:43.634841908 +0800
+@@ -393,7 +393,11 @@
+ 				pid_t pid;
+ 				if (children >= 5) {
+ 					close(clnt);
++#ifdef __NOMMU__
++				} else if ((pid = vfork()) != 0) {
++#else
+ 				} else if ((pid = fork()) != 0) {
++#endif
+ 					if (pid>0)
+ 						children++;
+ 					close(clnt);
+@@ -401,7 +405,7 @@
+ 					if (tdiff > 0)
+ 						update_db(tdiff);
+ 					send_db(clnt);
+-					exit(0);
++					_exit(0);
+ 				}
+ 			}
+ 		}
