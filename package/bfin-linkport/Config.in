@@ -1,0 +1,4 @@
+config BR2_PACKAGE_BFIN_LINKPORT
+	bool "bfin linkport test"
+	help
+	  Bfin linkport test suite
