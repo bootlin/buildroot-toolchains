@@ -16,7 +16,7 @@ static int lp_fd_in;
 #define DEFAULT_OUT "/dev/linkport0"
 #define DEFAULT_IN "/dev/linkport1"
 
-#define BUF_LEN		64
+#define BUF_LEN		16
 
 static void usage(int status)
 {
@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 	unsigned char *buffer_out;
 	unsigned char *buffer_in;
 	int i;
+	int ret = 0;
 
 	while ((c = getopt(argc, argv, "s:h")) != EOF)
 		switch (c) {
@@ -71,10 +72,21 @@ int main(int argc, char *argv[])
 		perror("failed");
 	}
 
+	for (i = 0; i < BUF_LEN; i++) {
+		if (buffer_in[i] != buffer_out[i]) {
+			printf("linkport test failed\n");
+			ret = -1;
+			break;
+		}
+	}
+
+	sleep(2);
 	close(lp_fd_out);
 	close(lp_fd_in);
 	free(buffer_out);
 	free(buffer_in);
 
-	return 0;
+	if (!ret)
+		printf("linkport test passed\n");
+	return ret;
 }
