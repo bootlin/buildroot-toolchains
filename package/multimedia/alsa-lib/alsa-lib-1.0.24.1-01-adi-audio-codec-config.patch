@@ -271,12 +271,12 @@ Index: alsa-lib/src/conf/cards/AD183X.conf
 +		}
 +	}
 +}
-Index: alsa-lib/src/conf/cards/ADAU1361.conf
+Index: alsa-lib/src/conf/cards/eval-adau1x61.conf
 ===================================================================
---- alsa-lib/src/conf/cards/ADAU1361.conf	(revision 0)
-+++ alsa-lib/src/conf/cards/ADAU1361.conf	(revision 10340)
+--- alsa-lib/src/conf/cards/eval-adau1x61.conf	(revision 0)
++++ alsa-lib/src/conf/cards/eval-adau1x61.conf	(revision 10340)
 @@ -0,0 +1,21 @@
-+ADAU1361.pcm.default {
++eval-adau1x61.pcm.default {
 +	@args [ CARD ]
 +	@args.CARD {
 +		type string
