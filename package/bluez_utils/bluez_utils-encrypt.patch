@@ -1,0 +1,98 @@
+diff --git a/test/l2test.c b/test/l2test.c
+index 4034fd2..4e5ab30 100644
+--- a/test/l2test.c
++++ b/test/l2test.c
+@@ -104,7 +104,7 @@ static char *filename = NULL;
+ static int rfcmode = 0;
+ static int master = 0;
+ static int auth = 0;
+-static int encrypt = 0;
++static int encrypt_1 = 0;
+ static int secure = 0;
+ static int socktype = SOCK_SEQPACKET;
+ static int linger = 0;
+@@ -273,7 +273,7 @@ static int do_connect(char *svr)
+ 		opt |= L2CAP_LM_MASTER;
+ 	if (auth)
+ 		opt |= L2CAP_LM_AUTH;
+-	if (encrypt)
++	if (encrypt_1)
+ 		opt |= L2CAP_LM_ENCRYPT;
+ 	if (secure)
+ 		opt |= L2CAP_LM_SECURE;
+@@ -378,7 +378,7 @@ static void do_listen(void (*handler)(int sk))
+ 		opt |= L2CAP_LM_MASTER;
+ 	if (auth)
+ 		opt |= L2CAP_LM_AUTH;
+-	if (encrypt)
++	if (encrypt_1)
+ 		opt |= L2CAP_LM_ENCRYPT;
+ 	if (secure)
+ 		opt |= L2CAP_LM_SECURE;
+@@ -1107,7 +1107,7 @@ static void usage(void)
+ 		"\t[-G] use connectionless channel (datagram)\n"
+ 		"\t[-U] use sock stream\n"
+ 		"\t[-A] request authentication\n"
+-		"\t[-E] request encryption\n"
++		"\t[-E] request encrypt_1ion\n"
+ 		"\t[-S] secure connection\n"
+ 		"\t[-M] become master\n"
+ 		"\t[-T] enable timestamps\n");
+@@ -1257,7 +1257,7 @@ int main(int argc, char *argv[])
+ 			break;
+ 
+ 		case 'E':
+-			encrypt = 1;
++			encrypt_1 = 1;
+ 			break;
+ 
+ 		case 'S':
+diff --git a/test/rctest.c b/test/rctest.c
+index b7ed7e6..10be67b 100644
+--- a/test/rctest.c
++++ b/test/rctest.c
+@@ -79,7 +79,7 @@ static char *filename = NULL;
+ 
+ static int master = 0;
+ static int auth = 0;
+-static int encrypt = 0;
++static int encrypt_1 = 0;
+ static int secure = 0;
+ static int socktype = SOCK_STREAM;
+ static int linger = 0;
+@@ -199,7 +199,7 @@ static int do_connect(const char *svr)
+ 		opt |= RFCOMM_LM_MASTER;
+ 	if (auth)
+ 		opt |= RFCOMM_LM_AUTH;
+-	if (encrypt)
++	if (encrypt_1)
+ 		opt |= RFCOMM_LM_ENCRYPT;
+ 	if (secure)
+ 		opt |= RFCOMM_LM_SECURE;
+@@ -277,7 +277,7 @@ static void do_listen(void (*handler)(int sk))
+ 		opt |= RFCOMM_LM_MASTER;
+ 	if (auth)
+ 		opt |= RFCOMM_LM_AUTH;
+-	if (encrypt)
++	if (encrypt_1)
+ 		opt |= RFCOMM_LM_ENCRYPT;
+ 	if (secure)
+ 		opt |= RFCOMM_LM_SECURE;
+@@ -607,7 +607,7 @@ static void usage(void)
+ 		"\t[-C num] send num frames before delay (default = 1)\n"
+ 		"\t[-D milliseconds] delay after sending num frames (default = 0)\n"
+ 		"\t[-A] request authentication\n"
+-		"\t[-E] request encryption\n"
++		"\t[-E] request encrypt_1ion\n"
+ 		"\t[-S] secure connection\n"
+ 		"\t[-M] become master\n"
+ 		"\t[-T] enable timestamps\n");
+@@ -692,7 +692,7 @@ int main(int argc, char *argv[])
+ 			break;
+ 
+ 		case 'E':
+-			encrypt = 1;
++			encrypt_1 = 1;
+ 			break;
+ 
+ 		case 'S':
