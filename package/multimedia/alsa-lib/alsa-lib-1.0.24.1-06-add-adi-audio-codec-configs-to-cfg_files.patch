@@ -1,0 +1,34 @@
+--- alsa-lib-1.0.24.1/src/conf/cards/Makefile.am.org	2012-03-30 16:26:21.595409660 +0800
++++ alsa-lib-1.0.24.1/src/conf/cards/Makefile.am	2012-03-30 16:05:00.371408880 +0800
+@@ -2,6 +2,12 @@
+ alsadir = $(alsaconfigdir)/cards
+ cfg_files = aliases.conf \
+ 	AACI.conf \
++	AD1980.conf \
++	AD1980-no-mmap.conf \
++	AD73322.asound.conf \
++	AD73322.conf \
++	ADAU1371.conf \
++	ADAU1373.conf \
+ 	ATIIXP.conf \
+ 	ATIIXP-SPDMA.conf \
+ 	ATIIXP-MODEM.conf \
+@@ -12,6 +18,10 @@
+ 	Audigy2.conf \
+ 	Aureon51.conf \
+ 	Aureon71.conf \
++	bfin-ad1836.conf \
++	bfin-ad193x.conf \
++	bfin-ad73311.conf \
++	bfin-ssm2602.conf \
+ 	CA0106.conf \
+ 	CMI8338.conf \
+ 	CMI8338-SWIEC.conf \
+@@ -24,6 +34,7 @@
+ 	ENS1370.conf \
+ 	ENS1371.conf \
+ 	ES1968.conf \
++	eval-adau1x61.conf \
+ 	FM801.conf \
+ 	GUS.conf \
+ 	HDA-Intel.conf \

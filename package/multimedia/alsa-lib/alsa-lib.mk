@@ -68,11 +68,6 @@ endif
 ALSA_LIB_CONF_ENV = CFLAGS="$(ALSA_LIB_CFLAGS)" \
 		    LDFLAGS="$(TARGET_LDFLAGS) -lm"
 
-define ALSA_LIB_INSTALL_TARGET_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE) DESTDIR=$(TARGET_DIR) install -C $(@D)
-	$(INSTALL) -c -m 644 $(@D)/src/conf/cards/*.conf $(TARGET_DIR)/usr/share/alsa/cards/
-endef
-
 define ALSA_LIB_UNINSTALL_TARGET_CMDS
 	-rm -f $(TARGET_DIR)/usr/lib/libasound.so*
 	-rm -rf $(TARGET_DIR)/usr/lib/alsa-lib
