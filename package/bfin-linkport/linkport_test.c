@@ -58,8 +58,14 @@ int main(int argc, char *argv[])
 	if ((buffer_out = malloc(BUF_LEN)) == NULL)
 		perror("malloc() failed");
 
+	if (buffer_out)
+		memset(buffer_out, 0, BUF_LEN);
+
 	if ((buffer_in = malloc(BUF_LEN)) == NULL)
 		perror("malloc() failed");
+
+	if (buffer_in)
+		memset(buffer_in, 0, BUF_LEN);
 
 	for (i = 0; i < BUF_LEN; i++)
 		buffer_out[i] = i % 0xff;
@@ -74,7 +80,7 @@ int main(int argc, char *argv[])
 
 	for (i = 0; i < BUF_LEN; i++) {
 		if (buffer_in[i] != buffer_out[i]) {
-			printf("linkport test failed\n");
+			printf("linkport test failed %x - %x\n", buffer_in[i], buffer_out[i]);
 			ret = -1;
 			break;
 		}
