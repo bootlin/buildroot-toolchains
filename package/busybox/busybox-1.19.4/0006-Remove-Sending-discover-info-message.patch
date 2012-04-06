@@ -1,0 +1,33 @@
+From 46bcf1654e20fe7a797b02397aaa7ed416ce72e3 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Fri, 6 Apr 2012 14:02:32 +0200
+Subject: [PATCH 6/6] Remove 'Sending discover' info message
+
+In NetCOM, the DHCP client is started in the foreground, and the
+respawnd mechanism puts it in the background. But the DHCP client
+still thinks it runs in the foreground, so it keeps sending debug
+messages on stdout. The 'Sending discover' message is particular
+annoying, since it gets repeated every few seconds.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ networking/udhcp/dhcpc.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/networking/udhcp/dhcpc.c b/networking/udhcp/dhcpc.c
+index 4d755e6..eb0e7ce 100644
+--- a/networking/udhcp/dhcpc.c
++++ b/networking/udhcp/dhcpc.c
+@@ -557,7 +557,9 @@ static NOINLINE int send_discover(uint32_t xid, uint32_t requested)
+ 	 */
+ 	add_client_options(&packet);
+ 
++#if 0
+ 	bb_info_msg("Sending discover...");
++#endif
+ 	return raw_bcast_from_client_config_ifindex(&packet);
+ }
+ 
+-- 
+1.7.4.1
+

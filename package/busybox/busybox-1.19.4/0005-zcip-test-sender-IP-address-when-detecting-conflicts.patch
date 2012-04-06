@@ -1,4 +1,7 @@
-zcip: test sender IP address when detecting conflicts
+From 9be87b9df9d543296bf51414b64e1f2f343d297d Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Fri, 6 Apr 2012 13:54:52 +0200
+Subject: [PATCH 5/6] zcip: test sender IP address when detecting conflicts
 
 The RFC 5227 suggests that:
 
@@ -37,11 +40,16 @@ host probing to see if an IP address is in use or not, and this case,
 there is a conflict. However, if it's not-zero, then the host making
 the ARP request is not probing, but only trying to reach the device.
 
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>Index: busybox-1.18.4/networking/zcip.c
-===================================================================
---- busybox-1.18.4.orig/networking/zcip.c
-+++ busybox-1.18.4/networking/zcip.c
-@@ -319,6 +319,7 @@
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ networking/zcip.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/networking/zcip.c b/networking/zcip.c
+index 8a35eca..57ae2b1 100644
+--- a/networking/zcip.c
++++ b/networking/zcip.c
+@@ -329,6 +329,7 @@ int zcip_main(int argc UNUSED_PARAM, char **argv)
  		struct arp_packet p;
  		int source_ip_conflict;
  		int target_ip_conflict;
@@ -49,7 +57,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>Index: busy
  
  		fds[0].fd = sock_fd;
  		fds[0].events = POLLIN;
-@@ -488,6 +489,7 @@
+@@ -498,6 +499,7 @@ int zcip_main(int argc UNUSED_PARAM, char **argv)
  
  			source_ip_conflict = 0;
  			target_ip_conflict = 0;
@@ -57,7 +65,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>Index: busy
  
  			if (memcmp(p.arp.arp_spa, &ip.s_addr, sizeof(struct in_addr)) == 0
  			 && memcmp(&p.arp.arp_sha, &eth_addr, ETH_ALEN) != 0
-@@ -497,6 +499,7 @@
+@@ -507,6 +509,7 @@ int zcip_main(int argc UNUSED_PARAM, char **argv)
  			if (p.arp.arp_op == htons(ARPOP_REQUEST)
  			 && memcmp(p.arp.arp_tpa, &ip.s_addr, sizeof(struct in_addr)) == 0
  			 && memcmp(&p.arp.arp_tha, &eth_addr, ETH_ALEN) != 0
@@ -65,3 +73,6 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>Index: busy
  			) {
  				target_ip_conflict = 1;
  			}
+-- 
+1.7.4.1
+
