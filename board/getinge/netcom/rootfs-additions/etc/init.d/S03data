@@ -1,0 +1,10 @@
+#!/bin/sh
+# This shell script mounts the data filesystem in /etc/netcom/.
+
+# Block device of the MTD partition containing the data filesystem
+DATA_MTDBLK=/dev/mtdblk/data
+
+# Mountpoint
+DATA_MNTPNT=/etc/netcom/
+
+mount -t jffs2 ${DATA_MTDBLK} ${DATA_MNTPNT}

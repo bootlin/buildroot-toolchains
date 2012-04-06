@@ -1,11 +1,23 @@
-basebootargs=console=ttyS4,115200 mtdparts=atmel_nand:4m(kernel1),32m(rootfs1),4m(kernel2),32m(rootfs2),4m(conf) rootfstype=jffs2
-loadkernel=if test "${kernel_mtdpart}" = "mtd0" ; then nboot.e 70000000 0 0 ; else nboot.e 70000000 0 2400000 ; fi
+basebootargs=console=ttyS4,115200 mtdparts=atmel_nand:6m(kernel1),48m(rootfs1),6m(kernel2),48m(rootfs2),8m(conf),128m(data) rootfstype=jffs2
+loadaddr=70000000
+kernel1offset=0
+rootfs1offset=600000
+kernel2offset=3600000
+rootfs2offset=3c00000
+kernelsize=600000
+rootfssize=3000000
+confoffset=6c00000
+confsize=800000
+dataoffset=7400000
+datasize=8000000
+loadkernel=if test "${kernel_mtdpart}" = "mtd0" ; then nboot.e ${loadaddr} 0 ${kernel1offset} ; else nboot.e ${loadaddr} 0 ${kernel2offset} ; fi
 setbootargs=if test "${rootfs_mtdpart}" = "mtd1" ; then setenv bootargs root=/dev/mtdblock1 ${basebootargs} ; else setenv bootargs root=/dev/mtdblock3 ${basebootargs} ; fi
 bootcmd=if run checkserialized && run checkflashed; then setenv bootcmd "run loadkernel; run setbootargs; bootm"; boot; fi
-flashkernel=if tftp 70000000 uImage.netcom; then nand erase 0 400000; nand write.e 70000000 0 400000; setenv kernel_mtdpart mtd0; fi
-flashrootfs=if tftp 70000000 rootfs.jffs2.netcom; then nand erase 400000 2400000; nand write.e 70000000 400000 ${filesize}; setenv rootfs_mtdpart mtd1; fi
-flashenv=if tftp 70000000 u-boot-env.bin.netcom; then cp.b 70000000 C0004200 4200; fi
-eraseconfig=nand erase 0x4800000 0x400000
+flashkernel=if tftp ${loadaddr} uImage.netcom; then nand erase 0 ${kernelsize}; nand write.e ${loadaddr} ${kernel1offset} ${kernelsize}; setenv kernel_mtdpart mtd0; fi
+flashrootfs=if tftp ${loadaddr} rootfs.jffs2.netcom; then nand erase ${rootfs1offset} ${rootfssize}; nand write.e ${loadaddr} ${rootfs1offset} ${filesize}; setenv rootfs_mtdpart mtd1; fi
+flashenv=if tftp ${loadaddr} u-boot-env.bin.netcom; then cp.b ${loadaddr} C0004200 4200; fi
+eraseconfig=nand erase ${confoffset} ${confsize}
+erasedata=nand erase ${dataoffset} ${datasize}
 flashall=run flashkernel; run flashrootfs; saveenv
 checkserialized=test "${ethaddr}" <> "" || echo "MAC address not set" && test 0
 checktestvars=test "${testposition}" <> "" || echo "Test vars not set" && test 0
