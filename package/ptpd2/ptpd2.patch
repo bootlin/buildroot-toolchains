@@ -1,0 +1,29 @@
+diff --git a/src/dep/msg.c b/src/dep/msg.c
+index 31200c0..8055bfe 100644
+--- a/src/dep/msg.c
++++ b/src/dep/msg.c
+@@ -156,7 +156,9 @@ msgPackAnnounce(void *buf, PtpClock * ptpClock)
+ 		flip16(ptpClock->clockQuality.offsetScaledLogVariance);
+ 	*(UInteger8 *) (buf + 52) = ptpClock->grandmasterPriority2;
+ 	memcpy((buf + 53), ptpClock->grandmasterIdentity, CLOCK_IDENTITY_LENGTH);
+-	*(UInteger16 *) (buf + 61) = flip16(ptpClock->stepsRemoved);
++	/* avoid misaligned word write at odd address */
++	*(UInteger8 *) (buf + 61) = (UInteger8)(ptpClock->stepsRemoved >> 8);
++	*(UInteger8 *) (buf + 62) = (UInteger8)ptpClock->stepsRemoved;
+ 	*(Enumeration8 *) (buf + 63) = ptpClock->timeSource;
+ }
+ 
+diff --git a/src/Makefile b/src/Makefile
+index 0a86197..5ac1bf8 100644
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -3,8 +3,7 @@
+ USE_LINUX_PHC	?= y
+ 
+ ifeq ($(USE_LINUX_PHC),y)
+-KBUILD_OUTPUT	?= /lib/modules/$(shell uname -r)/build
+-CFLAGS		= -DUSE_LINUX_PHC -I$(KBUILD_OUTPUT)/usr/include
++CPPFLAGS	+= -DUSE_LINUX_PHC -Dlinux
+ PHC_SRC		= dep/phc.c
+ endif
+ 
