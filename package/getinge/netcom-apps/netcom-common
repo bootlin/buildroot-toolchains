@@ -12,9 +12,17 @@ else
     enabled=0
 fi
 
+if test -f /usr/share/netcom/$DAEMON.startupdb ; then
+    . /usr/share/netcom/$DAEMON.startupdb
+fi
+
 manual_start() {
 	    begin "Starting $DAEMON"
-	    start_daemon /usr/bin/$DAEMON
+            if ! $license 2>&1 > /dev/null ; then
+                end 1 "No license"
+                return
+            fi
+	    start_daemon /usr/bin/$DAEMON "$options"
 	    end $?
 }
 
