@@ -12,3 +12,5 @@
 *.orig
 *.rej
 *~
+.netcom_build_id
+.netcom_version_id

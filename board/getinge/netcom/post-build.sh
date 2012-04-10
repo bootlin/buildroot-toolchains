@@ -22,3 +22,11 @@ grep -q "/etc/conf.d/hostname" $TARGETDIR/etc/persistent-files.conf || \
 
 # Copy the rootfs additions
 cp -a $BOARDDIR/rootfs-additions/* $TARGETDIR/
+
+# Fixup the build time
+BUILD_TIME=$(LANG=C date '+%b %d %Y %H:%M')
+sed -i "s/__BUILD_TIME__/${BUILD_TIME}/" $TARGETDIR/usr/share/release/variables
+
+# Find the build ID
+BUILD_ID=$($BOARDDIR/get-build-id.sh)
+sed -i "s/__BUILD__/${BUILD_ID}/" $TARGETDIR/usr/share/release/variables
