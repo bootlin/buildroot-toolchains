@@ -1,0 +1,4 @@
+config BR2_PACKAGE_FILE_OPERATION_TEST
+	bool "file operation test"
+	help
+	  file operation test suite
