@@ -91,6 +91,7 @@ define NETCOM_APPS_INSTALL_TARGET_CMDS
 		 initscript=`cat $$daemon | grep "^initscript" | sed 's/initscript="\([^"]*\)"/\1/'` ; \
 		 priority=`cat $$daemon | grep "^priority" | sed 's/priority="\([0-9]*\)"/\1/'` ; \
 		 ln -sf netcom-common $(TARGET_DIR)/etc/init.d/S$${priority}$${initscript} ; \
+		 echo "enabled=1" > $(BINARIES_DIR)/conf.d/`basename ${daemon%%.startupdb}`.service ; \
 	done
 endef
 
