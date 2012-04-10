@@ -12,7 +12,8 @@ dataoffset=7400000
 datasize=8000000
 loadkernel=if test "${kernel_mtdpart}" = "mtd0" ; then nboot.e ${loadaddr} 0 ${kernel1offset} ; else nboot.e ${loadaddr} 0 ${kernel2offset} ; fi
 setbootargs=if test "${rootfs_mtdpart}" = "mtd1" ; then setenv bootargs root=/dev/mtdblock1 ${basebootargs} ; else setenv bootargs root=/dev/mtdblock3 ${basebootargs} ; fi
-bootcmd=if run checkserialized && run checkflashed; then setenv bootcmd "run loadkernel; run setbootargs; bootm"; boot; fi
+runhwtest=cp.b C0037B00 70000000 6300 && source 70000000;
+bootcmd=if run checkhwtest && run checkserialized && run checkflashed; then setenv bootcmd "run loadkernel; run setbootargs; bootm"; boot; fi
 flashkernel=if tftp ${loadaddr} uImage.netcom; then nand erase 0 ${kernelsize}; nand write.e ${loadaddr} ${kernel1offset} ${kernelsize}; setenv kernel_mtdpart mtd0; fi
 flashrootfs=if tftp ${loadaddr} rootfs.jffs2.netcom; then nand erase ${rootfs1offset} ${rootfssize}; nand write.e ${loadaddr} ${rootfs1offset} ${filesize}; setenv rootfs_mtdpart mtd1; fi
 flashenv=if tftp ${loadaddr} u-boot-env.bin.netcom; then cp.b ${loadaddr} C0004200 4200; fi
@@ -21,9 +22,6 @@ erasedata=nand erase ${dataoffset} ${datasize}
 flashall=run flashkernel; run flashrootfs; saveenv
 checkserialized=test "${ethaddr}" <> "" || echo "MAC address not set" && test 0
 checktestvars=test "${testposition}" <> "" || echo "Test vars not set" && test 0
+checkhwtest=mw.b FFFFFA03 20; mw.b FFFFFA13 20; mw.b FFFFFA07 CF; mw.b FFFFFA37 20; itest.b *FFFFFA3F == 00 && mw.b FFFFFA33 20 && itest.b *FFFFFA3F == 30 && run runhwtest; 
 factoryflash=if run checktestvars; then setenv serverip 192.168.199.250 ; setenv ipaddr 192.168.199.1${testposition} ; run flashall ; echo Complete ; fi
 checkflashed=test "${kernel_mtdpart}" <> "" || echo "Flash not programmed" && run factoryflash || test 0
-BOOTBLOCK_PCBSERNO=Z999999
-BOOTBLOCK_BRAND=GETINGE
-BOOTBLOCK_HWID=2012
-BOOTBLOCK_HWCONFIG=1
