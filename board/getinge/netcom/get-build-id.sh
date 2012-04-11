@@ -34,6 +34,7 @@ VERSION_STRING=$(. board/getinge/netcom/rootfs-additions/usr/share/release/varia
     printf "%s.%s.%s" $VERSION_MAJOR $VERSION_MINOR $VERSION_REVISION)
 
 # First, determine if the version has changed.
+VERSION_CHANGED=0
 if [ ! -f ${VERSION_ID_FILE} ] ; then
     # It's the case if the hidden file containing the version does not
     # exist...
