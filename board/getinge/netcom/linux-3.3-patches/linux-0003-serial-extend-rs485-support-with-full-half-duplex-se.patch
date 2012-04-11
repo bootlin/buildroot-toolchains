@@ -16,18 +16,15 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  include/linux/serial.h |    1 +
  1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/include/linux/serial.h b/include/linux/serial.h
-index 3d86517..6b1ea3e 100644
+Index: b/include/linux/serial.h
+===================================================================
 --- a/include/linux/serial.h
 +++ b/include/linux/serial.h
-@@ -214,6 +214,7 @@ struct serial_rs485 {
+@@ -214,6 +214,7 @@
  #define SER_RS485_RTS_AFTER_SEND	(1 << 2)	/* Logical level for
  							   RTS pin after sent*/
  #define SER_RS485_RX_DURING_TX		(1 << 4)
-+#define SER_RS485_FULL_DUPLEX		(1 << 5)
++#define SER_RS485_HALF_DUPLEX		(1 << 5)
  	__u32	delay_rts_before_send;	/* Delay before send (milliseconds) */
  	__u32	delay_rts_after_send;	/* Delay after send (milliseconds) */
  	__u32	padding[5];		/* Memory is cheap, new structs
--- 
-1.7.4.1
-
