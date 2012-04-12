@@ -201,20 +201,6 @@ if (0) {  # Since we now run in x, we expect that the keyboard is configured the
 	}
 }
 
-#Get product and ask to select one.
-my @products = get_products("/opt/getinge/prod-def/");
-#Make an array of hashes for each product, so we have a button label
-#and a value
-my @product_buttons;
-foreach(@products) {
-   my $rec = {};
-   $rec->{-label} = $_;
-   $rec->{-value} = $_;
-   push(@product_buttons, $rec);
-}
-#Actual product dialog
-$config{product} = $cui->dialog(-message => 'Select a product.', -vertical => 1, -buttons => \@product_buttons);
-
 ##### UI #####
 #Main Window
 my $main_win = $cui->add(
@@ -224,6 +210,14 @@ my $main_win = $cui->add(
    -title => 'NetCom Programmer Interface v' . $config{version},
 );
 
+
+#Set a binding for the Exit dialog so we can exit
+$cui->set_binding( \&quit, "\cQ");
+$cui->set_binding( \&update, "\cY");
+ 
+# Prompt for product
+$config{product} = promptForProduct($config{product});
+            
 #Populate the window arrays
 for (my $i = 0; $i < $boards; $i++) {
    my ($x, $y);
@@ -339,10 +333,6 @@ sub quit() {
    exit(0);
 }
 
-#Set a binding for the Exit dialog so we can exit
-$cui->set_binding( \&quit, "\cQ");
-$cui->set_binding( \&update, "\cY");
-
 ##############################################################
 ###################### Main Program Flow #####################
 
@@ -361,9 +351,87 @@ while(1) {
    handle_terminal();      #If there's a command on the terminal, do something
    update_boxes();         #Look in test logs, update each box
    $cui->do_one_event();   #Update the GUI
-   sleep(".1");
+   sleep(0.1);
 }
 
+    
+
+##############################################################
+######################### UI Functions #######################
+
+# Call this function with an optional default product value
+sub promptForProduct {
+  
+  use Curses qw(KEY_ENTER);
+  use Curses::UI::Common;
+  use Curses::UI::Window;
+
+  #Get product and ask to select one.
+  my @products = get_products("/opt/getinge/prod-def/");
+  #Make an array of hashes for each product, so we have a button label
+  #and a value
+  my @product_buttons;
+  my $prod_count;
+  my $selected_prod = 0;
+  my $default_prod = $_[0] || ''; 
+  foreach(@products) {
+    my $rec = {};
+    if ( $default_prod eq $_ ) {
+      $selected_prod = $prod_count;   
+    }
+    $prod_count += 1;
+    $rec->{-label} = $prod_count . '. ' . $_ . ' - ' . 'Description';
+    $rec->{-value} = $_;
+    $rec->{-shortcut} = $prod_count;
+    push(@product_buttons, $rec);
+  }
+
+  my $container = $main_win->add('prod_window', 'Window',
+      -border      => 1,
+      -width       => 40,
+      -centered => 1,
+      -height       => 5 + $prod_count
+  );  
+  
+  my $text = $container->add('message', 'TextViewer',
+      -wrapping    => 1,
+      -padleft   => 1,
+      -padright   => 1,
+      -padbottom   => 2,
+      -text        => 'Select Product',
+  -focusable   => 0,
+  );  
+  
+  my $buttons = $container->add(
+      'mybuttons', 'Buttonbox',
+      -buttons   => \@product_buttons,
+      -x   => 1,
+      -y   => 2,
+      -vertical   => 1,
+      -selected => $selected_prod
+  );    
+
+  my $button_width = 0;
+  if (defined $buttons) {
+      $button_width = $buttons->compute_buttonwidth;
+  }    
+  $container->{-width}=$button_width+10;
+  $container->draw;
+
+  my $selection = '';
+  
+  my $make_select = sub {
+    my $this = shift;
+    $selection = $this->get; 
+    $this->loose_focus();
+  };
+  $buttons->set_binding( $make_select, KEY_ENTER());
+  $buttons->modalfocus;
+
+  $container->parent->delete('prod_window');
+  return $selection;
+}
+  
 ############# Handler Functions #############
 #
 # These functions are checked in the main loop
@@ -876,9 +944,10 @@ sub fork_cmd {
 #This function kills things.  If something needs killing, put the
 #command to do so in here.  We call this before exiting.
 sub kill_stuff {
-   my $death;
-   $death = `/usr/bin/sudo /usr/bin/killall start_sam-ba.sh`;
-   $death = `/usr/bin/sudo /usr/bin/killall sam-ba`;
+   my $res;
+   $res = `/usr/bin/sudo /usr/bin/killall start_sam-ba.sh`;
+   $res = `/usr/bin/sudo /usr/bin/killall sam-ba`;
+   $res = `/usr/bin/sudo /usr/bin/killall printqueue.pl`;
    
    return 0;
 }
