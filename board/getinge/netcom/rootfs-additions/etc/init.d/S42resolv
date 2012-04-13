@@ -1,0 +1,26 @@
+#!/bin/sh
+
+. /etc/init.d/functions.sh
+
+case "$1" in
+        start)
+                begin "Initializing volatile resolver configuration"
+                /bin/cp /etc/conf.d/resolv.conf.def /tmp/resolv.conf
+                end $?
+                ;;
+        stop)
+                begin "Removing volatile resolver configuration"
+                /bin/rm /tmp/resolv.conf
+                end $?
+                ;;
+        restart)
+                begin "Reinitializing volatile resolver configuration"
+                /bin/cp /etc/conf.d/resolv.conf.def /tmp/resolv.conf
+                end $?
+                ;;
+        *)
+                error "Usage: $0 start|stop|restart"
+                ;;
+esac
+
+exit 0
