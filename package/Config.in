@@ -531,6 +531,8 @@ source "package/getinge/libagentembedded/Config.in"
 source "package/getinge/netcom-usbrun/Config.in"
 source "package/getinge/netcom-common/Config.in"
 source "package/getinge/netcom-logusb/Config.in"
+source "package/getinge/netcom-license/Config.in"
+source "package/getinge/netcom-register/Config.in"
 source "package/getinge/uboot-test-script/Config.in"
 endmenu
 

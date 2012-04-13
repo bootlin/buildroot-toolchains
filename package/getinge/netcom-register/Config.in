@@ -1,0 +1,2 @@
+config BR2_PACKAGE_NETCOM_REGISTER
+	bool "register"
