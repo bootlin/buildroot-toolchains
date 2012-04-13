@@ -10,6 +10,8 @@ fi
 # Disable login with the 'default' account
 sed -i 's/^default::/default:*:/' $TARGETDIR/etc/shadow
 
+sed -i '/.*remount,rw.*/d' $TARGETDIR/etc/inittab
+
 # Set up the default root password. Generated with the 'mkpasswd'
 # utility.
 sed -i 's/^root::/root:GlUwvv8.UEkdE:/' $TARGETDIR/etc/shadow
