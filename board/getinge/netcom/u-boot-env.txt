@@ -1,4 +1,4 @@
-basebootargs=console=ttyS4,115200 mtdparts=atmel_nand:6m(kernel1),48m(rootfs1),6m(kernel2),48m(rootfs2),8m(conf),128m(data) rootfstype=jffs2
+basebootargs=console=ttyS4,115200 mtdparts=atmel_nand:6m(kernel1),48m(rootfs1),6m(kernel2),48m(rootfs2),8m(conf),128m(data) rootfstype=jffs2 ro
 loadaddr=70000000
 kernel1offset=0
 rootfs1offset=600000
