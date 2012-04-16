@@ -1,17 +1,3 @@
-diff --git a/src/Makefile b/src/Makefile
-index 0a86197..5ac1bf8 100644
---- a/src/Makefile
-+++ b/src/Makefile
-@@ -3,8 +3,7 @@
- USE_LINUX_PHC	?= y
- 
- ifeq ($(USE_LINUX_PHC),y)
--KBUILD_OUTPUT	?= /lib/modules/$(shell uname -r)/build
--CFLAGS		= -DUSE_LINUX_PHC -I$(KBUILD_OUTPUT)/usr/include
-+CPPFLAGS	+= -DUSE_LINUX_PHC -Dlinux
- PHC_SRC		= dep/phc.c
- endif
- 
 diff --git a/src/dep/msg.c b/src/dep/msg.c
 index 31200c0..41d0a97 100644
 --- a/src/dep/msg.c
@@ -56,3 +42,16 @@ index a84b62f..3bc09df 100644
  
  	/* Push packet onto stack. */
  	index = netPath->tx_stack.count;
+diff --git a/src/dep/servo.c b/src/dep/servo.c
+index 654bc93..9124255 100644
+--- a/src/dep/servo.c
++++ b/src/dep/servo.c
+@@ -310,7 +310,7 @@ updateClock(RunTimeOpts * rtOpts, PtpClock * ptpClock)
+ 		}
+ 	}
+ 
+-	if (ptpClock->offsetFromMaster.seconds) {
++	if (ptpClock->offsetFromMaster.seconds || ptpClock->offsetFromMaster.nanoseconds) {
+ 		/* if secs, reset clock or set freq adjustment to max */
+ 		if (!rtOpts->noAdjust) {
+ 			if (!rtOpts->noResetClock) {
