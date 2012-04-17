@@ -8,7 +8,7 @@ PTPD2_SITE = https://github.com/richardcochran/ptpd-phc.git
 PTPD2_SITE_METHOD = git
 
 define PTPD2_BUILD_CMDS
-	$(MAKE) CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS) -Dlinux" LDFLAGS="$(TARGET_LDFLAGS) -lm -lrt" USE_LINUX_PHC=n -C $(@D)/src
+	$(MAKE) CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS) -Dlinux" LDFLAGS="$(TARGET_LDFLAGS) -lm -lrt" -C $(@D)/src
 endef
 
 define PTPD2_INSTALL_TARGET_CMDS
