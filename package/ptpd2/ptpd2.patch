@@ -42,16 +42,3 @@ index a84b62f..3bc09df 100644
  
  	/* Push packet onto stack. */
  	index = netPath->tx_stack.count;
-diff --git a/src/dep/servo.c b/src/dep/servo.c
-index 654bc93..9124255 100644
---- a/src/dep/servo.c
-+++ b/src/dep/servo.c
-@@ -310,7 +310,7 @@ updateClock(RunTimeOpts * rtOpts, PtpClock * ptpClock)
- 		}
- 	}
- 
--	if (ptpClock->offsetFromMaster.seconds) {
-+	if (ptpClock->offsetFromMaster.seconds || ptpClock->offsetFromMaster.nanoseconds) {
- 		/* if secs, reset clock or set freq adjustment to max */
- 		if (!rtOpts->noAdjust) {
- 			if (!rtOpts->noResetClock) {
