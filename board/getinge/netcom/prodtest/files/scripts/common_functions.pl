@@ -36,6 +36,16 @@ sub get_config {
    return \%conf;
 }
 
+# Counts files in specified directory
+sub count_files {
+   my $dir = $_[0];
+   opendir(PROD, $dir);
+   #Exclude . and ..
+   my @files = grep(!/^\.\.?$/, readdir(PROD));
+   closedir(PROD);
+   return scalar(@files);
+}
+
 #Get the list of products available.  Take a directory as
 #an argument, and return an array.  Products are in the 
 #convention of productname.conf so we can tell just by

@@ -295,37 +295,14 @@ do {
   # Check for a failed test
   if ( checkHWTestPass($port) == 0 ) {
     printLabel(0);
-    msg(2,"Test Failed");
-    msg(3,"Fail code: $hwfailText");
+    msg(1,"#Process complete");
+    msg(2,"HW Test Failed - fail code: $hwfailText");
+    cleanup;
+    exit 0;
   }
 
-  msg(1,"Idle");
 cleanup;
 exit 0;
-
-print localtime() . "  Test process starting: ";
-print_file("Test process starting...\n");
-
-sleep(4);
-
-print "MAC -> $_mac ";
-print_file("MAC -> $_mac\n");
-
-sleep(1);
-
-print "SN -> $_pcb_barcode ";
-print_file("SN -> $_pcb_barcode\n");
-
-sleep(1);
-
-print_file("Finishing up...\n");
-
-sleep(4);
-
-print "Done!\n";
-print_file("Done!\n");
-
-sleep(2);
 
 ############################################
 #

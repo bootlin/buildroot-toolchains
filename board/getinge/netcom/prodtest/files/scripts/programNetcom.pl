@@ -3,6 +3,7 @@ use strict;
 use Curses::UI;
 use IO::Handle;
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
+use File::Path;
 
 #May need to install libcurses-ui-perl in Ubuntu
 #See http://search.cpan.org/~mdxi/Curses-UI-0.9609/ for more about this
@@ -50,9 +51,16 @@ my $printer = $scriptpath . "scripts/printqueue.pl";
 
 #Barcode scanner vid
 my $scanner_vid = "05e0";
+my $scanner_dev;
 
 #Terminal log file
 my $term_log = "test.log";
+
+#Globals
+my $focus = 1;     #Last position scanned
+my @posMAC;    #MAC address for each position
+my @posSerial; #Serial barcode for each position
+my @posState;  #Mode dependent state
 
 #Command hash table (For commandline, because humans prefer words to numbers there)
 my %cmd = (
@@ -72,7 +80,8 @@ my %cmd = (
 # Set everything up before going into the main loop.
 
 # Redirect STDERR to a log file.
-open(STDERR, ">>$testrootdir/ui-error.log");
+#open(STDOUT, ">>$testrootdir/programNetCOM.log");
+open(STDERR, ">>$testrootdir/programNetCOM.log");
 
 # Find out which serial port has the barcode scanner.
 sub scanner_init {
@@ -96,17 +105,16 @@ sub scanner_init {
 
 #Check for the scanner and setup the device if it gets plugged in.
 sub scanner_check {
-   my $scanner;
-   my $scanner_dev;
-   if($scanner_dev = scanner_init($scanner_vid)) {
-      $scanner = Device::SerialPort->new($scanner_dev, "false");
-      $scanner->databits(8);
-      $scanner->baudrate(115200);
-      $scanner->parity("none");
-      $scanner->stopbits(1);
-      $scanner->are_match("\n", "\r");
-   }
-   return $scanner;
+  my $scanner;
+  if($scanner_dev = scanner_init($scanner_vid)) {
+    $scanner = Device::SerialPort->new($scanner_dev, "false");
+    $scanner->databits(8);
+    $scanner->baudrate(115200);
+    $scanner->parity("none");
+    $scanner->stopbits(1);
+    $scanner->are_match("\n", "\r");
+  }
+  return $scanner;
 }
   
 # Return all of the USB serial devices
@@ -131,13 +139,15 @@ if(! -e $testrootdir ) {
 
 # Check for the directories we need, create them if they don't exist
 for(my $i = 1; $i <= $boards; $i++) {
-   if(! -e $testrootdir . "pos" . $i) {
-      print "Creating folder " . $testrootdir . "pos" . $i . "\n";
-      mkdir($testrootdir . "pos" . $i);
-      chmod(0777, $testrootdir . "pos" . $i);
-      my $cmd = $testrootdir . "pos" . $i . "/status.txt";
-      my $bash = `touch $cmd`;
-   }
+   #if(! -e $testrootdir . "pos" . $i) {
+  rmtree($testrootdir . "pos" . $i . ".old");  # remove old backup
+  rename($testrootdir . "pos" . $i, $testrootdir . "pos" . $i . ".old");
+  print "Creating folder " . $testrootdir . "pos" . $i . "\n";
+  mkdir($testrootdir . "pos" . $i);
+  chmod(0777, $testrootdir . "pos" . $i);
+  my $cmd = $testrootdir . "pos" . $i . "/status.txt";
+  my $bash = `touch $cmd`;
+   #}
 }
 
 if(! -e $testrootdir . "print") {
@@ -172,7 +182,7 @@ my $scanner = scanner_check();
 fork_cmd($printer, "/var/netcom/print");
 
 #Start Sam-ba
-fork_cmd("/opt/getinge/scripts/start_sam-ba.sh");
+fork_cmd("/opt/getinge/scripts/start_sam-ba.sh" . " " . $scanner_dev);
 
 # Setup the UI
 #Main Curses UI object
@@ -201,13 +211,17 @@ if (0) {  # Since we now run in x, we expect that the keyboard is configured the
 	}
 }
 
+#Fhush buffer
+$scanner->lookclear if $scanner;
+
+
 ##### UI #####
 #Main Window
 my $main_win = $cui->add(
    'win', 'Window',
    -border => 1,
    -bfg => 'red',
-   -title => 'NetCom Programmer Interface v' . $config{version},
+   -title => 'NetCOM Programmer Interface v' . $config{version},
 );
 
 
@@ -235,22 +249,30 @@ for (my $i = 0; $i < $boards; $i++) {
    my $window = $main_win->add(
       "win".$i."", 'Window',
       -border => 1,
-      -bfg => 'red',
-      -title => "Board " . ($i+1) . " Status",
+      -bfg => 'white',
+      -titlefullwidth => 1,
+      -title => "Position " . ($i+1),
       -height => $height,
       -width => $width,
       -x => $x,
-      -y => $y,
-   );
+      -y => $y);
    
    push(@board_windows, $window);
 }
+
+#Set initial focus
+set_focus(0);
 
 #Populate each of the windows from above with TextViewers
 for(my $i = 0; $i < $boards; $i++) {
    $board_text[$i] = $board_windows[$i]->add(
     "board". $i ."view", 'TextEditor', -focusable => 0, -readonly => 1, -wrapping => 1,
    );  
+}
+
+#Initialize data structures for each position
+for(my $i = 0; $i < $boards; $i++) {
+  resetPosition($i);
 }
 
 #TextEntry for adding some text
@@ -346,12 +368,18 @@ $cui->{-read_timeout} = 0.1;
 
 #set_focus(0);
 #$cui->do_one_event();
+my $last_time = time;
 while(1) {
    handle_scanner();       #If there's data, do something
    handle_terminal();      #If there's a command on the terminal, do something
    update_boxes();         #Look in test logs, update each box
    $cui->do_one_event();   #Update the GUI
-   sleep(0.1);
+   
+   if ($last_time != time) { # Update status more slowly (once each second)
+     update_status();
+     $last_time = time;
+   }
+   
 }
 
     
@@ -459,7 +487,8 @@ sub handle_scanner {
          #If there's nothing, just return
          return 0;
       }
-      do_cmd($string);
+      chomp($string);
+      process_input(substr($string,3));  # remove first character (prefix ID)
    }
    else {
       #If there's no object set up, check for
@@ -480,7 +509,7 @@ sub handle_terminal {
    chomp($input);
    my @inarray = split(/ /, $input);
    #Commands entered here ultimately go to the same place
-   #as they do with the scanner (ie, the do_cmd() function).
+   #as they do with the scanner (ie, the process_input() function).
    #However we have this preliminary step before we send it out.
    #We can enter a bunch of parameters in a row, as opposed
    #to scanning them one at a time, so first we split based on
@@ -489,12 +518,12 @@ sub handle_terminal {
       #Is this a key in the %cmd hash?  If so, get the number
       #and submit that.
       if(exists($cmd{$_})) {
-         do_cmd($cmd{$_});
+         process_input($cmd{$_});
       }
       #Otherwise, is it 8, 12, or 35 characters long?  If so, 
       #submit it.
       elsif($_ =~ s/(.)/$1/sg == 8 || $_ =~ s/(.)/$1/sg == 12 || $_ =~ s/(.)/$1/sg > 20) {
-         do_cmd($_);
+         process_input($_);
       }
       #Otherwise, let's just ignore it for now.
 #      else {
@@ -528,12 +557,166 @@ sub update_boxes {
       }
    }
    local $/=undef;
+   return 0;
+}
+
+#Update status
+sub update_status {
    open(STATUS, "<" . $testrootdir . "samba-status.txt");
    my $samba_status = <STATUS>;
    close(STATUS);
    chomp($samba_status);
    info_box("Sam-ba Status", $samba_status);
+   info_box("Scanner", $scanner && 'OK (' . $scanner_dev . ')' || 'Not Detected');
+   info_box("Print Queue Items", count_files('/var/netcom/print/'));
    return 0;
+}
+
+sub process_input {
+  my $line = $_[0]; #Input from scanner
+  my $line_len = length($line);
+  use Switch 'Perl5';
+ 
+    switch ($line_len) {
+    case 8 { do_cmd ($line) }
+    case 12 { print_console("MAC address entered");
+      $posMAC[$focus - 1] = $line;
+    }
+    case [13...45] { 
+      print_console("SERIAL data entered");
+      $posSerial[$focus - 1] = $line;
+    }
+    else { print_console("Unknown entry (" . $line_len . ") " . $line) }
+  }
+
+}
+
+sub resetPosition {
+  my $testPos = $_[0];
+
+  #Update the box
+  box_text("", "", $testPos-1);
+  $posMAC[$testPos] = '';     # clear current MAC
+  $posSerial[$testPos] = '';  # clear current serial
+  $posState[$testPos] = 0;    # reset state
+}
+
+# call with position number to cancel test
+sub cancelTest {
+  my $testPos = $_[0];
+  
+  print_console("Canceling test on $testPos");
+  box_text("Canceling...", "", $testPos -1);
+  #Clear the other parameters from @command
+  #Get the child PID
+  open(PID, $testrootdir . "pos". ($testPos) . "/pid");
+  my $pid = <PID>;
+  close(PID);
+  #Kill it
+  if(defined($pid)) {
+    kill(15, $pid);
+  }
+  #Get rid of the PID and test status
+  truncate($testrootdir . "pos". $testPos . "/pid", 0);
+  truncate($testrootdir . "pos". $testPos . "/status.txt", 0);
+}
+
+sub printLabel {
+  my $testPos = $_[0];
+
+  my $source = $testrootdir . "pos" . $testPos . "/label.tmp";
+  my $destination = $testrootdir . "print/" . $testPos . "_" . time;
+  if (-e $source) {
+    print_console("Printing label for $testPos");
+    `cp $source $destination`;
+  } else {
+    print_console("No label exists for $testPos");
+  }
+}
+
+sub uploadDebugData {
+   print_console("Sending debug logs to Getinge");
+   #Go into each test position directory and upload the logs
+   my $upload = Archive::Zip->new();
+   $upload->addTree($config{testrootdir}, 'netcom');
+   my $zipfile = "/tmp/" . "netcom_log-" . time() . ".zip";
+   if($upload->writeToFileNamed($zipfile) != AZ_OK) {
+      print_console("Error writing zip file");
+   }
+   else {
+      #Upload
+      my $output = `curl -sF file=\@$zipfile "http://tss.t-doc.com/upload/progress_upload.asp" | grep "successfully uploaded" 2> /tmp/curlstat`;
+      if($? != 0) {
+         print_console("Error sending file to Getinge - `cat /tmp/curlstat`");
+      }
+      else {
+         print_console("Sent $zipfile to Getinge.");
+      }
+   }  
+}      
+
+# call with test position and option value
+sub startTest {
+  my $testPos = $_[0];
+  my $selected_op = $_[1];
+  my @args;
+  
+  if ( $posSerial[$testPos - 1] eq '' ) {
+    print_console("Cannot start test - serial not specified");    
+    return;
+  }
+
+  if ( $posMAC[$testPos - 1] eq '' ) {
+    print_console("Cannot start test - MAC not specified");    
+    return;
+  }
+  
+  print_console("Starting test on position $testPos : ");
+  print_console("Mac -> $posMAC[$testPos], SN -> $posSerial[$testPos]", 1);
+
+  push(@args, $selected_op);
+  push(@args, $testPos);
+  push(@args, $posMAC[$testPos - 1]);
+  push(@args, $posSerial[$testPos - 1]);
+  push(@args, $config{product});
+  push(@args, $config{initials});
+  #Now go and do this in another process.
+  print_console("Forking $programmer");
+  fork_cmd($programmer, @args);
+  
+}
+    
+sub do_cmd {
+   my $line = $_[0]; #Input from scanner
+   my $pos;          #Temp variable for parsing postion from scanner
+  
+  switch ($line) {
+    case /(^00001)/ {  # check for "position" prefix 
+      $pos = substr $line, -2;  # extract position
+      if ( $pos <= $boards ) {
+        # should we change focus?
+        if ($focus != ($pos)) {  # only if position is changing from current
+          #$posMAC = '';  # clear current MAC
+          #$posSerial = '';  # clear current serial
+          $focus = 1 + set_focus($pos - 1);
+        }
+        print_console("Position $pos selected");
+      }
+      else { print_console("Position ($pos) out of range") } 
+    }
+    
+    case "00002001" { cancelTest( $focus ); resetPosition( $focus ) }
+    case "00002002" { printLabel( $focus ); resetPosition( $focus ) }
+    case "00002003" { uploadDebugData() }
+    case "00002004" { print_console("Install/Replace cable - not implemented") }
+    case "00002005" { startTest($focus,0x00) } # Normal test
+    case "00002009" { startTest($focus,0x10) } # Reset board requested
+    case "00002006" { print_console("Rebooting");     system("sudo /sbin/reboot"); }
+    case "00002007" { print_console("Shutting down"); system("sudo /sbin/shutdown -h now"); }
+          
+    else { print_console("Unknown command") } 
+  }
+     
 }
 
 ############# Helper Functions #############
@@ -544,19 +727,22 @@ sub update_boxes {
 #the scanner or the commandline (or both?).  After something
 #is added to this array, check it here and take action if
 #need be.
-sub do_cmd {
+sub do_cmd2 {
    my $count;
    my $pos;          #Temp variable for parsing postion from scanner
    my $line = $_[0]; #Input from scanner
-   my $focus;        #Last position scanned
    my $selected_op = 0;
-
+  
    #If the line we get passed is a test position, we reset the focus
    #to that position.  Otherwise, push it onto @command.
    if($line =~ s/(.)/$1/sg == 8 && $line < 1100) {
       $pos = $line % 1000;
-      $focus = 1 + set_focus($pos - 1);
-      print_console("Position $pos, focus $focus");
+      # should we change focus?
+      if ($focus != ($pos)) {
+        #$posMAC = '';  # clear current MAC
+        $focus = 1 + set_focus($pos - 1);
+        print_console("Position $pos, focus $focus");
+      }
       #box_text("", "", $focus-1);
    }
    else {
@@ -564,6 +750,9 @@ sub do_cmd {
       print_console("$line");
       push(@command, $line);
    }
+
+  print_console("process_input: " . @command . " len0: " . length($command[0]) 
+  . " len1: " . length($command[1]));
    
    #Note:  The $focus variable refers to the test positions as they
    #appear, from 1 to 8 as opposed to 0 to 7 (which is how we refer
@@ -622,12 +811,12 @@ sub do_cmd {
       #Now, let's see what it is and take the appropriate action
       if(($command[0] == 2005) || ($command[0] == 2009) ){
       
-         if(defined($command[1]) && $command[1] =~ s/(.)/$1/sg == 12) {
-            
+         if(defined($command[1]) && length($command[1]) == 12) {
+            $posMAC[$focus - 1] = $command[1];
             #Now we have a MAC address, so we need a serial number.
-            #Note that we should test for length using a regex like
-            #above, but for now we'll leave it out for testing.
-            if(defined($command[2])) {
+            #We don't currently know how long it will be, but let's
+            # assume that it's longer than any other
+            if(defined($command[2]) && length($command[2]) > 12) {
                print_console("Starting test on position $focus : ");
                print_console("Mac -> $command[1], SN -> $command[2]", 1);
                #box_text("Testing", "$command[0]", $focus-1);
@@ -650,76 +839,17 @@ sub do_cmd {
             }
             else {
                print_console("Enter or scan a serial to start test.");
+               
             }
          }
          else {
             print_console("Enter or scan a MAC Address");
          }
       }
-      elsif($command[0] == 2001) {
-         print_console("Canceling test on $focus");
-         box_text("Canceling...", "", $focus -1);
-         #Clear the other parameters from @command
-         @command = ();
-         #Get the child PID
-         open(PID, $testrootdir . "pos". ($focus) . "/pid");
-         my $pid = <PID>;
-         close(PID);
-         #Kill it
-         if(defined($pid)) {
-            kill(15, $pid);
-         }
-         #Get rid of the PID and test status
-         truncate($testrootdir . "pos". $focus . "/pid", 0);
-         truncate($testrootdir . "pos". $focus . "/status.txt", 0);
-         #Update the box
-         box_text("", "", $focus-1);
-      }
-      elsif($command[0] == 2002) {
-         print_console("Printing label for $focus");
-         @command = ();
-         #Put command to reprint here
-         my $source = $testrootdir . "pos" . $focus . "/label.tmp";
-         my $destination = $testrootdir . "print/" . $focus . "_" . time;
-         `cp $source $destination`;
-      }
-      elsif($command[0] == 2003) {
-         print_console("Sending logs to Getinge");
-         @command = ();
-         #Go into each test position directory and upload the logs
-         my $upload = Archive::Zip->new();
-         $upload->addTree($config{testrootdir}, 'netcom');
-         my $zipfile = "/tmp/" . "complete_netcom_log." . time() . ".zip";
-         if($upload->writeToFileNamed($zipfile) != AZ_OK) {
-            print_console("Error writing zip file");
-         }
-         else {
-            #Upload
-            #Note that we need to come up with a proper URL for this part $log
-            #Was 
-            #my $output = `curl -sF file=\@$zipfile "http://tss.t-doc.com/upload/progress_upload.asp" | grep "successfully uploaded" > /dev/null`;
-            my $output = `curl -sF file=\@$zipfile "http://tss.t-doc.com/upload/progress_upload.asp" | grep "successfully uploaded" > /dev/null`;
-            #print STDERR $?;
-            if($? != 0) {
-               print_console("Error sending file to Getinge.");
-            }
-            else {
-               print_console("Sent $zipfile to Getinge.");
-            }
-         }  
-      }
-      elsif($command[0] == 2004) {
-         print_console("Install/Replace cable");
-         @command = ();
-      }
-      elsif($command[0] == 2006) {
-         print_console("Rebooting");
-         system("sudo /sbin/reboot");
-      }
-      elsif($command[0] == 2007) {
-         print_console("Shutting down");
-         system("sudo /sbin/shutdown -h now");
-      }
+
+
+
+
       elsif($command[0] == 2008) {
          #Just to test some other things...
          info_box("Test", "This is a test.");
@@ -735,7 +865,7 @@ sub print_console {
    my $string = $_[0];
    my $no_newline = $_[1];
    
-   open(LOG, ">>$term_log");
+   open(LOG, ">>$testrootdir/programNetCOM.log");
    
    my @box_array = split(/\n/, $output_box->text());
    if($no_newline) {             #Just concatenate to the last line
@@ -744,7 +874,7 @@ sub print_console {
    }
    else {
       push(@box_array, $string);
-      print LOG localtime() . " " . $string . "\n";
+      print LOG localtime() . " Console: " . $string . "\n";
    }
    close(LOG);
    if(@box_array > 6) {
@@ -757,7 +887,7 @@ sub print_console {
 
 #Set the 'focus' (not Curses focus, but which test position we want)
 #by changing the border color of a particular position box.  We want
-#to make just one position green and the rest red, as that's the
+#to make just one position green and the rest white, as that's the
 #point of focus :).
 sub set_focus {
    state $focus = 0;
@@ -771,7 +901,7 @@ sub set_focus {
             $board_windows[$i]->draw();
          }
          else {
-            $board_windows[$i]{-bfg} = 'red';
+            $board_windows[$i]{-bfg} = 'white';
             $board_windows[$i]->draw();
          }
       }
@@ -784,34 +914,38 @@ sub set_focus {
 #box number.  If one of the first two is not present, we just update
 #the other.
 sub box_text {
-   my ($status, $feedback, $pos) = @_;
-   chomp($status);
-   chomp($feedback);
-   my $string;
-   
-   #Get what's already in the box
-   my @box_array = ();
-   @box_array = split(/\n\nProgrammer: /, $board_text[$pos]->text());
-   
-   if(!defined($box_array[0])) {
-      $box_array[0] = "";
-   }
-   if(!defined($box_array[1])) {
-      $box_array[1] = "";
-   }
-   
-   if(defined($status)) {
-      $box_array[0] = $status;
-   }
-   
-   if(defined($feedback)) {
-      $box_array[1] = $feedback;
-   }
-   
-   $string = join("\n\nProgrammer: ", @box_array);
+  my ($status, $feedback, $pos) = @_;
+  chomp($status);
+  chomp($feedback);
+  my $string;
 
-   $board_text[$pos]->text($string);
-   $board_text[$pos]->draw();
+  #Get what's already in the box
+  my @box_array = ();
+  @box_array = split(/\nP: /, $board_text[$pos]->text());
+
+  if(!defined($box_array[0])) {
+    $box_array[0] = "";
+  }
+  if(!defined($box_array[1])) {
+    $box_array[1] = "";
+  }
+
+  if(defined($status)) {
+    $box_array[0] = $status;
+  }
+
+  if(defined($feedback)) {
+    $box_array[1] = $feedback;
+  }
+
+  #if ( defined($posMAC) && ($pos == ($focus - 1)) ) {
+  $string = join( $posMAC[$pos] . "\nP: ", @box_array);
+  #} else {
+  #  $string = join( "\nP: ", @box_array);
+  #}
+
+  $board_text[$pos]->text($string);
+  $board_text[$pos]->draw();
 }
 
 #This function will let us update the info box, which is on the side in
@@ -948,6 +1082,6 @@ sub kill_stuff {
    $res = `/usr/bin/sudo /usr/bin/killall start_sam-ba.sh`;
    $res = `/usr/bin/sudo /usr/bin/killall sam-ba`;
    $res = `/usr/bin/sudo /usr/bin/killall printqueue.pl`;
-   
+   $res = `/usr/bin/sudo /usr/bin/killall runtest.pl`;
    return 0;
 }
