@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 use strict;
 use IO::Handle;
-
+use Switch 'Perl5';
 use Device::SerialPort;
-use Time::HiRes qw(usleep nanosleep);
+use Time::HiRes qw(usleep nanosleep tv_interval gettimeofday);
 
 $| = 1; # turn on autoflush
 
@@ -13,6 +13,9 @@ my $conf_ref = get_config("/opt/getinge/config/global.conf");
 my %config = %{$conf_ref};
 
 my $testrootdir = $config{testrootdir};
+
+# Start a timer to be used for timestamps
+my $appStartTime = [gettimeofday];
 
 ############################################
 # 
@@ -66,6 +69,10 @@ write_pid();
 # TO DO - load these settings from the appropriate position's config file
 my $portName = "/dev/ttyUSB0";
 
+
+my $prod_conf_ref = get_config("/opt/getinge/prod-def/${prod}.conf");
+my %prod_config = %{$prod_conf_ref};
+
 ############################################
 #
 # Functions
@@ -77,37 +84,54 @@ sub printLabel {
   unlink ">$testrootdir" . "pos$pos/labelvars";
   unlink ">$testrootdir" . "pos$pos/label.tmp";
 
-   my $res = open(LV, ">$testrootdir" . "pos$pos/labelvars");
-   if ( $res ) {
-     print LV "_mac=\"$_mac\"\n";
-     print LV "_test_location_code=\"unset\"\n";
-     print LV "_operator=\"unset\"\n";
-     print LV "_swnum=\"unset\"\n";
-     print LV "_build=\"unset\"\n";
+  # create/read the variables
+  my $autoIP = "169.254." . hex(substr($_mac, 8, 2)) . "." . hex(substr($_mac, 10, 2));
+  
+  my $assyCountry;
+  
+  switch (substr($_pcb_barcode, 3, 1)) {
+    case "F" { $assyCountry = "Denmark" }  
+    else     { $assyCountry = "???????" }  
+  }
+  
+  my $pcbFact     = substr($_pcb_barcode, 0, 4);
+  my $testLoc     = substr($_pcb_barcode, 3, 1);  # eventually this test location might be different than the production factory
+  my $pcbOrder    = substr($_pcb_barcode, 4, 6);
+  my $pcbSer      = substr($_pcb_barcode, 11, 4);
+  my $pcbItem     = substr($_pcb_barcode, 15, 10);
+  my $pcbDate     = substr($_pcb_barcode, 25, 5);
 
-     print LV "_prod_name=\"unset\"\n";
-     print LV "_assy_country=\"unset\"\n";
-     print LV "_battery_message=\"unset\"\n";
-     print LV "_test_position=\"$pos\"\n";
-     print LV "_pcb_barcode=\"$_pcb_barcode\"\n";
-     print LV "_pn=\"unset\"\n";
-     print LV "_pcb_fact=\"unset\"\n";
-     print LV "_pcb_order=\"unset\"\n";
-     print LV "_pcb_ser=\"unset\"\n";
-     print LV "_pcb_item=\"unset\"\n";
-     print LV "_pcb_date=\"unset\"\n";
-     print LV "_swver=\"unset\"\n";
-     print LV "_test_date=\"unset\"\n";
-     print LV "_pcb_fail_text1=\"$hwfailText\"\n";
-     print LV "_pcb_fail_text2=\"Please consult test documentation for an explaination of failure codes\"\n";
-     print LV "_autoIP=\"unset\"\n";
-     print LV "_pcb_rohs=\"unset\"\n";  # [ "`echo $_pcb_barcode | cut -b11`" == "R" ] && _pcb_rohs="RoHS" || _pcb_rohs=""
-
-     close(LV);
-   } else {
-     print STDERR "print_label:  could not open $testrootdir" . "pos$pos/labelvars\n";
-     exit(1);
-   }
+  my $res = open(LV, ">$testrootdir" . "pos$pos/labelvars");
+  if ( $res ) {
+    print LV "_mac=\"$_mac\"\n";
+    print LV "_test_location_code=\"$testLoc\"\n";
+    print LV "_operator=\"$user\"\n";
+    print LV "_swnum=\"$prod_config{swnum}\"\n";
+    print LV "_build=\"unset\"\n";
+    
+    print LV "_prod_name=\"$prod_config{productDescription}\"\n";
+    print LV "_assy_country=\"$assyCountry\"\n";
+    print LV "_battery_message=\"$prod_config{batteryMessage}\"\n";
+    print LV "_test_position=\"$pos\"\n";
+    print LV "_pcb_barcode=\"$_pcb_barcode\"\n";
+    print LV "_pn=\"$prod_config{productNumber}\"\n";
+    print LV "_pcb_fact=\"$pcbFact\"\n";
+    print LV "_pcb_order=\"$pcbOrder\"\n";
+    print LV "_pcb_ser=\"$pcbSer\"\n";
+    print LV "_pcb_item=\"$pcbItem\"\n";
+    print LV "_pcb_date=\"$pcbDate\"\n";
+    print LV "_swver=\"$prod_config{swVer}\"\n";
+    print LV "_test_date=\"`date +%d%b%Y`\"\n";
+    print LV "_pcb_fail_text1=\"$hwfailText\"\n";
+    print LV "_pcb_fail_text2=\"Please consult test documentation for an explaination of failure codes\"\n";
+    print LV "_autoIP=\"$autoIP\"\n";
+    print LV "_pcb_rohs=\"unset\"\n";  # [ "`echo $_pcb_barcode | cut -b11`" == "R" ] && _pcb_rohs="RoHS" || _pcb_rohs=""
+    
+    close(LV);
+  } else {
+    print STDERR "print_label:  could not open $testrootdir" . "pos$pos/labelvars\n";
+    exit(1);
+  }
 
    my @args = ("/opt/getinge/scripts/zebra.sh", $_[0], "$testrootdir" . "pos$pos/label.tmp", "$testrootdir" . "pos$pos/labelvars");
   if (system(@args) != 0) {
@@ -151,13 +175,19 @@ if (!$port) {
   exit;
 }
 
+mkdir($testrootdir);
+mkdir($testrootdir . "pos$pos");
 open (comLog, ">$testrootdir" . "pos$pos/comLog.txt");
+comLog->autoflush(1);
 
 $port->databits(8);
 $port->baudrate(115200);
 $port->parity("none");
 $port->stopbits(1);
+$port->handshake("none");
+$port->write_settings;
 
+  
 # First we wait for a board to be connected - depending on the state of the
 # board, it should either appear as a USB device or just start booting and
 # sending data over the debug port.  We should detect either.
@@ -167,8 +197,14 @@ $port->stopbits(1);
 #   actually let the user know and maybe even fail the test ie. "no response"
 
 msg(1,"Waiting for boot");
-msg(2,"Please apply power to board now.");
+msg(2,"Flushing port.");
 
+# Flush port
+$port->purge_all;
+do {} while (serWaitRx($port,"",100));
+
+msg(2,"Please apply power to board now.");
+               
 my $got_prompt = 0;
 
 my $last_usb_devs = `lsusb -d 03eb:6124 2> /dev/null`;
@@ -178,10 +214,17 @@ do {
     msg(2,"Got AT91Bootstrap, waiting for U-Boot");
     if (serWaitRx($port,"U-Boot",3000)) {
       msg(3,"Waiting for U-Boot key prompt");
-      #if (serWaitRx($port,"stop with ENTER",15000)) {
+      #if (serWaitRx($port,"Booting... stop with ENTER",10000)) {
       if (serWaitRx($port,"In:",5000)) {
         msg(2,"Got U-Boot prompt");
-        serTx($port,"\r\n");
+        # Stop boot by hitting enter
+        #do {
+        #    $port->lookclear; 
+        #    serTx($port,"\r\n"); 
+        #    waitMs(100);
+        #} while (!serWaitRx($port,"U-Boot>",500));
+        serTx($port,"\r\n");  # hit enter one more time
+
         if (serWaitRx($port,"U-Boot>",3000)) {
           if ($selected_op & 0x10) {    # we should erase the dataflash chip and reboot
             msg(2,"Erasing dataflash");
@@ -299,6 +342,11 @@ do {
     msg(2,"HW Test Failed - fail code: $hwfailText");
     cleanup;
     exit 0;
+  } 
+  else {
+    printLabel(1);
+    msg(1,"#Process complete");
+    msg(2,"HW Test Passed");    
   }
 
 cleanup;
@@ -349,7 +397,10 @@ sub checkHWTestPass {
 
   if ($hwfailText eq "" && $hwpassText ne "") {
     $res=1;
-  } elsif (not $hwfailText eq "" && not $hwpassText eq "") {
+    msg(3,"Previous passing test result detected");    
+  } elsif ($hwfailText ne "" && $hwpassText eq "") {
+    msg(3,"Previous failure detected");    
+  } elsif (($hwfailText eq "") && ($hwpassText eq "")) {
     msg(3,"Neither pass/fail valiables populated, assume test never ran.");    
   }
   else { # we have both pass and fail - invalid!
@@ -411,6 +462,11 @@ sub get_acm {
    my @devs = split(/\n/, $list);
 }
 
+# Returns the time since the program was started
+sub getElapsedTime {
+  return sprintf('%.3f', tv_interval($appStartTime));  
+}
+
 # msg - this function handles all printing and supports multiple levels
 #  usage:  msg level string
 #    level 1 - General messages - program states
@@ -419,7 +475,7 @@ sub get_acm {
 #  TO DO - direct different levels to different destinations
 sub msg {
   my $msgLevel = shift(@_);
-  print $_[0] . "\n";
+  print getElapsedTime() . ": " . $_[0] . "\n";
   if ( $msgLevel == 1 ) {  # Changes to test state
     $stateText = $_[0];
     print_file $_[0] . "\n";
@@ -436,8 +492,9 @@ sub waitMs {
 
 sub serTx {
   msg(3,"Sending $_[1]");
-  print comLog "< $_[1]\n";
+  print comLog getElapsedTime() . " < $_[1]\n";
   $_[0]->write($_[1]);
+  $_[0]->write_drain;
 }
 
 # waits on port x to receive string y for up to z mS
@@ -451,18 +508,18 @@ sub serWaitRx {
   my $endLoop = 0;
   my $count = 0;
 
-  while (($count * 100) < $_[2]) {
+  while (($count * 10) < $_[2]) {
     my $gotit = "";
     $gotit = $port->lookfor;       # poll until data ready
     if ($gotit ne "") {
-    print comLog "> $gotit\n";
+    print comLog getElapsedTime() . " > $gotit\n";
     #print $count . "> $gotit\n";
       if ($gotit =~ /$_[1]/) {
-        msg(3,"- found after: " . $count . " mS");
+        msg(3,"- found after: " . $count * 10 . " mS");
         return $gotit;
       }
     }
-    waitMs(100);                          # polling sample time
+    waitMs(10);                          # polling sample time
     $count++;
   }
   msg(3,"- timeout"); 

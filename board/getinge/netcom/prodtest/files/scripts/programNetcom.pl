@@ -137,6 +137,11 @@ if(! -e $testrootdir ) {
    mkdir($testrootdir);
 }
 
+# Start log   
+open(LOG, ">>$testrootdir/programNetCOM.log");
+LOG->autoflush(1);
+write_log("Test started - v" . $config{version});
+
 # Check for the directories we need, create them if they don't exist
 for(my $i = 1; $i <= $boards; $i++) {
    #if(! -e $testrootdir . "pos" . $i) {
@@ -193,6 +198,7 @@ while(!$config{initials}) {
    $config{initials} = $cui->question('Please type your intials and then Enter.');
    sleep(0.1);
 }
+write_log("User: " . $config{initials} . "\n");
 
 if (0) {  # Since we now run in x, we expect that the keyboard is configured there.
 	# Now ask for the keyboard layout
@@ -231,6 +237,7 @@ $cui->set_binding( \&update, "\cY");
  
 # Prompt for product
 $config{product} = promptForProduct($config{product});
+write_log("Product: " . $config{product} . "\n");
             
 #Populate the window arrays
 for (my $i = 0; $i < $boards; $i++) {
@@ -345,14 +352,16 @@ sub exit_dialog() {
       -buttons => ['yes', 'no'],
    );
 
-   if($return) {
-      exit(0);
+  if($return) {
+    exit(0);
    }
 }
 
 sub quit() {
-   kill_stuff();
-   exit(0);
+  kill_stuff();
+  write_log("Quit requested - stopping.\n\n");
+  close(LOG);
+  exit(0);
 }
 
 ##############################################################
@@ -579,7 +588,7 @@ sub process_input {
  
     switch ($line_len) {
     case 8 { do_cmd ($line) }
-    case 12 { print_console("MAC address entered");
+    case 12 { print_console("MAC address entered: " . $line);
       $posMAC[$focus - 1] = $line;
     }
     case [13...45] { 
@@ -636,6 +645,15 @@ sub printLabel {
 
 sub uploadDebugData {
    print_console("Sending debug logs to Getinge");
+   
+   #Generate some additional debug data
+   mkdir($testrootdir . "debug");
+   `lsusb > $config{testrootdir}debug/lsusb`;
+   `ps aux > $config{testrootdir}debug/ps_aux`;
+   `ifconfig > $config{testrootdir}debug/ifconfig`;
+   `dmesg > $config{testrootdir}debug/dmesg`;
+   `sudo cp /var/log/messages $config{testrootdir}debug`;
+   
    #Go into each test position directory and upload the logs
    my $upload = Archive::Zip->new();
    $upload->addTree($config{testrootdir}, 'netcom');
@@ -672,7 +690,7 @@ sub startTest {
   }
   
   print_console("Starting test on position $testPos : ");
-  print_console("Mac -> $posMAC[$testPos], SN -> $posSerial[$testPos]", 1);
+  #print_console("Mac -> $posMAC[$testPos - 1], SN -> $posSerial[$testPos - 1]");
 
   push(@args, $selected_op);
   push(@args, $testPos);
@@ -681,7 +699,7 @@ sub startTest {
   push(@args, $config{product});
   push(@args, $config{initials});
   #Now go and do this in another process.
-  print_console("Forking $programmer");
+  write_log("Forking cmd: $programmer @args");
   fork_cmd($programmer, @args);
   
 }
@@ -858,6 +876,11 @@ sub do_cmd2 {
    }
 }
 
+#Writes a message to the logfile, with timestamp
+sub write_log {
+  print LOG localtime() . " " . $_[0];
+}
+
 #Update the output window in the shell.  This is a hack
 #to shift text up like a console.  There may be a better
 #way to do this.
@@ -865,18 +888,15 @@ sub print_console {
    my $string = $_[0];
    my $no_newline = $_[1];
    
-   open(LOG, ">>$testrootdir/programNetCOM.log");
-   
    my @box_array = split(/\n/, $output_box->text());
    if($no_newline) {             #Just concatenate to the last line
       $box_array[-1] .= $string;
-      print LOG "\b" . $string;  #Backspace to get the newline in the log, before appending
+      Print LOG "\b" . $string;  #Backspace to get the newline in the log, before appending
    }
    else {
       push(@box_array, $string);
-      print LOG localtime() . " Console: " . $string . "\n";
+      write_log "Console: " . $string . "\n";
    }
-   close(LOG);
    if(@box_array > 6) {
       shift(@box_array);
    }

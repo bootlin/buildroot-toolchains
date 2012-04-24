@@ -21,9 +21,9 @@ print_zebra_end()
 # This function inserts graphics into zebra label
 print_zebra_graphic()
 {
-cat Getinge_logo_280x48.zpl
-cat book.zpl
-cat disposal.zpl
+cat resources/Getinge_logo_280x48.zpl
+cat resources/book.zpl
+cat resources/disposal.zpl
 }
 
 # This function reads the test log, removes those annoying lines full of "---"
