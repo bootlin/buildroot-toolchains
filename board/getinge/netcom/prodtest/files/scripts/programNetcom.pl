@@ -4,6 +4,8 @@ use Curses::UI;
 use IO::Handle;
 use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 use File::Path;
+use Config::Simple;
+use File::Basename;
 
 #May need to install libcurses-ui-perl in Ubuntu
 #See http://search.cpan.org/~mdxi/Curses-UI-0.9609/ for more about this
@@ -14,7 +16,11 @@ use feature 'state';
 
 #Import some functions we'll need
 do "/opt/getinge/scripts/common_functions.pl";
+
+#And load our configuration
 my $conf_ref = get_config("/opt/getinge/config/global.conf");
+my $local_conf = new Config::Simple("/opt/getinge/config/local.conf");
+
 
 #Get the config hash.  This is taken from the global.conf file,
 #but we'll add some other things to it later, like initials.
@@ -61,6 +67,9 @@ my $focus = 1;     #Last position scanned
 my @posMAC;    #MAC address for each position
 my @posSerial; #Serial barcode for each position
 my @posState;  #Mode dependent state
+my $waitingForCableConnection = 0;  # 1 when the system is waiting for a cable to be connected
+my %portList;
+my %oldPortList;
 
 #Command hash table (For commandline, because humans prefer words to numbers there)
 my %cmd = (
@@ -74,6 +83,12 @@ my %cmd = (
             test => '2008',
             erase => '2009',
          );
+
+
+#Writes a message to the logfile, with timestamp
+sub write_log {
+  print LOG localtime() . " " . $_[0];
+}
 
 ##### Initialization Functions #####
 #
@@ -127,15 +142,127 @@ sub check_tty {
    }
    return @devs;
 }
+
+# returns a hash of all ttyUSB* devices and their FTDI serial numbers
+sub getUSBSerialInfo {
+  my %usbPorts;
+  my $usbEntry;
+  my $ttyName;
+  my $usbSerialNum;
+  my $serFile;
+
+  foreach $usbEntry (`find /sys/devices/ -name ttyUSB*`) {
+    chomp($usbEntry);
+    #if ( -e "${usbEntry}/../../serial" ) {
+    if ( open(serFile, "${usbEntry}/../../serial") ) {
+      $ttyName = fileparse($usbEntry);
+      chomp($ttyName);
+      $usbSerialNum = <serFile>;
+      chomp($usbSerialNum);
+      $usbPorts{$ttyName} = $usbSerialNum;
+      close(serFile);
+    }
+  }
+  return %usbPorts;
+}
+
+sub check_cable_connected() {
+  my $key;
+  my $value;
+  my $cancelSearch;
+
+  %portList = getUSBSerialInfo; 
+  if ((keys %portList) == (keys %oldPortList) + 1) {
+    while (($key, $value) = each(%portList)) {
+      if (! defined $oldPortList{$key})  {
+        print_console("New port detected: $key with serial $value on position $focus\n");
+        $local_conf->param("pos${focus}PortSN", $value);
+        $local_conf->save();  #and save changes
+        $waitingForCableConnection = 0;
+        last; # break
+      }
+    }
+  }
+  %oldPortList = %portList;
+}
+
+# This function returns the tty port (ttyUSBx) that is associated with the
+#   USB port's serial number passed to this function
+sub searchttyBySerial {
+  my $key;
+  my $value;
+
+  # Refresh the port list
+  %portList = getUSBSerialInfo; 
+
+  while (($key, $value) = each(%portList)) {
+    return $key if ($value = $_[0]);
+  }
+}
+
+# implements the install cable feature
+sub installCable {
+  print_console("Connect cable to be configured for position $focus or cancel");
+}
+
+# Here we control the state machines, like determining when a position is busy,
+#  waiting on the user, or in idle
+sub updateStateMachine {
+
+}
+
+sub createFolder {
+  if(! -e $_[0]) {
+     write_log("Creating folder: $_[0]\n");
+     mkdir($_[0]);
+  }
+}
+
+
+sub prepareTFTP {
+  # Take over the TFTP server
+  `/etc/init.d/tftpd-hpa stop`;
+  # Modify config
+  my $tmpConfig = new Config::Simple('/etc/default/tftpd-hpa');
+  $tmpConfig->param('TFTP_DIRECTORY','/var/netcom/firmware');
+  $tmpConfig->save();
+  `/etc/init.d/tftpd-hpa start`;
+  if ($? == 0) {
+    write_log("Started tftp server\n");
+  } else {
+    write_log("Error starting tftp server\n");
+  }
+
+  # Determine the name of the firmware file to use
+  my $prodConf = "/opt/getinge/prod-def/$_[0].conf";
+  if (! -e $prodConf ) {
+    write_log("Could not find config file $prodConf\n");
+    return 1;
+  }
+  $tmpConfig = new Config::Simple($prodConf);
+
+
+  # Prepare the firmware to be accessible via TFTP
+  # TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO 
+  # We actually need uImage and rootfs.jffs2 files to program using u-boot, so perhaps
+  #   we keep them in a seperate folder or tarball and extract them as needed
+  #   Either way, this is half-implemented and won't work as it is now.  It's friday...
+  # TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO 
+  my $sourceFile = '/opt/getinge/firmware/' . $tmpConfig->param('firmwareFile');
+  if(-e $sourceFile) {
+    `cp $sourceFile '/var/netcom/firmware'`;
+    write_log("Error copying firmware file: $sourceFile\n") if ($? != 0);
+  } else {
+    write_log("Could not find firmware file: $sourceFile\n");
+  }
+}
+
 ############## Initialization ##############
 
 # Command stack for building commands
 my @command;
 
-if(! -e $testrootdir ) {
-   print "Creating folder " . $testrootdir . "\n";
-   mkdir($testrootdir);
-}
+createFolder($testrootdir);
 
 # Start log   
 open(LOG, ">>$testrootdir/programNetCOM.log");
@@ -147,7 +274,7 @@ for(my $i = 1; $i <= $boards; $i++) {
    #if(! -e $testrootdir . "pos" . $i) {
   rmtree($testrootdir . "pos" . $i . ".old");  # remove old backup
   rename($testrootdir . "pos" . $i, $testrootdir . "pos" . $i . ".old");
-  print "Creating folder " . $testrootdir . "pos" . $i . "\n";
+  write_log("Creating folder " . $testrootdir . "pos" . $i . "\n");
   mkdir($testrootdir . "pos" . $i);
   chmod(0777, $testrootdir . "pos" . $i);
   my $cmd = $testrootdir . "pos" . $i . "/status.txt";
@@ -155,21 +282,16 @@ for(my $i = 1; $i <= $boards; $i++) {
    #}
 }
 
-if(! -e $testrootdir . "print") {
-   print "Creating folder " . $testrootdir . "print/\n";
-   mkdir($testrootdir . "print");
-}
-
-if(! -e $testrootdir . "samba-output") {
-   print "Creating folder " . $testrootdir . "samba-output/\n";
-   mkdir($testrootdir . "samba-output");
-}
+createFolder($testrootdir . "print");
+createFolder($testrootdir . "samba-output");
+createFolder($testrootdir . "firmware");
 
 if(! -e $testrootdir . "samba-status.txt") {
-   print "Creating " . $testrootdir . "samba-status.txt";
+   write_log("Creating " . $testrootdir . "samba-status.txt\n");
    my $cmd = $testrootdir . "samba-status.txt";
    my $bash = `touch $cmd`;
 }
+
 
 # Get scanner device and open port
 my $scanner = scanner_check();
@@ -236,8 +358,15 @@ $cui->set_binding( \&quit, "\cQ");
 $cui->set_binding( \&update, "\cY");
  
 # Prompt for product
+$config{product} = $local_conf->param('lastSelectedProduct'); #load last selected product
 $config{product} = promptForProduct($config{product});
 write_log("Product: " . $config{product} . "\n");
+$local_conf->param('lastSelectedProduct', $config{product});  #write selected product to local config to be highlighted next time program is run
+$local_conf->save();  #and save changes
+
+# Once we know the product, we can prepare for it
+prepareTFTP($config{product});
+
             
 #Populate the window arrays
 for (my $i = 0; $i < $boards; $i++) {
@@ -330,7 +459,7 @@ my $status_window = $main_win->add(
    -width => 50,
    -height => 20,
    -y => $yoffset,
-   -x => 2 * $width + 3,
+   -x => (2 * $width + 3),
    );
 
 my $status_box = $status_window->add(
@@ -379,16 +508,18 @@ $cui->{-read_timeout} = 0.1;
 #$cui->do_one_event();
 my $last_time = time;
 while(1) {
-   handle_scanner();       #If there's data, do something
-   handle_terminal();      #If there's a command on the terminal, do something
-   update_boxes();         #Look in test logs, update each box
-   $cui->do_one_event();   #Update the GUI
-   
-   if ($last_time != time) { # Update status more slowly (once each second)
-     update_status();
-     $last_time = time;
-   }
-   
+  handle_scanner();       #If there's data, do something
+  handle_terminal();      #If there's a command on the terminal, do something
+  update_boxes();         #Look in test logs, update each box
+  check_cable_connected() if ($waitingForCableConnection);
+  updateStateMachine();
+  $cui->do_one_event();   #Update the GUI
+
+  if ($last_time != time) { # Update status more slowly (once each second)
+   update_status();
+   $last_time = time;
+  }
+
 }
 
     
@@ -543,30 +674,35 @@ sub handle_terminal {
    $cmdline->text("");
 }
 
+# Call with position number, returns text from posN/status.txt
+sub getPositionStatusText {
+  my $status = $testrootdir . "pos$_[0]/status.txt";
+  if(-e $status) {
+     #This next line lets us slurp the file into one string
+     local $/=undef;
+     open(STATUS, "<$status");
+     STATUS->autoflush(1);
+     return <STATUS>;
+     close(STATUS);
+  }
+}
+
 #Look in $testdir and update the status boxes
 #in the GUI.
 sub update_boxes {
-   for(my $i = 1; $i <= $boards; $i++) {
-      my $status = $testrootdir . "pos$i/status.txt";
-      if(-e $status) {
-         #This next line lets us slurp the file into one string
-         local $/=undef;
-         open(STATUS, "<$status");
-         STATUS->autoflush(1);
-         my $status_msg = <STATUS>;
-         close(STATUS);
-         if($status_msg) {
-            #$board_text[$i]->text($status_msg);
-            box_text("", $status_msg, $i - 1);
-         }
-         else {
-            #$board_text[$i]->text("Idle");
-            box_text("", "Idle", $i - 1);
-         }
-      }
-   }
-   local $/=undef;
-   return 0;
+  for(my $i = 1; $i <= $boards; $i++) {
+    my $status_msg = getPositionStatusText($i);
+    if($status_msg) {
+        #$board_text[$i]->text($status_msg);
+        box_text("", $status_msg, $i - 1);
+     }
+     else {
+        #$board_text[$i]->text("Idle");
+        box_text("", "Idle", $i - 1);
+     }
+  }
+  local $/=undef;
+  return 0;
 }
 
 #Update status
@@ -585,7 +721,7 @@ sub process_input {
   my $line = $_[0]; #Input from scanner
   my $line_len = length($line);
   use Switch 'Perl5';
- 
+    chomp($line);
     switch ($line_len) {
     case 8 { do_cmd ($line) }
     case 12 { print_console("MAC address entered: " . $line);
@@ -595,9 +731,12 @@ sub process_input {
       print_console("SERIAL data entered");
       $posSerial[$focus - 1] = $line;
     }
-    else { print_console("Unknown entry (" . $line_len . ") " . $line) }
+    else { print_console("Unknown entry (" . $line_len . ") " . $line);
+    return 1;   
+    }
   }
-
+  $waitingForCableConnection = ($line eq '00002004');  #scanning any other barcode cancels
+  return 1;
 }
 
 sub resetPosition {
@@ -614,7 +753,7 @@ sub resetPosition {
 sub cancelTest {
   my $testPos = $_[0];
   
-  print_console("Canceling test on $testPos");
+  print_console("Canceling operation on $testPos");
   box_text("Canceling...", "", $testPos -1);
   #Clear the other parameters from @command
   #Get the child PID
@@ -678,7 +817,8 @@ sub startTest {
   my $testPos = $_[0];
   my $selected_op = $_[1];
   my @args;
-  
+  my $usePort;
+
   if ( $posSerial[$testPos - 1] eq '' ) {
     print_console("Cannot start test - serial not specified");    
     return;
@@ -688,10 +828,19 @@ sub startTest {
     print_console("Cannot start test - MAC not specified");    
     return;
   }
+
+  # determine port to use - we have the port's SN stored in the config
+  #   now translate that to a tty device
+  $usePort = searchttyBySerial($local_conf->param("pos${focus}PortSN"));
+  if (! defined($usePort)) {
+    print_console("Could not resolve USB port with serial " . $local_conf->param("pos${focus}PortSN"));    
+    return;
+  }
   
   print_console("Starting test on position $testPos : ");
   #print_console("Mac -> $posMAC[$testPos - 1], SN -> $posSerial[$testPos - 1]");
 
+  push(@args, '/dev/' . $usePort);
   push(@args, $selected_op);
   push(@args, $testPos);
   push(@args, $posMAC[$testPos - 1]);
@@ -726,7 +875,7 @@ sub do_cmd {
     case "00002001" { cancelTest( $focus ); resetPosition( $focus ) }
     case "00002002" { printLabel( $focus ); resetPosition( $focus ) }
     case "00002003" { uploadDebugData() }
-    case "00002004" { print_console("Install/Replace cable - not implemented") }
+    case "00002004" { installCable(); }
     case "00002005" { startTest($focus,0x00) } # Normal test
     case "00002009" { startTest($focus,0x10) } # Reset board requested
     case "00002006" { print_console("Rebooting");     system("sudo /sbin/reboot"); }
@@ -876,10 +1025,6 @@ sub do_cmd2 {
    }
 }
 
-#Writes a message to the logfile, with timestamp
-sub write_log {
-  print LOG localtime() . " " . $_[0];
-}
 
 #Update the output window in the shell.  This is a hack
 #to shift text up like a console.  There may be a better
