@@ -67,8 +67,8 @@ cat << EOF
 ^FWN^LH0,0^CI13
 ^PON
 ^FO30,$(($_yorg+27))^XGGetinge_logo_280x48,1,1^FS
-^FO380,$(($_yorg+27))^BY2,2.5,^B3N,N,60,N,N^FV$_mac^FS
-^FO380,$(($_yorg+95))^A0,34,34^FVMAC: $_mac^FS
+^FO380,$(($_yorg+22))^BY2,2.5,^B3N,N,60,N,N^FV$_mac^FS
+^FO505,$(($_yorg+90))^A0,34,34^FVMAC: $_mac^FS
 ^FO30,$(($_yorg+90))^A0,34,34^FD$_prod_name^FS
 ^FO30,$(($_yorg+135))^A0,36,36^FDP/N: $_pn^FS
 ^FO0,$(($_yorg+125))^GB850,50,1^FS
@@ -124,7 +124,7 @@ EOF
 
 #Main code
   [ $# -lt 2 ] && echo "Not enough arguments" 1>&2 && exit 1;  # not enough args
-  [ -f "$3" ] && source $3  # if a file of variables has been specified, invoke it
+  [ -f "$3" ] && . $3  # if a file of variables has been specified, invoke it
   [ -z "$_test_position" ] && echo "No test position specified" 1>&2 && exit 1;
   print_zebra_start > $2
   print_zebra_graphic >> $2
