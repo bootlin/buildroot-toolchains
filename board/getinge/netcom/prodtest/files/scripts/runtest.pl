@@ -36,17 +36,19 @@ my $appStartTime = [gettimeofday];
 #  *$prod         -> Product type (A or B)
 #  *$user         -> User's initials
 
-my $selected_op   = $ARGV[0]; 
-my $pos           = $ARGV[1];
-my $_mac          = $ARGV[2];
-my $_pcb_barcode  = $ARGV[3];
-my $prod          = $ARGV[4];
-my $user          = $ARGV[5];
+my $portName      = $ARGV[0];
+my $selected_op   = $ARGV[1]; 
+my $pos           = $ARGV[2];
+my $_mac          = $ARGV[3];
+my $_pcb_barcode  = $ARGV[4];
+my $prod          = $ARGV[5];
+my $user          = $ARGV[6];
 
 # Globals
 my $stateText;  # Holds the current status
 my $hwfailText;
 my $hwpassText;
+my $port;
 
 print $0;
  foreach (@ARGV) {
@@ -66,12 +68,18 @@ open(STDOUT, ">>" . $testrootdir . "pos" . $pos . "/programmer." . $pos . ".log"
 #Make our PID file
 write_pid();
 
-# TO DO - load these settings from the appropriate position's config file
-my $portName = "/dev/ttyUSB0";
-
-
 my $prod_conf_ref = get_config("/opt/getinge/prod-def/${prod}.conf");
 my %prod_config = %{$prod_conf_ref};
+
+
+sub addMacColons {
+  return(substr($_[0], 0, 2) . ":" .
+    substr($_[0], 2, 2) . ":" .
+    substr($_[0], 4, 2) . ":" .
+    substr($_[0], 6, 2) . ":" .
+    substr($_[0], 8, 2) . ":" .
+    substr($_[0], 10, 2)); 
+}
 
 ############################################
 #
@@ -91,6 +99,8 @@ sub printLabel {
   
   switch (substr($_pcb_barcode, 3, 1)) {
     case "F" { $assyCountry = "Denmark" }  
+    case "S" { $assyCountry = "Denmark" }  
+    case "R" { $assyCountry = "Thailand" }  
     else     { $assyCountry = "???????" }  
   }
   
@@ -100,7 +110,11 @@ sub printLabel {
   my $pcbSer      = substr($_pcb_barcode, 11, 4);
   my $pcbItem     = substr($_pcb_barcode, 15, 10);
   my $pcbDate     = substr($_pcb_barcode, 25, 5);
-
+  my $rohsText;
+  if (substr($_pcb_barcode, 10, 1) eq "R") {
+    $rohsText = "RoHS";
+  }
+  
   my $res = open(LV, ">$testrootdir" . "pos$pos/labelvars");
   if ( $res ) {
     print LV "_mac=\"$_mac\"\n";
@@ -125,7 +139,7 @@ sub printLabel {
     print LV "_pcb_fail_text1=\"$hwfailText\"\n";
     print LV "_pcb_fail_text2=\"Please consult test documentation for an explaination of failure codes\"\n";
     print LV "_autoIP=\"$autoIP\"\n";
-    print LV "_pcb_rohs=\"unset\"\n";  # [ "`echo $_pcb_barcode | cut -b11`" == "R" ] && _pcb_rohs="RoHS" || _pcb_rohs=""
+    print LV "_pcb_rohs=\"$rohsText\"\n";  # [ "`echo $_pcb_barcode | cut -b11`" == "R" ] && _pcb_rohs="RoHS" || _pcb_rohs=""
     
     close(LV);
   } else {
@@ -133,9 +147,9 @@ sub printLabel {
     exit(1);
   }
 
-   my @args = ("/opt/getinge/scripts/zebra.sh", $_[0], "$testrootdir" . "pos$pos/label.tmp", "$testrootdir" . "pos$pos/labelvars");
+  my @args = ("/opt/getinge/scripts/zebra.sh", $_[0], "$testrootdir" . "pos$pos/label.tmp", "$testrootdir" . "pos$pos/labelvars");
   if (system(@args) != 0) {
-      print STDERR "print_label:  could not execute print script\n";
+      print STDERR "print_label:  could not execute print script - @args\n";
       exit(1);
     }
 }
@@ -157,6 +171,24 @@ sub checkCancelled {
 
 }
 
+# This function waits for the u-boot command prompt, verifying the
+#  u-boot command output along the way.
+sub waitUbootPrompt {
+  if (serWaitRx($port,"AT91Bootstrap",3000)) {
+    msg(2,"Got AT91Bootstrap, waiting for U-Boot");
+    if (serWaitRx($port,"U-Boot",3000)) {
+      msg(3,"Waiting for U-Boot key prompt");
+      if (serWaitRx($port,"In:",5000)) {
+        msg(2,"Got U-Boot prompt");
+        serTx($port,"\r\n");  # hit enter one more time
+        if (serWaitRx($port,"U-Boot>",3000)) {
+            return 1;         
+        }
+      }
+    }
+  }
+  return 0;
+}
 
 ############################################
 #
@@ -169,7 +201,7 @@ unless (-e "$portName") {
 
 my $portBase = `basename $portName`;
 
-my $port = Device::SerialPort->new($portName); # , 0, "/var/lock/$portBase");
+$port = Device::SerialPort->new($portName); # , 0, "/var/lock/$portBase");
 if (!$port) {
   msg(1, "Cannot open port $portName - cannot continue");
   exit;
@@ -210,40 +242,23 @@ my $got_prompt = 0;
 my $last_usb_devs = `lsusb -d 03eb:6124 2> /dev/null`;
 
 do {
-  if (serWaitRx($port,"AT91Bootstrap",3000)) {
-    msg(2,"Got AT91Bootstrap, waiting for U-Boot");
-    if (serWaitRx($port,"U-Boot",3000)) {
-      msg(3,"Waiting for U-Boot key prompt");
-      #if (serWaitRx($port,"Booting... stop with ENTER",10000)) {
-      if (serWaitRx($port,"In:",5000)) {
-        msg(2,"Got U-Boot prompt");
-        # Stop boot by hitting enter
-        #do {
-        #    $port->lookclear; 
-        #    serTx($port,"\r\n"); 
-        #    waitMs(100);
-        #} while (!serWaitRx($port,"U-Boot>",500));
-        serTx($port,"\r\n");  # hit enter one more time
-
-        if (serWaitRx($port,"U-Boot>",3000)) {
-          if ($selected_op & 0x10) {    # we should erase the dataflash chip and reboot
-            msg(2,"Erasing dataflash");
-            serTx($port,"mw.l 71000000 AABBCCDD 1080; protect off C0000000 C00041FF;" . 
-                        " cp.l 71000000 C0000000 1080;\r\n");
-            $port->lookclear;  # flush buffer
-            if (serWaitRx($port,"U-Boot>",3000)) {
-              msg(2,"Resetting board");
-              $port->lookclear;  # flush buffer
-              serTx($port,"mw.l FFFFFD00 A500000D;\r\n");
-              $selected_op = $selected_op & 0xFFEF;
-            }
-          } else {
-            $got_prompt = 1;
-          }
-        }
+  if (waitUbootPrompt) {
+    if ($selected_op & 0x10) {    # we should erase the dataflash chip and reboot
+      msg(2,"Erasing dataflash");
+      serTx($port,"mw.l 71000000 AABBCCDD 1080; protect off C0000000 C00041FF;" . 
+                  " cp.l 71000000 C0000000 1080;\r\n");
+      $port->lookclear;  # flush buffer
+      if (serWaitRx($port,"U-Boot>",3000)) {
+        msg(2,"Resetting board");
+        $port->lookclear;  # flush buffer
+        serTx($port,"mw.l FFFFFD00 A500000D;\r\n");
+        $selected_op = $selected_op & 0xFFEF;
       }
+    } else {
+      $got_prompt = 1;
     }
   }
+
 
   # Here we detect if an ACM device has been added (completely unprogrammed boards
   #   will show up this way)
@@ -268,15 +283,15 @@ do {
   if ( $response ne 0 ) {
     msg(3,"ethaddr env var exists: $response");
     my $tmpstr = substr($response, 8,17);
-    if ( substr($response, 8, 17) ne $_mac ) {
-      msg(2,"MAC Address mismatch.  Requested: $_mac  Programmed: $tmpstr");
+    if ( substr($response, 8, 17) ne addMacColons($_mac) ) {
+      msg(2,"MAC Address mismatch.  Requested: addMacColons($_mac) Programmed: $tmpstr");
       # TO DO - React badly here - they're asking you to change the MAC!
     }
   } 
   else # There is no MAC programmed, so program it
   {
     msg(2,"Programming MAC Address");
-    serTx($port,"setenv ethaddr $_mac\r\n");
+    serTx($port,"setenv ethaddr " . addMacColons($_mac) . "\r\n");
     serWaitRx($port,"U-Boot>",1000);
   }
 
@@ -288,14 +303,32 @@ do {
 
   # TO DO - set PCB serial number - actually ORDER + SN fields together
   msg(2,"Saving serialization Info");
+  $port->lookclear;  # flush buffer
   serTx($port,"saveenv\r\n");
   serWaitRx($port,"U-Boot>",1000);
 
+  # reset and wait for prompt to allow MAC to be valid
+  msg(2,"Resetting board");
+  $port->lookclear;  # flush buffer
+  serTx($port,"mw.l FFFFFD00 A500000D;\r\n");
+  do {} while (!waitUbootPrompt);
+
   # And here set vars that should only be valid this session
+  $port->lookclear;  # flush buffer
   serTx($port,"setenv testposition $pos\r\n");
   serWaitRx($port,"U-Boot>",1000);
 
+  $port->lookclear;  # flush buffer
+  serTx($port,"setenv ipaddr 192.168.199.20${pos}\r\n");
+  serWaitRx($port,"U-Boot>",1000);
+
+  # Set test server IP address
+  $port->lookclear;  # flush buffer
+  serTx($port,"setenv serverip 192.168.199.250\r\n");
+  serWaitRx($port,"U-Boot>",1000);
+
   # Write the environment to our logs
+  $port->lookclear;  # flush buffer
   serTx($port,"printenv\r\n");
   $port->lookclear;  # flush buffer
   serWaitRx($port,"U-Boot>",10000);
