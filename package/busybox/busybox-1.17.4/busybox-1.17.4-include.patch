@@ -1,0 +1,10 @@
+--- busybox-1.17.4/include/libbb.h
++++ busybox-1.17.4-include/include/libbb.h
+@@ -89,6 +89,7 @@
+ 
+ 
+ /* Some libc's forget to declare these, do it ourself */
++typedef unsigned short         umode_t;
+ 
+ extern char **environ;
+ #if defined(__GLIBC__) && __GLIBC__ < 2
