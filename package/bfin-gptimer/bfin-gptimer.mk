@@ -7,13 +7,13 @@ BFIN_GPTIMER_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-d
 BFIN_GPTIMER_SITE_METHOD = svn
 BFIN_GPTIMER_VERSION = HEAD
 
-TARGET_CFLAGS+=-I$(LINUX26_SOURCE_DIR)/include -I$(LINUX26_SOURCE_DIR)/arch/blackfin/include
+GPT_CFLAGS = $(TARGET_CFLAGS) -I$(LINUX26_SOURCE_DIR)/include -I$(LINUX26_SOURCE_DIR)/arch/blackfin/include
 
 BFIN_GPTIMER_SRC:=simple_timer_test.c
 BFIN_GPTIMER_EXE:=simple_timer_test
 
 define BFIN_GPTIMER_BUILD_CMDS
-        $(TARGET_CC) $(TARGET_CFLAGS) $(TARGET_LDFLAGS) \
+        $(TARGET_CC) $(GPT_CFLAGS) $(TARGET_LDFLAGS) \
 	               $(@D)/$(BFIN_GPTIMER_SRC) -o $(@D)/$(BFIN_GPTIMER_EXE)
 endef
 
