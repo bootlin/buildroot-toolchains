@@ -17,10 +17,10 @@ POUND_VERSION = HEAD
 #endef
 #F_CONF="pound.cfg"
 VERSION=2.0
-TARGET_CFLAGS +=  -DVERSION=$(VERSION) -pipe -Wall -g -O2  -pthread -DNEED_STACK -DHAVE_SYSLOG_H=1 -DEMBED -D__uClinux__  -D_REENTRANT -D_THREAD_SAFE  -Ilinux/linux-kernel/include -Ilinux/linux-kernel/arch/blackfin/include  -DHAVE_SYSLOG_H=1 
+POUND_CFLAGS = $(TARGET_CFLAGS) -I$(LINUX26_SOURCE_DIR)/include -I$(LINUX26_SOURCE_DIR)/arch/blackfin/include -DHAVE_SYSLOG_H=1 -DVERSION=$(VERSION)
 
 define POUND_BUILD_CMDS
-	$(MAKE) CFLAGS="$(TARGET_CFLAGS)"  OS=$(ARCH) CC="$(TARGET_CC)" -C $(@D)
+	$(MAKE) CFLAGS="$(POUND_CFLAGS)"  OS=$(ARCH) CC="$(TARGET_CC)" -C $(@D)
 endef
 
 define POUND_INSTALL_TARGET_CMDS
