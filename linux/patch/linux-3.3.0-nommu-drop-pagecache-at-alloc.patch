@@ -1,0 +1,37 @@
+diff --git a/fs/drop_caches.c b/fs/drop_caches.c
+index c00e055..478db08 100644
+--- a/fs/drop_caches.c
++++ b/fs/drop_caches.c
+@@ -13,7 +13,7 @@
+ /* A global variable is a bit ugly, but it keeps the code simple */
+ int sysctl_drop_caches;
+ 
+-static void drop_pagecache_sb(struct super_block *sb, void *unused)
++void drop_pagecache_sb(struct super_block *sb, void *unused)
+ {
+ 	struct inode *inode, *toput_inode = NULL;
+ 
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 2b8ba3a..ec65c16 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -2007,6 +2007,9 @@ __alloc_pages_high_priority(gfp_t gfp_mask, unsigned int order,
+ 	struct page *page;
+ 
+ 	do {
++#ifdef CONFIG_NOMMU
++		iterate_supers(drop_pagecache_sb, NULL);
++#endif
+ 		page = get_page_from_freelist(gfp_mask, nodemask, order,
+ 			zonelist, high_zoneidx, ALLOC_NO_WATERMARKS,
+ 			preferred_zone, migratetype);
+@@ -2179,6 +2182,9 @@ rebalance:
+ 	if (page)
+ 		goto got_pg;
+ 
++#ifdef CONFIG_NOMMU
++	iterate_supers(drop_pagecache_sb, NULL);
++#endif
+ 	/*
+ 	 * If we failed to make any progress reclaiming, then we are
+ 	 * running out of options and have to consider going OOM
