@@ -4,7 +4,7 @@
 #
 
 #Set test version here - the major should change any time the result codes are renumbered, the minor should change every time
-testVer="1.0";
+testVer="1.1";
 
 #Clear vars
 summarytext="";
@@ -358,29 +358,39 @@ echo "";
 mw.l FFFFFA30 3C0000;
 
 echo "Checking for stuck TST button: \c";
-if itest.b *FFFFFA3E == f0; then echo "Fail"; summarytext="${summarytext}12A"; else echo "Pass"; fi;
+setexpr.b tmp 40 \& *fffffa3e;
+if itest "$tmp" -eq "00"; then echo "Fail"; summarytext="${summarytext}12A"; else echo "Pass"; fi;
 echo "";
 sleep 0.2;
 
 # Light only YL led to indicate that we're ready for the button to be tested
 mw.l fffffa34 100000;
 
-echo "Prompt: Push TST button to test first two LEDs.";
-while itest.b *Fffffa3e == ec; do sleep 0.1; done;
-mw.l fffffa34 C0000;
-mw.l fffffa30 100000; # YL off
+echo "Prompt: Push TST button if 4 LEDs light in proper sequence.";
+setenv tmp 40;
+setenv ledval 0;
+while test "$tmp" -eq "40"; do; 
+  mw.b 0xFFFFFA32 0x003C;  # LEDs off
+  test "$ledval" -eq "0" && mw.b 0xFFFFFA36 20; #CR16
+  test "$ledval" -eq "1" && mw.b 0xFFFFFA36 8;  #CR18
+  test "$ledval" -eq "2" && mw.b 0xFFFFFA36 4;  #CR19
+  test "$ledval" -eq "3" && mw.b 0xFFFFFA36 10; #CR17
+  # short sleep
+  setenv i 200; while itest "$i" -ne "0"; do; setexpr i $i - 1; done;
+  # led counter
+  setexpr ledval $ledval + 1; 
+  if test "$ledval" -eq "4"; then setenv ledval 0; fi;
+  # read button bit
+  setexpr.b tmp 40 \& *fffffa3e;
+done;
+
 # Ensure button is released
-while itest.b *Fffffa3e == b0; do sleep 0.1; done;
-
-sleep 0.1;
-
-echo "Prompt: Push TST button again to test remaining LEDs.";
-while itest.b *Fffffa3e == f0; do sleep 0.1; done;
-mw.l fffffa34 300000;
-# Ensure button is released
-while itest.b *Fffffa3e == 80; do sleep 0.1; done;
-
-sleep 1;
+setenv i 0; 
+while itest "$tmp" -eq "0" && itest "$i" -lt "2000"; do;
+  setexpr.b tmp 40 \& *fffffa3e;
+  setexpr i $i + 1;
+done;
+if itest "$i" -gt "500"; then echo "Fail"; summarytext="${summarytext}12B"; else echo "Pass"; fi;
 
 mw.l FFFFFA30 3C0000;
 
