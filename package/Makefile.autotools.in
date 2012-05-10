@@ -103,6 +103,7 @@ define $(2)_CONFIGURE_CMDS
 		$$(DISABLE_NLS) \
 		$$(DISABLE_LARGEFILE) \
 		$$(DISABLE_IPV6) \
+		$$(DISABLE_SHARED) \
 		$$(QUIET) $$($$(PKG)_CONF_OPT) \
 	)
 endef
