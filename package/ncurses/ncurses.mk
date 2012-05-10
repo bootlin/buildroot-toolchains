@@ -28,7 +28,6 @@ NCURSES_SITE = $(BR2_GNU_MIRROR)/ncurses
 NCURSES_INSTALL_STAGING = YES
 
 NCURSES_CONF_OPT = \
-	--with-shared \
 	--without-cxx \
 	--without-cxx-binding \
 	--without-ada \
@@ -41,7 +40,6 @@ NCURSES_CONF_OPT = \
 	--enable-const \
 	--enable-overwrite \
 	--enable-broken_linker \
-	--disable-static
 
 ifneq ($(BR2_ENABLE_DEBUG),y)
 NCURSES_CONF_OPT += --without-debug
@@ -58,6 +56,8 @@ define NCURSES_PATCH_NCURSES_CONFIG
 endef
 
 NCURSES_POST_STAGING_INSTALL_HOOKS += NCURSES_PATCH_NCURSES_CONFIG
+
+ifeq ($(DISABLE_SHARED),)
 
 ifeq ($(BR2_HAVE_DEVFILES),y)
 define NCURSES_INSTALL_TARGET_DEVFILES
@@ -119,5 +119,7 @@ define NCURSES_INSTALL_TARGET_CMDS
 	-$(STRIPCMD) $(STRIP_STRIP_UNNEEDED) $(TARGET_DIR)/usr/lib/libncurses.so*
 	$(NCURSES_INSTALL_TARGET_DEVFILES)
 endef # NCURSES_INSTALL_TARGET_CMDS
+
+endif # DISABLE_SHARED
 
 $(eval $(call AUTOTARGETS,package,ncurses))
