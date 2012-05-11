@@ -15,6 +15,10 @@ else
 	USBUTILS_CONF_OPT = --disable-zlib
 endif
 
+ifeq ($(BR2_ABI_FLAT),y)
+USBUTILS_CONF_OPT += LIBS=-lpthread
+endif
+
 define USBUTILS_TARGET_CLEANUP
 	rm -f $(TARGET_DIR)/usr/bin/usb-devices
 	rm -f $(TARGET_DIR)/usr/sbin/update-usbids.sh
