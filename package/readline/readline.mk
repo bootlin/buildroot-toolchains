@@ -14,6 +14,8 @@ READLINE_DEPENDENCIES = ncurses
 
 READLINE_CONF_ENV = bash_cv_func_sigsetjmp=yes
 
+ifneq ($(BR2_ABI_FLAT),y)
+
 define READLINE_INSTALL_TARGET_CMDS
 	$(MAKE1) DESTDIR=$(TARGET_DIR) -C $(@D) uninstall
 	$(MAKE1) DESTDIR=$(TARGET_DIR) -C $(@D) install-shared uninstall-doc
@@ -23,5 +25,7 @@ define READLINE_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/usr/lib/libreadline.so.$(READLINE_VERSION) \
 		$(TARGET_DIR)/usr/lib/libhistory.so.$(READLINE_VERSION)
 endef
+
+endif
 
 $(eval $(call AUTOTARGETS,package,readline))
