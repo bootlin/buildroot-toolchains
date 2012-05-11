@@ -23,7 +23,7 @@ SQLITE_CONF_OPT =	--enable-static \
 			--disable-tcl \
 			--localstatedir=/var
 
-ifneq ($(BR2_ABI_FLAT),y)
+ifeq ($(BR2_ABI_FLAT),y)
 SQLITE_CONF_OPT += --enable-dynamic-extensions=no
 endif
 ifeq ($(BR2_PACKAGE_SQLITE_READLINE),y)
