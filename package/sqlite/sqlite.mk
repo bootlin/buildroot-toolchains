@@ -16,14 +16,16 @@ ifneq ($(BR2_LARGEFILE),y)
 SQLITE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -DSQLITE_DISABLE_LFS"
 endif
 
-SQLITE_CONF_OPT =	--enable-shared \
-			--enable-static \
+SQLITE_CONF_OPT =	--enable-static \
 			--enable-tempstore=yes \
 			--enable-threadsafe \
 			--enable-releasemode \
 			--disable-tcl \
 			--localstatedir=/var
 
+ifneq ($(BR2_ABI_FLAT),y)
+SQLITE_CONF_OPT += --enable-dynamic-extensions=no
+endif
 ifeq ($(BR2_PACKAGE_SQLITE_READLINE),y)
 SQLITE_DEPENDENCIES += ncurses readline
 SQLITE_CONF_OPT += --with-readline-inc="-I$(STAGING_DIR)/usr/include"
