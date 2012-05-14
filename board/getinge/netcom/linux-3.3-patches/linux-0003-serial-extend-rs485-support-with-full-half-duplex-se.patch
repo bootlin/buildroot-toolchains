@@ -1,7 +1,8 @@
-From 0d18224556a5b0d925386bd4bbf88bbe871a1e8a Mon Sep 17 00:00:00 2001
+From ba77a5dcf1aba933227848cd375aa73504000a65 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 14:33:11 +0200
-Subject: [PATCH 03/11] serial: extend rs485 support with full/half duplex selection
+Subject: [PATCH 03/12] serial: extend rs485 support with full/half duplex
+ selection
 
 We create a new RS485 configuration flag SER_RS485_FULL_DUPLEX. When
 set, the RS485 link must be configured in full duplex mode by the
@@ -14,13 +15,13 @@ selection using the existing TIOCGRS485 and TIOCSRS485 ioctl calls.
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  include/linux/serial.h |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ 1 file changed, 1 insertion(+)
 
-Index: b/include/linux/serial.h
-===================================================================
+diff --git a/include/linux/serial.h b/include/linux/serial.h
+index 3d86517..6287f71 100644
 --- a/include/linux/serial.h
 +++ b/include/linux/serial.h
-@@ -214,6 +214,7 @@
+@@ -214,6 +214,7 @@ struct serial_rs485 {
  #define SER_RS485_RTS_AFTER_SEND	(1 << 2)	/* Logical level for
  							   RTS pin after sent*/
  #define SER_RS485_RX_DURING_TX		(1 << 4)
@@ -28,3 +29,6 @@ Index: b/include/linux/serial.h
  	__u32	delay_rts_before_send;	/* Delay before send (milliseconds) */
  	__u32	delay_rts_after_send;	/* Delay after send (milliseconds) */
  	__u32	padding[5];		/* Memory is cheap, new structs
+-- 
+1.7.9.5
+

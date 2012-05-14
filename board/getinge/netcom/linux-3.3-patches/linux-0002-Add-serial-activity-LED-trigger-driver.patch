@@ -1,7 +1,7 @@
-From 4733ba8099ffdd5bc294a5ec0cc331218396ab5f Mon Sep 17 00:00:00 2001
+From cae0cc5087441b8a9727ea18e7e16bdf103ecc86 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 18:09:10 +0200
-Subject: [PATCH 02/11] Add serial activity LED trigger driver
+Subject: [PATCH 02/12] Add serial activity LED trigger driver
 
 Patch taken from
 http://www.mail-archive.com/netdev@vger.kernel.org/msg38825.html,
@@ -10,14 +10,14 @@ activity LED trigger.
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
- drivers/leds/Kconfig              |    8 +++
+ drivers/leds/Kconfig              |    8 ++++
  drivers/leds/Makefile             |    1 +
- drivers/leds/ledtrig-serial.c     |   91 +++++++++++++++++++++++++++++++++++++
+ drivers/leds/ledtrig-serial.c     |   92 +++++++++++++++++++++++++++++++++++++
  drivers/tty/serial/atmel_serial.c |    2 +-
  drivers/tty/serial/serial_core.c  |    9 ++++
  include/linux/leds.h              |    7 +++
- include/linux/serial_core.h       |   15 ++++++-
- 7 files changed, 131 insertions(+), 2 deletions(-)
+ include/linux/serial_core.h       |   15 +++++-
+ 7 files changed, 132 insertions(+), 2 deletions(-)
  create mode 100644 drivers/leds/ledtrig-serial.c
 
 diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
@@ -53,10 +53,10 @@ index bb59bda..6da8b96 100644
  obj-$(CONFIG_LEDS_TRIGGER_GPIO)		+= ledtrig-gpio.o
 diff --git a/drivers/leds/ledtrig-serial.c b/drivers/leds/ledtrig-serial.c
 new file mode 100644
-index 0000000..b52d240
+index 0000000..cc732fc
 --- /dev/null
 +++ b/drivers/leds/ledtrig-serial.c
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,92 @@
 +/*
 + * LED Serial Activity Trigger
 + * based on ledtrig-network by Florian Fainelli
@@ -126,7 +126,8 @@ index 0000000..b52d240
 +		led_trigger_event(ledtrig_serial_tx, LED_OFF);
 +
 +	if (has_activity)
-+		mod_timer(&ledtrig_serial_timer, jiffies + msecs_to_jiffies(10));
++		mod_timer(&ledtrig_serial_timer,
++			  jiffies + msecs_to_jiffies(LEDTRIG_SERIAL_ON_DURATION_MSECS));
 +}
 +
 +static int __init ledtrig_serial_init(void)
@@ -247,5 +248,5 @@ index c91ace7..12c67cd 100644
  static inline int
  uart_handle_sysrq_char(struct uart_port *port, unsigned int ch)
 -- 
-1.7.4.1
+1.7.9.5
 

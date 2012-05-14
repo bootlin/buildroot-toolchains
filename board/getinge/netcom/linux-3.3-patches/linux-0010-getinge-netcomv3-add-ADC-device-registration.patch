@@ -1,12 +1,12 @@
-From 3ca3388cd7b647ca8913cf2f3ad52133993d9bda Mon Sep 17 00:00:00 2001
+From 8943129bcf7c61d1897867bbe01b845a78c23bef Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Thu, 7 Jul 2011 10:29:42 +0200
-Subject: [PATCH 10/11] getinge-netcomv3: add ADC device registration
+Subject: [PATCH 10/12] getinge-netcomv3: add ADC device registration
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  arch/arm/mach-at91/board-getinge-netcomv3.c |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
+ 1 file changed, 9 insertions(+)
 
 diff --git a/arch/arm/mach-at91/board-getinge-netcomv3.c b/arch/arm/mach-at91/board-getinge-netcomv3.c
 index e135ae8..eedac34 100644
@@ -36,5 +36,5 @@ index e135ae8..eedac34 100644
  	gpio_request_array(netcom_gpios, ARRAY_SIZE(netcom_gpios));
  	for (i = 0; i < ARRAY_SIZE(netcom_gpios); i++) {
 -- 
-1.7.4.1
+1.7.9.5
 

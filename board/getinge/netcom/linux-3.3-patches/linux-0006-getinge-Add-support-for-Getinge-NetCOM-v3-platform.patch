@@ -1,7 +1,7 @@
-From 2dd8627fa634ec0ea7ff2271522feb82f39dc4fe Mon Sep 17 00:00:00 2001
+From e4ac0cd877bbf9a9217f4100999e475ec4b9a2eb Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
-Subject: [PATCH 06/11] getinge: Add support for Getinge NetCOM v3 platform
+Subject: [PATCH 06/12] getinge: Add support for Getinge NetCOM v3 platform
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
@@ -9,7 +9,7 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  arch/arm/mach-at91/Makefile                 |    1 +
  arch/arm/mach-at91/board-getinge-netcomv3.c |  287 +++++++++++++++++++++++++++
  arch/arm/tools/mach-types                   |    1 +
- 4 files changed, 295 insertions(+), 0 deletions(-)
+ 4 files changed, 295 insertions(+)
  create mode 100644 arch/arm/mach-at91/board-getinge-netcomv3.c
 
 diff --git a/arch/arm/mach-at91/Kconfig b/arch/arm/mach-at91/Kconfig
@@ -347,5 +347,5 @@ index f9c9f33..4ad5540 100644
  ctera_plug_c2		MACH_CTERA_PLUG_C2	CTERA_PLUG_C2		3426
  marvelct		MACH_MARVELCT		MARVELCT		3427
 -- 
-1.7.4.1
+1.7.9.5
 

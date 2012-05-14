@@ -1,0 +1,57 @@
+From a91093433e804c44073bf081cdc4421ec0bc8f57 Mon Sep 17 00:00:00 2001
+From: "Siftar, Gabe" <Gabe.Siftar@getingeusa.com>
+Date: Thu, 29 Mar 2012 15:40:05 +0200
+Subject: [PATCH 12/12] tty/serial: atmel_serial: fix RS485 half-duplex
+ problem
+
+On our custom board, we are using RS485 in half-duplex mode on an AT91SAM9G45.
+SER_RS485_RX_DURING_TX is not set as we do not want to receive the data we
+transmit (our transceiver will receive transmitted data).
+Although the current driver attempts to disable and enable the receiver at the
+appropriate points, incoming data is still loaded into the receive register
+causing our code to receive the very last byte that was sent once the receiver
+is enabled.
+
+I ran this by Atmel support and they wrote: "The issue comes from the fact
+that you disable the PDC/DMA Reception and not the USART Reception channel. In
+your case, the[n] you will still receive data into the USART_RHR register, and
+maybe you [h]ave the overrun flag set. So please disable the USART reception
+channel."
+
+The following patch should force the driver to enable/disable the receiver via
+RXEN/RXDIS fields of the USART control register. It fixed the issue I was
+having.
+
+Signed-off-by: Gabe Siftar <gabe.siftar@getingeusa.com>
+[nicolas.ferre@atmel.com: slightly modify commit message]
+Signed-off-by: Nicolas Ferre <nicolas.ferre@atmel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/atmel_serial.c |    4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index bf74cc8..6759464 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -396,6 +396,8 @@ static void atmel_start_rx(struct uart_port *port)
+ {
+ 	UART_PUT_CR(port, ATMEL_US_RSTSTA);  /* reset status and receiver */
+ 
++	UART_PUT_CR(port, ATMEL_US_RXEN);
++
+ 	if (atmel_use_dma_rx(port)) {
+ 		/* enable PDC controller */
+ 		UART_PUT_IER(port, ATMEL_US_ENDRX | ATMEL_US_TIMEOUT |
+@@ -411,6 +413,8 @@ static void atmel_start_rx(struct uart_port *port)
+  */
+ static void atmel_stop_rx(struct uart_port *port)
+ {
++	UART_PUT_CR(port, ATMEL_US_RXDIS);
++
+ 	if (atmel_use_dma_rx(port)) {
+ 		/* disable PDC receive */
+ 		UART_PUT_PTCR(port, ATMEL_PDC_RXTDIS);
+-- 
+1.7.9.5
+

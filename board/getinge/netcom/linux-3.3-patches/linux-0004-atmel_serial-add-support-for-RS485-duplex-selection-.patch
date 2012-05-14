@@ -1,7 +1,8 @@
-From dde80c14594d611790eed51315e8868993abfafe Mon Sep 17 00:00:00 2001
+From 50fec2b08f826d63696e853c0130ceefec13fbc8 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 14:35:34 +0200
-Subject: [PATCH 04/11] atmel_serial: add support for RS485 duplex selection pin
+Subject: [PATCH 04/12] atmel_serial: add support for RS485 duplex selection
+ pin
 
 We extend the driver platform_data structure with two new fields:
 
@@ -25,14 +26,14 @@ system.
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  arch/arm/mach-at91/include/mach/board.h |    2 ++
- drivers/tty/serial/atmel_serial.c       |   30 ++++++++++++++++++++++++++++++
- 2 files changed, 32 insertions(+), 0 deletions(-)
+ drivers/tty/serial/atmel_serial.c       |   32 +++++++++++++++++++++++++++++++
+ 2 files changed, 34 insertions(+)
 
-Index: b/arch/arm/mach-at91/include/mach/board.h
-===================================================================
+diff --git a/arch/arm/mach-at91/include/mach/board.h b/arch/arm/mach-at91/include/mach/board.h
+index 3b33f07..87fdd1e 100644
 --- a/arch/arm/mach-at91/include/mach/board.h
 +++ b/arch/arm/mach-at91/include/mach/board.h
-@@ -141,6 +141,8 @@
+@@ -141,6 +141,8 @@ struct atmel_uart_data {
  	short			use_dma_rx;	/* use receive DMA? */
  	void __iomem		*regs;		/* virt. base address, if any */
  	struct serial_rs485	rs485;		/* rs485 settings */
@@ -41,11 +42,11 @@ Index: b/arch/arm/mach-at91/include/mach/board.h
  };
  extern void __init at91_add_device_serial(void);
  
-Index: b/drivers/tty/serial/atmel_serial.c
-===================================================================
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index fa6b975..bf74cc8 100644
 --- a/drivers/tty/serial/atmel_serial.c
 +++ b/drivers/tty/serial/atmel_serial.c
-@@ -155,6 +155,8 @@
+@@ -155,6 +155,8 @@ struct atmel_uart_port {
  	struct circ_buf		rx_ring;
  
  	struct serial_rs485	rs485;		/* rs485 settings */
@@ -54,7 +55,7 @@ Index: b/drivers/tty/serial/atmel_serial.c
  	unsigned int		tx_done_mask;
  };
  
-@@ -226,6 +228,11 @@
+@@ -226,6 +228,11 @@ void atmel_config_rs485(struct uart_port *port, struct serial_rs485 *rs485conf)
  
  	atmel_port->rs485 = *rs485conf;
  
@@ -66,7 +67,7 @@ Index: b/drivers/tty/serial/atmel_serial.c
  	if (rs485conf->flags & SER_RS485_ENABLED) {
  		dev_dbg(port->dev, "Setting UART to RS485\n");
  		atmel_port->tx_done_mask = ATMEL_US_TXEMPTY;
-@@ -989,6 +996,12 @@
+@@ -989,6 +996,12 @@ static int atmel_startup(struct uart_port *port)
  	atmel_port->irq_status_prev = UART_GET_CSR(port);
  	atmel_port->irq_status = atmel_port->irq_status_prev;
  
@@ -79,7 +80,7 @@ Index: b/drivers/tty/serial/atmel_serial.c
  	/*
  	 * Finally, enable the serial port
  	 */
-@@ -1507,6 +1520,22 @@
+@@ -1507,6 +1520,22 @@ static void __devinit atmel_init_port(struct atmel_uart_port *atmel_port,
  	} else {
  		atmel_port->tx_done_mask = ATMEL_US_TXRDY;
  	}
@@ -102,7 +103,7 @@ Index: b/drivers/tty/serial/atmel_serial.c
  }
  
  /*
-@@ -1856,6 +1885,9 @@
+@@ -1856,6 +1885,9 @@ static int __devexit atmel_serial_remove(struct platform_device *pdev)
  
  	ret = uart_remove_one_port(&atmel_uart, port);
  
@@ -112,3 +113,6 @@ Index: b/drivers/tty/serial/atmel_serial.c
  	tasklet_kill(&atmel_port->tasklet);
  	kfree(atmel_port->rx_ring.buf);
  
+-- 
+1.7.9.5
+

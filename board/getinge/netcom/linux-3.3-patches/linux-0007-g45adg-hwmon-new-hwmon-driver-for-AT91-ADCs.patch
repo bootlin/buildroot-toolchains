@@ -1,14 +1,14 @@
-From c300b6d6736b8ffa46767b9f06bad7e1c71be9b5 Mon Sep 17 00:00:00 2001
+From 02b7f52b80233db6c61cd5daa56a4417d93a1766 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:16 +0200
-Subject: [PATCH 07/11] g45adg-hwmon: new hwmon driver for AT91 ADCs
+Subject: [PATCH 07/12] g45adg-hwmon: new hwmon driver for AT91 ADCs
 
 Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  drivers/hwmon/Kconfig        |    6 +
  drivers/hwmon/Makefile       |    1 +
  drivers/hwmon/g45adc-hwmon.c |  450 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 457 insertions(+), 0 deletions(-)
+ 3 files changed, 457 insertions(+)
  create mode 100644 drivers/hwmon/g45adc-hwmon.c
 
 diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
@@ -42,7 +42,7 @@ index 8251ce8..7376159 100644
  
 diff --git a/drivers/hwmon/g45adc-hwmon.c b/drivers/hwmon/g45adc-hwmon.c
 new file mode 100644
-index 0000000..d99750e
+index 0000000..8c2e487
 --- /dev/null
 +++ b/drivers/hwmon/g45adc-hwmon.c
 @@ -0,0 +1,450 @@
@@ -270,10 +270,10 @@ index 0000000..d99750e
 +	if (status & ATMEL_TSADCC_DRDY) {
 +		/* Conversion finished */
 +		ATMEL_TSADCC_read(ATMEL_TSADCC_LCDR);  /* resets inturrupt */
-+		ts_dev->ch_val[G45ADC_VP3V3] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR0),10,10);
-+		ts_dev->ch_val[G45ADC_VUSB] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR1),20,10);
-+		ts_dev->ch_val[G45ADC_VP5_POE] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR2),20,10);
-+		ts_dev->ch_val[G45ADC_VP5_EXT] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR3),20,10);
++		ts_dev->ch_val[G45ADC_VP3V3] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR0),26,47);
++		ts_dev->ch_val[G45ADC_VUSB] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR1),68,47);
++		ts_dev->ch_val[G45ADC_VP5_POE] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR2),68,47);
++		ts_dev->ch_val[G45ADC_VP5_EXT] 	= G45ADC_CONVERT_V(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR3),68,47);
 +		ts_dev->ch_val[G45ADC_TEMP] 	= G45ADC_CONVERT_T(ATMEL_TSADCC_read(ATMEL_TSADCC_CDR4));
 +		ts_dev->init = 1;
 +	}
@@ -497,5 +497,5 @@ index 0000000..d99750e
 +MODULE_AUTHOR("Gabe Siftar <gabe.siftar@getingeusa.com>");
 +
 -- 
-1.7.4.1
+1.7.9.5
 

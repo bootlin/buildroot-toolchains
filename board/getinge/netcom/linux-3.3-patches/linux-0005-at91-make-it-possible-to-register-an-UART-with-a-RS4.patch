@@ -1,7 +1,8 @@
-From 5a2fe72e4993951ca6cedaae225940724ab7a620 Mon Sep 17 00:00:00 2001
+From 4668f347494ef77fd8a3e7b46e5347f99049bbd5 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 15:07:03 +0200
-Subject: [PATCH 05/11] at91: make it possible to register an UART with a RS485 duplex pin
+Subject: [PATCH 05/12] at91: make it possible to register an UART with a
+ RS485 duplex pin
 
 We add a new parameter to at91_register_uart() to specify an
 additional RS485 duplex pin. It's a bit unfortunate that AT91 has
@@ -93,5 +94,5 @@ index 87fdd1e..55e95e6 100644
  
  extern struct platform_device *atmel_default_console_device;
 -- 
-1.7.4.1
+1.7.9.5
 
