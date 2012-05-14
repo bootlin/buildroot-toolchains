@@ -4,7 +4,7 @@
 
 # Valid boot protocols are "dhcp" and "none" (anything other than "dhcp" works).
 BOOTPROTO="dhcp"
-DHCP_CLIENT="/sbin/udhcpc -a -i eth0 -H $(hostname)"
+DHCP_CLIENT="/sbin/udhcpc -a -i eth0 -H $(hostname) $(test -f /etc/conf.d/net.eth0.lastdhcpip && echo '-r' $(cat /etc/conf.d/net.eth0.lastdhcpip))"
 
 # Valid media types are "auto", "10baseT-HD", "10baseT-FD", "100baseTX-HD",
 # "100baseTX-FD" and "" (nothing).
