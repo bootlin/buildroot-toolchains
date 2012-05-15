@@ -1,0 +1,8 @@
+#!/bin/sh
+
+grep -q "^SERIAL_NUMBER=$" /etc/conf.d/remoteAgent.conf
+if [ $? -eq 0 ] ; then
+    . /etc/conf.d/bootblock
+    sed -i "s/^SERIAL_NUMBER=$/SERIAL_NUMBER=${BOOTBLOCK_SERNO}/" /etc/conf.d/remoteAgent.conf
+fi
+
