@@ -330,6 +330,8 @@ ifeq ($(BR2_ENABLE_LOCALE_PURGE),y)
 TARGETS+=target-purgelocales
 endif
 
+TARGETS+=target-zoneinfo
+
 include fs/common.mk
 
 TARGETS+=erase-fakeroots
@@ -533,6 +535,26 @@ target-purgelocales:
 			grep -qx $$lang $(LOCALE_WHITELIST) || rm -rf $$dir/$$lang; \
 		done; \
 	done
+endif
+
+# Installation of time zone information files.
+target-zoneinfo:
+	rm -rf $(TARGET_DIR)/usr/share/zoneinfo/
+ifeq ($(BR2_TIME_ZONE_INFO_FILES_ALL),y)
+	mkdir -p $(TARGET_DIR)/usr/share/zoneinfo/
+	cp -a $(STAGING_DIR)/usr/share/zoneinfo/* \
+		$(TARGET_DIR)/usr/share/zoneinfo/
+endif
+ifeq ($(BR2_TIME_ZONE_INFO_FILES_LIST),y)
+	mkdir -p $(TARGET_DIR)/usr/share/zoneinfo/
+	for zone in `cat $(BR2_TIME_ZONE_INFO_FILES_LIST_FILE)` ; do \
+		install -D -m 0644 $(STAGING_DIR)/usr/share/zoneinfo/$${zone} \
+			$(TARGET_DIR)/usr/share/zoneinfo/$${zone} ; \
+	done
+endif
+ifneq ($(call qstrip,$(BR2_TIME_ZONE_INFO_DEFAULT)),)
+	ln -sf /usr/share/zoneinfo/$(call qstrip,$(BR2_TIME_ZONE_INFO_DEFAULT)) \
+		$(TARGET_DIR)/etc/localtime
 endif
 
 post-image:

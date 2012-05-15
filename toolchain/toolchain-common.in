@@ -50,6 +50,48 @@ config BR2_ENABLE_LOCALE_WHITELIST
 	  will be available on the target - That purely depends on the
 	  support for that locale in the selected packages.
 
+choice
+	prompt "Time zone info files"
+	help
+	  Select how to install time zone information files to the
+	  target.
+
+config BR2_TIME_ZONE_INFO_FILES_NONE
+	bool "None"
+	help
+	  Do not install any time zone information files
+
+config BR2_TIME_ZONE_INFO_FILES_LIST
+	bool "Selection"
+	help
+	  Install the time zone information files listed in a file,
+	  one per line.
+
+config BR2_TIME_ZONE_INFO_FILES_ALL
+	bool "All"
+	help
+	  Install all time zone information files
+
+endchoice
+
+config BR2_TIME_ZONE_INFO_FILES_LIST_FILE
+	depends on BR2_TIME_ZONE_INFO_FILES_LIST
+	string "File listing the zoneinfo to install"
+	help
+	  Install the time zone information files listed in the given
+	  file, one per line, of the form
+
+	  Africa/Cairo
+	  Antartica/Vostok
+	  Europe/Paris
+
+config BR2_TIME_ZONE_INFO_DEFAULT
+	string "Default time zone"
+	default "UTC"
+	depends on !BR2_TIME_ZONE_INFO_FILES_NONE
+	help
+	  Select the default time zone.
+
 # glibc and eglibc directly include gettext, so a separatly compiled
 # gettext isn't needed and shouldn't be built to avoid conflicts. Some
 # packages always need gettext, other packages only need gettext when
