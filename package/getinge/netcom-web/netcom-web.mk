@@ -17,6 +17,8 @@ define NETCOM_WEB_INSTALL_TARGET_CMDS
 	find $(TARGET_DIR)/usr/share/html/cgi-bin/ -name '*.cgi' | xargs chmod +x
 	chmod +x $(TARGET_DIR)/usr/share/html/cgi-bin/functions
 	ln -sf /usr/bin/fwupgrade-cgi $(TARGET_DIR)/usr/share/html/cgi-bin/fwupgrade-cgi
+	install -D -m 0755 $(BR2_PACKAGE_GETINGE_AXIS_SDK_PATH)/packages/netcom/timezones/timezones.cgi \
+		$(TARGET_DIR)/usr/share/html/cgi-bin/admin/devconf/timezones.cgi
 	install -D -m 0755 $($(PKG)_DIR_PREFIX)/netcom-web/S98httpd $(TARGET_DIR)/etc/init.d/S98httpd
 	install -D -m 0644 $($(PKG)_DIR_PREFIX)/netcom-web/httpd.conf $(TARGET_DIR)/etc/httpd.conf.tmpl
 	(cd $(TARGET_DIR)/etc ; ln -sf ../tmp/httpd.conf httpd.conf)
