@@ -18,10 +18,15 @@ fi
 
 manual_start() {
 	    begin "Starting $DAEMON"
-            if ! $license 2>&1 > /dev/null ; then
+            if ! eval "$license" 2>&1 > /dev/null ; then
                 end 1 "No license"
                 return
             fi
+
+	    if test -f /etc/init.d/$DAEMON.prestart ; then
+		/etc/init.d/$DAEMON.prestart
+	    fi
+
 	    start_daemon /usr/bin/$DAEMON "$options"
 	    end $?
 }
