@@ -1,0 +1,16 @@
+config BR2_PACKAGE_ICC
+	bool "bfin inter-core communication support"
+	help
+		bfin inter-core communication support
+choice
+        prompt "ICC cpu type"
+        default BR2_PACKAGE_ICC_CPU_BF609
+        depends on BR2_PACKAGE_ICC
+
+config BR2_PACKAGE_ICC_CPU_BF609
+        bool    "BF609"
+
+config BR2_PACKAGE_ICC_CPU_BF561
+        bool    "BF561"
+endchoice
+
