@@ -481,7 +481,7 @@ new file mode 100644
 index 0000000..bb269b5
 --- /dev/null
 +++ b/include/configs/getinge_netcomv3.h
-@@ -0,0 +1,214 @@
+@@ -0,0 +1,215 @@
 +/*
 + * (C) Copyright 2007-2012
 + * Stelian Pop <stelian@popies.net>
@@ -581,6 +581,7 @@ index 0000000..bb269b5
 +#define CONFIG_CMD_USB
 +#define CONFIG_CMD_FAT
 +#define CONFIG_CMD_SOURCE
++#define CONFIG_CMD_SETEXPR
 +
 +/* SDRAM */
 +#define CONFIG_NR_DRAM_BANKS		1
