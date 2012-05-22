@@ -11,3 +11,7 @@ ${BINARIES_DIR}/../host/usr/bin/fwupgrade-tool \
     -p kernel:${BINARIES_DIR}/uImage           \
     -p rootfs:${BINARIES_DIR}/rootfs.jffs2     \
     -i ${HWID}
+
+# Generate production files
+. board/getinge/netcom/prodtest/generate.sh ${BINARIES_DIR} output/images/prodtest
+
