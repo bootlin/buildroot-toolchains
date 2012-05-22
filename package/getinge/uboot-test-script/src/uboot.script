@@ -127,9 +127,9 @@ echo "===== Testing J13 =====";
 echo "Check J13 state: \c";
 mw.l FFFFF230 800000; mw.l FFFFF430 100;
 if itest.b *FFFFF23F == 1 && itest *FFFFF43C == 7004bfbb; then echo Pass; else summarytext="${summarytext}3A"; md.l FFFFF23C 1; md.l FFFFF43C 1; fi
-echo "Clear J13.3, Check J13.2: \c"; mw.l FFFFF234 800000;
+echo "Clear J13.3, Check J13.4: \c"; mw.l FFFFF234 800000;
 if itest.b *FFFFF23F == 0; then echo "Pass"; else summarytext="${summarytext}3B"; md.l FFFFF23C 1; fi
-echo "Clear J13.6, Check J13.4: \c"; mw.l FFFFF434 100;
+echo "Clear J13.6, Check J13.5: \c"; mw.l FFFFF434 100;
 if itest *FFFFF43C == 7004bcbb; then echo "Pass"; else summarytext="${summarytext}3C"; md.l FFFFF43C 1; fi
 #Reset PE, PB
 mw.l FFFFF230 800000; mw.l FFFFF430 100;
