@@ -8,7 +8,7 @@ MMAP_TEST_SITE_METHOD = svn
 MMAP_TEST_VERSION = HEAD
 
 define MMAP_TEST_BUILD_CMDS
-	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MODULE_DIR=$(BASE_DIR)/build/mmap_test-$(MMAP_TEST_VERSION) $(TARGET_CONFIGURE_OPTS)
+	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MODULE_DIR=$(BASE_DIR)/build/mmap_test-$(MMAP_TEST_VERSION)
 endef
 
 define MMAP_TEST_INSTALL_TARGET_CMDS
@@ -27,5 +27,4 @@ $(BUILD_DIR)/mmap_test-$(MMAP_TEST_VERSION)/.stamp_extracted:
 	$(Q)$(TAR) zxf $(DL_DIR)/$($(PKG)_SOURCE) -C $(@D)/../ 
 	$(Q)cp $($(PKG)_DIR_PREFIX)/mmap_test/Makefile $(@D)/
 	$(Q)touch $@
-
 
