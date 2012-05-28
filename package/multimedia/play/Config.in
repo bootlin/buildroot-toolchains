@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PLAY
+        bool "play"
+        help
+          Play application can play .wav files; tone can generate various sounds.
