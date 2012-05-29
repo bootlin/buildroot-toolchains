@@ -13,5 +13,4 @@ ${BINARIES_DIR}/../host/usr/bin/fwupgrade-tool \
     -i ${HWID}
 
 # Generate production files
-. board/getinge/netcom/prodtest/generate.sh ${BINARIES_DIR} output/images/prodtest
-
+sh ./board/getinge/netcom/prodtest/generate.sh ${BINARIES_DIR} output/images/prodtest
