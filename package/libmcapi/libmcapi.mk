@@ -18,8 +18,8 @@ else
 ICC_MACHINE=bf561
 endif
 
-ICC_INCLUDE="CFLAGS=-I$(KERNEL_DIR)/drivers/staging/icc/include -I${KERNEL_DIR}/arch/blackfin/include"
+ICC_CONF_OPT="CFLAGS=-I$(KERNEL_DIR)/drivers/staging/icc/include -I$(KERNEL_DIR)/arch/blackfin/include"
 
-LIBMCAPI_CONF_OPT+=$(ICC_INCLUDE)
+LIBMCAPI_CONF_OPT+=$(ICC_CONF_OPT)
 
 $(eval $(call AUTOTARGETS,package,libmcapi))
