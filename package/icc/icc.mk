@@ -16,7 +16,10 @@ ICC_SOURCE:=icc-$(ICC_VERSION).tar.gz
 ICC_CAT=$(ZCAT)
 
 KERNEL_DIR = $(TOPDIR)/$(LINUX26_SOURCE_DIR)
-LIBMCAPI_INCLUDE = $(ICC_DIR)/include
+ICC_INCLUDE = $(ICC_DIR)/include
+MCAPI_INCLUDE=$(STAGING_DIR)/usr/include/mcapi-2.0_coreb/
+MCAPI_TEST_INCLUDE=$(STAGING_DIR)/usr/include/mcapi-2.0/
+LIBMCAPI_COREB=$(STAGING_DIR)/usr/lib/libmcapi_coreb.a
 
 ifeq ($(BR2_PACKAGE_ICC_CPU_BF609),y)
 ICC_MACHINE=bf609
@@ -30,23 +33,16 @@ else
 ICC_BUILDROOT=n
 endif
 
-$(DL_DIR)/$(ICC_SOURCE):
-	$(call DOWNLOAD,$(ICC_SITE),$(ICC_SOURCE))
+INSTALL_TASK_SRC := $(notdir $(wildcard $(ICC_DIR)/example/task/*.c))
+INSTALL_TASK := $(patsubst %.c,%,$(INSTALL_TASK_SRC))
 
-icc-source: $(DL_DIR)/$(ICC_SOURCE)
-
-$(ICC_DIR)/.unpacked: $(DL_DIR)/$(ICC_SOURCE)
-	$(ICC_CAT) $(DL_DIR)/$(ICC_SOURCE) | $(TAR) -C $(BUILD_DIR) $(TAR_OPTIONS) -
-	touch $(ICC_DIR)/.unpacked
-
-icc-extract: $(ICC_DIR)/.unpacked
 
 define ICC_CORE_BUILD_CMDS
-        $(MAKE) -C $(ICC_DIR)/icc_core KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE)
+        $(MAKE1) -C $(ICC_DIR)/icc_core KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE)
 endef
 
 define ICC_LOADER_BUILD_CMDS
-	$(MAKE) -C  $(ICC_DIR)/icc_loader KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE)
+	$(MAKE1) -C  $(ICC_DIR)/icc_loader KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE)
 endef
 
 define ICC_INSTALL_TARGET_CMDS
@@ -58,38 +54,105 @@ define ICC_LOADER_INSTALL_TARGET_CMDS
 endef
 
 define ICC_CLEAN_CMDS
-	$(MAKE) -C $(@D) clean
+	$(MAKE1) -C $(@D) clean
 endef
 
 define ICC_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/icc
 endef
 
-icc_core-build:
-	ICC_CORE_BUILD_CMDS
 
-icc_core-install:
-	ICC_INSTALL_TARGET_CMDS
+$(DL_DIR)/$(ICC_SOURCE):
+	$(call DOWNLOAD,$(ICC_SITE),$(ICC_SOURCE))
 
-icc_loader-build:
-	ICC_LOADER_BUILD_CMDS
+icc-source: $(DL_DIR)/$(ICC_SOURCE)
 
-icc_loader-install:
-	ICC_LOADER_INSTALL_TARGET_CMDS
+$(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE)
+	$(ICC_CAT) $(DL_DIR)/$(ICC_SOURCE) | $(TAR) -C $(BUILD_DIR) $(TAR_OPTIONS) -
+	$(Q)touch $@
 
-libmcapi_coreb-build:
-	$(MAKE) -C $(ICC_DIR)/libmcapi_coreb KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE) ICC_BUILDROOT=$(ICC_BUILDROOT) \
-		LIBMCAPI_INCLUDE=$(LIBMCAPI_INCLUDE)
+$(ICC_DIR)/.stamp_build: icc_core-build icc_loader-build libmcapi_coreb-build 
+	$(Q)touch $@
+
+$(ICC_DIR)/.stamp_install: icc_core-install libmcapi_coreb-install icc_task-install
+	$(Q)touch $@
+
+$(ICC_DIR)/.stamp_clean: icc_task-uninstall
+	$(ICC_UNINSTALL_TARGET_CMDS)
+	rm $(ICC_DIR)/.stamp*
+
+icc: icc-install
+
+icc-install: icc-build $(ICC_DIR)/.stamp_install
+
+
+icc-build: icc-extract  $(ICC_DIR)/.stamp_build 
+
+
+icc-extract: $(ICC_DIR)/.stamp_unpacked
+
+icc-clean: $(ICC_DIR)/.stamp_clean
+
+icc-distclean: icc-clean
+	rm -rf $(ICC_DIR)
+
+
+icc_core-build: $(ICC_DIR)/.stamp_icc_core-build
+
+$(ICC_DIR)/.stamp_icc_core-build:
+	$(ICC_CORE_BUILD_CMDS)
+	touch $@
+
+icc_core-install: icc_core-build
+	$(ICC_INSTALL_TARGET_CMDS)
+
+icc_loader-build: $(ICC_DIR)/.stamp_icc_loader-build
+
+$(ICC_DIR)/.stamp_icc_loader-build:
+	$(ICC_LOADER_BUILD_CMDS)
+	touch $@
+
+icc_loader-install: icc_loader-build
+	$(ICC_LOADER_INSTALL_TARGET_CMDS)
+
+libmcapi_coreb-build: $(ICC_DIR)/.stamp_libmcapi_coreb-build
+
+$(ICC_DIR)/.stamp_libmcapi_coreb-build:
+	$(MAKE1) -C $(ICC_DIR)/libmcapi_coreb KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE) ICC_BUILDROOT=$(ICC_BUILDROOT) \
+		ICC_INCLUDE=$(ICC_INCLUDE) build
+	touch $@
 
 libmcapi_coreb-install: libmcapi_coreb-build
-	$(MAKE) -C $(ICC_DIR)/libmcapi_coreb DESTDIR=$(STAGING_DIR) install ICC_BUILDROOT=$(ICC_BUILDROOT)
+	$(MAKE1) -C $(ICC_DIR)/libmcapi_coreb ICC_MACHINE=$(ICC_MACHINE) ICC_BUILDROOT=$(ICC_BUILDROOT) \
+			DESTDIR=$(STAGING_DIR) install
 
-icc_example-build:
-	$(MAKE) -C $(ICC_DIR)/example/task  KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE)
-	$(MAKE) -C $(ICC_DIR)/example/test_app KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE) 
+icc_task-build:
+	$(MAKE1) -C $(ICC_DIR)/example/task  KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE) \
+			ICC_INCLUDE=$(ICC_INCLUDE) \
+			MCAPI_INCLUDE=$(MCAPI_INCLUDE) \
+			MCAPI_TEST_INCLUDE=$(MCAPI_TEST_INCLUDE) \
+			LIBMCAPI_COREB=$(LIBMCAPI_COREB)
+	$(MAKE1) -C $(ICC_DIR)/example/test_app KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE) \
+			ICC_INCLUDE=$(ICC_INCLUDE) \
+			MCAPI_INCLUDE=$(MCAPI_INCLUDE) \
+			MCAPI_TEST_INCLUDE=$(MCAPI_TEST_INCLUDE) \
+			LIBMCAPI_COREB=$(LIBMCAPI_COREB)
+
+icc_task-install: icc_task-build
+	@echo "install $(ICC_DIR)/example/task/ -> $(TARGET_DIR)/bin/"
+	@for x in $(INSTALL_TASK); do \
+	        test -f $(ICC_DIR)/example/task/$$x && $(INSTALL) -m 0755 -D $(ICC_DIR)/example/task/$$x $(TARGET_DIR)/bin/$$x; \
+        done
+
+icc_task-uninstall:
+	@for x in $(INSTALL_TASK); do \
+	        rm -rf $(TARGET_DIR)/bin/$$x; \
+        done
 
 
 icc-build: icc_core-build icc_loader-build libmcapi_coreb-build
+
+icc-install: libmcapi_coreb-install 
 
 
 ifeq ($(BR2_PACKAGE_ICC),y)
