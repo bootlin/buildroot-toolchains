@@ -18,6 +18,11 @@ else
 ICC_MACHINE=bf561
 endif
 
+define LIBMCAPI_AUTOCONF
+	cd $(LIBMCAPI_DIR)/$(LIBMCAPI_SUBDIR) && ./autogen.sh
+endef
+
+LIBMCAPI_PRE_CONFIGURE_HOOKS+=LIBMCAPI_AUTOCONF
 ICC_CONF_OPT="CFLAGS=-I$(KERNEL_DIR)/drivers/staging/icc/include -I$(KERNEL_DIR)/arch/blackfin/include"
 
 LIBMCAPI_CONF_OPT+=$(ICC_CONF_OPT)
