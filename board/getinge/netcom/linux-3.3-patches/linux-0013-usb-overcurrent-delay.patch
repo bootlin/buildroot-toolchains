@@ -1,0 +1,52 @@
+Index: b/drivers/usb/host/ohci-at91.c
+===================================================================
+--- a/drivers/usb/host/ohci-at91.c
++++ b/drivers/usb/host/ohci-at91.c
+@@ -12,6 +12,8 @@
+  * This file is licenced under the GPL.
+  */
+ 
++#define DEBUG
++
+ #include <linux/clk.h>
+ #include <linux/platform_device.h>
+ 
+@@ -444,7 +446,7 @@
+ {
+ 	struct platform_device *pdev = data;
+ 	struct at91_usbh_data *pdata = pdev->dev.platform_data;
+-	int val, gpio, port;
++	int val, gpio, port, delay = 0;
+ 
+ 	/* From the GPIO notifying the over-current situation, find
+ 	 * out the corresponding port */
+@@ -458,9 +460,18 @@
+ 		dev_err(& pdev->dev, "overcurrent interrupt from unknown GPIO\n");
+ 		return IRQ_HANDLED;
+ 	}
+-
++  
+ 	val = gpio_get_value(gpio);
+ 
++	dev_dbg(& pdev->dev, "overcurrent situation %s\n",
++		val ? "exited" : "notified");
++
++  /* Filter overcurrent events that are less than 10mS */
++  while ((! val) && (delay++ < 10)) {
++    mdelay(1);
++	  val = gpio_get_value(gpio);
++  }
++
+ 	/* When notified of an over-current situation, disable power
+ 	   on the corresponding port, and mark this port in
+ 	   over-current. */
+@@ -470,9 +481,6 @@
+ 		pdata->overcurrent_changed[port] = 1;
+ 	}
+ 
+-	dev_dbg(& pdev->dev, "overcurrent situation %s\n",
+-		val ? "exited" : "notified");
+-
+ 	return IRQ_HANDLED;
+ }
+ 
