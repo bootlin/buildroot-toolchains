@@ -1,4 +1,5 @@
 config BR2_PACKAGE_LIBMCAPI
 	bool "libmcapi"
+	depends on BR2_LINUX_KERNEL
 	help
 		libmcapi

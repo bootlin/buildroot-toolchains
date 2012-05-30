@@ -1,5 +1,7 @@
 config BR2_PACKAGE_ICC
 	bool "bfin inter-core communication support"
+	depends on BR2_LINUX_KERNEL
+	depends on BR2_PACKAGE_LIBMCAPI
 	help
 		bfin inter-core communication support
 choice
