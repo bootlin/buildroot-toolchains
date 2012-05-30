@@ -324,13 +324,13 @@ include boot/common.mk
 include target/Makefile.in
 include linux/linux.mk
 
+TARGETS+=target-zoneinfo
+
 TARGETS+=target-finalize
 
 ifeq ($(BR2_ENABLE_LOCALE_PURGE),y)
 TARGETS+=target-purgelocales
 endif
-
-TARGETS+=target-zoneinfo
 
 include fs/common.mk
 
