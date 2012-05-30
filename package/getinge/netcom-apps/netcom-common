@@ -27,7 +27,12 @@ manual_start() {
 		/etc/init.d/$DAEMON.prestart
 	    fi
 
-	    start_daemon /usr/bin/$DAEMON "$options"
+	    if test -z "$options" ; then
+		start_daemon /usr/bin/$DAEMON
+	    else
+		start_daemon /usr/bin/$DAEMON "$options"
+	    fi
+
 	    end $?
 }
 

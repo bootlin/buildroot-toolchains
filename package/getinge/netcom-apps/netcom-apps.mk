@@ -89,11 +89,15 @@ define NETCOM_APPS_INSTALL_TARGET_CMDS
 	# as needed
 	install -D -m 0755 package/getinge/netcom-apps/netcom-common \
 		 $(TARGET_DIR)/etc/init.d/netcom-common
-	for daemon in `find $(@D) -name '*.startupdb'` ; do \
-		 initscript=`cat $$daemon | grep "^initscript" | sed 's/initscript="\([^"]*\)"/\1/'` ; \
-		 priority=`cat $$daemon | grep "^priority" | sed 's/priority="\([0-9]*\)"/\1/'` ; \
+	for daemondbfile in `find $(@D) -name '*.startupdb'` ; do \
+		 initscript=`cat $$daemondbfile | grep "^initscript" | sed 's/initscript="\([^"]*\)"/\1/'` ; \
+		 priority=`cat $$daemondbfile | grep "^priority" | sed 's/priority="\([0-9]*\)"/\1/'` ; \
 		 ln -sf netcom-common $(TARGET_DIR)/etc/init.d/S$${priority}$${initscript} ; \
-		 echo "enabled=1" > $(BINARIES_DIR)/conf.d/`basename $${daemon%%.startupdb}`.service ; \
+		 daemonname=`basename $${daemondbfile%%.startupdb}` ; \
+		 if test "$${daemonname}" = "sntpdate" ; then \
+			continue ; \
+		 fi ; \
+		 echo "enabled=1" > $(BINARIES_DIR)/conf.d/$${daemonname}.service ; \
 	done
 endef
 
