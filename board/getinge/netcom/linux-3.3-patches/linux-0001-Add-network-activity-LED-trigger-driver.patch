@@ -1,4 +1,4 @@
-From 5844394161946d2a6f2b3860c40d875424667631 Mon Sep 17 00:00:00 2001
+From 875a449eee8341b44057997fa528ab586bf73a47 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 16:03:09 +0200
 Subject: [PATCH 01/12] Add network activity LED trigger driver

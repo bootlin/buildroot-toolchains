@@ -1,4 +1,4 @@
-From e4ac0cd877bbf9a9217f4100999e475ec4b9a2eb Mon Sep 17 00:00:00 2001
+From a2cd3bbc5d1ed4a54e4d993d27901c7ce90363ff Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 4 Jul 2011 15:26:18 +0200
 Subject: [PATCH 06/12] getinge: Add support for Getinge NetCOM v3 platform

@@ -1,4 +1,4 @@
-From 4668f347494ef77fd8a3e7b46e5347f99049bbd5 Mon Sep 17 00:00:00 2001
+From 38bc25d00747f4ffcd19d06b8a47ba62745c709a Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 27 Jun 2011 15:07:03 +0200
 Subject: [PATCH 05/12] at91: make it possible to register an UART with a

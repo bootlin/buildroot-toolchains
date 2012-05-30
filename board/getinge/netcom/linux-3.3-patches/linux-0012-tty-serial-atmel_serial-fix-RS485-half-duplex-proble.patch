@@ -1,4 +1,4 @@
-From a91093433e804c44073bf081cdc4421ec0bc8f57 Mon Sep 17 00:00:00 2001
+From 36859c8641c3d72f89533a31fcf65cf20f44e6d2 Mon Sep 17 00:00:00 2001
 From: "Siftar, Gabe" <Gabe.Siftar@getingeusa.com>
 Date: Thu, 29 Mar 2012 15:40:05 +0200
 Subject: [PATCH 12/12] tty/serial: atmel_serial: fix RS485 half-duplex

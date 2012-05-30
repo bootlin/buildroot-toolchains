@@ -1,4 +1,4 @@
-From cae0cc5087441b8a9727ea18e7e16bdf103ecc86 Mon Sep 17 00:00:00 2001
+From c551dd925c54fbbfe68f627ca01e95bb12932e41 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 20 Jun 2011 18:09:10 +0200
 Subject: [PATCH 02/12] Add serial activity LED trigger driver
@@ -14,10 +14,10 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  drivers/leds/Makefile             |    1 +
  drivers/leds/ledtrig-serial.c     |   92 +++++++++++++++++++++++++++++++++++++
  drivers/tty/serial/atmel_serial.c |    2 +-
- drivers/tty/serial/serial_core.c  |    9 ++++
+ drivers/tty/serial/serial_core.c  |   16 +++++++
  include/linux/leds.h              |    7 +++
- include/linux/serial_core.h       |   15 +++++-
- 7 files changed, 132 insertions(+), 2 deletions(-)
+ include/linux/serial_core.h       |   23 +++++++++-
+ 7 files changed, 147 insertions(+), 2 deletions(-)
  create mode 100644 drivers/leds/ledtrig-serial.c
 
 diff --git a/drivers/leds/Kconfig b/drivers/leds/Kconfig
@@ -163,25 +163,32 @@ index 10605ec..fa6b975 100644
  			dma_sync_single_for_device(port->dev, pdc->dma_addr,
  					pdc->dma_size, DMA_FROM_DEVICE);
 diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 1305618..0d3994b 100644
+index 1305618..a843e0d 100644
 --- a/drivers/tty/serial/serial_core.c
 +++ b/drivers/tty/serial/serial_core.c
-@@ -2526,6 +2526,8 @@ void uart_insert_char(struct uart_port *port, unsigned int status,
+@@ -2526,6 +2526,11 @@ void uart_insert_char(struct uart_port *port, unsigned int status,
  {
  	struct tty_struct *tty = port->state->port.tty;
  
-+	ledtrig_serial_rx_activity();
++	/* Trigger the LED only if it's not the port holding
++	   the kernel console */
++	if (! port->cons || port->cons->index != port->line)
++		ledtrig_serial_rx_activity();
 +
  	if ((status & port->ignore_status_mask & ~overrun) == 0)
  		tty_insert_flip_char(tty, ch, flag);
  
-@@ -2538,6 +2540,13 @@ void uart_insert_char(struct uart_port *port, unsigned int status,
+@@ -2538,6 +2543,17 @@ void uart_insert_char(struct uart_port *port, unsigned int status,
  }
  EXPORT_SYMBOL_GPL(uart_insert_char);
  
 +int uart_insert_string(struct uart_port *port, const unsigned char *chars, size_t size)
 +{
-+	ledtrig_serial_rx_activity();
++	/* Trigger the LED only if it's not the port holding
++	   the kernel console */
++	if (! port->cons || port->cons->index != port->line)
++		ledtrig_serial_rx_activity();
++
 +	return tty_insert_flip_string(port->state->port.tty, chars, size);
 +}
 +EXPORT_SYMBOL_GPL(uart_insert_string);
@@ -208,18 +215,19 @@ index 36abea1..b230db5 100644
  /*
   * Generic LED platform data for describing LED names and default triggers.
 diff --git a/include/linux/serial_core.h b/include/linux/serial_core.h
-index c91ace7..12c67cd 100644
+index c91ace7..fd3ad18 100644
 --- a/include/linux/serial_core.h
 +++ b/include/linux/serial_core.h
-@@ -21,6 +21,7 @@
+@@ -21,6 +21,8 @@
  #define LINUX_SERIAL_CORE_H
  
  #include <linux/serial.h>
 +#include <linux/leds.h>
++#include <linux/console.h>
  
  /*
   * The type definitions.  These are from Ted Ts'o's serial.h
-@@ -468,7 +469,16 @@ int uart_match_port(struct uart_port *port1, struct uart_port *port2);
+@@ -468,7 +470,23 @@ int uart_match_port(struct uart_port *port1, struct uart_port *port2);
  int uart_suspend_port(struct uart_driver *reg, struct uart_port *port);
  int uart_resume_port(struct uart_driver *reg, struct uart_port *port);
  
@@ -229,7 +237,14 @@ index c91ace7..12c67cd 100644
 +	if (circ->head == circ->tail)
 +		return 1;
 +	else {
-+		ledtrig_serial_tx_activity();
++		struct uart_state *state = container_of(circ, struct uart_state, xmit);
++		struct uart_port *port = state->uart_port;
++
++		/* Trigger the LED only if it's not the port holding
++		   the kernel console */
++		if (! port->cons || port->cons->index != port->line)
++			ledtrig_serial_tx_activity();
++
 +		return 0;
 +	}
 +}
@@ -237,7 +252,7 @@ index c91ace7..12c67cd 100644
  #define uart_circ_clear(circ)		((circ)->head = (circ)->tail = 0)
  
  #define uart_circ_chars_pending(circ)	\
-@@ -497,6 +507,9 @@ extern void uart_handle_cts_change(struct uart_port *uport,
+@@ -497,6 +515,9 @@ extern void uart_handle_cts_change(struct uart_port *uport,
  extern void uart_insert_char(struct uart_port *port, unsigned int status,
  		 unsigned int overrun, unsigned int ch, unsigned int flag);
  

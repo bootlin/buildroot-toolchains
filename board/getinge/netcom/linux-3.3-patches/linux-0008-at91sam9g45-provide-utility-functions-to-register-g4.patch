@@ -1,4 +1,4 @@
-From 72ce0330b4e94a0a0308a111057bc0a13540e94d Mon Sep 17 00:00:00 2001
+From c10dedafe96b4ca84a9f02431ccc3d2b70cec316 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:46 +0200
 Subject: [PATCH 08/12] at91sam9g45: provide utility functions to register
