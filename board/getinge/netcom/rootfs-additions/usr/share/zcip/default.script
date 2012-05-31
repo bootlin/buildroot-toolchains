@@ -33,7 +33,7 @@ case $1 in
 	rm -f /tmp/network
 	;;
     deconfig)
-	ifconfig $iface 0.0.0.0 || end $? "$0: ifconfig failed to clear device parameters!"
+	ifconfig $interface 0.0.0.0 || end $? "$0: ifconfig failed to clear device parameters!"
 	;;
     *)
 	err "Unrecognized Command" ;;
