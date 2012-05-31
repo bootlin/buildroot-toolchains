@@ -73,7 +73,7 @@ $(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE)
 	cp -dpfr $(LINUX26_BUILD_DIR)/arch/blackfin/include/generated/* $(ICC_DIR)/include/
 	$(Q)touch $@
 
-$(ICC_DIR)/.stamp_build: icc_core-build icc_loader-build libmcapi_coreb-build 
+$(ICC_DIR)/.stamp_build: icc_core-build icc_loader-build libmcapi_coreb-build  libmcapi
 	$(Q)touch $@
 
 $(ICC_DIR)/.stamp_install: icc_core-install libmcapi_coreb-install icc_task-install
