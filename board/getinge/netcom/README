@@ -72,4 +72,5 @@ Generate a firmware image
 Start the upgrade process from the command line
 ===============================================
 
-curl -F "file=@./output/images/fw.img" http://IPADDR/cgi-bin/fwupgrade-cgi
+curl -u user:password -F "file=@./output/images/firmware.bin" http://IPADDR/cgi-bin/admin/devconf/fwupgrade-c
+
