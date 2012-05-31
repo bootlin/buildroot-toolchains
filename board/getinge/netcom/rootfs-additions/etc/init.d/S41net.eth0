@@ -18,6 +18,8 @@ start_static() {
 		# Set up interface using static settings.
 		ifconfig $iface $IP netmask $NETMASK broadcast $BROADCAST \
 			|| end $? "$0: ifconfig failed!"
+		# Add multicast route
+		route add -net 224.0.0.0 netmask 224.0.0.0 eth0 > /dev/null 2>&1
 		information "IP address: $IP"
 		information "netmask: $NETMASK"
 		information "broadcast address: $BROADCAST"
