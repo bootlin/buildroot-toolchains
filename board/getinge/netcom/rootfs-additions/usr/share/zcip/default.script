@@ -19,11 +19,8 @@ case $1 in
 	    || err "$interface: ifconfig failed to set device parameters!"
 	info "set $interface IP to $ip"
 
-	route | grep -q "^224.0.0.0 .* eth0\$"
-	if [ $? -ne 0 ] ; then
-	    route add -net 224.0.0.0 netmask 224.0.0.0 eth0 \
-		|| echo "$0: route failed!" >&2
-	fi
+        # Add multicast route
+	route add -net 224.0.0.0 netmask 224.0.0.0 $interface > /dev/null 2>&1
 
 	echo HOSTNAME=$HOSTNAME > /tmp/network
 	echo IP_SETMETHOD=AUTOIP >> /tmp/network
@@ -36,7 +33,7 @@ case $1 in
 	rm -f /tmp/network
 	;;
     deconfig)
-	ifconfig $iface 0.0.0.0 || end $? "$0: ifconfig failed to clear device parameters!"
+	ifconfig $interface 0.0.0.0 || end $? "$0: ifconfig failed to clear device parameters!"
 	;;
     *)
 	err "Unrecognized Command" ;;
