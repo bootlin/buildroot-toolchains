@@ -20,7 +20,7 @@ case $1 in
 	info "set $interface IP to $ip"
 
         # Add multicast route
-	route add -net 224.0.0.0 netmask 224.0.0.0 eth0 > /dev/null 2>&1
+	route add -net 224.0.0.0 netmask 224.0.0.0 $interface > /dev/null 2>&1
 
 	echo HOSTNAME=$HOSTNAME > /tmp/network
 	echo IP_SETMETHOD=AUTOIP >> /tmp/network
