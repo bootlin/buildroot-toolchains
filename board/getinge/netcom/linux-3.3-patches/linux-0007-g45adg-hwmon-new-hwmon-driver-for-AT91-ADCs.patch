@@ -1,4 +1,4 @@
-From b4cb13b3c82a794c33b57bffc48af8f897463916 Mon Sep 17 00:00:00 2001
+From a47e4cf58808e91f21f6fdf120fcc4f12efc2a76 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Wed, 6 Jul 2011 16:26:16 +0200
 Subject: [PATCH 07/12] g45adg-hwmon: new hwmon driver for AT91 ADCs
@@ -7,8 +7,8 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 ---
  drivers/hwmon/Kconfig        |    6 +
  drivers/hwmon/Makefile       |    1 +
- drivers/hwmon/g45adc-hwmon.c |  450 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 457 insertions(+)
+ drivers/hwmon/g45adc-hwmon.c |  455 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 462 insertions(+)
  create mode 100644 drivers/hwmon/g45adc-hwmon.c
 
 diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
@@ -42,10 +42,10 @@ index 8251ce8..7376159 100644
  
 diff --git a/drivers/hwmon/g45adc-hwmon.c b/drivers/hwmon/g45adc-hwmon.c
 new file mode 100644
-index 0000000..8c2e487
+index 0000000..9d77aa0
 --- /dev/null
 +++ b/drivers/hwmon/g45adc-hwmon.c
-@@ -0,0 +1,450 @@
+@@ -0,0 +1,455 @@
 +/*
 + *  
 + * drivers/hwmon/g45adc-hwmon.c - Getinge NetCOM G45 hardware monitoring
@@ -147,6 +147,8 @@ index 0000000..8c2e487
 +#define PRESCALER_VAL(x)	((x) >> 8)
 +
 +#define ADC_DEFAULT_CLOCK	100000
++
++#define ADC_PERIOD_MS 200
 +
 +struct g45adc {
 +        struct device           *hwmon;
@@ -380,8 +382,11 @@ index 0000000..8c2e487
 +	ATMEL_TSADCC_write(ATMEL_TSADCC_MR, reg);
 +
 +	/* calculate the sample period */
-+	reg = clk_get_rate(ts_dev->clk);
-+	reg = ((reg / 1000) * 100) - 1;  /* period = 100mS */
++	reg = (pdata->adc_clock / 1000) * ADC_PERIOD_MS;
++
++	/* saturate the period, the register has only 16 bits */
++	if (reg > 0xFFFF)
++		reg = 0xFFFF;
 +
 +	dev_info(&pdev->dev, "TRGPER set at: %d\n", reg);
 +	ATMEL_TSADCC_write(ATMEL_TSADCC_TRGR, ATMEL_TSADCC_TRGMOD_PERIOD | 
