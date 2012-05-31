@@ -76,7 +76,7 @@ $(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE)
 $(ICC_DIR)/.stamp_build: icc_core-build icc_loader-build libmcapi_coreb-build  libmcapi
 	$(Q)touch $@
 
-$(ICC_DIR)/.stamp_install: icc_core-install libmcapi_coreb-install icc_task-install
+$(ICC_DIR)/.stamp_install: icc_core-install icc_loader-install libmcapi_coreb-install icc_task-install
 	$(Q)touch $@
 
 $(ICC_DIR)/.stamp_clean: icc_task-uninstall
