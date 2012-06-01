@@ -143,7 +143,7 @@ icc_task-build:
 icc_task-install: icc_task-build
 	@echo "install $(ICC_DIR)/example/task/ -> $(TARGET_DIR)/bin/"
 	@for x in $(INSTALL_TASK); do \
-	        test -f $(ICC_DIR)/example/task/$$x && $(INSTALL) -m 0755 -D $(ICC_DIR)/example/task/$$x $(TARGET_DIR)/bin/$$x; \
+	        test -f $(ICC_DIR)/example/task/$$x && $(INSTALL) -m 0444 -D $(ICC_DIR)/example/task/$$x $(TARGET_DIR)/bin/$$x; \
         done
 
 icc_task-uninstall:
