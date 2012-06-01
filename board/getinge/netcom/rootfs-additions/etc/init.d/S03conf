@@ -33,9 +33,9 @@ reflash() {
 backup_persistent() {
     echo "Backing up permanent conf.d files"
     mkdir $CONF_TMPDIR
-    for f in /etc/conf.d/net.eth* /etc/conf.d/mac /etc/conf.d/hostname /etc/conf.d/license.dat /etc/conf.d/resolv.conf.def ; do
-	if test -f $f ; then
-	    cp $f $CONF_TMPDIR ;
+    for f in /etc/conf.d/net.eth* /etc/conf.d/mac /etc/conf.d/hostname /etc/conf.d/license.dat /etc/conf.d/resolv.conf.def /etc/conf.d/dropbear; do
+	if test -f $f || test -d $f; then
+	    cp -r $f $CONF_TMPDIR ;
 	fi
     done
 }
@@ -43,7 +43,7 @@ backup_persistent() {
 restore_persistent() {
     echo "Restoring permanent conf.d files"
     if test ! -z "`ls -A $CONF_TMPDIR/`" ; then
-	cp $CONF_TMPDIR/* $CONF_MNTPNT
+	cp -r $CONF_TMPDIR/* $CONF_MNTPNT
     fi
     rm -rf $CONF_TMPDIR
 }
