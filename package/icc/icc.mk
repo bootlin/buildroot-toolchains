@@ -67,7 +67,7 @@ $(DL_DIR)/$(ICC_SOURCE):
 
 icc-source: $(DL_DIR)/$(ICC_SOURCE)
 
-$(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE)
+$(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE) linux
 	$(ICC_CAT) $(DL_DIR)/$(ICC_SOURCE) | $(TAR) -C $(BUILD_DIR) $(TAR_OPTIONS) -
 	cp -dpfr $(LINUX26_BUILD_DIR)/include/generated $(ICC_DIR)/include/
 	cp -dpfr $(LINUX26_BUILD_DIR)/arch/blackfin/include/generated/* $(ICC_DIR)/include/
