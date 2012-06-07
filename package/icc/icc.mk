@@ -36,6 +36,8 @@ endif
 INSTALL_TASK_SRC := $(notdir $(wildcard $(ICC_DIR)/example/task/*.c))
 INSTALL_TASK := $(patsubst %.c,%,$(INSTALL_TASK_SRC))
 
+INSTALL_TEST_APP_SRC := $(notdir $(wildcard $(ICC_DIR)/example/test_app/*.c))
+INSTALL_TEST_APP := $(patsubst %.c,%_test,$(INSTALL_TEST_APP_SRC))
 
 define ICC_CORE_BUILD_CMDS
         $(MAKE1) -C $(ICC_DIR)/icc_core KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE)
@@ -67,7 +69,7 @@ $(DL_DIR)/$(ICC_SOURCE):
 
 icc-source: $(DL_DIR)/$(ICC_SOURCE)
 
-$(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE) linux
+$(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE)
 	$(ICC_CAT) $(DL_DIR)/$(ICC_SOURCE) | $(TAR) -C $(BUILD_DIR) $(TAR_OPTIONS) -
 	cp -dpfr $(LINUX26_BUILD_DIR)/include/generated $(ICC_DIR)/include/
 	cp -dpfr $(LINUX26_BUILD_DIR)/arch/blackfin/include/generated/* $(ICC_DIR)/include/
@@ -145,12 +147,18 @@ icc_task-install: icc_task-build
 	@for x in $(INSTALL_TASK); do \
 	        test -f $(ICC_DIR)/example/task/$$x && $(INSTALL) -m 0444 -D $(ICC_DIR)/example/task/$$x $(TARGET_DIR)/bin/$$x; \
         done
+	@echo "install $(ICC_DIR)/example/test_app/ -> $(TARGET_DIR)/bin/"
+	@for x in $(INSTALL_TEST_APP); do \
+	        test -f $(ICC_DIR)/example/test_app/$$x && $(INSTALL) -m 0755 -D $(ICC_DIR)/example/test_app/$$x $(TARGET_DIR)/bin/$$x; \
+        done
 
 icc_task-uninstall:
 	@for x in $(INSTALL_TASK); do \
 	        rm -rf $(TARGET_DIR)/bin/$$x; \
         done
-
+	@for x in $(INSTALL_TEST_APP); do \
+	        rm -rf $(TARGET_DIR)/bin/$$x; \
+        done
 
 icc-build: icc_core-build icc_loader-build libmcapi_coreb-build
 
