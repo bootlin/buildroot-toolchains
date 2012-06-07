@@ -2,15 +2,6 @@ Index: b/drivers/usb/host/ohci-at91.c
 ===================================================================
 --- a/drivers/usb/host/ohci-at91.c
 +++ b/drivers/usb/host/ohci-at91.c
-@@ -12,6 +12,8 @@
-  * This file is licenced under the GPL.
-  */
- 
-+#define DEBUG
-+
- #include <linux/clk.h>
- #include <linux/platform_device.h>
- 
 @@ -444,7 +446,7 @@
  {
  	struct platform_device *pdev = data;
