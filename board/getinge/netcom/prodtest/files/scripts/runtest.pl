@@ -106,7 +106,7 @@ sub printLabel {
   
   my $pcbFact     = substr($_pcb_barcode, 0, 4);
   my $testLoc     = substr($_pcb_barcode, 3, 1);  # eventually this test location might be different than the production factory
-  my $pcbOrder    = substr($_pcb_barcode, 4, 6);
+  my $pcbOrder    = substr($_pcb_barcode, 4, 6); 
   my $pcbSer      = substr($_pcb_barcode, 11, 4);
   my $pcbItem     = substr($_pcb_barcode, 15, 10);
   my $pcbDate     = substr($_pcb_barcode, 25, 5);
@@ -180,6 +180,7 @@ sub waitUbootPrompt {
       msg(3,"Waiting for U-Boot key prompt");
       if (serWaitRx($port,"In:",5000)) {
         msg(2,"Got U-Boot prompt");
+        serTx($port,"\r\n");  # hit enter 
         serTx($port,"\r\n");  # hit enter one more time
         if (serWaitRx($port,"U-Boot>",3000)) {
             return 1;         
@@ -235,7 +236,7 @@ msg(2,"Flushing port.");
 $port->purge_all;
 do {} while (serWaitRx($port,"",100));
 
-msg(2,"Please apply power to board now.");
+msg(2,"#PPlease apply power to board now.");
                
 my $got_prompt = 0;
 
@@ -243,7 +244,13 @@ my $last_usb_devs = `lsusb -d 03eb:6124 2> /dev/null`;
 
 do {
   if (waitUbootPrompt) {
-    if ($selected_op & 0x10) {    # we should erase the dataflash chip and reboot
+    if ($selected_op & 0x10) {    # we should erase the flash and dataflash, reboot
+      $port->lookclear;  # flush buffer
+      msg(2,"Erasing Flash");
+      # erase the entire NAND - this needs to be done for the
+      #   OS to correctly initialize the partition
+      serTx($port,"nand erase 0 10000000\r\n");
+      serWaitRx($port,"OK",3000);
       msg(2,"Erasing dataflash");
       serTx($port,"mw.l 71000000 AABBCCDD 1080; protect off C0000000 C00041FF;" . 
                   " cp.l 71000000 C0000000 1080;\r\n");
@@ -302,6 +309,10 @@ do {
   serWaitRx($port,"U-Boot>",1000);
 
   # TO DO - set PCB serial number - actually ORDER + SN fields together
+  my pcbSerial = substr($_pcb_barcode, 4, 6) . substr($_pcb_barcode, 11, 4);
+  serTx($port,"setenv pcbserno $pcbSerial\r\n");
+  serWaitRx($port,"U-Boot>",1000);
+  
   msg(2,"Saving serialization Info");
   $port->lookclear;  # flush buffer
   serTx($port,"saveenv\r\n");
@@ -319,7 +330,7 @@ do {
   serWaitRx($port,"U-Boot>",1000);
 
   $port->lookclear;  # flush buffer
-  serTx($port,"setenv ipaddr 192.168.199.20${pos}\r\n");
+  serTx($port,"setenv ipaddr 192.168.199.1${pos}\r\n");
   serWaitRx($port,"U-Boot>",1000);
 
   # Set test server IP address
@@ -354,15 +365,23 @@ do {
 
     $got_prompt = 0;
     do {
-      $response = serWaitRx($port,"Push TST button",10000);  # This should actually happen twice
-      if ($response ne 0) {
-        msg(2,"$response");
+      $port->lookclear;  # flush buffer
+      $response = serWaitRx($port,"Push TST button",10000); 
+      if ($response) {
+        msg(2,"#P$response");
         $got_prompt ++;
         print(STDOUT "\a"); 
       }
 
-    } while (($got_prompt < 2) && !checkCancelled);
-    serWaitRx($port,"HW Test Complete",5000);
+    } while (($got_prompt < 1) && !checkCancelled);
+
+    # Now wait for it all to be over
+    $port->lookclear;  # flush buffer 
+    $got_prompt = 0;
+    do {
+      $response = serWaitRx($port,"HW Test Complete",5000);
+    } until ($response || checkCancelled);
+    
     serTx($port,"\r\n");
     serWaitRx($port,"U-Boot>",1000);
     $port->lookclear;  # flush buffer
@@ -371,17 +390,49 @@ do {
   # Check for a failed test
   if ( checkHWTestPass($port) == 0 ) {
     printLabel(0);
-    msg(1,"#Process complete");
+    msg(1,"#FProcess complete");
     msg(2,"HW Test Failed - fail code: $hwfailText");
     cleanup;
     exit 0;
   } 
   else {
-    printLabel(1);
-    msg(1,"#Process complete");
+    printLabel(1);  # This should actually be done later in the process, after we have (optionally) generated the license
+    msg(1,"#SProcess complete");
     msg(2,"HW Test Passed");    
   }
 
+  # TO DO - If we are at this point we can create the hardware record
+  #    Note, not all fields are set properly in the params - fix those first
+  # http://www.getingenetcom.com/internal/register.asp?BRAND=GETINGE&HWType=0&HWMAC=$_mac&HWPCBSerial=$pcbSerial&HWVersion=2012&HWBOMVersion=0001&HWSWVersion=301&HWSWBuild=1003
+  # Programming step
+  msg(1,"Programming");
+  msg(2,"Erasing Flash");
+  # erase the entire NAND - this needs to be done for the
+  #   OS to correctly initialize the partition
+  serTx($port,"nand erase 0 10000000\r\n");
+  serWaitRx($port,"OK",3000);
+  
+  msg(2,"Flashing firmware");
+  serTx($port,"run factoryflash\r\n");
+  serWaitRx($port,"U-Boot",30000);
+  
+  serTx($port,"reset\r\n");
+  waitUbootPrompt();
+  msg(2,"Booting");
+  do {
+    $response = serWaitRx($port,"login:",5000);
+  } until ($response || checkCancelled);
+  
+  msg(2,"Booted");
+  
+  # Reference only - here are some URL's used by the v2 test system that should be adapted to work here
+    # http://www.getingenetcom.com/internal/testreport.asp?MAC=$_mac&HWPCBSERIAL=$_pcb&PN=$_pn&OPER=$_operator&LOCATION=$_test_location_code&TESTDATE=$_test_date
+    # http://www.getingenetcom.com/internal/GetLicense.asp?MAC=$_mac
+    # http://www.getingenetcom.com/internal/factorylicense.asp?MAC=$_mac&PN=$_pn&OPERATOR=$_operator&LOCATION=$_test_location_code
+    # http://www.getingenetcom.com/internal/ClearLicense.asp?HWMAC=$_mac&HWPCBSerial=$_pcb
+    
+  
+  
 cleanup;
 exit 0;
 
