@@ -1,0 +1,7 @@
+#!/bin/sh
+
+# This file extracts some information from dmesg and puts
+#   it in a file in tmp for inclusion in an error report
+
+tmp=`dmesg | grep "AT91: Starting after" | sed 's/AT91: Starting after //g'`
+[ "$tmp" ] && echo "reset_type=$tmp" > /tmp/debugvars
