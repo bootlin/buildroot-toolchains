@@ -13,7 +13,7 @@ datasize=8000000
 loadkernel=if test "${kernel_mtdpart}" = "mtd0" ; then nboot.e ${loadaddr} 0 ${kernel1offset} ; else nboot.e ${loadaddr} 0 ${kernel2offset} ; fi
 setbootargs=if test "${rootfs_mtdpart}" = "mtd1" ; then setenv bootargs root=/dev/mtdblock1 ${basebootargs} ; else setenv bootargs root=/dev/mtdblock3 ${basebootargs} ; fi
 runhwtest=cp.b C0037B00 70000000 6300 && source 70000000;
-bootcmd=if run checkhwtest && run checkserialized && run checkflashed; then setenv bootcmd "run loadkernel; run setbootargs; bootm"; boot; fi
+bootcmd=run loadkernel; run setbootargs; bootm;
 flashkernel=if tftp ${loadaddr} uImage; then nand erase 0 ${kernelsize}; nand write.e ${loadaddr} ${kernel1offset} ${kernelsize}; setenv kernel_mtdpart mtd0; fi
 flashrootfs=if tftp ${loadaddr} rootfs.jffs2; then nand erase ${rootfs1offset} ${rootfssize}; nand write.e ${loadaddr} ${rootfs1offset} ${filesize}; setenv rootfs_mtdpart mtd1; fi
 flashenv=if tftp ${loadaddr} u-boot-env.bin; then cp.b ${loadaddr} C0004200 4200; fi
