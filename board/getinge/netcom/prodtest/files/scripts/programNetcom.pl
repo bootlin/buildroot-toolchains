@@ -6,6 +6,7 @@ use Archive::Zip qw( :ERROR_CODES :CONSTANTS );
 use File::Path;
 use Config::Simple;
 use File::Basename;
+use POSIX;
 
 #May need to install libcurses-ui-perl in Ubuntu
 #See http://search.cpan.org/~mdxi/Curses-UI-0.9609/ for more about this
@@ -13,6 +14,16 @@ use File::Basename;
 #
 use Device::SerialPort;
 use feature 'state';
+
+
+# Constants
+use constant {
+  stateIdle         => 0,  # white
+  stateBusy         => 1,  # yellow
+  statePrompt       => 2,  # blue
+  stateCompleteOK   => 3,  # green
+  stateCompleteFail => 4,  # red
+};
 
 #Import some functions we'll need
 do "/opt/getinge/scripts/common_functions.pl";
@@ -67,6 +78,7 @@ my $focus = 1;     #Last position scanned
 my @posMAC;    #MAC address for each position
 my @posSerial; #Serial barcode for each position
 my @posState;  #Mode dependent state
+my @posPID;    #PIDs of test process
 my $waitingForCableConnection = 0;  # 1 when the system is waiting for a cable to be connected
 my %portList;
 my %oldPortList;
@@ -186,6 +198,14 @@ sub check_cable_connected() {
   %oldPortList = %portList;
 }
 
+# Returns status of given PID
+sub getPIDStatus {
+  return 0 unless defined($_[0]);
+  return 0 if ($_[0] == 0);
+  return (kill(0,$_[0]));
+  #return `ps -a | grep {$_[0]}`;
+}
+
 # This function returns the tty port (ttyUSBx) that is associated with the
 #   USB port's serial number passed to this function
 sub searchttyBySerial {
@@ -208,7 +228,84 @@ sub installCable {
 # Here we control the state machines, like determining when a position is busy,
 #  waiting on the user, or in idle
 sub updateStateMachine {
+  use feature ":5.10";  # needed for given/when syntax
 
+  # Reap child processes
+  my $reapedPID = waitpid(-1, WNOHANG);
+  if ($reapedPID) {
+    my $exit_value  = $? >> 8;
+    my $signal_num  = $? & 127;
+    my $dumped_core = $? & 128;
+    write_log("Reaping PID $reapedPID - exit value: $exit_value signal num: $signal_num dumped core: $dumped_core\n");
+  }
+
+  
+  # itterate through all positions and do various things
+  my $i;
+  my $statusText;
+  
+  for($i = 0; $i < $boards; $i++) {  
+
+    $statusText = getPositionStatusText($i + 1);
+    # There are a few control codes in the status text that can affect
+    #   the state of a position
+    #   #P = prompt - waiting on action from operator - alert them
+    #         this state ends when any other status text is received
+    #         and goes back to busy state
+    #   #S = success - test is successfully completed
+    #   #F = failed - test is completed, but failed
+    # In all cases, the control code is removed if detected
+    given ($posState[$i]) {
+      when (stateBusy) {
+        $posState[$i] = statePrompt       if ( $statusText =~ m/#P/ );
+        $posState[$i] = stateCompleteOK   if ( $statusText =~ m/#S/ );
+        $posState[$i] = stateCompleteFail if ( $statusText =~ m/#F/ );
+      }
+      when (statePrompt) {
+        $posState[$i] = stateBusy         if ( ! ($statusText =~ m/#P/) )          
+      }
+      default {  # any other time, receipt of any other text will force "busy"
+        $posState[$i] = stateIdle if (( $statusText ) && ( ! ($statusText =~ m/#(P|S|F)/)))
+      }
+      
+    }
+    
+    # Remove control characters
+    $statusText =~ s/#(P|S|F)//;
+    
+    write_log("Pos: $i State: " . $posState[$i] . " " . "\n");
+    
+    # check to see if the reaped process was one of our tests
+    if (($reapedPID != 0) && ($posPID[$i] == $reapedPID)) {
+      write_log("Resetting position $i\n");
+      resetPosition($i); 
+    }
+  
+    # update box color based on position state
+    my $posColor = "white";
+    given ($posState[$i]) {
+      when (stateBusy)         { $posColor = "yellow" }
+      when (statePrompt)       { $posColor = "blue" }
+      when (stateCompleteOK)   { $posColor = "green" }
+      when (stateCompleteFail) { $posColor = "red" }
+      default                  {$posColor = "white"}
+    }
+
+    # write actual status text
+    if($statusText) {
+        box_text("", $statusText, $i);
+     }
+     else {
+        box_text("", "Idle", $i);
+     }
+         
+    if ($posColor ne $board_windows[$i]{-tfg}) {
+      $board_windows[$i]->set_color_tfg($posColor);
+      $board_windows[$i]->draw();
+    }
+
+  }
+  
 }
 
 sub createFolder {
@@ -222,11 +319,15 @@ sub createFolder {
 sub prepareTFTP {
   # Take over the TFTP server
   `/etc/init.d/tftpd-hpa stop`;
+  `killall in.tftpd`;
   # Modify config
-  my $tmpConfig = new Config::Simple('/etc/default/tftpd-hpa');
-  $tmpConfig->param('TFTP_DIRECTORY','/var/netcom/firmware');
-  $tmpConfig->save();
-  `/etc/init.d/tftpd-hpa start`;
+
+  #my $tmpConfig = new Config::Simple('/etc/default/tftpd-hpa');
+  #$tmpConfig->param('TFTP_DIRECTORY','/var/netcom/firmware');
+  #$tmpConfig->save();
+  
+  #`/etc/init.d/tftpd-hpa start`;
+  `/usr/sbin/in.tftpd --listen --user tftp --address 0.0.0.0:69 --secure ${testrootdir}/firmware`;
   if ($? == 0) {
     write_log("Started tftp server\n");
   } else {
@@ -239,7 +340,7 @@ sub prepareTFTP {
     write_log("Could not find config file $prodConf\n");
     return 1;
   }
-  $tmpConfig = new Config::Simple($prodConf);
+  my $tmpConfig = new Config::Simple($prodConf);
 
 
   # Prepare the firmware to be accessible via TFTP
@@ -248,13 +349,26 @@ sub prepareTFTP {
   #   we keep them in a seperate folder or tarball and extract them as needed
   #   Either way, this is half-implemented and won't work as it is now.  It's friday...
   # TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO TO DO 
-  my $sourceFile = '/opt/getinge/firmware/' . $tmpConfig->param('firmwareFile');
+  my $firmwareFile = $tmpConfig->param('firmwareFile');
+  my $sourceFile = '/opt/getinge/firmware/' .  $firmwareFile;
   if(-e $sourceFile) {
     `cp $sourceFile '/var/netcom/firmware'`;
     write_log("Error copying firmware file: $sourceFile\n") if ($? != 0);
   } else {
     write_log("Could not find firmware file: $sourceFile\n");
   }
+  
+  # Extract firmware file components
+  `cd /var/netcom/firmware ; sudo /opt/getinge/bin/fwupgrade-tool -x  $firmwareFile`;
+  if (not rename("${testrootdir}/firmware/extracted-kernel.img", "${testrootdir}/firmware/uImage") ) {
+    write_log("Error preparing kernel image\n"); 
+    # TO_DO - Die here
+  }
+  if (not rename("${testrootdir}/firmware/extracted-rootfs.img", "${testrootdir}/firmware/rootfs.jffs2") ) {
+    write_log("Error preparing kernel image\n"); 
+    # TO_DO - Die here
+  }
+  
 }
 
 ############## Initialization ##############
@@ -284,6 +398,7 @@ for(my $i = 1; $i <= $boards; $i++) {
 
 createFolder($testrootdir . "print");
 createFolder($testrootdir . "samba-output");
+rmtree($testrootdir . "firmware");
 createFolder($testrootdir . "firmware");
 
 if(! -e $testrootdir . "samba-status.txt") {
@@ -409,6 +524,8 @@ for(my $i = 0; $i < $boards; $i++) {
 #Initialize data structures for each position
 for(my $i = 0; $i < $boards; $i++) {
   resetPosition($i);
+  $posState[$i] = stateIdle;    # reset state
+
 }
 
 #TextEntry for adding some text
@@ -510,10 +627,10 @@ my $last_time = time;
 while(1) {
   handle_scanner();       #If there's data, do something
   handle_terminal();      #If there's a command on the terminal, do something
-  update_boxes();         #Look in test logs, update each box
   check_cable_connected() if ($waitingForCableConnection);
   updateStateMachine();
   $cui->do_one_event();   #Update the GUI
+
 
   if ($last_time != time) { # Update status more slowly (once each second)
    update_status();
@@ -687,24 +804,6 @@ sub getPositionStatusText {
   }
 }
 
-#Look in $testdir and update the status boxes
-#in the GUI.
-sub update_boxes {
-  for(my $i = 1; $i <= $boards; $i++) {
-    my $status_msg = getPositionStatusText($i);
-    if($status_msg) {
-        #$board_text[$i]->text($status_msg);
-        box_text("", $status_msg, $i - 1);
-     }
-     else {
-        #$board_text[$i]->text("Idle");
-        box_text("", "Idle", $i - 1);
-     }
-  }
-  local $/=undef;
-  return 0;
-}
-
 #Update status
 sub update_status {
    open(STATUS, "<" . $testrootdir . "samba-status.txt");
@@ -718,9 +817,10 @@ sub update_status {
 }
 
 sub process_input {
+  use Switch 'Perl5';
+
   my $line = $_[0]; #Input from scanner
   my $line_len = length($line);
-  use Switch 'Perl5';
     chomp($line);
     switch ($line_len) {
     case 8 { do_cmd ($line) }
@@ -743,10 +843,10 @@ sub resetPosition {
   my $testPos = $_[0];
 
   #Update the box
-  box_text("", "", $testPos-1);
+  box_text("", "", $testPos);
   $posMAC[$testPos] = '';     # clear current MAC
   $posSerial[$testPos] = '';  # clear current serial
-  $posState[$testPos] = 0;    # reset state
+  $posPID[$testPos] = 0;
 }
 
 # call with position number to cancel test
@@ -819,37 +919,44 @@ sub startTest {
   my @args;
   my $usePort;
 
-  if ( $posSerial[$testPos - 1] eq '' ) {
+  if ( $posSerial[$testPos] eq '' ) {
     print_console("Cannot start test - serial not specified");    
     return;
   }
 
-  if ( $posMAC[$testPos - 1] eq '' ) {
+  if ( $posMAC[$testPos] eq '' ) {
     print_console("Cannot start test - MAC not specified");    
+    return;
+  }
+
+  my $portSN = $local_conf->param("pos${focus}PortSN");
+  if (! defined($portSN)) {
+    print_console("No USB serial port configured for this position - see manual.");    
     return;
   }
 
   # determine port to use - we have the port's SN stored in the config
   #   now translate that to a tty device
-  $usePort = searchttyBySerial($local_conf->param("pos${focus}PortSN"));
+  $usePort = searchttyBySerial($portSN);
   if (! defined($usePort)) {
-    print_console("Could not resolve USB port with serial " . $local_conf->param("pos${focus}PortSN"));    
+    print_console("Could not resolve USB port with serial " . $portSN);    
     return;
   }
   
-  print_console("Starting test on position $testPos : ");
-  #print_console("Mac -> $posMAC[$testPos - 1], SN -> $posSerial[$testPos - 1]");
+  print_console("Starting test on position " . ($testPos + 1));
+  #print_console("Mac -> $posMAC[$testPos], SN -> $posSerial[$testPos]");
 
   push(@args, '/dev/' . $usePort);
   push(@args, $selected_op);
-  push(@args, $testPos);
-  push(@args, $posMAC[$testPos - 1]);
-  push(@args, $posSerial[$testPos - 1]);
+  push(@args, $testPos + 1);
+  push(@args, $posMAC[$testPos]);
+  push(@args, $posSerial[$testPos]);
   push(@args, $config{product});
   push(@args, $config{initials});
   #Now go and do this in another process.
-  write_log("Forking cmd: $programmer @args");
-  fork_cmd($programmer, @args);
+  write_log("Forking cmd: $programmer @args\n");
+  $posState[$testPos] = stateBusy;
+  $posPID[$testPos] = fork_cmd($programmer, @args);
   
 }
     
@@ -876,8 +983,8 @@ sub do_cmd {
     case "00002002" { printLabel( $focus ); resetPosition( $focus ) }
     case "00002003" { uploadDebugData() }
     case "00002004" { installCable(); }
-    case "00002005" { startTest($focus,0x00) } # Normal test
-    case "00002009" { startTest($focus,0x10) } # Reset board requested
+    case "00002005" { startTest($focus - 1,0x00) } # Normal test
+    case "00002009" { startTest($focus - 1,0x10) } # Reset board requested
     case "00002006" { print_console("Rebooting");     system("sudo /sbin/reboot"); }
     case "00002007" { print_console("Shutting down"); system("sudo /sbin/shutdown -h now"); }
           
@@ -1104,7 +1211,7 @@ sub box_text {
   }
 
   #if ( defined($posMAC) && ($pos == ($focus - 1)) ) {
-  $string = join( $posMAC[$pos] . "\nP: ", @box_array);
+  $string = join( $posMAC[$pos] .  "\nP: ", @box_array);
   #} else {
   #  $string = join( "\nP: ", @box_array);
   #}
