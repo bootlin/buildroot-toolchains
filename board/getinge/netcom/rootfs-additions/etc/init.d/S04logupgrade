@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# This file tests for pending upgrade and appends any new info
+#  to the upgrade history file
+
+[ -f /usr/share/release/variables ] && . /usr/share/release/variables
+[ -f /etc/netcom/pending_upgrade ] && . /etc/netcom/pending_upgrade && rm /etc/netcom/pending_upgrade
+
+# A log entry will only be added if a version change is detected
+
+versionString=`echo -e "$SWNUM\t$VERSION_MAJOR\t$VERSION_MINOR\t$VERSION_REVISION\t$BUILD"`
+fileString=`echo -e "$firmwareUploadFile\t$firmwareUploadDate\t$firmwareUploadAddress"`
+
+tail -n1 /etc/netcom/firmware_history 2> /dev/null | grep "$versionString" > /dev/null
+[ $? -ne 0 ] && echo -e "`date -R`\t$versionString\t$fileString" >> /etc/netcom/firmware_history
