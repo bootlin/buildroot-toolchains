@@ -8,6 +8,14 @@ if ! grep -q ttyS4 $TARGETDIR/etc/securetty ; then
 	echo "ttyS4" >> $TARGETDIR/etc/securetty ;
 fi
 
+# Allow login as root on the first four pts/x so that telnet logins
+# work
+for i in $(seq 0 3) ; do
+    if ! grep -q "pts/$i" $TARGETDIR/etc/securetty ; then
+	echo "pts/$i" >> $TARGETDIR/etc/securetty ;
+    fi
+done
+
 # Disable login with the 'default' account
 sed -i 's/^default::/default:*:/' $TARGETDIR/etc/shadow
 
@@ -38,3 +46,6 @@ sed -i "s/__BUILD__/${BUILD_ID}/" $TARGETDIR/usr/share/release/variables
 # /etc/conf.d/.
 rm ${TARGETDIR}/etc/localtime
 ln -sf /etc/conf.d/localtime ${TARGETDIR}/etc/localtime
+
+# Need an empty directory for vsftpd to be happy
+mkdir -p ${TARGETDIR}/usr/share/empty/
