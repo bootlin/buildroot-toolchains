@@ -14,6 +14,7 @@ ETC_CONFD_DEPENDENCIES += netcom-apps netcom-web
 define ETC_CONFD_INSTALL_TARGET_CMDS
 	mkdir -p $(TARGET_DIR)/usr/share/conf.d/
 	cp -a board/getinge/netcom/conf.d/* $(BINARIES_DIR)/conf.d/
+	ln -sf /usr/share/zoneinfo/UTC $(BINARIES_DIR)/conf.d/localtime
 	$(HOST_DIR)/usr/sbin/mkfs.jffs2 -n -p -e 128 \
 		-o $(TARGET_DIR)/usr/share/conf.d/defaults.img \
 		-d $(BINARIES_DIR)/conf.d/

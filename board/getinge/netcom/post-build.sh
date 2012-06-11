@@ -34,5 +34,7 @@ sed -i "s/__BUILD_TIME__/${BUILD_TIME}/" $TARGETDIR/usr/share/release/variables
 BUILD_ID=$($BOARDDIR/get-build-id.sh)
 sed -i "s/__BUILD__/${BUILD_ID}/" $TARGETDIR/usr/share/release/variables
 
-mv ${TARGETDIR}/etc/localtime ${IMAGEDIR}/conf.d/
+# Remove the default link, we need to point to the localtime file in
+# /etc/conf.d/.
+rm ${TARGETDIR}/etc/localtime
 ln -sf /etc/conf.d/localtime ${TARGETDIR}/etc/localtime
