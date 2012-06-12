@@ -4,6 +4,10 @@ config BR2_PACKAGE_ICC
 	depends on BR2_PACKAGE_LIBMCAPI
 	help
 		bfin inter-core communication support
+config BR2_ICC_DEBUG
+	bool "inter-core communication debug"
+	help
+		inter-core communication debug
 choice
         prompt "ICC cpu type"
         default BR2_PACKAGE_ICC_CPU_BF609

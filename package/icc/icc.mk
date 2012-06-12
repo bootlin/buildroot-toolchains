@@ -33,6 +33,16 @@ else
 ICC_BUILDROOT=n
 endif
 
+ifeq ($(BR2_ICC_DEBUG),y)
+define PATCH_ICC_DEBUG_CMD
+	sed -i 's/^\/\* #define.*DEBUG \*\/$$/#define DEBUG/' $(ICC_DIR)/include/debug.h
+endef
+else
+define PATCH_ICC_DEBUG_CMD
+	sed -i 's/^#define.*DEBUG$$/\/\* #define DEBUG \*\//' $(ICC_DIR)/include/debug.h
+endef
+endif
+
 INSTALL_TASK_SRC := $(notdir $(wildcard $(ICC_DIR)/example/task/*.c))
 INSTALL_TASK := $(patsubst %.c,%,$(INSTALL_TASK_SRC))
 
@@ -73,6 +83,7 @@ $(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE)
 	$(ICC_CAT) $(DL_DIR)/$(ICC_SOURCE) | $(TAR) -C $(BUILD_DIR) $(TAR_OPTIONS) -
 	cp -dpfr $(LINUX26_BUILD_DIR)/include/generated $(ICC_DIR)/include/
 	cp -dpfr $(LINUX26_BUILD_DIR)/arch/blackfin/include/generated/* $(ICC_DIR)/include/
+	$(PATCH_ICC_DEBUG_CMD)
 	$(Q)touch $@
 
 $(ICC_DIR)/.stamp_build: icc_core-build icc_loader-build libmcapi_coreb-build  libmcapi
