@@ -1,0 +1,7 @@
+initscript="telnetd"
+execname="telnetd"
+priority="70"
+license="true"
+description="Telnet Server"
+options=""
+visible=0
