@@ -1,0 +1,4 @@
+config BR2_PACKAGE_V4L2_VIDEOTEST
+	bool "V4L2 video test program"
+	help
+	  Application for V4L2 video test
