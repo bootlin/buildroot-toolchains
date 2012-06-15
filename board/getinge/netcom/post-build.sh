@@ -49,3 +49,8 @@ ln -sf /etc/conf.d/localtime ${TARGETDIR}/etc/localtime
 
 # Need an empty directory for vsftpd to be happy
 mkdir -p ${TARGETDIR}/usr/share/empty/
+
+# Add init scripts links for vsftpd and telnetd
+ln -sf /etc/init.d/netcom-common ${TARGETDIR}/etc/init.d/S70vsftpd
+ln -sf /etc/init.d/netcom-common ${TARGETDIR}/etc/init.d/S70telnetd
+

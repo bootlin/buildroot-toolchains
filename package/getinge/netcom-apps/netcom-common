@@ -3,6 +3,7 @@
 # Extract the daemon name from the symbolic link used to call ourself,
 # and remove the Sxx prefix.
 DAEMON=$(basename $0 | sed 's/^S[0-9][0-9]//')
+DAEMON_PATH=$(which $DAEMON)
 
 . /etc/init.d/functions.sh
 
@@ -28,9 +29,9 @@ manual_start() {
 	    fi
 
 	    if test -z "$options" ; then
-		start_daemon /usr/bin/$DAEMON
+		start_daemon $DAEMON_PATH
 	    else
-		start_daemon /usr/bin/$DAEMON "$options"
+		start_daemon $DAEMON_PATH "$options"
 	    fi
 
 	    end $?
@@ -44,7 +45,7 @@ start() {
 
 manual_stop() {
 	    begin "Stopping $DAEMON"
-	    stop_daemon /usr/bin/$DAEMON
+	    stop_daemon $DAEMON_PATH
 	    end $?
 }
 

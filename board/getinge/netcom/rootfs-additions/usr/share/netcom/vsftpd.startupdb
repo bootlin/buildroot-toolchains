@@ -1,0 +1,7 @@
+initscript="vsftpd"
+execname="vsftpd"
+priority="70"
+license="true"
+description="FTP Server"
+options="/etc/vsftpd.conf"
+visible=0
