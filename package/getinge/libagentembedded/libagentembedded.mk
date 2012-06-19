@@ -4,6 +4,7 @@ LIBAGENTEMBEDDED_SITE = $(BR2_PACKAGE_GETINGE_AXIS_SDK_PATH)/libs/libAgentEmbedd
 LIBAGENTEMBEDDED_INSTALL_STAGING = YES
 LIBAGENTEMBEDDED_DEPENDENCIES = openssl expat zlib
 
+
 # Only a static library, nothing to install on the target
 LIBAGENTEMBEDDED_INSTALL_TARGET = NO
 
@@ -15,7 +16,7 @@ endef
 # previous build by the Axis SDK remains in the source directory.
 define LIBAGENTEMBEDDED_BUILD_CMDS
 	$(MAKE) -C $(@D) CROSS_COMPILE="$(TARGET_CROSS)" BUILDROOT=1 clean
-	$(MAKE) -C $(@D) CROSS_COMPILE="$(TARGET_CROSS)" BUILDROOT=1
+	$(MAKE) -C $(@D) CROSS_COMPILE="$(TARGET_CROSS)" EXTRA_CFLAGS="-Wcast-align" BUILDROOT=1 
 endef
 
 define LIBAGENTEMBEDDED_INSTALL_STAGING_CMDS
