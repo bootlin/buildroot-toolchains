@@ -1,8 +1,10 @@
-diff -urN oprofile/events/bfin/events oprofile.bfin/events/bfin/events
---- oprofile/events/bfin/events	1970-01-01 08:00:00.000000000 +0800
-+++ oprofile.bfin/events/bfin/events	2011-12-27 15:12:52.466046365 +0800
-@@ -0,0 +1,37 @@
-+# Blackfin events
+diff --git a/events/bfin/bf533/events b/events/bfin/bf533/events
+new file mode 100644
+index 0000000..4d93b80
+--- /dev/null
++++ b/events/bfin/bf533/events
+@@ -0,0 +1,39 @@
++# bf533 events
 +#
 +event:0x00 counters:1,2 um:zero minimum:500 name:LOOP0_ITER : Loop 0 iterations
 +event:0x01 counters:1,2 um:zero minimum:500 name:LOOP1_ITER : Loop 1 iterations
@@ -19,7 +21,7 @@ diff -urN oprofile/events/bfin/events oprofile.bfin/events/bfin/events
 +event:0x0f counters:1,2 um:zero minimum:500 name:MISALIGN_ADDR_EXT : Misaligned address violation exception
 +event:0x10 counters:1,2 um:zero minimum:500 name:STALL_DAG : Stall cycles due to read after write hazards on DAG registers
 +event:0x13 counters:1,2 um:zero minimum:500 name:STALL_RAW : Stall cycles due to RAW data hazards in computers
-+event:0x80 counters:1,2 um:zero minimum:500 name:FETCH_POSTPON_BY_DMA : Code memory fetches postponed due to DMA collisions(minimum count of two per event)
++event:0x80 counters:1,2  um:zero minimum:500 name:FETCH_POSTPON_BY_DMA : Code memory fetches postponed due to DMA collisions(minimum count of two per event)
 +event:0x81 counters:1,2 um:zero minimum:500 name:TAG_STALL : Code memory TAG stalls (cache misses, or FlushI operations, count of 3 per FlushI). Note code memory stall results in a processor stall only if instruction assembly unit FIFO empties.
 +event:0x82 counters:1,2 um:zero minimum:500 name:FILL_STALL : Code memory fill stalls (cacheable or non-cacheable). Note code memory stall results in a processor stall only if instruction assembly unit FIFO empties.
 +event:0x83 counters:1,2 um:zero minimum:500 name:64_DELIVER : Code memory 64-bit words delibered to processor instruction assembly unit
@@ -38,32 +40,19 @@ diff -urN oprofile/events/bfin/events oprofile.bfin/events/bfin/events
 +event:0x9C counters:1,2 um:zero minimum:500 name:DATA_VICTIMS_BANK_A : Data memory cache victims delivered from Bank A
 +event:0x9D counters:1,2 um:zero minimum:500 name:DATA_VICTIMS_BANK_B : Data memory cache victims delivered from Bank B
 +event:0x9E counters:1,2 um:zero minimum:500 name:DATA_HIGH_FILL : Data memory cache high priority fills requested
-+event:0x9F counters:1,2 um:zero minimum:500 name:DATA_LOW_FILL: Data memory cache low priority
-diff -urN oprofile/events/bfin/unit_masks oprofile.bin/events/bfin/unit_masks
---- oprofile/events/bfin/unit_masks	1970-01-01 08:00:00.000000000 +0800
-+++ oprofile.bin/events/bfin/unit_masks	2011-12-27 15:14:06.785464444 +0800
++event:0x9F counters:1,2 um:zero minimum:500 name:DATA_LOW_FILL : Data memory cache low priority
++#0x10 through 0x17 Defined by ASSP. See the Intel® XScale" core implementation option section of the ASSP
++#architecture specification for more details.
+diff --git a/events/bfin/bf533/unit_masks b/events/bfin/bf533/unit_masks
+new file mode 100644
+index 0000000..e59fc8f
+--- /dev/null
++++ b/events/bfin/bf533/unit_masks
 @@ -0,0 +1,4 @@
-+# Blackfin possible unit masks
++# blackfin 1 possible unit masks
 +#
-+name:zero type:mandatory default:0x9
-+	0x0 No unit mask
---- oprofile/libop/op_cpu_type.h	2011-12-27 14:52:27.326046826 +0800
-+++ oprofile.bfin/libop/op_cpu_type.h	2011-12-27 14:52:45.962046176 +0800
-@@ -72,6 +72,7 @@
- 	CPU_PPC64_POWER5pp,  /**< ppc64 Power5++ family */
- 	CPU_PPC_E300, /**< e300 */
- 	CPU_AVR32, /**< AVR32 */
-+	CPU_BLACKFIN, /**< BLACKFIN */
- 	MAX_CPU_TYPE
- } op_cpu;
- 
---- oprofile/libop/op_cpu_type.c	2011-12-27 14:51:32.646297409 +0800
-+++ oprofile.bfin/libop/op_cpu_type.c	2011-12-27 14:52:15.442046715 +0800
-@@ -74,6 +74,7 @@
- 	{ "ppc64 POWER5++", "ppc64/power5++", CPU_PPC64_POWER5pp, 6 },
- 	{ "e300", "ppc/e300", CPU_PPC_E300, 4 },
- 	{ "AVR32", "avr32", CPU_AVR32, 3 },
-+	{ "Blackfin", "blackfin", CPU_BLACKFIN, 2},
- };
-  
- static size_t const nr_cpu_descrs = sizeof(cpu_descrs) / sizeof(struct cpu_descr);
++name:zero type:mandatory default:0x00
++	0x00 No unit mask
+-- 
+1.7.9.5
+

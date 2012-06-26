@@ -1,0 +1,87 @@
+diff --git a/libdb/db_manage.c b/libdb/db_manage.c
+index 668e994..55cf1d4 100644
+--- a/libdb/db_manage.c
++++ b/libdb/db_manage.c
+@@ -66,10 +66,13 @@ int odb_grow_hashtable(odb_data_t * data)
+ 	unsigned int new_file_size;
+ 	unsigned int pos;
+ 	void * new_map;
++	char * filename;
++	int new_fd;
+ 
+ 	old_file_size = tables_size(data, data->descr->size);
+ 	new_file_size = tables_size(data, data->descr->size * 2);
+ 
++#ifndef __NOMMU__
+ 	if (ftruncate(data->fd, new_file_size))
+ 		return 1;
+ 
+@@ -78,6 +81,36 @@ int odb_grow_hashtable(odb_data_t * data)
+ 
+ 	if (new_map == MAP_FAILED)
+ 		return 1;
++#else
++	/* Ugly create a new file with new size, 
++	 * copy the old data to new file,
++	 * then rename it to the original file.
++	 */
++	filename = malloc(strlen(data->base_memory)+5);
++	filename = strdup(data->base_memory);
++	strcat(filename, "tmp");
++
++	new_fd = open(filename, (O_CREAT | O_RDWR), 0644);
++	if (new_fd < 0) {
++		return 1;
++	}
++	if (ftruncate(new_fd, new_file_size))
++		return 1;
++	new_map = mmap(0, new_file_size, (PROT_READ | PROT_WRITE),
++			MAP_SHARED, new_fd, 0);
++	memcpy(new_map, data->base_memory, old_file_size);
++
++	/* print it to oprofile.log */
++	fprintf(stderr, "size:%x->%x\tbase_memory:%x->%x\tfile:%x->%x.\n",
++			old_file_size, new_file_size, data->base_memory,
++			new_map, data->fd, new_fd);
++
++	munmap(data->base_memory, old_file_size);
++	close(data->fd);
++	rename(filename, data->filename);
++	data->fd = new_fd;
++	free(filename);
++#endif
+ 
+ 	data->base_memory = new_map;
+ 	data->descr = odb_to_descr(data);
+diff --git a/libpp/op_header.cpp b/libpp/op_header.cpp
+index 754015a..d92bbff 100644
+--- a/libpp/op_header.cpp
++++ b/libpp/op_header.cpp
+@@ -129,6 +129,7 @@ void check_mtime(string const & file, opd_header const & header)
+ 
+ opd_header const read_header(string const & sample_filename)
+ {
++#ifndef __NOMMU__
+ 	int fd = open(sample_filename.c_str(), O_RDONLY);
+ 	if (fd < 0)
+ 		throw op_fatal_error("Can't open sample file:" +
+@@ -149,7 +150,19 @@ opd_header const read_header(string const & sample_filename)
+ 	}
+ 
+ 	close(fd);
++#else
++	odb_t samples_db;
+ 
++	int rc = odb_open(&samples_db, sample_filename.c_str(), ODB_RDONLY,
++		sizeof(struct opd_header));
++
++	if (rc)
++		throw op_fatal_error(sample_filename + ": " + strerror(rc));
++
++	opd_header header = *static_cast<opd_header *>(samples_db.data->base_memory);
++
++	odb_close(&samples_db);
++#endif
+ 	return header;
+ }
+ 

@@ -3,7 +3,7 @@
 # oprofile
 #
 #############################################################
-OPROFILE_VERSION := 0.9.4
+OPROFILE_VERSION := 0.9.7
 OPROFILE_CONF_OPT :=	--localstatedir=/var \
 			--with-kernel-support
 
