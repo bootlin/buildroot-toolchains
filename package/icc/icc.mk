@@ -76,6 +76,8 @@ endef
 $(DL_DIR)/$(ICC_SOURCE):
 	$(call DOWNLOAD,$(ICC_SITE),$(ICC_SOURCE))
 
+$(DL_DIR)/$(ICC_SOURCE): PKG=ICC
+
 icc-source: $(DL_DIR)/$(ICC_SOURCE)
 
 $(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE) linux
