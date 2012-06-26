@@ -1,0 +1,14 @@
+--- expat-2.0.1/Makefile.in.old	2012-06-26 15:35:50.550102190 +0800
++++ expat-2.0.1/Makefile.in	2012-06-26 15:36:20.590102917 +0800
+@@ -117,7 +117,11 @@
+ COMPILE = $(CC) $(INCLUDES) $(CFLAGS) $(DEFS) $(CPPFLAGS)
+ CXXCOMPILE = $(CXX) $(INCLUDES) $(CXXFLAGS) $(DEFS) $(CPPFLAGS)
+ LTCOMPILE = $(LIBTOOL) $(LTFLAGS) --mode=compile $(COMPILE)
++ifeq ($(BR2_ABI_FLAT),y)
++LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG) $(LDFLAGS) -o $@
++else
+ LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG) -rpath $(libdir) $(LDFLAGS) -o $@
++endif
+ LINK_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) $(LDFLAGS) -o $@
+ LINK_CXX_EXE = $(LIBTOOL) $(LTFLAGS) --mode=link $(CXXCOMPILE) $(LDFLAGS) -o $@
+ 
