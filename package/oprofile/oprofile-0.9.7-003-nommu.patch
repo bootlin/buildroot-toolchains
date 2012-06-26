@@ -1,0 +1,100 @@
+diff --git a/daemon/init.c b/daemon/init.c
+index a79e36e..2d30190 100644
+--- a/daemon/init.c
++++ b/daemon/init.c
+@@ -160,7 +160,11 @@ static void opd_do_jitdumps(void)
+ 		return;
+ 	jit_conversion_running = 1;
+ 
++#ifdef __NOMMU__
++	childpid = vfork();
++#else
+ 	childpid = fork();
++#endif
+ 	switch (childpid) {
+ 		case -1:
+ 			perror("Error forking JIT dump process!");
+@@ -284,8 +288,11 @@ static void opd_sigterm(void)
+ 	opd_print_stats();
+ 	printf("oprofiled stopped %s", op_get_time());
+ 	opd_ext_deinitialize();
+-
++#ifdef __NOMMU__
++	_exit(EXIT_FAILURE);
++#else
+ 	exit(EXIT_FAILURE);
++#endif
+ }
+ 
+ /* SIGCHLD received from JIT dump child process. */
+diff --git a/daemon/opd_perfmon.c b/daemon/opd_perfmon.c
+index 97f307c..a3a47a6 100644
+--- a/daemon/opd_perfmon.c
++++ b/daemon/opd_perfmon.c
+@@ -441,7 +441,11 @@ void perfmon_init(void)
+ 			exit(EXIT_FAILURE);
+ 		}
+ 
++#ifdef __NOMMU__
++		ret = vfork();
++#else
+ 		ret = fork();
++#endif
+ 		if (ret == -1) {
+ 			perror("Couldn't fork perfmon child");
+ 			exit(EXIT_FAILURE);
+diff --git a/libutil++/child_reader.cpp b/libutil++/child_reader.cpp
+index b14c60c..789d98a 100644
+--- a/libutil++/child_reader.cpp
++++ b/libutil++/child_reader.cpp
+@@ -63,7 +63,11 @@ void child_reader::exec_command(string const & cmd, vector<string> const & args)
+ 		return;
+ 	}
+ 
++#ifdef __NOMMU__
++	pid = vfork();
++#else
+ 	pid = fork();
++#endif
+ 	switch (pid) {
+ 		case -1:
+ 			first_error = errno;
+@@ -99,7 +103,11 @@ void child_reader::exec_command(string const & cmd, vector<string> const & args)
+ 			// is redirect to the parent process
+ 			cerr << "Couldn't exec \"" << cmd << "\" : "
+ 			     << strerror(errno) << endl;
++#ifdef __NOMMU__
++			_exit(ret_code);
++#else
+ 			exit(ret_code);
++#endif
+ 		}
+ 
+ 		default:;
+diff --git a/daemon/oprofiled.c b/daemon/oprofiled.c
+index 77b7bed..466c41d 100644
+--- a/daemon/oprofiled.c
++++ b/daemon/oprofiled.c
+@@ -147,6 +147,14 @@ static void opd_fork(void)
+  
+ static void opd_go_daemon(void)
+ {
++#ifdef __NOMMU__
++	daemon (1, 1);
++	if (chdir(op_session_dir)) {
++		fprintf(stderr, "oprofiled: opd_go_daemon: couldn't chdir to %s: %s",
++			op_session_dir, strerror(errno));
++		exit(EXIT_FAILURE);
++	}
++#else
+ 	opd_fork();
+ 
+ 	if (chdir(op_session_dir)) {
+@@ -161,6 +169,7 @@ static void opd_go_daemon(void)
+ 	}
+ 
+ 	opd_fork();
++#endif
+ }
+ 
+ 

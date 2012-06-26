@@ -1,0 +1,24 @@
+diff --git a/libop/op_cpu_type.c b/libop/op_cpu_type.c
+index 14e26bf..cdaee76 100644
+--- a/libop/op_cpu_type.c
++++ b/libop/op_cpu_type.c
+@@ -75,6 +75,7 @@ static struct cpu_descr const cpu_descrs[MAX_CPU_TYPE] = {
+ 	{ "ppc64 POWER5++", "ppc64/power5++", CPU_PPC64_POWER5pp, 6 },
+ 	{ "e300", "ppc/e300", CPU_PPC_E300, 4 },
+ 	{ "AVR32", "avr32", CPU_AVR32, 3 },
++	{ "Blackfin", "blackfin", CPU_BLACKFIN, 2},
+ 	{ "ARM Cortex-A8", "arm/armv7", CPU_ARM_V7, 5 },
+  	{ "Intel Architectural Perfmon", "i386/arch_perfmon", CPU_ARCH_PERFMON, 0},
+ 	{ "AMD64 family11h", "x86-64/family11h", CPU_FAMILY11H, 4 },
+diff --git a/libop/op_cpu_type.h b/libop/op_cpu_type.h
+index d6cae3a..667f32c 100644
+--- a/libop/op_cpu_type.h
++++ b/libop/op_cpu_type.h
+@@ -72,6 +72,7 @@ typedef enum {
+ 	CPU_PPC64_POWER5pp,  /**< ppc64 Power5++ family */
+ 	CPU_PPC_E300, /**< e300 */
+ 	CPU_AVR32, /**< AVR32 */
++	CPU_BLACKFIN, /**< BLACKFIN */
+ 	CPU_ARM_V7, /**< ARM Cortex-A8 */
+  	CPU_ARCH_PERFMON, /**< Intel architectural perfmon */
+ 	CPU_FAMILY11H, /**< AMD family 11h */
