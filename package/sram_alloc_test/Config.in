@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SRAM_ALLOC_TEST
+	bool "sram alloc test"
+	help
+	  sram alloc test suite
