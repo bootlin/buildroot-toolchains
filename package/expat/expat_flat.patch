@@ -4,7 +4,7 @@
  COMPILE = $(CC) $(INCLUDES) $(CFLAGS) $(DEFS) $(CPPFLAGS)
  CXXCOMPILE = $(CXX) $(INCLUDES) $(CXXFLAGS) $(DEFS) $(CPPFLAGS)
  LTCOMPILE = $(LIBTOOL) $(LTFLAGS) --mode=compile $(COMPILE)
-+ifeq ($(BR2_ABI_FLAT),y)
++ifeq ($(findstring -elf2flt, $(LDFLAGS)), -elf2flt)
 +LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG) $(LDFLAGS) -o $@
 +else
  LINK_LIB = $(LIBTOOL) $(LTFLAGS) --mode=link $(COMPILE) -no-undefined $(VSNFLAG) -rpath $(libdir) $(LDFLAGS) -o $@
