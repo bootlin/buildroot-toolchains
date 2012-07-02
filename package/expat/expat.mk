@@ -23,6 +23,8 @@ EXPAT_DEPENDENCIES = host-pkg-config
 ifeq ($(BR2_ABI_FLAT),y)
 define EXPAT_INSTALL_STAGING_CMDS
 	install -D -m 755 $(@D)/.libs/libexpat.a $(STAGING_DIR)/usr/lib/libexpat.a
+	install -D -m 755 $(@D)/lib/expat.h $(STAGING_DIR)/usr/include/expat.h
+	install -D -m 755 $(@D)/lib/expat_external.h $(STAGING_DIR)/usr/include/expat_external.h
 endef
 endif
 
