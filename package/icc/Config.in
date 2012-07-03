@@ -5,6 +5,7 @@ config BR2_PACKAGE_ICC
 	help
 		bfin inter-core communication support
 config BR2_ICC_DEBUG
+	depends on BR2_PACKAGE_ICC
 	bool "inter-core communication debug"
 	help
 		inter-core communication debug
