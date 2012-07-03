@@ -13,8 +13,10 @@ GETTEXT_TARGET_BINARY:=usr/bin/gettext
 
 ifeq ($(BR2_PACKAGE_GETTEXT_STATIC),y)
 LIBINTL_TARGET_BINARY:=usr/lib/libintl.a
+GETTEXT_SHARED:=--enable-shared=no
 else
 LIBINTL_TARGET_BINARY:=usr/lib/libintl.so
+GETTEXT_SHARED:=--enable-shared=yes
 endif
 
 $(DL_DIR)/$(GETTEXT_SOURCE):
@@ -91,7 +93,7 @@ $(GETTEXT_DIR)/.configured: $(GETTEXT_DIR)/.unpacked
 		--prefix=/usr \
 		--exec-prefix=/usr \
 		--disable-libasprintf \
-		--enable-shared \
+		$(GETTEXT_SHARED) \
 		$(IGNORE_EXTERNAL_GETTEXT) \
 		--disable-openmp \
 	)

@@ -15,7 +15,7 @@ comment "gettext requires a toolchain with WCHAR support"
 config BR2_PACKAGE_GETTEXT_STATIC
 	bool "Use libgettext.a instead of libgettext.so.*"
 	depends on BR2_PACKAGE_GETTEXT
-	depends on BR2_arm
+	depends on BR2_arm || BR2_bfin
 	help
 	  The GNU `gettext' utilities are a set of tools that provide a
 	  framework to help other GNU packages produce multi-lingual
