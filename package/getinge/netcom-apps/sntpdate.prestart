@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# This script temporarily waits for successful resolution of
+# the ntp server before starting the daemon
+
+[ -f  /etc/conf.d/sntpdate.conf ] & . /etc/conf.d/sntpdate.conf
+retries=0
+
+until nslookup $NTPServer > /dev/null || [ $retries -ge 5 ]; do
+sleep 1
+retries=$(($retries+1))
+done
+

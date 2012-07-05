@@ -85,6 +85,8 @@ define NETCOM_APPS_INSTALL_TARGET_CMDS
 		$(TARGET_DIR)/etc/init.d/S45netcomlocator
 	install -D -m 0755 package/getinge/netcom-apps/remoteAgent.prestart \
 		$(TARGET_DIR)/etc/init.d/remoteAgent.prestart
+	install -D -m 0755 package/getinge/netcom-apps/sntpdate.prestart \
+		$(TARGET_DIR)/etc/init.d/sntpdate.prestart
 	# Install the common init script and create the symbolic links
 	# as needed
 	install -D -m 0755 package/getinge/netcom-apps/netcom-common \
