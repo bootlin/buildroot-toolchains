@@ -44,7 +44,6 @@ endif
 
 INSTALL_TASK_SRC = $(notdir $(wildcard $(ICC_DIR)/example/task/*.c))
 INSTALL_TASK = $(patsubst %.c,%,$(INSTALL_TASK_SRC))
-INSTALL_TASK += BF609_MCAPI_msg_Core1.dxe
 
 INSTALL_TEST_APP_SRC = $(notdir $(wildcard $(ICC_DIR)/example/test_app/*.c))
 INSTALL_TEST_APP = $(patsubst %.c,%_test,$(INSTALL_TEST_APP_SRC))
