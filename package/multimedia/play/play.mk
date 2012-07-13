@@ -5,7 +5,7 @@
 #############################################################
 PLAY_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/play
 PLAY_SITE_METHOD = svn
-PLAY_VERSION = HEAD
+PLAY_VERSION = 10736
 
 define PLAY_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

@@ -5,7 +5,7 @@
 #############################################################
 TWI_LCD_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/twi_lcd-test
 TWI_LCD_TEST_SITE_METHOD = svn
-TWI_LCD_TEST_VERSION = HEAD
+TWI_LCD_TEST_VERSION = 10736
 
 
 define TWI_LCD_TEST_BUILD_CMDS

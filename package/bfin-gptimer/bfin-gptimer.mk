@@ -5,7 +5,7 @@
 #############################################################
 BFIN_GPTIMER_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/gptimer_test
 BFIN_GPTIMER_SITE_METHOD = svn
-BFIN_GPTIMER_VERSION = HEAD
+BFIN_GPTIMER_VERSION = 10736
 
 GPT_CFLAGS = $(TARGET_CFLAGS) -I$(LINUX26_SOURCE_DIR)/include -I$(LINUX26_SOURCE_DIR)/arch/blackfin/include
 

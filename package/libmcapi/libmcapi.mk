@@ -4,7 +4,7 @@
 #
 #############################################################
 
-LIBMCAPI_VERSION = HEAD
+LIBMCAPI_VERSION = 10736
 LIBMCAPI_SITE_METHOD = svn
 LIBMCAPI_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/lib/libmcapi
 

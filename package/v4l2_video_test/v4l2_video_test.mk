@@ -5,7 +5,7 @@
 #############################################################
 V4L2_VIDEO_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/v4l2_video_test
 V4L2_VIDEO_TEST_SITE_METHOD = svn
-V4L2_VIDEO_TEST_VERSION = HEAD
+V4L2_VIDEO_TEST_VERSION = 10736
 
 define V4L2_VIDEO_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

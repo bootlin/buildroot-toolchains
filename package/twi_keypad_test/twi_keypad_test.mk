@@ -5,7 +5,7 @@
 #############################################################
 TWI_KEYPAD_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/twi_keypad-test
 TWI_KEYPAD_TEST_SITE_METHOD = svn
-TWI_KEYPAD_TEST_VERSION = HEAD
+TWI_KEYPAD_TEST_VERSION = 10736
 
 
 define TWI_KEYPAD_TEST_BUILD_CMDS

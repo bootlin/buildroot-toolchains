@@ -5,7 +5,7 @@
 #############################################################
 FILE_OPERATION_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/file_operation-test
 FILE_OPERATION_TEST_SITE_METHOD = svn
-FILE_OPERATION_TEST_VERSION = HEAD
+FILE_OPERATION_TEST_VERSION = 10736
 
 FILE_OPERATION_TEST_SRCS=$(wildcard $(@D)/*.c)
 FILE_OPERATION_TEST_TARGETS=$(patsubst %.c,%,$(notdir $(FILE_OPERATION_TEST_SRCS)))

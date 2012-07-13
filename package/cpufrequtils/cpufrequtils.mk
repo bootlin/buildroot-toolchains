@@ -5,7 +5,7 @@
 #############################################################
 CPUFREQUTILS_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/cpufrequtils
 CPUFREQUTILS_METHOD = svn
-CPUFREQUTILS_VERSION = HEAD
+CPUFREQUTILS_VERSION = 10736
 
 define CPUFREQUTILS_BUILD_CMDS
 	$(MAKE) -C $(@D)/cpufrequtils-005 \

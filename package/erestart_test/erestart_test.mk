@@ -5,7 +5,7 @@
 #############################################################
 ERESTART_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/erestart_test
 ERESTART_TEST_SITE_METHOD = svn
-ERESTART_TEST_VERSION = HEAD
+ERESTART_TEST_VERSION = 10736
 
 
 define ERESTART_TEST_BUILD_CMDS

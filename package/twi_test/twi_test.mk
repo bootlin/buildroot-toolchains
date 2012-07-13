@@ -5,7 +5,7 @@
 #############################################################
 TWI_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/twi_test
 TWI_TEST_SITE_METHOD = svn
-TWI_TEST_VERSION = HEAD
+TWI_TEST_VERSION = 10736
 
 
 define TWI_TEST_BUILD_CMDS

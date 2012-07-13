@@ -5,7 +5,7 @@
 #############################################################
 EDN_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/edn
 EDN_SITE_METHOD = svn
-EDN_VERSION = HEAD
+EDN_VERSION = 10736
 
 define EDN_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

@@ -6,7 +6,7 @@
 
 POUND_SITE:=svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/pound
 POUND_SITE_METHOD = svn
-POUND_VERSION = HEAD
+POUND_VERSION = 10736
 
 #define POUND_CONFIGURE_CMDS
 #	$(CONFIG_UPDATE) $(@D)
