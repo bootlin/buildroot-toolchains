@@ -15,7 +15,8 @@ define V4L2_VIDEO_TEST_INSTALL_TARGET_CMDS
 	if ! [ -d "$(TARGET_DIR)/bin/" ]; then \
 		mkdir -p $(TARGET_DIR)/bin/; \
 	fi
-	$(INSTALL) -D -m 0755 $(@D)/v4l2_video_test $(TARGET_DIR)/bin/
+	$(INSTALL) -D -m 0755 $(@D)/v4l2_video_capture $(TARGET_DIR)/bin/
+	$(INSTALL) -D -m 0755 $(@D)/v4l2_video_display $(TARGET_DIR)/bin/
 endef
 
 define V4L2_VIDEO_TEST_CLEAN_CMDS
@@ -23,7 +24,8 @@ define V4L2_VIDEO_TEST_CLEAN_CMDS
 endef
 
 define V4L2_VIDEO_TEST_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/bin/v4l2_video_test
+	rm -f $(TARGET_DIR)/bin/v4l2_video_capture
+	rm -f $(TARGET_DIR)/bin/v4l2_video_display
 endef
 
 $(eval $(call GENTARGETS,package,v4l2_video_test))
