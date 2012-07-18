@@ -1,0 +1,13 @@
+diff --git a/configure b/configure
+index ad5c164..887eb31 100755
+--- a/configure
++++ b/configure
+@@ -18384,7 +18384,7 @@ fi
+ LIBS="$ORIG_SAVE_LIBS"
+ LIBERTY_LIBS="-liberty $DL_LIB $INTL_LIB"
+ BFD_LIBS="-lbfd -liberty $DL_LIB $INTL_LIB $Z_LIB"
+-POPT_LIBS="-lpopt"
++POPT_LIBS="-lpopt -liconv"
+ 
+ 
+ 
