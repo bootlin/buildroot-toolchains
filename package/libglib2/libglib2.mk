@@ -44,8 +44,13 @@ LIBGLIB2_CONF_ENV =	\
 		ac_cv_func_posix_getgrgid_r=no \
 		gt_cv_c_wchar_t=$(if $(BR2_USE_WCHAR),yes,no)
 
-LIBGLIB2_CONF_OPT = --enable-shared \
-		--enable-static
+
+LIBGLIB2_CONF_OPT = \
+		--enable-static \
+
+ifeq ($(BR2_BFIN_FDPIC),y)
+LIBGLIB2_CONF_OPT += --enable-shared
+endif
 
 HOST_LIBGLIB2_CONF_OPT = \
 		--enable-shared \
