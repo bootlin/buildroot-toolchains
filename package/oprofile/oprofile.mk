@@ -5,11 +5,17 @@
 #############################################################
 OPROFILE_VERSION := 0.9.7
 OPROFILE_CONF_OPT :=	--localstatedir=/var \
-			--with-kernel-support
+			--with-kernel-support \
+			ac_cv_lib_popt_poptGetContext=yes \
 
 OPROFILE_BINARIES := utils/ophelp
 OPROFILE_BINARIES += pp/opannotate pp/oparchive pp/opgprof pp/opreport opjitconv/opjitconv
 OPROFILE_BINARIES += daemon/oprofiled
+
+
+ifeq ($(BR2_BFIN_FLAT),y)
+OPROFILE_CONF_ENV = LDFLAGS="$(TARGET_LDFLAGS) -Wl,-elf2flt=-s64000"
+endif
 
 ifeq ($(BR2_powerpc),y)
 OPROFILE_ARCH := ppc
