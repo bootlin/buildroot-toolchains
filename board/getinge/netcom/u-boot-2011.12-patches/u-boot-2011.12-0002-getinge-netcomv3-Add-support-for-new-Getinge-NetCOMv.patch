@@ -1,7 +1,8 @@
-From 752c9a0e0c88fc2b3b2e8b2484a79cafc797e0ca Mon Sep 17 00:00:00 2001
+From c88f26d6b8cbdf0637d037ddc23cba6da61ce2a4 Mon Sep 17 00:00:00 2001
 From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
 Date: Mon, 12 Mar 2012 20:34:50 +0100
-Subject: [PATCH 2/3] getinge/netcomv3: Add support for new Getinge NetCOMv3 board
+Subject: [PATCH 2/5] getinge/netcomv3: Add support for new Getinge NetCOMv3
+ board
 
 The code has been taken from the AT91SAM9M10G45-EK board, with the
 following differences:
@@ -19,8 +20,8 @@ Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
  board/getinge/netcomv3/netcomv3.c  |  289 ++++++++++++++++++++++++++++++++++++
  board/getinge/netcomv3/partition.c |   40 +++++
  boards.cfg                         |    1 +
- include/configs/getinge_netcomv3.h |  214 ++++++++++++++++++++++++++
- 7 files changed, 610 insertions(+), 0 deletions(-)
+ include/configs/getinge_netcomv3.h |  215 +++++++++++++++++++++++++++
+ 7 files changed, 611 insertions(+)
  create mode 100644 board/getinge/netcomv3/Makefile
  create mode 100644 board/getinge/netcomv3/config.mk
  create mode 100644 board/getinge/netcomv3/netcomv3.c
@@ -478,7 +479,7 @@ index 1e5b3e0..bd77ddb 100644
  omap1610h2		     arm	 arm926ejs   omap1610inn	 ti		omap	    omap1610inn:CS3_BOOT
 diff --git a/include/configs/getinge_netcomv3.h b/include/configs/getinge_netcomv3.h
 new file mode 100644
-index 0000000..bb269b5
+index 0000000..82de234
 --- /dev/null
 +++ b/include/configs/getinge_netcomv3.h
 @@ -0,0 +1,215 @@
@@ -698,5 +699,5 @@ index 0000000..bb269b5
 +
 +#endif
 -- 
-1.7.4.1
+1.7.9.5
 

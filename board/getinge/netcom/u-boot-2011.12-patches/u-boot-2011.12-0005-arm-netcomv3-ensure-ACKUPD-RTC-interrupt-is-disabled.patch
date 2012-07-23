@@ -1,0 +1,49 @@
+From 89d52f221b1ba2b54501b66b27573f04ba13f516 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 23 Jul 2012 20:35:59 +0200
+Subject: [PATCH 5/5] arm: netcomv3: ensure ACKUPD RTC interrupt is disabled
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ board/getinge/netcomv3/netcomv3.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/board/getinge/netcomv3/netcomv3.c b/board/getinge/netcomv3/netcomv3.c
+index d34c810..f0ba75c 100644
+--- a/board/getinge/netcomv3/netcomv3.c
++++ b/board/getinge/netcomv3/netcomv3.c
+@@ -30,6 +30,7 @@
+ #include <asm/arch/at91_common.h>
+ #include <asm/arch/at91_pmc.h>
+ #include <asm/arch/at91_rstc.h>
++#include <asm/arch/at91_rtc.h>
+ #include <asm/arch/gpio.h>
+ #include <asm/arch/clk.h>
+ #include <lcd.h>
+@@ -200,6 +201,8 @@ int board_early_init_f(void)
+ 
+ int board_init(void)
+ {
++	struct at91_rtc *rtc = (struct at91_rtc *)ATMEL_BASE_RTC;
++
+ 	/* Enable Ctrlc */
+ 	console_init_f();
+ 
+@@ -227,6 +230,14 @@ int board_init(void)
+ #ifdef CONFIG_CMD_LED
+ 	getinge_netcomv3_led_init();
+ #endif
++
++	/* Ensure that the ACKUPD interrupt hasn't remained enabled by
++	   Linux. Booting a Linux kernel with this interrupt enabled
++	   hangs because this interrupt is shared with the timer and
++	   DBGU interrupts which are registered before the RTC driver
++	   has a chance of masking this interrupt. */
++	writel(AT91_RTC_ACKUPD, &rtc->idr);
++
+ 	return 0;
+ }
+ 
+-- 
+1.7.9.5
+

@@ -1,0 +1,61 @@
+From 6f25a276a8f141819c54b1528e745877b4a9bb34 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Mon, 23 Jul 2012 20:35:30 +0200
+Subject: [PATCH 4/5] arm: add basic at91_rtc.h header
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/arm/include/asm/arch-at91/at91_rtc.h |   41 +++++++++++++++++++++++++++++
+ 1 file changed, 41 insertions(+)
+ create mode 100644 arch/arm/include/asm/arch-at91/at91_rtc.h
+
+diff --git a/arch/arm/include/asm/arch-at91/at91_rtc.h b/arch/arm/include/asm/arch-at91/at91_rtc.h
+new file mode 100644
+index 0000000..7efac2e
+--- /dev/null
++++ b/arch/arm/include/asm/arch-at91/at91_rtc.h
+@@ -0,0 +1,41 @@
++/*
++ * Copyright (C) 2012
++ * Thomas Petazzoni, thomas.petazzoni@free-electrons.com
++ *
++ * Real-time Clock
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef AT91_RTC_H
++#define AT91_RTC_H
++
++#ifndef __ASSEMBLY__
++
++typedef struct at91_rtc {
++	u32	cr;	/* Control register */
++	u32	mr;	/* Mode register */
++	u32	timr;	/* Time register */
++	u32	calr;	/* Calendar register */
++	u32     timalr; /* Time alarm register */
++	u32     calalr; /* Calendar alarm register */
++	u32     sr;     /* Status register */
++	u32     sccr;   /* Status clear command register */
++	u32     ier;    /* Interrupt enable register */
++	u32     idr;    /* Interrupt disable register */
++	u32     imr;    /* Interrupt mask register */
++	u32     ver;    /* Valid entry register */
++} at91_rtc_t;
++
++#endif /* __ASSEMBLY__ */
++
++#define AT91_RTC_ACKUPD (1 <<  0) /* Acknowledge for Update */
++#define AT91_RTC_ALARM  (1 <<  1) /* Alarm Flag */
++#define AT91_RTC_SECEV  (1 <<  2) /* Second Event */
++#define AT91_RTC_TIMEV  (1 <<  3) /* Time Event */
++#define AT91_RTC_CALEV  (1 <<  4) /* Calendar Event */
++
++#endif
+-- 
+1.7.9.5
+
