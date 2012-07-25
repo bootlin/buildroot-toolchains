@@ -3,11 +3,15 @@
 # mtd provides jffs2 utilities
 #
 #############################################################
-MTD_VERSION:=1.4.4
-MTD_SOURCE:=mtd-utils-$(MTD_VERSION).tar.bz2
-MTD_SITE:=ftp://ftp.infradead.org/pub/mtd-utils
+MTD_VERSION = 1.4.9
+MTD_SOURCE = mtd-utils-$(MTD_VERSION).tar.bz2
+MTD_SITE = ftp://ftp.infradead.org/pub/mtd-utils
 ifeq ($(BR2_PACKAGE_MTD_MKFSJFFS2),y)
 MTD_DEPENDENCIES = zlib lzo
+endif
+
+ifeq ($(BR2_PACKAGE_BUSYBOX),y)
+MTD_DEPENDENCIES += busybox
 endif
 
 HOST_MTD_DEPENDENCIES = host-zlib host-lzo host-e2fsprogs
@@ -22,15 +26,13 @@ define HOST_MTD_INSTALL_CMDS
 	$(MAKE1) BUILDDIR=$(@D) DESTDIR=$(HOST_DIR) -C $(@D) install
 endef
 
-MKFS_JFFS2=$(HOST_DIR)/usr/sbin/mkfs.jffs2
-SUMTOOL=$(HOST_DIR)/usr/sbin/sumtool
+MKFS_JFFS2 = $(HOST_DIR)/usr/sbin/mkfs.jffs2
+SUMTOOL = $(HOST_DIR)/usr/sbin/sumtool
 
 MTD_TARGETS_$(BR2_PACKAGE_MTD_DOCFDISK)		+= docfdisk
 MTD_TARGETS_$(BR2_PACKAGE_MTD_DOC_LOADBIOS)	+= doc_loadbios
 MTD_TARGETS_$(BR2_PACKAGE_MTD_FLASHCP)		+= flashcp
 MTD_TARGETS_$(BR2_PACKAGE_MTD_FLASH_ERASE)	+= flash_erase
-MTD_TARGETS_$(BR2_PACKAGE_MTD_FLASH_ERASEALL)	+= flash_eraseall
-MTD_TARGETS_$(BR2_PACKAGE_MTD_FLASH_INFO)	+= flash_info
 MTD_TARGETS_$(BR2_PACKAGE_MTD_FLASH_LOCK)	+= flash_lock
 MTD_TARGETS_$(BR2_PACKAGE_MTD_FLASH_OTP_DUMP)	+= flash_otp_dump
 MTD_TARGETS_$(BR2_PACKAGE_MTD_FLASH_OTP_INFO)	+= flash_otp_info
@@ -64,39 +66,24 @@ MTD_TARGETS_UBI_$(BR2_PACKAGE_MTD_UBIRMVOL)	+= ubirmvol
 MTD_TARGETS_UBI_$(BR2_PACKAGE_MTD_UBIRSVOL)	+= ubirsvol
 MTD_TARGETS_UBI_$(BR2_PACKAGE_MTD_UBIUPDATEVOL)	+= ubiupdatevol
 
-MTD_MAKE_COMMON_FLAGS = \
-	$(TARGET_CONFIGURE_OPTS) CROSS=$(TARGET_CROSS) \
-	WITHOUT_XATTR=1 WITHOUT_LARGEFILE=1
+MTD_TARGETS_y += $(addprefix ubi-utils/,$(MTD_TARGETS_UBI_y))
 
-define MTD_TARGETS_BUILD
-	$(MAKE1) $(MTD_MAKE_COMMON_FLAGS) \
-		BUILDDIR=$(@D) \
-		-C $(@D) \
-		$(addprefix $(@D)/, lib/libmtd.a $(MTD_TARGETS_y))
-endef
-
-ifneq ($(MTD_TARGETS_UBI_y),)
-define MTD_TARGETS_UBI_BUILD
-	$(MAKE1) $(MTD_MAKE_COMMON_FLAGS) \
-		BUILDDIR=$(@D)/ubi-utils/ \
-		-C $(@D)/ubi-utils \
-		$(addprefix $(@D)/ubi-utils/, $(MTD_TARGETS_UBI_y))
-endef
-endif
+# only call make if atleast a single tool is enabled
+ifneq ($(MTD_TARGETS_y),)
 
 define MTD_BUILD_CMDS
- $(MTD_TARGETS_BUILD)
- $(MTD_TARGETS_UBI_BUILD)
+	$(MAKE1) $(TARGET_CONFIGURE_OPTS) CROSS=$(TARGET_CROSS) \
+		BUILDDIR=$(@D) WITHOUT_XATTR=1 WITHOUT_LARGEFILE=1 -C $(@D) \
+		$(addprefix $(@D)/,$(MTD_TARGETS_y))
 endef
+
+endif
 
 define MTD_INSTALL_TARGET_CMDS
  for f in $(MTD_TARGETS_y) ; do \
-  install -m 0755 $(@D)/$$f $(TARGET_DIR)/usr/sbin/$$f ; \
- done ; \
- for f in $(MTD_TARGETS_UBI_y) ; do \
-  install -m 0755 $(@D)/ubi-utils/$$f $(TARGET_DIR)/usr/sbin/$$f ; \
+  install -D -m 0755 $(@D)/$$f $(TARGET_DIR)/usr/sbin/$${f##*/} ; \
  done
 endef
 
-$(eval $(call GENTARGETS,package,mtd))
-$(eval $(call GENTARGETS,package,mtd,host))
+$(eval $(call GENTARGETS))
+$(eval $(call GENTARGETS,host))

@@ -37,7 +37,7 @@ define CVS_DEBIAN_PATCHES
 		 do $(SED) 's,^\+\+\+ .*cvs-$(CVS_VERSION)/,+++ cvs-$(CVS_VERSION)/,' $$i; \
 		 done; \
 		); \
-		toolchain/patch-kernel.sh $(@D) $(@D)/debian/patches \*; \
+		support/scripts/apply-patches.sh $(@D) $(@D)/debian/patches \*; \
 	fi
 endef
 endif
@@ -48,6 +48,6 @@ define CVS_INSTALL_TARGET_CMDS
 	install -D $(@D)/src/cvs $(TARGET_DIR)/usr/bin/cvs
 endef
 
-$(eval $(call AUTOTARGETS,package,cvs))
+$(eval $(call AUTOTARGETS))
 
 

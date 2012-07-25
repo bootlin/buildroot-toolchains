@@ -17,6 +17,14 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
+GCC_VERSION:=$(call qstrip,$(BR2_GCC_VERSION))
+
+ifeq ($(BR2_GCC_VERSION_SNAP),y)
+GCC_SNAP_DATE:=$(call qstrip,$(BR2_GCC_SNAP_DATE))
+else
+GCC_SNAP_DATE:=
+endif
+
 ifneq ($(GCC_SNAP_DATE),)
  GCC_SITE:=ftp://sources.redhat.com/pub/gcc/snapshots/$(GCC_VERSION)
 else ifeq ($(findstring avr32,$(GCC_VERSION)),avr32)
@@ -58,6 +66,64 @@ ifneq ($(BR2_TOOLCHAIN_BUILDROOT_WCHAR),y)
 GCC_QUADMATH=--disable-libquadmath
 endif
 
+# Determine soft-float options
+ifeq ($(BR2_SOFT_FLOAT),y)
+SOFT_FLOAT_CONFIG_OPTION:=--with-float=soft
+ifeq ($(BR2_arm)$(BR2_armeb),y) # only set float-abi for arm
+TARGET_SOFT_FLOAT:=-mfloat-abi=soft
+else
+TARGET_SOFT_FLOAT:=-msoft-float
+endif
+else # no softfloat support
+SOFT_FLOAT_CONFIG_OPTION:=
+TARGET_SOFT_FLOAT:=
+endif
+
+# Determine arch/tune/abi/cpu options
+ifneq ($(call qstrip,$(BR2_GCC_TARGET_ARCH)),)
+GCC_WITH_ARCH:=--with-arch=$(BR2_GCC_TARGET_ARCH)
+endif
+ifneq ($(call qstrip,$(BR2_GCC_TARGET_TUNE)),)
+GCC_WITH_TUNE:=--with-tune=$(BR2_GCC_TARGET_TUNE)
+endif
+ifneq ($(call qstrip,$(BR2_GCC_TARGET_ABI)),)
+GCC_WITH_ABI:=--with-abi=$(BR2_GCC_TARGET_ABI)
+endif
+ifneq ($(call qstrip,$(BR2_GCC_TARGET_CPU)),)
+GCC_WITH_CPU:=--with-cpu=$(BR2_GCC_TARGET_CPU)
+endif
+
+# AVR32 GCC special configuration
+ifeq ($(BR2_avr32),y)
+# For the cross-compiler
+EXTRA_GCC_CONFIG_OPTIONS += \
+	--disable-libmudflap
+SOFT_FLOAT_CONFIG_OPTION:=
+
+# For the target compiler
+EXTRA_TARGET_GCC_CONFIG_OPTIONS += \
+	--disable-libmudflap
+EXTRA_TARGET_GCC_CONFIG_OPTIONS += \
+	--with-build-time-tools=$(STAGING_DIR)/$(REAL_GNU_TARGET_NAME)/bin
+EXTRA_TARGET_GCC_CONFIG_OPTIONS += \
+	--with-as=$(TARGET_CROSS)as
+endif
+
+# Disable mudflap and enable proper double/long double for SPE ABI
+ifeq ($(BR2_powerpc_SPE),y)
+EXTRA_GCC_CONFIG_OPTIONS +=  \
+	--disable-libmudflap \
+	--enable-e500_double \
+	--with-long-double-128
+endif
+
+# End with user-provided options, so that they can override previously
+# defined options.
+EXTRA_GCC_CONFIG_OPTIONS += \
+	$(call qstrip,$(BR2_EXTRA_GCC_CONFIG_OPTIONS))
+EXTRA_TARGET_GCC_CONFIG_OPTIONS += \
+	$(call qstrip,$(BR2_EXTRA_TARGET_GCC_CONFIG_OPTIONS))
+
 #############################################################
 #
 # Setup some initial stuff
@@ -75,33 +141,12 @@ endif
 ifeq ($(BR2_GCC_CROSS_FORTRAN),y)
 GCC_CROSS_LANGUAGES:=$(GCC_CROSS_LANGUAGES),fortran
 endif
-ifeq ($(BR2_GCC_CROSS_JAVA),y)
-GCC_CROSS_LANGUAGES:=$(GCC_CROSS_LANGUAGES),java
-endif
 ifeq ($(BR2_GCC_CROSS_OBJC),y)
 GCC_CROSS_LANGUAGES:=$(GCC_CROSS_LANGUAGES),objc
 endif
 
-GCC_COMMON_PREREQ=$(wildcard $(BR2_DEPENDS_DIR)/br2/install/libstdcpp*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/install/libgcj*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/install/objc*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/install/fortran*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/prefer/ima*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/toolchain/sysroot*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/use/sjlj/exceptions*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/gcc/shared/libgcc*)
-GCC_TARGET_PREREQ+=$(GCC_COMMON_PREREQ) \
-$(wildcard $(BR2_DEPENDS_DIR)/br2/extra/target/gcc/config/options*)
-GCC_STAGING_PREREQ+=$(GCC_COMMON_PREREQ) \
-$(wildcard $(BR2_DEPENDS_DIR)/br2/extra/gcc/config/options*)\
-$(wildcard $(BR2_DEPENDS_DIR)/br2/gcc/cross/*)
-
 ifeq ($(BR2_INSTALL_LIBSTDCPP),y)
 GCC_TARGET_LANGUAGES:=$(GCC_TARGET_LANGUAGES),c++
-endif
-
-ifeq ($(BR2_INSTALL_LIBGCJ),y)
-GCC_TARGET_LANGUAGES:=$(GCC_TARGET_LANGUAGES),java
 endif
 
 ifeq ($(BR2_INSTALL_OBJC),y)
@@ -133,6 +178,16 @@ endif
 
 # GCC 4.6.x prerequisites
 ifeq ($(findstring x4.6.,x$(GCC_VERSION)),x4.6.)
+GCC_WITH_HOST_MPC = --with-mpc=$(HOST_DIR)/usr
+GCC_TARGET_PREREQ += mpc
+ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
+HOST_SOURCE += host-mpc-source
+endif
+GCC_HOST_PREREQ += host-mpc
+endif
+
+# GCC 4.7.x prerequisites
+ifeq ($(findstring x4.7.,x$(GCC_VERSION)),x4.7.)
 GCC_WITH_HOST_MPC = --with-mpc=$(HOST_DIR)/usr
 GCC_TARGET_PREREQ += mpc
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT),y)
@@ -193,26 +248,26 @@ endif
 
 $(DL_DIR)/$(GCC_SOURCE):
 	mkdir -p $(DL_DIR)
-	$(call DOWNLOAD,$(GCC_SITE),$(GCC_SOURCE))
+	$(call DOWNLOAD,$(GCC_SITE)/$(GCC_SOURCE))
 
 gcc-unpacked: $(GCC_DIR)/.patched
 $(GCC_DIR)/.unpacked: $(DL_DIR)/$(GCC_SOURCE)
 	mkdir -p $(TOOLCHAIN_DIR)
 	rm -rf $(GCC_DIR)
 	$(GCC_CAT) $(DL_DIR)/$(GCC_SOURCE) | tar -C $(TOOLCHAIN_DIR) $(TAR_OPTIONS) -
-	$(CONFIG_UPDATE) $(@D)
+	$(call CONFIG_UPDATE,$(@D))
 	touch $@
 
 gcc-patched: $(GCC_DIR)/.patched
 $(GCC_DIR)/.patched: $(GCC_DIR)/.unpacked
 	# Apply any files named gcc-*.patch from the source directory to gcc
 ifneq ($(wildcard $(GCC_PATCH_DIR)),)
-	toolchain/patch-kernel.sh $(GCC_DIR) $(GCC_PATCH_DIR) \*.patch $(GCC_PATCH_EXTRA)
+	support/scripts/apply-patches.sh $(GCC_DIR) $(GCC_PATCH_DIR) \*.patch $(GCC_PATCH_EXTRA)
 endif
 
 ifeq ($(ARCH)-$(BR2_GCC_SHARED_LIBGCC),powerpc-y)
 ifneq ($(BR2_SOFT_FLOAT),)
-	toolchain/patch-kernel.sh $(GCC_DIR) toolchain/gcc/$(GCC_VERSION) powerpc-link-with-math-lib.patch.conditional
+	support/scripts/apply-patches.sh $(GCC_DIR) toolchain/gcc/$(GCC_VERSION) powerpc-link-with-math-lib.patch.conditional
 endif
 endif
 	touch $@
@@ -234,7 +289,7 @@ $(GCC_BUILD_DIR1)/.configured: $(GCC_DIR)/.patched
 		--host=$(GNU_HOST_NAME) \
 		--target=$(REAL_GNU_TARGET_NAME) \
 		--enable-languages=c \
-		$(BR2_CONFIGURE_DEVEL_SYSROOT) \
+		--with-sysroot=$(TOOLCHAIN_DIR)/uClibc_dev/ \
 		--disable-__cxa_atexit \
 		$(GCC_OPTSPACE) \
 		$(GCC_QUADMATH) \
@@ -255,8 +310,6 @@ $(GCC_BUILD_DIR1)/.configured: $(GCC_DIR)/.patched
 		$(SOFT_FLOAT_CONFIG_OPTION) \
 		$(GCC_WITH_ABI) $(GCC_WITH_ARCH) $(GCC_WITH_TUNE) $(GCC_WITH_CPU) \
 		$(EXTRA_GCC_CONFIG_OPTIONS) \
-		$(EXTRA_GCC1_CONFIG_OPTIONS) \
-		$(QUIET) \
 	)
 	touch $@
 
@@ -302,7 +355,7 @@ $(GCC_BUILD_DIR2)/.configured: $(GCC_DIR)/.patched
 		--host=$(GNU_HOST_NAME) \
 		--target=$(REAL_GNU_TARGET_NAME) \
 		--enable-languages=c \
-		$(BR2_CONFIGURE_DEVEL_SYSROOT) \
+		--with-sysroot=$(TOOLCHAIN_DIR)/uClibc_dev/ \
 		--disable-__cxa_atexit \
 		$(GCC_OPTSPACE) \
 		$(GCC_QUADMATH) \
@@ -322,8 +375,6 @@ $(GCC_BUILD_DIR2)/.configured: $(GCC_DIR)/.patched
 		$(SOFT_FLOAT_CONFIG_OPTION) \
 		$(GCC_WITH_ABI) $(GCC_WITH_ARCH) $(GCC_WITH_TUNE) $(GCC_WITH_CPU) \
 		$(EXTRA_GCC_CONFIG_OPTIONS) \
-		$(EXTRA_GCC2_CONFIG_OPTIONS) \
-		$(QUIET) \
 	)
 	touch $@
 
@@ -380,8 +431,8 @@ $(GCC_BUILD_DIR3)/.configured: $(GCC_SRC_DIR)/.patched $(GCC_STAGING_PREREQ)
 		--host=$(GNU_HOST_NAME) \
 		--target=$(REAL_GNU_TARGET_NAME) \
 		--enable-languages=$(GCC_CROSS_LANGUAGES) \
-		$(BR2_CONFIGURE_STAGING_SYSROOT) \
-		$(BR2_CONFIGURE_BUILD_TOOLS) \
+		--with-sysroot=$(STAGING_DIR) \
+		--with-build-time-tools=$(HOST_DIR)/usr/$(REAL_GNU_TARGET_NAME)/bin \
 		--disable-__cxa_atexit \
 		$(GCC_OPTSPACE) \
 		$(GCC_QUADMATH) \
@@ -401,7 +452,6 @@ $(GCC_BUILD_DIR3)/.configured: $(GCC_SRC_DIR)/.patched $(GCC_STAGING_PREREQ)
 		$(GCC_WITH_ABI) $(GCC_WITH_ARCH) $(GCC_WITH_TUNE) $(GCC_WITH_CPU) \
 		$(DISABLE_LARGEFILE) \
 		$(EXTRA_GCC_CONFIG_OPTIONS) \
-		$(EXTRA_GCC2_CONFIG_OPTIONS) \
 	)
 	touch $@
 
@@ -465,17 +515,6 @@ ifeq ($(BR2_GCC_SHARED_LIBGCC),y)
 		$(TARGET_DIR)/usr/lib/
 	-$(STRIPCMD) $(STRIP_STRIP_UNNEEDED) $(TARGET_DIR)/usr/lib/libstdc++.so*
 endif
-endif
-ifeq ($(BR2_INSTALL_LIBGCJ),y)
-	cp -dpf $(HOST_DIR)/usr/$(REAL_GNU_TARGET_NAME)/lib*/libgcj.so* $(STAGING_DIR)/usr/lib/
-	cp -dpf $(HOST_DIR)/usr/$(REAL_GNU_TARGET_NAME)/lib*/libgcj.so* $(TARGET_DIR)/usr/lib/
-	mkdir -p $(STAGING_DIR)/usr/lib/security
-	mkdir -p $(TARGET_DIR)/usr/lib/security
-	cp -dpf $(HOST_DIR)/usr/lib/security/classpath.security \
-		$(STAGING_DIR)/usr/lib/security/
-	cp -dpf $(HOST_DIR)/usr/lib/security/classpath.security \
-		$(TARGET_DIR)/usr/lib/security/
-	-$(STRIPCMD) $(STRIP_STRIP_UNNEEDED) $(TARGET_DIR)/usr/lib/libgcj.so*
 endif
 ifeq ($(BR2_GCC_ENABLE_OPENMP),y)
 	cp -dpf $(HOST_DIR)/usr/$(REAL_GNU_TARGET_NAME)/lib*/libgomp.so* $(STAGING_DIR)/usr/lib/
@@ -549,7 +588,6 @@ $(GCC_BUILD_DIR4)/.configured: $(GCC_BUILD_DIR4)/.prepared
 		$(DISABLE_LARGEFILE) \
 		$(EXTRA_GCC_CONFIG_OPTIONS) \
 		$(EXTRA_TARGET_GCC_CONFIG_OPTIONS) \
-		$(EXTRA_GCC4_CONFIG_OPTIONS) \
 	)
 	touch $@
 
@@ -603,3 +641,7 @@ gcc_target-clean:
 
 gcc_target-dirclean:
 	rm -rf $(GCC_BUILD_DIR4)
+
+ifeq ($(BR2_PACKAGE_GCC_TARGET),y)
+TARGETS+=gcc_target
+endif

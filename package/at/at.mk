@@ -9,9 +9,6 @@ AT_SITE = $(BR2_DEBIAN_MIRROR)/debian/pool/main/a/at
 # missing deps for parsetime.l
 AT_MAKE = $(MAKE1)
 AT_AUTORECONF = YES
-AT_INSTALL_STAGING = NO
-AT_INSTALL_TARGET = YES
-
 AT_DEPENDENCIES = $(if $(BR2_PACKAGE_FLEX),flex)
 
 AT_CONF_OPT = \
@@ -41,4 +38,4 @@ define AT_UNINSTALL_TARGET_CMDS
 		at.1 atq.1 atrm.1 batch.1 at_allow.5 at_deny.5 atd.8 atrun.8)
 endef
 
-$(eval $(call AUTOTARGETS,package,at))
+$(eval $(call AUTOTARGETS))

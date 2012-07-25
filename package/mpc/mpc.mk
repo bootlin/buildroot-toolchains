@@ -10,7 +10,6 @@ MPC_INSTALL_STAGING = YES
 MPC_DEPENDENCIES = gmp mpfr
 MPC_AUTORECONF = YES
 HOST_MPC_AUTORECONF = YES
-HOST_MPC_DEPENDENCIES = host-gmp host-mpfr
 
-$(eval $(call AUTOTARGETS,package,mpc))
-$(eval $(call AUTOTARGETS,package,mpc,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))

@@ -1,9 +1,10 @@
+
 #############################################################
 #
 # gstreamer
 #
 #############################################################
-GSTREAMER_VERSION = 0.10.32
+GSTREAMER_VERSION = 0.10.36
 GSTREAMER_SOURCE = gstreamer-$(GSTREAMER_VERSION).tar.bz2
 GSTREAMER_SITE = http://gstreamer.freedesktop.org/src/gstreamer
 GSTREAMER_INSTALL_STAGING = YES
@@ -19,8 +20,9 @@ GSTREAMER_CONF_OPT = \
 		--disable-examples \
 		--disable-tests \
 		--disable-failing-tests \
-		--disable-loadsave
+		--disable-loadsave \
+		$(if $(BR2_PACKAGE_GSTREAMER_GST_DEBUG),,--disable-gst-debug)
 
 GSTREAMER_DEPENDENCIES = libglib2 host-pkg-config
 
-$(eval $(call AUTOTARGETS,package/multimedia,gstreamer))
+$(eval $(call AUTOTARGETS))

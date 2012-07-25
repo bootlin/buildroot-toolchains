@@ -30,4 +30,4 @@ endef
 
 STRACE_POST_INSTALL_TARGET_HOOKS += STRACE_REMOVE_STRACE_GRAPH
 
-$(eval $(call AUTOTARGETS,package,strace))
+$(eval $(call AUTOTARGETS))

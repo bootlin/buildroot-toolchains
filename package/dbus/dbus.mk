@@ -3,17 +3,14 @@
 # dbus
 #
 #############################################################
-DBUS_VERSION = 1.2.24
-DBUS_SOURCE = dbus-$(DBUS_VERSION).tar.gz
+DBUS_VERSION = 1.4.20
 DBUS_SITE = http://dbus.freedesktop.org/releases/dbus/
 DBUS_INSTALL_STAGING = YES
-DBUS_INSTALL_TARGET = YES
 
 DBUS_DEPENDENCIES = host-pkg-config
 
-DBUS_CONF_ENV = ac_cv_have_abstract_sockets=yes ac_cv_func_pthread_cond_timedwait=yes ac_cv_func_pthread_create=yes
-DBUS_CONF_OPT = --program-prefix="" \
-		--with-dbus-user=dbus \
+DBUS_CONF_ENV = ac_cv_have_abstract_sockets=yes
+DBUS_CONF_OPT = --with-dbus-user=dbus \
 		--disable-tests \
 		--disable-asserts \
 		--enable-abstract-sockets \
@@ -39,6 +36,10 @@ DBUS_CONF_OPT += --with-x
 DBUS_DEPENDENCIES += xlib_libX11
 else
 DBUS_CONF_OPT += --without-x
+endif
+
+ifeq ($(BR2_PACKAGE_SYSTEMD),y)
+DBUS_CONF_OPT += --with-systemdsystemunitdir=/lib/systemd/system
 endif
 
 # fix rebuild (dbus makefile errors out if /var/lib/dbus is a symlink)
@@ -86,5 +87,5 @@ HOST_DBUS_GEN_INTROSPECT = \
 
 HOST_DBUS_POST_INSTALL_HOOKS += HOST_DBUS_GEN_INTROSPECT
 
-$(eval $(call AUTOTARGETS,package,dbus))
-$(eval $(call AUTOTARGETS,package,dbus,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))

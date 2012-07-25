@@ -4,7 +4,7 @@
 #
 #############################################################
 
-OPENVPN_VERSION = 2.2.0
+OPENVPN_VERSION = 2.2.2
 OPENVPN_SITE = http://swupdate.openvpn.net/community/releases
 OPENVPN_CONF_OPT = --enable-small --disable-plugins
 
@@ -34,4 +34,4 @@ define OPENVPN_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/etc/init.d/openvpn
 endef
 
-$(eval $(call AUTOTARGETS,package,openvpn))
+$(eval $(call AUTOTARGETS))

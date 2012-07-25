@@ -4,9 +4,14 @@
 #
 #############################################################
 
-BASH_VERSION = 4.1
+BASH_VERSION = 4.2
 BASH_SITE = $(BR2_GNU_MIRROR)/bash
 BASH_DEPENDENCIES = ncurses
+BASH_CONF_ENV +=                       \
+   bash_cv_job_control_missing=present \
+   bash_cv_sys_named_pipes=present     \
+   bash_cv_func_sigsetjmp=present      \
+   bash_cv_printf_a_format=yes
 
 # Make sure we build after busybox so that /bin/sh links to bash
 ifeq ($(BR2_PACKAGE_BUSYBOX),y)
@@ -34,4 +39,4 @@ define BASH_UNINSTALL_TARGET_CMDS
 	fi
 endef
 
-$(eval $(call AUTOTARGETS,package,bash))
+$(eval $(call AUTOTARGETS))

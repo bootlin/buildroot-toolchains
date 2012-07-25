@@ -3,7 +3,7 @@
 # gst-plugins-base
 #
 #############################################################
-GST_PLUGINS_BASE_VERSION = 0.10.32
+GST_PLUGINS_BASE_VERSION = 0.10.36
 GST_PLUGINS_BASE_SOURCE = gst-plugins-base-$(GST_PLUGINS_BASE_VERSION).tar.bz2
 GST_PLUGINS_BASE_SITE = http://gstreamer.freedesktop.org/src/gst-plugins-base
 GST_PLUGINS_BASE_INSTALL_STAGING = YES
@@ -25,6 +25,10 @@ GST_PLUGINS_BASE_CONF_OPT = \
 		--disable-freetypetest
 
 GST_PLUGINS_BASE_DEPENDENCIES = gstreamer
+
+ifeq ($(BR2_PACKAGE_ORC),y)
+GST_PLUGINS_BASE_DEPENDENCIES += orc
+endif
 
 # alsa support needs pcm+mixer support, but configure fails to check for it
 ifeq ($(BR2_PACKAGE_ALSA_LIB)$(BR2_PACKAGE_ALSA_LIB_MIXER)$(BR2_PACKAGE_ALSA_LIB_PCM),yyy)
@@ -67,6 +71,12 @@ ifeq ($(BR2_PACKAGE_GST_PLUGINS_BASE_PLUGIN_AUDIOTESTSRC),y)
 GST_PLUGINS_BASE_CONF_OPT += --enable-audiotestsrc
 else
 GST_PLUGINS_BASE_CONF_OPT += --disable-audiotestsrc
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_BASE_PLUGIN_ENCODING),y)
+GST_PLUGINS_BASE_CONF_OPT += --enable-encoding
+else
+GST_PLUGINS_BASE_CONF_OPT += --disable-encoding
 endif
 
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_BASE_PLUGIN_FFMPEGCOLORSPACE),y)
@@ -150,6 +160,13 @@ else
 GST_PLUGINS_BASE_CONF_OPT += --disable-theora
 endif
 
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_BASE_PLUGIN_TREMOR),y)
+GST_PLUGINS_BASE_CONF_OPT += --enable-ivorbis
+GST_PLUGINS_BASE_DEPENDENCIES += tremor
+else
+GST_PLUGINS_BASE_CONF_OPT += --disable-ivorbis
+endif
+
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_BASE_PLUGIN_VORBIS),y)
 GST_PLUGINS_BASE_CONF_OPT += --enable-vorbis
 GST_PLUGINS_BASE_DEPENDENCIES += libvorbis
@@ -157,4 +174,10 @@ else
 GST_PLUGINS_BASE_CONF_OPT += --disable-vorbis
 endif
 
-$(eval $(call AUTOTARGETS,package/multimedia,gst-plugins-base))
+ifeq ($(BR2_PACKAGE_ZLIB),y)
+GST_PLUGINS_BASE_DEPENDENCIES += zlib
+else
+GST_PLUGINS_BASE_CONF_OPT += --disable-zlib
+endif
+
+$(eval $(call AUTOTARGETS))

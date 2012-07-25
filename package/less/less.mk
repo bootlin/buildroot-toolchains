@@ -4,7 +4,7 @@
 #
 #############################################################
 
-LESS_VERSION = 443
+LESS_VERSION = 444
 LESS_SITE = http://www.greenwoodsoftware.com/less
 LESS_DEPENDENCIES = ncurses
 
@@ -16,4 +16,4 @@ define LESS_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/bin/less
 endef
 
-$(eval $(call AUTOTARGETS,package,less))
+$(eval $(call AUTOTARGETS))

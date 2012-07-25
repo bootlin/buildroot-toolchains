@@ -4,10 +4,14 @@
 #
 #############################################################
 
-LAME_VERSION = 3.98.4
-LAME_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/lame
+LAME_VERSION_MAJOR = 3.99
+LAME_VERSION_MINOR = 5
+LAME_VERSION = $(LAME_VERSION_MAJOR).$(LAME_VERSION_MINOR)
+LAME_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/project/lame/lame/$(LAME_VERSION_MAJOR)
 LAME_DEPENDENCIES = host-pkg-config
 LAME_INSTALL_STAGING = YES
+LAME_CONF_ENV = GTK_CONFIG=/bin/false
+LAME_CONF_OPT = --enable-dynamic-frontends
 
 ifeq ($(BR2_PACKAGE_LIBSNDFILE),y)
 LAME_DEPENDENCIES += libsndfile
@@ -26,4 +30,4 @@ endif
 
 LAME_POST_CONFIGURE_HOOKS += LAME_BIGENDIAN_ARCH
 
-$(eval $(call AUTOTARGETS,package/multimedia,lame))
+$(eval $(call AUTOTARGETS))

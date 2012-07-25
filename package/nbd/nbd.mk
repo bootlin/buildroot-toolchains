@@ -4,11 +4,17 @@
 #
 #############################################################
 
-NBD_VERSION = 2.9.15
+NBD_VERSION = 3.0
 NBD_SOURCE = nbd-$(NBD_VERSION).tar.bz2
-NBD_SITE=http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/nbd/
+NBD_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/project/nbd/nbd/$(NBD_VERSION)
 NBD_CONF_OPT = $(if $(BR2_LARGEFILE),--enable-lfs,--disable-lfs)
 NBD_DEPENDENCIES = libglib2
+
+ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_EXTERNAL_UCLIBC)$(BR2_TOOLCHAIN_CTNG_uClibc),y)
+# We have linux/falloc.h
+# but uClibc lacks fallocate(2) which is a glibc-ism
+NBD_CONF_ENV = ac_cv_header_linux_falloc_h=no
+endif
 
 ifneq ($(BR2_NBD_CLIENT),y)
 	NBD_TOREMOVE += nbd-client
@@ -23,4 +29,4 @@ endef
 
 NBD_POST_INSTALL_TARGET_HOOKS += NBD_CLEANUP_AFTER_INSTALL
 
-$(eval $(call AUTOTARGETS,package,nbd))
+$(eval $(call AUTOTARGETS))

@@ -10,12 +10,12 @@ SYSVINIT_SITE    = $(BR2_DEBIAN_MIRROR)/debian/pool/main/s/sysvinit
 
 # Override Busybox implementations if Busybox is enabled.
 ifeq ($(BR2_PACKAGE_BUSYBOX),y)
-SYSKLOGD_DEPENDENCIES = busybox
+SYSVINIT_DEPENDENCIES = busybox
 endif
 
 define SYSVINIT_DEBIAN_PATCHES
 	if [ -d $(@D)/debian/patches ]; then \
-		toolchain/patch-kernel.sh $(@D) $(@D)/debian/patches \*.patch; \
+		support/scripts/apply-patches.sh $(@D) $(@D)/debian/patches \*.patch; \
 	fi
 endef
 
@@ -46,4 +46,4 @@ define SYSVINIT_CLEAN_CMDS
 	$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS,package,sysvinit))
+$(eval $(call GENTARGETS))

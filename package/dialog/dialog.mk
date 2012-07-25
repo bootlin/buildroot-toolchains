@@ -3,9 +3,10 @@
 # dialog
 #
 #############################################################
-DIALOG_VERSION:=1.1-20100428
-DIALOG_SOURCE:=dialog-$(DIALOG_VERSION).tgz
-DIALOG_SITE:=ftp://invisible-island.net/dialog
+
+DIALOG_VERSION = 1.1-20111020
+DIALOG_SOURCE = dialog-$(DIALOG_VERSION).tgz
+DIALOG_SITE = ftp://invisible-island.net/dialog
 DIALOG_CONF_OPT = --with-ncurses
 DIALOG_CONF_ENV = ac_cv_path_NCURSES_CONFIG=true LIBS=-lncurses
 DIALOG_DEPENDENCIES = ncurses
@@ -23,4 +24,4 @@ define DIALOG_POST_CLEAN
 	rm -f $(TARGET_DIR)/usr/bin/dialog
 endef
 
-$(eval $(call AUTOTARGETS,package,dialog))
+$(eval $(call AUTOTARGETS))

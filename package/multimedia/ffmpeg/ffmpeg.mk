@@ -4,14 +4,13 @@
 #
 #############################################################
 
-FFMPEG_VERSION = 0.6.3
+FFMPEG_VERSION = 0.8.11
 FFMPEG_SOURCE = ffmpeg-$(FFMPEG_VERSION).tar.bz2
 FFMPEG_SITE = http://ffmpeg.org/releases
 FFMPEG_INSTALL_STAGING = YES
 
 FFMPEG_CONF_OPT = \
 	--prefix=/usr		\
-	--enable-shared 	\
 	--disable-avfilter	\
 	$(if $(BR2_HAVE_DOCUMENTATION),,--disable-doc)
 
@@ -124,9 +123,14 @@ else
 FFMPEG_CONF_OPT += --disable-zlib
 endif
 
+ifeq ($(BR2_i386)$(BR2_x86_64),y)
 # MMX on is default for x86, disable it for lowly x86-type processors
 ifeq ($(BR2_x86_i386)$(BR2_x86_i486)$(BR2_x86_i586)$(BR2_x86_i686)$(BR2_x86_pentiumpro)$(BR2_x86_geode),y)
 FFMPEG_CONF_OPT += --disable-mmx
+else
+# If it is enabled, nasm is required
+FFMPEG_DEPENDENCIES += host-nasm
+endif
 endif
 
 # ARM defaults to v5: clear if less, add extra if more
@@ -146,7 +150,7 @@ endif
 # Set powerpc altivec appropriately
 ifeq ($(BR2_powerpc),y)
 ifeq ($(BR2_powerpc_7400)$(BR2_powerpc_7450)$(BR2_powerpc_970),y)
-FFMPEG_CONF_OPT -= --enable-altivec
+FFMPEG_CONF_OPT += --enable-altivec
 else
 FFMPEG_CONF_OPT += --disable-altivec
 endif
@@ -168,8 +172,9 @@ define FFMPEG_CONFIGURE_CMDS
 		--arch=$(BR2_ARCH) \
 		--target-os=linux \
 		--extra-cflags=-fPIC \
+		$(SHARED_STATIC_LIBS_OPTS) \
 		$(FFMPEG_CONF_OPT) \
 	)
 endef
 
-$(eval $(call AUTOTARGETS,package/multimedia,ffmpeg))
+$(eval $(call AUTOTARGETS))

@@ -3,10 +3,10 @@
 # MySQL 5.1 Client
 #
 #############################################################
-MYSQL_CLIENT_VERSION = 5.1.53
+
+MYSQL_CLIENT_VERSION = 5.1.62
 MYSQL_CLIENT_SOURCE = mysql-$(MYSQL_CLIENT_VERSION).tar.gz
-MYSQL_CLIENT_SITE = http://downloads.mysql.com/archives/mysql-5.1/
-MYSQL_CLIENT_INSTALL_TARGET = YES
+MYSQL_CLIENT_SITE = http://downloads.skysql.com/archives/mysql-5.1
 MYSQL_CLIENT_INSTALL_STAGING = YES
 MYSQL_CLIENT_DEPENDENCIES = readline ncurses
 MYSQL_CLIENT_AUTORECONF=YES
@@ -21,7 +21,6 @@ MYSQL_CLIENT_CONF_ENV = \
 	mysql_cv_new_rl_interface=yes
 
 MYSQL_CLIENT_CONF_OPT = \
-	--program-prefix="" \
 	--without-ndb-binlog \
 	--without-server \
 	--without-docs \
@@ -43,4 +42,4 @@ endef
 MYSQL_CLIENT_POST_INSTALL_TARGET_HOOKS += MYSQL_CLIENT_REMOVE_TEST_PROGS
 MYSQL_CLIENT_POST_INSTALL_TARGET_HOOKS += MYSQL_CLIENT_ADD_MYSQL_LIB_PATH
 
-$(eval $(call AUTOTARGETS,package,mysql_client))
+$(eval $(call AUTOTARGETS))

@@ -4,9 +4,13 @@
 #
 #############################################################
 
-LIBCAP_VERSION = 2.20
-LIBCAP_SITE = http://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2
+LIBCAP_VERSION = 2.22
+# Until kernel.org is completely back up use debian mirror
+#LIBCAP_SITE = http://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2
+LIBCAP_SITE = $(BR2_DEBIAN_MIRROR)/debian/pool/main/libc/libcap2
+LIBCAP_SOURCE = libcap2_$(LIBCAP_VERSION).orig.tar.gz
 LIBCAP_DEPENDENCIES = host-libcap
+HOST_LIBCAP_DEPENDENCIES =
 LIBCAP_INSTALL_STAGING = YES
 
 define LIBCAP_BUILD_CMDS
@@ -34,5 +38,5 @@ define HOST_LIBCAP_INSTALL_CMDS
 		prefix=/usr lib=lib install
 endef
 
-$(eval $(call GENTARGETS,package,libcap))
-$(eval $(call GENTARGETS,package,libcap,host))
+$(eval $(call GENTARGETS))
+$(eval $(call GENTARGETS,host))

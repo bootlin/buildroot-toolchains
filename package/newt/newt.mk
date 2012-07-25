@@ -11,7 +11,7 @@ NEWT_VERSION=0.51.0
 NEWT_CFLAGS=-Os -g -fPIC
 
 $(DL_DIR)/$(NEWT_SOURCE):
-	$(call DOWNLOAD,$(NEWT_SITE),$(NEWT_SOURCE))
+	$(call DOWNLOAD,$(NEWT_SITE)/$(NEWT_SOURCE))
 
 $(NEWT_DIR)/.source: $(DL_DIR)/$(NEWT_SOURCE)
 	$(NEWT_CAT) $(DL_DIR)/$(NEWT_SOURCE) | tar -C $(BUILD_DIR) $(TAR_OPTIONS) -
@@ -42,7 +42,7 @@ $(NEWT_DIR)/.configured: $(NEWT_DIR)/.source
 	touch $(NEWT_DIR)/.configured
 
 $(NEWT_DIR)/libnewt.so.$(NEWT_VERSION): $(NEWT_DIR)/.configured
-	$(MAKE) CFLAGS="$(TARGET_CFLAGS) $(NEWT_CFLAGS)" CC="$(TARGET_CC)" -C $(NEWT_DIR)
+	$(MAKE1) CFLAGS="$(TARGET_CFLAGS) $(NEWT_CFLAGS)" CC="$(TARGET_CC)" -C $(NEWT_DIR)
 	touch -c $@
 
 $(STAGING_DIR)/usr/lib/libnewt.a: $(NEWT_DIR)/libnewt.so.$(NEWT_VERSION)

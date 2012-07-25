@@ -8,7 +8,6 @@ FONTCONFIG_SOURCE = fontconfig-$(FONTCONFIG_VERSION).tar.gz
 FONTCONFIG_SITE = http://fontconfig.org/release
 FONTCONFIG_AUTORECONF = YES
 FONTCONFIG_INSTALL_STAGING = YES
-FONTCONFIG_INSTALL_TARGET = YES
 # This package does not like using the target cflags for some reason.
 FONTCONFIG_CONF_ENV = CFLAGS="-I$(STAGING_DIR)/usr/include/freetype2"
 
@@ -22,10 +21,9 @@ FONTCONFIG_CONF_OPT = --with-arch=$(GNU_TARGET_NAME) \
 
 FONTCONFIG_DEPENDENCIES = freetype expat
 
-HOST_FONTCONFIG_DEPENDENCIES = host-freetype host-expat
 HOST_FONTCONFIG_CONF_OPT = \
 		--disable-docs \
 		--disable-static
 
-$(eval $(call AUTOTARGETS,package,fontconfig))
-$(eval $(call AUTOTARGETS,package,fontconfig,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))

@@ -26,6 +26,7 @@
 NCURSES_VERSION = 5.7
 NCURSES_SITE = $(BR2_GNU_MIRROR)/ncurses
 NCURSES_INSTALL_STAGING = YES
+NCURSES_DEPENDENCIES = host-ncurses
 
 NCURSES_CONF_OPT = \
 	--without-cxx \
@@ -59,8 +60,6 @@ define NCURSES_PATCH_NCURSES_CONFIG
 endef
 
 NCURSES_POST_STAGING_INSTALL_HOOKS += NCURSES_PATCH_NCURSES_CONFIG
-
-ifeq ($(DISABLE_SHARED),)
 
 ifeq ($(BR2_HAVE_DEVFILES),y)
 define NCURSES_INSTALL_TARGET_DEVFILES
@@ -119,10 +118,25 @@ define NCURSES_INSTALL_TARGET_CMDS
 	cp -dpf $(STAGING_DIR)/usr/share/terminfo/a/ansi $(TARGET_DIR)/usr/share/terminfo/a
 	mkdir -p $(TARGET_DIR)/usr/share/terminfo/l
 	cp -dpf $(STAGING_DIR)/usr/share/terminfo/l/linux $(TARGET_DIR)/usr/share/terminfo/l
-	-$(STRIPCMD) $(STRIP_STRIP_UNNEEDED) $(TARGET_DIR)/usr/lib/libncurses.so*
+	mkdir -p $(TARGET_DIR)/usr/share/terminfo/s
+	cp -dpf $(STAGING_DIR)/usr/share/terminfo/s/screen $(TARGET_DIR)/usr/share/terminfo/s
 	$(NCURSES_INSTALL_TARGET_DEVFILES)
 endef # NCURSES_INSTALL_TARGET_CMDS
 
-endif # DISABLE_SHARED
+#
+# On systems with an older version of tic, the installation of ncurses hangs
+# forever. To resolve the problem, build a static version of tic on host
+# ourselves, and use that during installation.
+#
+define HOST_NCURSES_BUILD_CMDS
+	$(MAKE1) -C $(@D) sources
+	$(MAKE) -C $(@D)/progs tic
+endef
 
-$(eval $(call AUTOTARGETS,package,ncurses))
+HOST_NCURSES_DEPENDENCIES =
+
+HOST_NCURSES_CONF_OPT = \
+	--without-shared --without-gpm
+
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))

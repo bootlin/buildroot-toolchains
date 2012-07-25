@@ -14,6 +14,7 @@ NFS_UTILS_CONF_OPT = \
 		--disable-gss \
 		--disable-tirpc \
 		--disable-uuid \
+		--disable-ipv6 \
 		--without-tcp-wrappers \
 		--with-rpcgen=internal
 
@@ -29,4 +30,4 @@ endef
 
 NFS_UTILS_POST_INSTALL_TARGET_HOOKS += NFS_UTILS_INSTALL_FIXUP
 
-$(eval $(call AUTOTARGETS,package,nfs-utils))
+$(eval $(call AUTOTARGETS))

@@ -4,9 +4,8 @@
 #
 #############################################################
 
-IPROUTE2_VERSION = 2.6.38
-IPROUTE2_SOURCE = iproute2-$(IPROUTE2_VERSION).tar.bz2
-IPROUTE2_SITE = http://devresources.linuxfoundation.org/dev/iproute2/download
+IPROUTE2_VERSION = 3.3.0
+IPROUTE2_SITE = $(BR2_KERNEL_MIRROR)/linux/utils/net/iproute2
 IPROUTE2_TARGET_SBINS = ctstat genl ifstat ip lnstat nstat routef routel rtacct rtmon rtpr rtstat ss tc
 
 # If both iproute2 and busybox are selected, make certain we win
@@ -26,17 +25,15 @@ endef
 endif
 
 define IPROUTE2_CONFIGURE_CMDS
-	# Use kernel headers
-	rm -r $(IPROUTE2_DIR)/include/netinet
 	# arpd needs berkeleydb
 	$(SED) "/^TARGETS=/s: arpd : :" $(IPROUTE2_DIR)/misc/Makefile
-	$(SED) "s:-O2:$(TARGET_CFLAGS):" $(IPROUTE2_DIR)/Makefile
 	echo "IPT_LIB_DIR:=/usr/lib/xtables" >>$(IPROUTE2_DIR)/Config
 	$(IPROUTE2_WITH_IPTABLES)
 endef
 
 define IPROUTE2_BUILD_CMDS
-	$(MAKE) CC="$(TARGET_CC)" -C $(@D)
+	$(SED) 's/$$(CCOPTS)//' $(@D)/netem/Makefile
+	$(MAKE) CC="$(TARGET_CC)" CCOPTS="$(TARGET_CFLAGS) -D_GNU_SOURCE" -C $(@D)
 endef
 
 define IPROUTE2_INSTALL_TARGET_CMDS
@@ -55,4 +52,4 @@ define IPROUTE2_UNINSTALL_TARGET_CMDS
 	rm -f $(addprefix $(TARGET_DIR)/sbin/, $(IPROUTE2_TARGET_SBINS))
 endef
 
-$(eval $(call GENTARGETS,package,iproute2))
+$(eval $(call GENTARGETS))

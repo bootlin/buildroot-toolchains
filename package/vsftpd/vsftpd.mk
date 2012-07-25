@@ -3,10 +3,9 @@
 # vsftpd
 #
 #############################################################
-VSFTPD_VERSION = 2.3.2
-VSFTPD_SOURCE = vsftpd-$(VSFTPD_VERSION).tar.gz
-VSFTPD_SITE = ftp://vsftpd.beasts.org/users/cevans
 
+VSFTPD_VERSION = 2.3.5
+VSFTPD_SITE = https://security.appspot.com/downloads
 VSFTPD_LIBS = -lcrypt
 
 define VSFTPD_ENABLE_SSL
@@ -15,7 +14,7 @@ endef
 
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 VSFTPD_DEPENDENCIES += openssl
-VSFTPD_LIBS += -lssl
+VSFTPD_LIBS += -lssl -lcrypto
 VSFTPD_POST_CONFIGURE_HOOKS += VSFTPD_ENABLE_SSL
 endif
 
@@ -51,4 +50,4 @@ define VSFTPD_CLEAN_CMDS
 	-$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS,package,vsftpd))
+$(eval $(call GENTARGETS))

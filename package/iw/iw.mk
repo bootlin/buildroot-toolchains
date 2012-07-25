@@ -4,7 +4,7 @@
 #
 #############################################################
 
-IW_VERSION = 0.9.22
+IW_VERSION = 3.4
 IW_SOURCE = iw-$(IW_VERSION).tar.bz2
 IW_SITE = http://wireless.kernel.org/download/iw
 IW_DEPENDENCIES = host-pkg-config libnl
@@ -32,4 +32,4 @@ define IW_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/share/man/man8/iw.8*
 endef
 
-$(eval $(call GENTARGETS,package,iw))
+$(eval $(call GENTARGETS))

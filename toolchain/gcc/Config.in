@@ -4,7 +4,7 @@ comment "GCC Options"
 
 choice
 	prompt "GCC compiler Version"
-	default BR2_GCC_VERSION_4_3_X if !BR2_avr32 && !BR2_sparc_sparchfleon && !BR2_sparc_sparchfleonv8 && !BR2_sparc_sparcsfleon && !BR2_sparc_sparcsfleonv8
+	default BR2_GCC_VERSION_4_5_X if !BR2_avr32 && !BR2_sparc_sparchfleon && !BR2_sparc_sparchfleonv8 && !BR2_sparc_sparcsfleon && !BR2_sparc_sparcsfleonv8
 	default BR2_GCC_VERSION_4_4_X if BR2_sparc_sparchfleon || BR2_sparc_sparchfleonv8 || BR2_sparc_sparcsfleon || BR2_sparc_sparcsfleonv8
 	default BR2_GCC_VERSION_4_2_2_AVR32_2_1_5 if BR2_avr32
 	help
@@ -13,10 +13,6 @@ choice
 	config BR2_GCC_VERSION_4_2_2_AVR32_2_1_5
 	       depends on BR2_avr32
 	       bool "gcc 4.2.2-avr32-2.1.5"
-
-	config BR2_GCC_VERSION_4_2_4
-		depends on !BR2_avr32 && !BR2_sparc_sparchfleon && !BR2_sparc_sparchfleonv8 && !BR2_sparc_sparcsfleon && !BR2_sparc_sparcsfleonv8
-		bool "gcc 4.2.4"
 
 	config BR2_GCC_VERSION_4_3_X
 		depends on !BR2_avr32 && !BR2_sparc_sparchfleon && !BR2_sparc_sparchfleonv8 && !BR2_sparc_sparcsfleon && !BR2_sparc_sparcsfleonv8
@@ -34,6 +30,10 @@ choice
 		depends on !BR2_avr32 && !BR2_sparc_sparchfleon && !BR2_sparc_sparchfleonv8 && !BR2_sparc_sparcsfleon && !BR2_sparc_sparcsfleonv8
 		bool "gcc 4.6.x"
 
+	config BR2_GCC_VERSION_4_7_X
+		depends on !BR2_avr32 && !BR2_sparc_sparchfleon && !BR2_sparc_sparchfleonv8 && !BR2_sparc_sparcsfleon && !BR2_sparc_sparcsfleonv8
+		bool "gcc 4.7.x"
+
 	config BR2_GCC_VERSION_SNAP
 		depends on !BR2_avr32 && !BR2_sparc_sparchfleon && !BR2_sparc_sparchfleonv8 && !BR2_sparc_sparcsfleon && !BR2_sparc_sparcsfleonv8
 		bool "gcc snapshot"
@@ -41,7 +41,7 @@ endchoice
 
 config BR2_GCC_SUPPORTS_FINEGRAINEDMTUNE
 	bool
-	default y if !BR2_GCC_VERSION_4_2_4 && !BR2_GCC_VERSION_4_2_2_AVR32_2_1_5
+	default y if !BR2_GCC_VERSION_4_2_2_AVR32_2_1_5
 
 config BR2_GCC_SNAP_DATE
 	string "GCC snapshot date"
@@ -60,11 +60,11 @@ config BR2_GCC_SNAP_DATE
 config BR2_GCC_VERSION
 	string
 	default "4.2.2-avr32-2.1.5" if BR2_GCC_VERSION_4_2_2_AVR32_2_1_5
-	default "4.2.4"     if BR2_GCC_VERSION_4_2_4
-	default "4.3.5"     if BR2_GCC_VERSION_4_3_X
-	default "4.4.6"     if BR2_GCC_VERSION_4_4_X
+	default "4.3.6"     if BR2_GCC_VERSION_4_3_X
+	default "4.4.7"     if BR2_GCC_VERSION_4_4_X
 	default "4.5.3"     if BR2_GCC_VERSION_4_5_X
-	default "4.6.0"     if BR2_GCC_VERSION_4_6_X
+	default "4.6.3"     if BR2_GCC_VERSION_4_6_X
+	default "4.7.0"     if BR2_GCC_VERSION_4_7_X
 	default $BR2_GCC_SNAP_DATE if BR2_GCC_VERSION_SNAP
 
 config BR2_EXTRA_GCC_CONFIG_OPTIONS
@@ -72,18 +72,6 @@ config BR2_EXTRA_GCC_CONFIG_OPTIONS
 	default ""
 	help
 	  Any additional gcc configure options you may want to include....
-
-config BR2_GCC_CROSS_JAVA
-       bool
-
-config BR2_INSTALL_LIBGCJ
-	bool "Build/install java compiler and libgcj?"
-	depends on !BR2_avr32 && BR2_INSTALL_LIBSTDCPP
-	select BR2_GCC_CROSS_JAVA
-	select BR2_LARGEFILE
-	depends on BROKEN
-	help
-	  Build/install java compiler and libgcj?
 
 config BR2_INSTALL_OBJC
 	bool "Build/install Objective-C compiler and runtime?"
