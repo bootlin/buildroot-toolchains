@@ -1,5 +1,5 @@
---- busybox-1.17.4/include/libbb.h
-+++ busybox-1.17.4-include/include/libbb.h
+--- busybox.old/include/libbb.h
++++ busybox/include/libbb.h
 @@ -89,6 +89,7 @@
  
  

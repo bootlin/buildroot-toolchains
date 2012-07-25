@@ -8,7 +8,7 @@ NBENCH_SOURCE:=nbench-byte-$(NBENCH_VERSION).tar.gz
 NBENCH_SITE:=http://www.tux.org/~mayer/linux/
 
 define NBENCH_CONFIGURE_CMDS
-	$(CONFIG_UPDATE) $(@D)
+	$(call CONFIG_UPDATE, $(@D))
 	sed -i 's/CFLAGS=/CFLAGS+=/g' $(@D)/Makefile
 	sed -i '/cd .*doc/d' $(@D)/Makefile
 	sed -i '/include/d' $(@D)/Makefile

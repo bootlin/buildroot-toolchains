@@ -239,10 +239,9 @@ check_uclibc_feature = \
 # $1: sysroot directory
 #
 ifeq ($(BR2_ABI_FLAT),y)
-check_uclibc = :
+check_uclibc_ldso = :
 else
-check_uclibc = \
-	SYSROOT_DIR="$(strip $1)"; \
+check_uclibc_ldso = \
 	if ! test -f $${SYSROOT_DIR}/usr/include/bits/uClibc_config.h ; then \
 		echo "Incorrect selection of the C library"; \
 		exit -1; \

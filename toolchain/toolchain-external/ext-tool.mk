@@ -51,8 +51,6 @@
 #  of Buildroot is handled identical for the 2 toolchain types.
 -include target/device/*/ext-tool.mk
 
-uclibc: dependencies $(HOST_DIR)/usr/bin/ext-toolchain-wrapper
-
 ifeq ($(BR2_ABI_FLAT),y)
 LIB_EXTERNAL_LIBS=
 else
