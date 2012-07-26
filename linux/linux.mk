@@ -58,6 +58,8 @@ endif
 # going to be installed in the target filesystem.
 LINUX_VERSION_PROBED = $(shell $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) --no-print-directory -s kernelrelease)
 
+KERNELVERSION=$(shell cat $(LINUX26_SOURCE_DIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
+
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
 LINUX_IMAGE_NAME=$(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
 else
@@ -120,7 +122,7 @@ define LINUX_APPLY_PATCHES
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
 			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) $(DL_DIR) `basename $$p` ; \
 		elif test -d $$p ; then \
-			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) $$p linux-\*.patch ; \
+			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) $$p linux-$(KERNELVERSION)-\*.patch ; \
 		else \
 			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) `dirname $$p` `basename $$p` ; \
 		fi \
