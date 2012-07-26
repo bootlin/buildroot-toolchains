@@ -177,10 +177,17 @@ endef
 # Compilation. We make sure the kernel gets rebuilt when the
 # configuration has changed.
 define LINUX_BUILD_CMDS
+	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
+	# Remove the any previously generated initramfs if do recompilation.
+		$(RM) -f $(BINARIES_DIR)/rootfs.initramfs
+		$(RM) -f $(@D)/usr/initramfs_data.cpio*
+		touch $(BINARIES_DIR)/rootfs.initramfs)
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) $(LINUX_IMAGE_NAME)
 	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
 		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) modules ;	\
 	fi
+	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
+		cp $(LINUX_IMAGE_PATH) $(KERNEL_ARCH_PATH)/boot/vmImage)
 endef
 
 
@@ -192,6 +199,7 @@ endif
 
 define LINUX_INSTALL_IMAGES_CMDS
 	cp $(LINUX_IMAGE_PATH) $(BINARIES_DIR)
+	cp $(KERNEL_ARCH_PATH)/boot/vmImage $(BINARIES_DIR)
 endef
 
 define LINUX_INSTALL_TARGET_CMDS
