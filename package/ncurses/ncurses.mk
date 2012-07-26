@@ -45,7 +45,7 @@ ifneq ($(BR2_ENABLE_DEBUG),y)
 NCURSES_CONF_OPT += --without-debug
 endif
 
-ifneq ($(BR2_ABI_FLAT),y)
+ifneq ($(BR2_PREFER_STATIC_LIB),y)
 NCURSES_CONF_OPT += --with-shared
 endif
 
