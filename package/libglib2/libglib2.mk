@@ -47,7 +47,7 @@ LIBGLIB2_CONF_ENV = \
 LIBGLIB2_CONF_OPT = \
 		--enable-static \
 
-ifeq ($(BR2_BFIN_FDPIC),y)
+ifneq ($(BR2_PREFER_STATIC_LIB),y)
 LIBGLIB2_CONF_OPT += --enable-shared
 endif
 
