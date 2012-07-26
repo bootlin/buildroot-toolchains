@@ -6,7 +6,7 @@
 LZO_VERSION:=2.03
 LZO_SOURCE:=lzo-$(LZO_VERSION).tar.gz
 LZO_SITE:=http://www.oberhumer.com/opensource/lzo/download
-ifneq ($(BR2_ABI_FLAT),y)
+ifneq ($(BR2_PREFER_STATIC_LIB),y)
 LZO_CONF_OPT = --enable-shared
 HOST_LZO_CONF_OPT = --enable-shared
 endif
