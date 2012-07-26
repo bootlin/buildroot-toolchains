@@ -26,7 +26,7 @@ SQLITE_CONF_OPT = \
 	--enable-threadsafe \
 	--localstatedir=/var
 
-ifeq ($(BR2_ABI_FLAT),y)
+ifeq ($(BR2_PREFER_STATIC_LIB),y)
 SQLITE_CONF_OPT += --enable-dynamic-extensions=no
 endif
 ifeq ($(BR2_PACKAGE_SQLITE_READLINE),y)
