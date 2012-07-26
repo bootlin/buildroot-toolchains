@@ -5,7 +5,9 @@
 BONNIE_VERSION = 1.94
 BONNIE_SOURCE = bonnie++-$(BONNIE_VERSION).tgz
 BONNIE_SITE = http://www.coker.com.au/bonnie++/experimental/
+ifeq ($(BR2_ABI_FLAT),y)
 BONNIE_CONF_ENV = LDFLAGS="$(TARGET_LDFLAGS) -Wl,-elf2flt=-s64000"
+endif
 
 define BONNIE_INSTALL_TARGET_CMDS
 	install -D -m 755 $(@D)/bonnie++ $(TARGET_DIR)/usr/sbin/bonnie++
