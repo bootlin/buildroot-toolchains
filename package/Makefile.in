@@ -269,7 +269,7 @@ TARGET_CONFIGURE_ARGS= \
 	$(BR2_AC_CV_C_BIGENDIAN)
 
 #######################################################################
-ifeq ($(BR2_ABI_FLAT),y)
+ifeq ($(BR2_PREFER_STATIC_LIB),y)
 DISABLE_SHARED = --disable-shared
 else
 DISABLE_SHARED =
