@@ -253,6 +253,18 @@ $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LI
 # after it generated the initramfs list of files.
 linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
 
+linux-unpatch:
+ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
+ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX_VERSION)/.stamp_patched),)
+	@echo "unpatch linux kernel...."
+	for p in $(LINUX_PATCHES) ; do \
+		patch -RE -p1 -d $(LINUX_SOURCE_DIR) < $$p; \
+	done
+else
+	@echo "linux kernel didn't patched, skip unpatch...."
+endif
+endif
+
 # Checks to give errors that the user can understand
 ifeq ($(filter source,$(MAKECMDGOALS)),)
 ifeq ($(BR2_LINUX_KERNEL_USE_DEFCONFIG),y)
