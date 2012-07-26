@@ -13,9 +13,9 @@ LINUX_DEPENDENCIES += ocf-linux
 # It works for older kernel versions.
 # Run tested from 2.6.38+ and build tested from 2.6.35+
 define OCF_LINUX_PREPARE_KERNEL
-	support/scripts/apply-patches.sh $(LINUX_DIR) \
+	support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) \
 		$(OCF_LINUX_DIR)/patches/ linux-3.2.1-ocf.patch ; \
-	cp -rf $(OCF_LINUX_DIR)/ocf $(LINUX_DIR)/crypto/ocf ;
+	cp -rf $(OCF_LINUX_DIR)/ocf $(LINUX_SOURCE_DIR)/crypto/ocf ;
 endef
 
 LINUX_PRE_PATCH_HOOKS += OCF_LINUX_PREPARE_KERNEL
