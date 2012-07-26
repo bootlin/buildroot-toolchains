@@ -11,7 +11,7 @@ READLINE_INSTALL_STAGING = YES
 READLINE_DEPENDENCIES = ncurses
 READLINE_CONF_ENV = bash_cv_func_sigsetjmp=yes
 
-ifneq ($(BR2_ABI_FLAT),y)
+ifneq ($(BR2_PREFER_STATIC_LIB),y)
 
 define READLINE_INSTALL_TARGET_CMDS
 	$(MAKE1) DESTDIR=$(TARGET_DIR) -C $(@D) uninstall
