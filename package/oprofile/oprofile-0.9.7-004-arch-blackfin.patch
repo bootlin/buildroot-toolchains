@@ -22,3 +22,16 @@ index d6cae3a..667f32c 100644
  	CPU_ARM_V7, /**< ARM Cortex-A8 */
   	CPU_ARCH_PERFMON, /**< Intel architectural perfmon */
  	CPU_FAMILY11H, /**< AMD family 11h */
+diff --git a/daemon/oprofiled.c b/daemon/oprofiled.c
+index 2260630..82d4a1e 100644
+--- a/daemon/oprofiled.c
++++ b/daemon/oprofiled.c
+@@ -67,7 +67,7 @@ int separate_cpu;
+ int no_vmlinux;
+ char * vmlinux;
+ char * kernel_range;
+-char * session_dir;
++char * session_dir ="/var/lib/oprofile/";
+ int no_xen;
+ char * xenimage;
+ char * xen_range;
