@@ -19,9 +19,6 @@ case $1 in
 	    || err "$interface: ifconfig failed to set device parameters!"
 	info "set $interface IP to $ip"
 
-        # Add multicast route
-	route add -net 224.0.0.0 netmask 224.0.0.0 $interface > /dev/null 2>&1
-
 	echo HOSTNAME=$HOSTNAME > /tmp/network
 	echo IP_SETMETHOD=AUTOIP >> /tmp/network
 	echo IP=$ip >> /tmp/network

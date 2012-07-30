@@ -18,8 +18,6 @@ start_static() {
 		# Set up interface using static settings.
 		ifconfig $iface $IP netmask $NETMASK broadcast $BROADCAST \
 			|| end $? "$0: ifconfig failed!"
-		# Add multicast route
-		route add -net 224.0.0.0 netmask 224.0.0.0 $iface > /dev/null 2>&1
 		information "IP address: $IP"
 		information "netmask: $NETMASK"
 		information "broadcast address: $BROADCAST"
@@ -108,14 +106,18 @@ case "$1" in
 
 		set_media
 
-		# Always set up the static address. In case we use DHCP the
-		# static settings will be used until we get the new settings
-		# from the DHCP server.
-		start_static
-
 		information "boot protocol: $BOOTPROTO"
+
+		# Bring interface up
+		ifconfig $iface up
+
+		# Add multicast route
+		route add -net 224.0.0.0 netmask 224.0.0.0 $iface > /dev/null 2>&1
+
 		if [ "$BOOTPROTO" = dhcp ]; then
 			start_dhcp
+		else
+		        start_static
 		fi
 
 		end $?

@@ -43,9 +43,6 @@ info "$interface: IP address: \"$ip\""
 info "$interface: Netmask: \"$subnet\""
 info "$interface: Broadcast: \"$broadcast\""
 
-# Add multicast route
-route add -net 224.0.0.0 netmask 224.0.0.0 $interface > /dev/null 2>&1
-
 echo $ip > /etc/conf.d/net.$interface.lastdhcpip
 
 if [ -n "$router" ]; then
