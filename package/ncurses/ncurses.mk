@@ -46,10 +46,6 @@ ifneq ($(BR2_ENABLE_DEBUG),y)
 NCURSES_CONF_OPT += --without-debug
 endif
 
-ifneq ($(BR2_PREFER_STATIC_LIB),y)
-NCURSES_CONF_OPT += --with-shared
-endif
-
 define NCURSES_BUILD_CMDS
 	$(MAKE1) -C $(@D) DESTDIR=$(STAGING_DIR)
 endef
@@ -60,6 +56,9 @@ define NCURSES_PATCH_NCURSES_CONFIG
 endef
 
 NCURSES_POST_STAGING_INSTALL_HOOKS += NCURSES_PATCH_NCURSES_CONFIG
+
+ifneq ($(BR2_PREFER_STATIC_LIB),y)
+NCURSES_CONF_OPT += --with-shared
 
 ifeq ($(BR2_HAVE_DEVFILES),y)
 define NCURSES_INSTALL_TARGET_DEVFILES
@@ -122,6 +121,8 @@ define NCURSES_INSTALL_TARGET_CMDS
 	cp -dpf $(STAGING_DIR)/usr/share/terminfo/s/screen $(TARGET_DIR)/usr/share/terminfo/s
 	$(NCURSES_INSTALL_TARGET_DEVFILES)
 endef # NCURSES_INSTALL_TARGET_CMDS
+
+endif # BR2_PREFER_STATIC_LIB
 
 #
 # On systems with an older version of tic, the installation of ncurses hangs
