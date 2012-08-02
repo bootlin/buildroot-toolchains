@@ -44,13 +44,6 @@ LIBGLIB2_CONF_ENV = \
 		ac_cv_func_posix_getgrgid_r=no \
 		gt_cv_c_wchar_t=$(if $(BR2_USE_WCHAR),yes,no)
 
-LIBGLIB2_CONF_OPT = \
-		--enable-static \
-
-ifneq ($(BR2_PREFER_STATIC_LIB),y)
-LIBGLIB2_CONF_OPT += --enable-shared
-endif
-
 # old uClibc versions don't provide qsort_r
 ifeq ($(BR2_UCLIBC_VERSION_0_9_31)$(BR2_UCLIBC_VERSION_0_9_32)$(BR2_TOOLCHAIN_CTNG_uClibc)$(BR2_TOOLCHAIN_EXTERNAL_UCLIBC),y)
 LIBGLIB2_CONF_ENV += glib_cv_have_qsort_r=no
