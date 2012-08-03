@@ -256,7 +256,7 @@ $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LI
 # after it generated the initramfs list of files.
 linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
 
-LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCH)/linux-$(KERNELVERSION)-*.patch)
+LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCHES)/linux-$(KERNELVERSION)-*.patch)
 linux-unpatch:
 ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
 ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX_VERSION)/.stamp_patched),)
