@@ -13,10 +13,10 @@ define SETSERIAL_APPLY_DEBIAN_PATCHES
 	if [ -d $(@D)/debian/patches ]; then \
 		touch $(@D)/gorhack.h; \
 		rm $(@D)/debian/patches/01_makefile.dpatch; \
-		toolchain/patch-kernel.sh $(@D) $(@D)/debian/patches *.dpatch; \
+		support/scripts/apply-patches.sh $(@D) $(@D)/debian/patches *.dpatch; \
 	fi
 endef
 
 SETSERIAL_POST_PATCH_HOOKS += SETSERIAL_APPLY_DEBIAN_PATCHES
 
-$(eval $(call AUTOTARGETS,package,setserial))
+$(eval $(call AUTOTARGETS))

@@ -4,9 +4,8 @@
 #
 #############################################################
 
-MPD_VERSION = 0.16.2
-MPD_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/musicpd
-MPD_AUTORECONF = YES
+MPD_VERSION = 0.16.8
+MPD_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/project/musicpd/mpd/$(MPD_VERSION)
 MPD_DEPENDENCIES = host-pkg-config libglib2
 
 # Some options need an explicit --disable or --enable
@@ -20,6 +19,16 @@ endif
 ifeq ($(BR2_PACKAGE_MPD_AO),y)
 MPD_DEPENDENCIES += libao
 MPD_CONF_OPT += --enable-ao
+endif
+
+ifeq ($(BR2_PACKAGE_MPD_AUDIOFILE),y)
+MPD_DEPENDENCIES += audiofile
+MPD_CONF_OPT += --enable-audiofile
+endif
+
+ifeq ($(BR2_PACKAGE_MPD_PULSEAUDIO),y)
+MPD_DEPENDENCIES += pulseaudio
+MPD_CONF_OPT += --enable-pulse
 endif
 
 ifeq ($(BR2_PACKAGE_MPD_BZIP2),y)
@@ -126,4 +135,4 @@ endef
 
 MPD_POST_INSTALL_TARGET_HOOKS += MPD_INSTALL_EXTRA_FILES
 
-$(eval $(call AUTOTARGETS,package/multimedia,mpd))
+$(eval $(call AUTOTARGETS))

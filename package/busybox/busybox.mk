@@ -28,35 +28,28 @@ ifndef BUSYBOX_CONFIG_FILE
 	BUSYBOX_CONFIG_FILE = $(call qstrip,$(BR2_PACKAGE_BUSYBOX_CONFIG))
 endif
 
+define BUSYBOX_PERMISSIONS
+/bin/busybox			 f 4755	0 0 - - - - -
+/usr/share/udhcpc/default.script f 755  0 0 - - - - -
+endef
+
 # If mdev will be used for device creation enable it and copy S10mdev to /etc/init.d
 ifeq ($(BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV),y)
 define BUSYBOX_INSTALL_MDEV_SCRIPT
-	install -m 0755 package/busybox/S10mdev $(TARGET_DIR)/etc/init.d
+	[ -f $(TARGET_DIR)/etc/init.d/S10mdev ] || \
+		install -D -m 0755 package/busybox/S10mdev \
+			$(TARGET_DIR)/etc/init.d/S10mdev
+endef
+define BUSYBOX_INSTALL_MDEV_CONF
+	[ -f $(TARGET_DIR)/etc/mdev.conf ] || \
+		install -D -m 0644 package/busybox/mdev.conf \
+			$(TARGET_DIR)/etc/mdev.conf
 endef
 define BUSYBOX_SET_MDEV
 	$(call KCONFIG_ENABLE_OPT,CONFIG_MDEV,$(BUSYBOX_BUILD_CONFIG))
 	$(call KCONFIG_ENABLE_OPT,CONFIG_FEATURE_MDEV_CONF,$(BUSYBOX_BUILD_CONFIG))
 	$(call KCONFIG_ENABLE_OPT,CONFIG_FEATURE_MDEV_EXEC,$(BUSYBOX_BUILD_CONFIG))
 	$(call KCONFIG_ENABLE_OPT,CONFIG_FEATURE_MDEV_LOAD_FIRMWARE,$(BUSYBOX_BUILD_CONFIG))
-endef
-endif
-
-# If we have external syslogd, force busybox to use it
-ifeq ($(BR2_PACKAGE_SYSKLOGD),y)
-define BUSYBOX_SET_SYSKLOGD
-	@$(SED) "/#include.*busybox\.h/a#define CONFIG_SYSLOGD" \
-		$(BUSYBOX_DIR)/init/init.c
-endef
-endif
-
-# id applet breaks on >=1.13.0 with old uclibc unless the bb pwd routines are used
-ifeq ($(BR2_BUSYBOX_VERSION_1_13_X)$(BR2_BUSYBOX_VERSION_1_14_X)$(BR2_UCLIBC_VERSION_0_9_29),yy)
-define BUSYBOX_SET_BB_PWD
-	if grep -q 'CONFIG_ID=y' $(BUSYBOX_BUILD_CONFIG); \
-	then \
-		echo 'warning: CONFIG_ID needs BB_PWD_GRP with old uclibc, enabling' >&2;\
-		$(SED) "s/^.*CONFIG_USE_BB_PWD_GRP.*/CONFIG_USE_BB_PWD_GRP=y/;" $(BUSYBOX_BUILD_CONFIG); \
-	fi
 endef
 endif
 
@@ -125,12 +118,47 @@ define BUSYBOX_COPY_CONFIG
 	cp -f $(BUSYBOX_CONFIG_FILE) $(BUSYBOX_BUILD_CONFIG)
 endef
 
+# Disable shadow passwords support if unsupported by the C library
+ifeq ($(BR2_TOOLCHAIN_HAS_SHADOW_PASSWORDS),)
+define BUSYBOX_INTERNAL_SHADOW_PASSWORDS
+	$(call KCONFIG_ENABLE_OPT,CONFIG_USE_BB_PWD_GRP,$(BUSYBOX_BUILD_CONFIG))
+	$(call KCONFIG_ENABLE_OPT,CONFIG_USE_BB_SHADOW,$(BUSYBOX_BUILD_CONFIG))
+endef
+endif
+
+ifeq ($(BR2_USE_MMU),)
+define BUSYBOX_DISABLE_MMU_APPLETS
+	$(call KCONFIG_DISABLE_OPT,CONFIG_SWAPONOFF,$(BUSYBOX_BUILD_CONFIG))
+	$(call KCONFIG_DISABLE_OPT,CONFIG_ASH,$(BUSYBOX_BUILD_CONFIG))
+	$(call KCONFIG_ENABLE_OPT,CONFIG_HUSH,$(BUSYBOX_BUILD_CONFIG))
+endef
+endif
+
+define BUSYBOX_INSTALL_LOGGING_SCRIPT
+	if grep -q CONFIG_SYSLOGD=y $(@D)/.config; then \
+		[ -f $(TARGET_DIR)/etc/init.d/S01logging ] || \
+			$(INSTALL) -m 0755 -D package/busybox/S01logging \
+				$(TARGET_DIR)/etc/init.d/S01logging; \
+	else rm -f $(TARGET_DIR)/etc/init.d/S01logging; fi
+endef
+
+ifeq ($(BR2_PACKAGE_BUSYBOX_WATCHDOG),y)
+define BUSYBOX_SET_WATCHDOG
+        $(call KCONFIG_ENABLE_OPT,CONFIG_WATCHDOG,$(BUSYBOX_BUILD_CONFIG))
+endef
+define BUSYBOX_INSTALL_WATCHDOG_SCRIPT
+	[ -f $(TARGET_DIR)/etc/init.d/S15watchdog ] || \
+		install -D -m 0755 package/busybox/S15watchdog \
+			$(TARGET_DIR)/etc/init.d/S15watchdog && \
+		sed -i s/PERIOD/$(BR2_PACKAGE_BUSYBOX_WATCHDOG_PERIOD)/ \
+			$(TARGET_DIR)/etc/init.d/S15watchdog
+endef
+endif
+
 # We do this here to avoid busting a modified .config in configure
 BUSYBOX_POST_EXTRACT_HOOKS += BUSYBOX_COPY_CONFIG
 
 define BUSYBOX_CONFIGURE_CMDS
-	$(BUSYBOX_SET_SYSKLOGD)
-	$(BUSYBOX_SET_BB_PWD)
 	$(BUSYBOX_SET_LARGEFILE)
 	$(BUSYBOX_SET_IPV6)
 	$(BUSYBOX_SET_RPC)
@@ -138,6 +166,9 @@ define BUSYBOX_CONFIGURE_CMDS
 	$(BUSYBOX_SET_MDEV)
 	$(BUSYBOX_NETKITBASE)
 	$(BUSYBOX_NETKITTELNET)
+	$(BUSYBOX_INTERNAL_SHADOW_PASSWORDS)
+	$(BUSYBOX_DISABLE_MMU_APPLETS)
+	$(BUSYBOX_SET_WATCHDOG)
 	@yes "" | $(MAKE) ARCH=$(KERNEL_ARCH) CROSS_COMPILE="$(TARGET_CROSS)" \
 		-C $(@D) oldconfig
 endef
@@ -153,6 +184,9 @@ define BUSYBOX_INSTALL_TARGET_CMDS
 			$(TARGET_DIR)/usr/share/udhcpc/default.script; \
 	fi
 	$(BUSYBOX_INSTALL_MDEV_SCRIPT)
+	$(BUSYBOX_INSTALL_MDEV_CONF)
+	$(BUSYBOX_INSTALL_LOGGING_SCRIPT)
+	$(BUSYBOX_INSTALL_WATCHDOG_SCRIPT)
 endef
 
 define BUSYBOX_UNINSTALL_TARGET_CMDS
@@ -163,12 +197,13 @@ define BUSYBOX_CLEAN_CMDS
 	$(BUSYBOX_MAKE_ENV) $(MAKE) $(BUSYBOX_MAKE_OPTS) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS,package,busybox))
+$(eval $(call GENTARGETS))
 
-busybox-config busybox-menuconfig: busybox-patch
-	$(BUSYBOX_MAKE_ENV) $(MAKE) $(BUSYBOX_MAKE_OPTS) -C $(BUSYBOX_DIR) $(subst busybox-,,$@)
+busybox-menuconfig busybox-xconfig busybox-gconfig: busybox-patch
+	$(BUSYBOX_MAKE_ENV) $(MAKE) $(BUSYBOX_MAKE_OPTS) -C $(BUSYBOX_DIR) \
+		$(subst busybox-,,$@)
 	rm -f $(BUSYBOX_DIR)/.stamp_built
 	rm -f $(BUSYBOX_DIR)/.stamp_target_installed
 
-busybox-update:
+busybox-update-config:
 	cp -f $(BUSYBOX_BUILD_CONFIG) $(BUSYBOX_CONFIG_FILE)

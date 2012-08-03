@@ -12,7 +12,7 @@ NETKITBASE_BINARY:=inetd/inetd
 NETKITBASE_TARGET_BINARY:=usr/sbin/inetd
 
 $(DL_DIR)/$(NETKITBASE_SOURCE):
-	 $(call DOWNLOAD,$(NETKITBASE_SITE),$(NETKITBASE_SOURCE))
+	 $(call DOWNLOAD,$(NETKITBASE_SITE)/$(NETKITBASE_SOURCE))
 
 netkitbase-source: $(DL_DIR)/$(NETKITBASE_SOURCE)
 
@@ -22,7 +22,7 @@ $(NETKITBASE_DIR)/.unpacked: $(DL_DIR)/$(NETKITBASE_SOURCE)
 	$(SED) "s/main()/main(void)/;" $(NETKITBASE_DIR)/configure
 	# don't try to run cross compiled binaries while configuring things
 	$(SED) "s~./__conftest~#./__conftest~;" $(NETKITBASE_DIR)/configure
-	toolchain/patch-kernel.sh $(NETKITBASE_DIR) package/netkitbase/ netkitbase\*.patch
+	support/scripts/apply-patches.sh $(NETKITBASE_DIR) package/netkitbase/ netkitbase\*.patch
 	touch $(NETKITBASE_DIR)/.unpacked
 
 $(NETKITBASE_DIR)/.configured: $(NETKITBASE_DIR)/.unpacked

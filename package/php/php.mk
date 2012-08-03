@@ -70,7 +70,7 @@ ifeq ($(BR2_PACKAGE_PHP_EXT_SIMPLEXML),y)
 	PHP_CONF_OPT += --enable-simplexml
 endif
 
-ifeq ($(BR2_PACKAGE_PHP_EXT_ZLIB),y)
+ifneq ($(BR2_PACKAGE_PHP_EXT_ZLIB)$(BR2_PACKAGE_PHP_EXT_ZIP),)
 	PHP_CONF_OPT += --with-zlib=$(STAGING_DIR)/usr
 	PHP_DEPENDENCIES += zlib
 endif
@@ -171,6 +171,15 @@ ifeq ($(BR2_PACKAGE_PHP_EXT_PDO_MYSQL),y)
 endif
 endif
 
+# Fixup prefix= and exec_prefix= in php-config
+define PHP_FIXUP_PHP_CONFIG
+	$(SED) 's%^prefix="/usr"%prefix="$(STAGING_DIR)/usr"%' \
+		-e 's%^exec_prefix="/usr"%exec_prefix="$(STAGING_DIR)/usr"%' \
+		$(STAGING_DIR)/usr/bin/php-config
+endef
+
+PHP_POST_INSTALL_STAGING_HOOKS += PHP_FIXUP_PHP_CONFIG
+
 define PHP_INSTALL_FIXUP
 	rm -rf $(TARGET_DIR)/usr/lib/php
 	rm -f $(TARGET_DIR)/usr/bin/phpize
@@ -195,4 +204,4 @@ endef
 
 PHP_CONF_ENV += CFLAGS="$(PHP_CFLAGS)"
 
-$(eval $(call AUTOTARGETS,package,php))
+$(eval $(call AUTOTARGETS))

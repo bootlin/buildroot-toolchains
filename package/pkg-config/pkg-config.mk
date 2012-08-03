@@ -17,8 +17,9 @@ HOST_PKG_CONFIG_CONF_OPT = \
 		--disable-static
 
 HOST_PKG_CONFIG_AUTORECONF = YES
+HOST_PKG_CONFIG_DEPENDENCIES =
 
-$(eval $(call AUTOTARGETS,package,pkg-config))
-$(eval $(call AUTOTARGETS,package,pkg-config,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))
 
 PKG_CONFIG_HOST_BINARY:=$(HOST_DIR)/usr/bin/pkg-config

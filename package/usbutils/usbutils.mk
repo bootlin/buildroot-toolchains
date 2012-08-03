@@ -4,10 +4,13 @@
 #
 #############################################################
 
-USBUTILS_VERSION = 002
-USBUTILS_SITE = $(BR2_KERNEL_MIRROR)/linux/utils/usb/usbutils
+USBUTILS_VERSION = 005
+USBUTILS_SITE = http://snapshot.debian.org/archive/debian/20111211T214105Z/pool/main/u/usbutils/
+USBUTILS_SOURCE = usbutils_$(USBUTILS_VERSION).orig.tar.gz
 USBUTILS_DEPENDENCIES = host-pkg-config libusb
 USBUTILS_INSTALL_STAGING = YES
+# no configure in tarball
+USBUTILS_AUTORECONF = YES
 
 ifeq ($(BR2_PACKAGE_USBUTILS_ZLIB),y)
 	USBUTILS_DEPENDENCIES += zlib
@@ -17,6 +20,11 @@ endif
 
 ifeq ($(BR2_ABI_FLAT),y)
 USBUTILS_CONF_OPT += LIBS=-lpthread
+endif
+
+# Build after busybox since it's got a lightweight lsusb
+ifeq ($(BR2_PACKAGE_BUSYBOX),y)
+	USBUTILS_DEPENDENCIES += busybox
 endif
 
 define USBUTILS_TARGET_CLEANUP
@@ -49,4 +57,4 @@ ifneq ($(BR2_HAVE_DEVFILES),y)
 USBUTILS_POST_INSTALL_TARGET_HOOKS += USBUTILS_REMOVE_DEVFILES
 endif
 
-$(eval $(call AUTOTARGETS,package,usbutils))
+$(eval $(call AUTOTARGETS))

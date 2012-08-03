@@ -17,7 +17,6 @@ config BR2_TOOLCHAIN_CTNG_eglibc
 	select BR2_INET_RPC
 	select BR2_ENABLE_LOCALE
 	select BR2_USE_WCHAR
-	select BR2_PROGRAM_INVOCATION
 
 config BR2_TOOLCHAIN_CTNG_glibc
 	bool "glibc"
@@ -26,7 +25,6 @@ config BR2_TOOLCHAIN_CTNG_glibc
 	select BR2_INET_RPC
 	select BR2_ENABLE_LOCALE
 	select BR2_USE_WCHAR
-	select BR2_PROGRAM_INVOCATION
 
 endchoice # C library
 
@@ -89,16 +87,6 @@ config BR2_TOOLCHAIN_CTNG_uClibc_LOCALE
 	  Enable this option if you want your toolchain to support
 	  localization and internationalization.
 
-config BR2_TOOLCHAIN_CTNG_uClibc_PROGRAM_INVOCATION
-	bool "Enable 'program invocation name' support"
-	select BR2_PROGRAM_INVOCATION
-	help
-	  Enable this option if you want your toolchain to support the
-	  GNU-specific program_invocation_name and
-	  program_invocation_short_name strings.  Some GNU packages
-	  (like tar and coreutils) utilize these for extra useful
-	  output, but in general are not required.
-
 endif # BR2_TOOLCHAIN_CTNG_uClibc
 
 config BR2_TOOLCHAIN_CTNG_CXX
@@ -111,11 +99,7 @@ config BR2_TOOLCHAIN_CTNG_CXX
 
 choice
 	prompt "Thread library implementation"
-	default BR2_TOOLCHAIN_CTNG_THREADS_PTHREADS_OLD \
-		if BR2_TOOLCHAIN_CTNG_uClibc
-	default BR2_TOOLCHAIN_CTNG_THREADS_NPTL		\
-		if BR2_TOOLCHAIN_CTNG_eglibc ||		\
-		   BR2_TOOLCHAIN_CTNG_glibc
+	default BR2_TOOLCHAIN_CTNG_THREADS_NPTL
 	help
 	  Enable thread support and select thread implementation. With
 	  glibc, thread support is mandatory but several
@@ -141,8 +125,6 @@ choice
 	config BR2_TOOLCHAIN_CTNG_THREADS_NPTL
 		bool "Native POSIX Threading (NPTL)"
 		select BR2_TOOLCHAIN_HAS_THREADS
-		depends on BR2_TOOLCHAIN_CTNG_eglibc || \
-			   BR2_TOOLCHAIN_CTNG_glibc
 endchoice
 
 endif # BR2_TOOLCHAIN_CTNG

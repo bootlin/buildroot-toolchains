@@ -37,24 +37,39 @@
       <li><a href="#links">Resources</a></li>
     </ul>
 
+    <p><b>WARNING:</b> Since the 2011.11 release, this page is on its way to be
+    deprecated. Information may be incomplete and out-dated.</p>
+
+    <p>To get an up-to-date documentation for
+    <a href="http://buildroot.net/">Buildroot</a>-2011.11 or a git view, just
+    run:</p>
+<pre>
+  $ make manual
+</pre>
+    <p><i>This requires <code>asciidoc</code> installed on the host system.</i></p>
+
+    <p>For releases since <a href="http://buildroot.net/">Buildroot</a>-2012.02,
+    manuals (html, pdf and text) are available in the  <code>docs/manual</code>
+    directory.</p>
+
     <h2 id="about">About Buildroot</h2>
 
-    <p>Buildroot is a set of Makefiles and patches that allows you to easily 
-    generate a cross-compilation toolchain, a root filesystem and a Linux 
-    kernel image for your target. Buildroot can be used for one, two or all 
+    <p>Buildroot is a set of Makefiles and patches that allows you to easily
+    generate a cross-compilation toolchain, a root filesystem and a Linux
+    kernel image for your target. Buildroot can be used for one, two or all
     of these options, independently.</p>
 
-    <p>Buildroot is useful mainly for people working with embedded systems. 
-    Embedded systems often use processors that are not the regular x86 
-    processors everyone is used to having in his PC. They can be PowerPC 
+    <p>Buildroot is useful mainly for people working with embedded systems.
+    Embedded systems often use processors that are not the regular x86
+    processors everyone is used to having in his PC. They can be PowerPC
     processors, MIPS processors, ARM processors, etc.</p>
 
-    <p>A compilation toolchain is the set of tools that allows you to 
-    compile code for your system. It consists of a compiler (in our case, 
-    <code>gcc</code>), binary utils like assembler and linker (in our case, 
-    <code>binutils</code>) and a C standard library (for example 
-    <a href="http://www.gnu.org/software/libc/libc.html">GNU Libc</a>, 
-    <a href="http://www.uclibc.org/">uClibc</a> or 
+    <p>A compilation toolchain is the set of tools that allows you to
+    compile code for your system. It consists of a compiler (in our case,
+    <code>gcc</code>), binary utils like assembler and linker (in our case,
+    <code>binutils</code>) and a C standard library (for example
+    <a href="http://www.gnu.org/software/libc/libc.html">GNU Libc</a>,
+    <a href="http://www.uclibc.org/">uClibc</a> or
     <a href="http://www.fefe.de/dietlibc/">dietlibc</a>). The system installed
     on your development station certainly already has a compilation
     toolchain that you can use to compile an application that runs on your
@@ -139,7 +154,7 @@
     <p>Buildroot has a nice configuration tool similar to the one you can find
     in the Linux kernel
     (<a href="http://www.kernel.org/">http://www.kernel.org/</a>) or in Busybox
-    (<a href="http://www.busybox.org/">http://www.busybox.org/</a>). Note that
+    (<a href="http://www.busybox.net/">http://www.busybox.net/</a>). Note that
     you can (and should) build everything as a normal user. There is no need to
     be root to configure and use Buildroot. The first step is to run the
     configuration assistant:</p>
@@ -816,7 +831,7 @@ $(ZLIB_DIR)/libz.a: $(ZLIB_DIR)/.configured
     directory for your software, for example <code>libfoo</code>.</p>
 
     <p>Some packages have been grouped by topic in a sub-directory:
-    <code>multimedia</code>, <code>java</code>, <code>x11r7</code>, and
+    <code>multimedia</code>, <code>x11r7</code>, and
     <code>games</code>. If your package fits in one of these
     categories, then create your package directory in these.</p>
 
@@ -905,7 +920,7 @@ source "package/libfoo/Config.in"
 <span style="color: #000000">10:</span><span style="color: #009900"> LIBFOO_DEPENDENCIES</span> = host-libaaa libbbb
 <span style="color: #000000">11:</span>
 <span style="color: #000000">12:</span> define LIBFOO_BUILD_CMDS
-<span style="color: #000000">13:</span> 	<span style="color: #009900">$(MAKE)</span> CC=<span style="color: #009900">$(TARGET_CC)</span> LD=<span style="color: #009900">$(TARGET_LD)</span> -C <span style="color: #009900">$(@D)</span> all
+<span style="color: #000000">13:</span> 	<span style="color: #009900">$(MAKE)</span> CC=<span style="color: #009900">"$(TARGET_CC)"</span> LD=<span style="color: #009900">"$(TARGET_LD)"</span> -C <span style="color: #009900">$(@D)</span> all
 <span style="color: #000000">14:</span> endef
 <span style="color: #000000">15:</span>
 <span style="color: #000000">16:</span> define LIBFOO_INSTALL_STAGING_CMDS
@@ -1031,7 +1046,7 @@ $(eval $(call GENTARGETS,package,libfoo,host))
 
       <li><code>LIBFOO_SOURCE</code> may contain the name of the tarball of
       the package. If <code>HOST_LIBFOO_SOURCE</code> is not specified, it
-      defaults to <code>LIBFOO_VERSION</code>. If none are specified, then
+      defaults to <code>LIBFOO_SOURCE</code>. If none are specified, then
       the value is assumed to be
       <code>packagename-$(LIBFOO_VERSION).tar.gz</code>.<br/>Example:
       <code>LIBFOO_SOURCE = foobar-$(LIBFOO_VERSION).tar.bz2</code></li>
@@ -1787,9 +1802,9 @@ Starting dropbear sshd: generating rsa key... generating dsa key... OK</pre>
     <p>then it means that your system is running, but didn't start a
     shell on the serial console. In order to have the system start a
     shell on your serial console, you have to go in the Buildroot
-    configuration, <code>Target options</code>, enable <code>Generic
-    serial port config</code>, and select the serial port and speed
-    you would like to use for the shell. This will automatically tune
+    configuration, <code>System configuration</code>, and modify
+    <code>Port to run a getty (login prompt) on</code> and
+    <code>Baudrate to use</code> as appropriate. This will automatically tune
     the <code>/etc/inittab</code> file of the generated system so that
     a shell starts on the correct serial port.</p>
 

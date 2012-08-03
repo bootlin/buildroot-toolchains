@@ -5,9 +5,10 @@ menuconfig BR2_PACKAGE_QT
 	bool "Qt"
 	depends on BR2_INSTALL_LIBSTDCPP
 	help
-	  Qt for Embedded Linux.
+	  Qt is a cross-platform application and UI framework for
+	  developers using C++.
 
-	  http://www.qtsoftware.com/products/platform/qt-for-embedded-linux
+	  http://qt-project.org
 
 if BR2_PACKAGE_QT
 
@@ -18,6 +19,7 @@ config BR2_PACKAGE_QT_DEBUG
 
 config BR2_PACKAGE_QT_DEMOS
 	bool "Compile and install demos and examples (with code)"
+	select BR2_PACKAGE_QT_GUI_MODULE
 	help
 	  If unsure, say N.
 
@@ -280,12 +282,9 @@ config BR2_PACKAGE_QT_PHONON_BACKEND
 	  If unsure, say n.
 endif
 
-comment "Qt Dbus module not available (needs dbus)"
-	depends on !BR2_PACKAGE_DBUS
-
 config BR2_PACKAGE_QT_DBUS
 	bool "DBus Module"
-	depends on BR2_PACKAGE_DBUS
+	select BR2_PACKAGE_DBUS
 	help
 	  Build the Qt DBus module.
 
@@ -376,6 +375,14 @@ config BR2_PACKAGE_QT_SCRIPTTOOLS
 	depends on BR2_PACKAGE_QT_GUI_MODULE
 	help
 	  Build the Qt Script Tools module.
+	  if unsure, say n.
+
+config BR2_PACKAGE_QT_DECLARATIVE
+	bool "Declarative module"
+	depends on BR2_PACKAGE_QT_SCRIPT
+	depends on BR2_PACKAGE_QT_GUI_MODULE
+	help
+	  Build the Qt Declarative Module for qml support
 	  if unsure, say n.
 
 endif # BR2_PACKAGE_QT

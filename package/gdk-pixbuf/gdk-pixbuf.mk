@@ -4,9 +4,9 @@
 #
 #############################################################
 
-GDK_PIXBUF_MAJOR_VERSION = 2.22
-GDK_PIXBUF_VERSION = $(GDK_PIXBUF_MAJOR_VERSION).0
-GDK_PIXBUF_SOURCE = gdk-pixbuf-$(GDK_PIXBUF_VERSION).tar.bz2
+GDK_PIXBUF_MAJOR_VERSION = 2.24
+GDK_PIXBUF_VERSION = $(GDK_PIXBUF_MAJOR_VERSION).1
+GDK_PIXBUF_SOURCE = gdk-pixbuf-$(GDK_PIXBUF_VERSION).tar.xz
 GDK_PIXBUF_SITE = http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/$(GDK_PIXBUF_MAJOR_VERSION)
 GDK_PIXBUF_INSTALL_STAGING = YES
 
@@ -15,10 +15,6 @@ GDK_PIXBUF_CONF_ENV = \
 	gio_can_sniff=no
 
 GDK_PIXBUF_CONF_OPT = --disable-glibtest
-
-ifneq ($(BR2_LARGEFILE),y)
-GDK_PIXBUF_CONF_OPT += --disable-largefile
-endif
 
 ifneq ($(BR2_PACKAGE_LIBPNG),y)
 GDK_PIXBUF_CONF_OPT += --without-libpng
@@ -50,7 +46,7 @@ endef
 
 GDK_PIXBUF_POST_INSTALL_TARGET_HOOKS += GDK_PIXBUF_POST_INSTALL_TWEAKS
 
-$(eval $(call AUTOTARGETS,package,gdk-pixbuf))
+$(eval $(call AUTOTARGETS))
 
 HOST_GDK_PIXBUF_CONF_OPT = \
 	--without-libjpeg \
@@ -58,4 +54,4 @@ HOST_GDK_PIXBUF_CONF_OPT = \
 
 HOST_GDK_PIXBUF_DEPENDENCIES = host-libpng
 
-$(eval $(call AUTOTARGETS,package,gdk-pixbuf,host))
+$(eval $(call AUTOTARGETS,host))

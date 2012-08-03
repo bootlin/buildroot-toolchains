@@ -8,10 +8,7 @@ READLINE_VERSION = 6.2
 READLINE_SOURCE = readline-$(READLINE_VERSION).tar.gz
 READLINE_SITE = $(BR2_GNU_MIRROR)/readline
 READLINE_INSTALL_STAGING = YES
-READLINE_INSTALL_TARGET = YES
-
 READLINE_DEPENDENCIES = ncurses
-
 READLINE_CONF_ENV = bash_cv_func_sigsetjmp=yes
 
 ifneq ($(BR2_PREFER_STATIC_LIB),y)
@@ -28,4 +25,4 @@ endef
 
 endif
 
-$(eval $(call AUTOTARGETS,package,readline))
+$(eval $(call AUTOTARGETS))

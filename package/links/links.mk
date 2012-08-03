@@ -4,9 +4,10 @@
 #
 #############################################################
 
-LINKS_VERSION = 2.3pre1
+LINKS_VERSION = 2.5
 LINKS_SITE = http://links.twibright.com/download
 LINKS_CONF_OPT = --without-x
+LINKS_DEPENDENCIES = host-pkg-config
 
 ifeq ($(BR2_PACKAGE_LINKS_GRAPHICS),y)
 LINKS_CONF_OPT += --enable-graphics
@@ -32,4 +33,4 @@ ifeq ($(BR2_PACKAGE_ZLIB),y)
 LINKS_DEPENDENCIES += zlib
 endif
 
-$(eval $(call AUTOTARGETS,package,links))
+$(eval $(call AUTOTARGETS))

@@ -3,9 +3,9 @@
 # dhcp
 #
 #############################################################
-DHCP_VERSION  = 4.1.1-P1
-DHCP_SOURCE   = dhcp-$(DHCP_VERSION).tar.gz
-DHCP_SITE     = http://ftp.isc.org/isc/dhcp/
+
+DHCP_VERSION  = 4.1-ESV-R4
+DHCP_SITE     = http://ftp.isc.org/isc/dhcp/$(DHCP_VERSION)
 DHCP_CONF_ENV = ac_cv_file__dev_random=yes
 DHCP_CONF_OPT = \
 	--localstatedir=/var/lib/dhcp \
@@ -61,4 +61,4 @@ define DHCP_INSTALL_TARGET_CMDS
 	$(DHCP_INSTALL_CLIENT)
 endef
 
-$(eval $(call AUTOTARGETS,package,dhcp))
+$(eval $(call AUTOTARGETS))

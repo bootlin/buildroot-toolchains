@@ -4,7 +4,7 @@
 #
 #############################################################
 
-SQLITE_VERSION = 3070500
+SQLITE_VERSION = 3071100
 SQLITE_SOURCE = sqlite-autoconf-$(SQLITE_VERSION).tar.gz
 SQLITE_SITE = http://www.sqlite.org
 SQLITE_INSTALL_STAGING = YES
@@ -13,15 +13,18 @@ ifneq ($(BR2_LARGEFILE),y)
 # the sqlite configure script fails to define SQLITE_DISABLE_LFS when
 # --disable-largefile is passed, breaking the build. Work around it by
 # simply adding it to CFLAGS for configure instead
-SQLITE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -DSQLITE_DISABLE_LFS"
+SQLITE_CFLAGS += -DSQLITE_DISABLE_LFS
 endif
 
-SQLITE_CONF_OPT =	--enable-static \
-			--enable-tempstore=yes \
-			--enable-threadsafe \
-			--enable-releasemode \
-			--disable-tcl \
-			--localstatedir=/var
+ifeq ($(BR2_PACKAGE_SQLITE_STAT3),y)
+SQLITE_CFLAGS += -DSQLITE_ENABLE_STAT3
+endif
+
+SQLITE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) $(SQLITE_CFLAGS)"
+
+SQLITE_CONF_OPT = \
+	--enable-threadsafe \
+	--localstatedir=/var
 
 ifeq ($(BR2_PREFER_STATIC_LIB),y)
 SQLITE_CONF_OPT += --enable-dynamic-extensions=no
@@ -45,4 +48,4 @@ define SQLITE_UNINSTALL_STAGING_CMDS
 	rm -f $(STAGING_DIR)/usr/include/sqlite3*.h
 endef
 
-$(eval $(call AUTOTARGETS,package,sqlite))
+$(eval $(call AUTOTARGETS))

@@ -4,7 +4,7 @@
 #
 #############################################################
 
-PCRE_VERSION = 7.9
+PCRE_VERSION = 8.30
 PCRE_SITE = ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre
 PCRE_INSTALL_STAGING = YES
 
@@ -29,4 +29,4 @@ ifneq ($(BR2_HAVE_DEVFILES),y)
 PCRE_POST_INSTALL_TARGET_HOOKS += PCRE_TARGET_REMOVE_PCRE_CONFIG
 endif
 
-$(eval $(call AUTOTARGETS,package,pcre))
+$(eval $(call AUTOTARGETS))

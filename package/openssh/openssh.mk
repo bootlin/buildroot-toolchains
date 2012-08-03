@@ -4,7 +4,7 @@
 #
 #############################################################
 
-OPENSSH_VERSION = 5.8p2
+OPENSSH_VERSION = 6.0p1
 OPENSSH_SITE = http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable
 OPENSSH_CONF_ENV = LD="$(TARGET_CC)" LDFLAGS="$(TARGET_CFLAGS)"
 OPENSSH_CONF_OPT = --libexecdir=/usr/lib --disable-lastlog --disable-utmp \
@@ -18,4 +18,4 @@ endef
 
 OPENSSH_POST_INSTALL_TARGET_HOOKS += OPENSSH_INSTALL_INITSCRIPT
 
-$(eval $(call AUTOTARGETS,package,openssh))
+$(eval $(call AUTOTARGETS))

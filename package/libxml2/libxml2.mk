@@ -7,6 +7,7 @@
 LIBXML2_VERSION = 2.7.8
 LIBXML2_SITE = ftp://xmlsoft.org/libxml2
 LIBXML2_INSTALL_STAGING = YES
+LIBXML2_AUTORECONF = YES
 
 ifneq ($(BR2_LARGEFILE),y)
 LIBXML2_CONF_ENV = CC="$(TARGET_CC) $(TARGET_CFLAGS) -DNO_LARGEFILE_SOURCE"
@@ -33,8 +34,8 @@ ifneq ($(BR2_HAVE_DEVFILES),y)
 LIBXML2_POST_INSTALL_TARGET_HOOKS += LIBXML2_REMOVE_CONFIG_SCRIPTS
 endif
 
-$(eval $(call AUTOTARGETS,package,libxml2))
-$(eval $(call AUTOTARGETS,package,libxml2,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))
 
 # libxml2 for the host
 LIBXML2_HOST_BINARY:=$(HOST_DIR)/usr/bin/xmllint

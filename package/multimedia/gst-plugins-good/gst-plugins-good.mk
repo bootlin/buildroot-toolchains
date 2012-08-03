@@ -3,7 +3,7 @@
 # gst-plugins-good
 #
 #############################################################
-GST_PLUGINS_GOOD_VERSION = 0.10.28
+GST_PLUGINS_GOOD_VERSION = 0.10.31
 GST_PLUGINS_GOOD_SOURCE = gst-plugins-good-$(GST_PLUGINS_GOOD_VERSION).tar.bz2
 GST_PLUGINS_GOOD_SITE = http://gstreamer.freedesktop.org/src/gst-plugins-good
 
@@ -21,8 +21,7 @@ GST_PLUGINS_GOOD_CONF_OPT = \
 		--disable-aalibtest \
 		--disable-esd \
 		--disable-esdtest \
-		--disable-shout2 \
-		--disable-shout2test
+		--disable-shout2
 
 GST_PLUGINS_GOOD_DEPENDENCIES = gstreamer gst-plugins-base
 
@@ -54,12 +53,6 @@ else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-zlib
 endif
 
-ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_VIDEOFILTER),y)
-GST_PLUGINS_GOOD_CONF_OPT += --enable-videofilter
-else
-GST_PLUGINS_GOOD_CONF_OPT += --disable-videofilter
-endif
-
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_ALPHA),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-alpha
 else
@@ -76,6 +69,12 @@ ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_AUDIOFX),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-audiofx
 else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-audiofx
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_AUDIOPARSERS),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-audioparsers
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-audioparsers
 endif
 
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_AUPARSE),y)
@@ -132,24 +131,6 @@ else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-flv
 endif
 
-ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_ID3DEMUX),y)
-GST_PLUGINS_GOOD_CONF_OPT += --enable-id3demux
-else
-GST_PLUGINS_GOOD_CONF_OPT += --disable-id3demux
-endif
-
-ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_ICYDEMUX),y)
-GST_PLUGINS_GOOD_CONF_OPT += --enable-icydemux
-else
-GST_PLUGINS_GOOD_CONF_OPT += --disable-icydemux
-endif
-
-ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_INTERLEAVE),y)
-GST_PLUGINS_GOOD_CONF_OPT += --enable-interleave
-else
-GST_PLUGINS_GOOD_CONF_OPT += --disable-interleave
-endif
-
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_FLX),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-flx
 else
@@ -166,6 +147,36 @@ ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_GOOM2K1),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-goom2k1
 else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-goom2k1
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_ID3DEMUX),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-id3demux
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-id3demux
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_ICYDEMUX),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-icydemux
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-icydemux
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_IMAGEFREEZE),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-imagefreeze
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-imagefreeze
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_INTERLEAVE),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-interleave
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-interleave
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_ISOMP4),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-isomp4
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-isomp4
 endif
 
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_LAW),y)
@@ -204,12 +215,6 @@ else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-multipart
 endif
 
-ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_QTDEMUX),y)
-GST_PLUGINS_GOOD_CONF_OPT += --enable-qtdemux
-else
-GST_PLUGINS_GOOD_CONF_OPT += --disable-qtdemux
-endif
-
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_REPLAYGAIN),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-replaygain
 else
@@ -232,6 +237,12 @@ ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_RTSP),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-rtsp
 else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-rtsp
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_SHAPEWIPE),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-shapewipe
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-shapewipe
 endif
 
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_SMPTE),y)
@@ -262,6 +273,12 @@ ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_VIDEOCROP),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-videocrop
 else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-videocrop
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_VIDEOFILTER),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-videofilter
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-videofilter
 endif
 
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_VIDEOMIXER),y)
@@ -321,6 +338,19 @@ else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-oss
 endif
 
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_OSS4),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-oss4
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-oss4
+endif
+
+ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_PULSE),y)
+GST_PLUGINS_GOOD_CONF_OPT += --enable-pulse
+GST_PLUGINS_GOOD_DEPENDENCIES += pulseaudio
+else
+GST_PLUGINS_GOOD_CONF_OPT += --disable-pulse
+endif
+
 ifeq ($(BR2_PACKAGE_GST_PLUGINS_GOOD_PLUGIN_SOUPHTTPSRC),y)
 GST_PLUGINS_GOOD_CONF_OPT += --enable-soup
 GST_PLUGINS_GOOD_DEPENDENCIES += libsoup
@@ -335,4 +365,4 @@ else
 GST_PLUGINS_GOOD_CONF_OPT += --disable-speex
 endif
 
-$(eval $(call AUTOTARGETS,package/multimedia,gst-plugins-good))
+$(eval $(call AUTOTARGETS))

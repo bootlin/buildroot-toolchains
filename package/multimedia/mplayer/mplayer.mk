@@ -8,6 +8,9 @@ MPLAYER_VERSION = 32726
 # MPLAYER_SITE = http://www.mplayerhq.hu/MPlayer/releases
 MPLAYER_SITE = svn://svn.mplayerhq.hu/mplayer/trunk
 
+MPLAYER_CFLAGS = $(TARGET_CFLAGS)
+MPLAYER_LDFLAGS = $(TARGET_LDFLAGS)
+
 # mplayer needs pcm+mixer support, but configure fails to check for it
 ifeq ($(BR2_PACKAGE_ALSA_LIB)$(BR2_PACKAGE_ALSA_LIB_MIXER)$(BR2_PACKAGE_ALSA_LIB_PCM),yyy)
 MPLAYER_DEPENDENCIES += alsa-lib
@@ -69,10 +72,26 @@ MPLAYER_DEPENDENCIES += tremor
 MPLAYER_CONF_OPTS += --disable-tremor-internal --enable-tremor
 endif
 
+ifeq ($(BR2_PACKAGE_LIBVORBIS),y)
+MPLAYER_DEPENDENCIES += libvorbis
+MPLAYER_CONF_OPTS += --enable-libvorbis
+endif
+
 ifeq ($(BR2_PACKAGE_LIBMAD),y)
 MPLAYER_DEPENDENCIES += libmad
 else
 MPLAYER_CONF_OPTS += --disable-mad
+endif
+
+ifeq ($(BR2_PACKAGE_LIVE555),y)
+MPLAYER_DEPENDENCIES += live555
+MPLAYER_CONF_OPTS += --enable-live
+MPLAYER_LIVE555 = liveMedia groupsock UsageEnvironment BasicUsageEnvironment
+MPLAYER_CFLAGS += \
+	$(addprefix -I$(STAGING_DIR)/usr/include/live/,$(MPLAYER_LIVE555))
+MPLAYER_LDFLAGS += $(addprefix -l,$(MPLAYER_LIVE555)) -lstdc++
+else
+MPLAYER_CONF_OPTS += --disable-live
 endif
 
 MPLAYER_DEPENDENCIES += $(if $(BR2_PACKAGE_LIBTHEORA),libtheora)
@@ -94,6 +113,12 @@ ifeq ($(call qstrip,$(BR2_GCC_TARGET_ARCH)),armv7-a)
 MPLAYER_CONF_OPTS += --enable-armv6
 endif
 
+ifeq ($(BR2_i386),y)
+# inline asm breaks with "can't find a register in class 'GENERAL_REGS'"
+# inless we free up ebp
+MPLAYER_CFLAGS += -fomit-frame-pointer
+endif
+
 define MPLAYER_CONFIGURE_CMDS
 	(cd $(@D); rm -rf config.cache; \
 		$(TARGET_CONFIGURE_OPTS) \
@@ -107,15 +132,14 @@ define MPLAYER_CONFIGURE_CMDS
 		--as="$(TARGET_AS)" \
 		--ar="$(TARGET_AR)" \
 		--charset=UTF-8 \
-		--extra-cflags="$(TARGET_CFLAGS)" \
-		--extra-ldflags="$(TARGET_LDFLAGS)" \
+		--extra-cflags="$(MPLAYER_CFLAGS)" \
+		--extra-ldflags="$(MPLAYER_LDFLAGS)" \
+		--yasm='' \
 		--enable-mad \
 		--enable-fbdev \
 		$(MPLAYER_CONF_OPTS) \
 		--enable-cross-compile \
 		--disable-ivtv \
-		--disable-tv \
-		--disable-live \
 		--enable-dynamic-plugins \
 	)
 endef
@@ -146,4 +170,4 @@ define MPLAYER_CLEAN_CMDS
 	$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS,package/multimedia,mplayer))
+$(eval $(call GENTARGETS))

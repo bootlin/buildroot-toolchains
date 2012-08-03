@@ -2,138 +2,97 @@
 config BR2_PACKAGE_E2FSPROGS
 	bool "e2fsprogs"
 	depends on BR2_LARGEFILE
+	depends on BR2_USE_WCHAR # util-linux
+	select BR2_PACKAGE_UTIL_LINUX
+	select BR2_PACKAGE_UTIL_LINUX_LIBBLKID
+	select BR2_PACKAGE_UTIL_LINUX_LIBUUID
 	help
-	  The EXT2 file system utilities and libraries
+	  The EXT2 file system utilities.
 
-menuconfig BR2_PACKAGE_E2FSPROGS_UTILS
-	bool "e2fsprogs utilities"
-	depends on BR2_PACKAGE_E2FSPROGS
-	help
-	  e2fsprogs utilities selection
+	  http://e2fsprogs.sf.net
 
-if BR2_PACKAGE_E2FSPROGS_UTILS
+if BR2_PACKAGE_E2FSPROGS
 
 config BR2_PACKAGE_E2FSPROGS_BADBLOCKS
 	bool "badblocks"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-
-config BR2_PACKAGE_E2FSPROGS_BLKID
-	bool "blkid"
-	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBBLKID
 
 config BR2_PACKAGE_E2FSPROGS_CHATTR
 	bool "chattr"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
+
+config BR2_PACKAGE_E2FSPROGS_DEBUGFS
+	bool "debugfs"
 
 config BR2_PACKAGE_E2FSPROGS_DUMPE2FS
 	bool "dumpe2fs"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBUUID
 
 config BR2_PACKAGE_E2FSPROGS_E2FREEFRAG
 	bool "e2freefrag"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-
 
 config BR2_PACKAGE_E2FSPROGS_E2FSCK
 	bool "e2fsck"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBBLKID
+
+config BR2_PACKAGE_E2FSPROGS_E2IMAGE
+	bool "e2image"
 
 config BR2_PACKAGE_E2FSPROGS_E2LABEL
 	bool "e2label"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBBLKID
 
 config BR2_PACKAGE_E2FSPROGS_E2UNDO
 	bool "e2undo"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
+
+config BR2_PACKAGE_E2FSPROGS_E4DEFRAG
+	bool "e4defrag"
 
 config BR2_PACKAGE_E2FSPROGS_FILEFRAG
 	bool "filefrag"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
 
 config BR2_PACKAGE_E2FSPROGS_FINDFS
 	bool "findfs"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
 	select BR2_PACKAGE_E2FSPROGS_E2LABEL
 
 config BR2_PACKAGE_E2FSPROGS_FSCK
 	bool "fsck"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBBLKID
 
 config BR2_PACKAGE_E2FSPROGS_LOGSAVE
 	bool "logsave"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
 
 config BR2_PACKAGE_E2FSPROGS_LSATTR
 	bool "lsattr"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
 
 config BR2_PACKAGE_E2FSPROGS_MKE2FS
 	bool "mke2fs"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBBLKID
 
 config BR2_PACKAGE_E2FSPROGS_MKLOSTFOUND
 	bool "mklost+found"
 	default y
 	depends on BR2_PACKAGE_E2FSPROGS
 
+config BR2_PACKAGE_E2FSPROGS_RESIZE2FS
+	bool "resize2fs"
+
 config BR2_PACKAGE_E2FSPROGS_TUNE2FS
 	bool "tune2fs"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
 	select BR2_PACKAGE_E2FSPROGS_E2LABEL
 
 config BR2_PACKAGE_E2FSPROGS_UUIDGEN
 	bool "uuidgen"
 	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBUUID
-
-config BR2_PACKAGE_E2FSPROGS_UUIDD
-	bool "uuidd"
-	default y
-	depends on BR2_PACKAGE_E2FSPROGS
-	select BR2_PACKAGE_E2FSPROGS_LIBUUID
-	help
-	  The uuidd daemon from the e2fsprogs suite
 
 endif
 
-menu "e2fsprogs libraries"
-	depends on BR2_PACKAGE_E2FSPROGS
-
-config BR2_PACKAGE_E2FSPROGS_LIBUUID
-	bool "libuuid"
-	help
-	  The uuid library from the e2fsprogs suite
-
-config BR2_PACKAGE_E2FSPROGS_LIBBLKID
-	bool "libblkid"
-	select BR2_PACKAGE_E2FSPROGS_LIBUUID
-	help
-	  The blkid library from the e2fsprogs suite
-
-endmenu
-
-comment "e2fsprogs requires a toolchain with LARGEFILE support"
-	depends on !BR2_LARGEFILE
-
+comment "e2fsprogs requires a toolchain with LARGEFILE + WCHAR support"
+	depends on !(BR2_LARGEFILE && BR2_USE_WCHAR)

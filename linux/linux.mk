@@ -1,59 +1,81 @@
 ###############################################################################
 #
-# Linux kernel 2.6 target
+# Linux kernel target
 #
 ###############################################################################
-LINUX26_VERSION=$(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
+LINUX_VERSION=$(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
 
-# Compute LINUX26_SOURCE and LINUX26_SITE from the configuration
-ifeq ($(LINUX26_VERSION),custom)
+# Compute LINUX_SOURCE and LINUX_SITE from the configuration
+ifeq ($(LINUX_VERSION),custom)
 ifneq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
-LINUX26_TARBALL:=$(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION))
-LINUX26_SITE:=$(dir $(LINUX26_TARBALL))
-LINUX26_SOURCE:=$(notdir $(LINUX26_TARBALL))
+LINUX_TARBALL = $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION))
+LINUX_SITE = $(dir $(LINUX_TARBALL))
+LINUX_SOURCE = $(notdir $(LINUX_TARBALL))
 endif
+else ifeq ($(BR2_LINUX_KERNEL_CUSTOM_GIT),y)
+LINUX_SITE = $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL))
+LINUX_SITE_METHOD = git
 else
-LINUX26_SOURCE:=linux-$(LINUX26_VERSION).tar.bz2
-LINUX26_SITE:=$(BR2_KERNEL_MIRROR)/linux/kernel/v2.6/
+LINUX_SOURCE = linux-$(LINUX_VERSION).tar.bz2
+# In X.Y.Z, get X and Y. We replace dots and dashes by spaces in order
+# to use the $(word) function. We support versions such as 3.1,
+# 2.6.32, 2.6.32-rc1, 3.0-rc6, etc.
+ifeq ($(findstring x2.6.,x$(LINUX_VERSION)),x2.6.)
+LINUX_SITE = $(BR2_KERNEL_MIRROR)/linux/kernel/v2.6/
+else
+LINUX_SITE = $(BR2_KERNEL_MIRROR)/linux/kernel/v3.x/
+endif
+# release candidates are in testing/ subdir
+ifneq ($(findstring -rc,$(LINUX_VERSION)),)
+LINUX_SITE := $(LINUX_SITE)testing/
+endif # -rc
 endif
 
-LINUX26_BUILD_DIR:=$(BUILD_DIR)/linux-$(LINUX26_VERSION)
 ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
-LINUX26_SOURCE_DIR := $(BR2_LINUX_KERNEL_CUSTOM_PATH)
+LINUX_SOURCE_DIR := $(BR2_LINUX_KERNEL_CUSTOM_PATH)
 else
-LINUX26_SOURCE_DIR := $(LINUX26_BUILD_DIR)
+LINUX_SOURCE_DIR := $(LINUX_DIR)
 endif
-LINUX26_PATCH=$(call qstrip,$(BR2_LINUX_KERNEL_PATCH))
 
-LINUX26_MAKE_FLAGS = \
+LINUX_PATCHES = $(call qstrip,$(BR2_LINUX_KERNEL_PATCH))
+
+LINUX_INSTALL_IMAGES = YES
+LINUX_DEPENDENCIES  += host-module-init-tools
+
+LINUX_MAKE_FLAGS = \
 	HOSTCC="$(HOSTCC)" \
 	HOSTCFLAGS="$(HOSTCFLAGS)" \
 	ARCH=$(KERNEL_ARCH) \
 	INSTALL_MOD_PATH=$(TARGET_DIR) \
 	CROSS_COMPILE="$(CCACHE) $(TARGET_CROSS)" \
-	LZMA="$(LZMA)"
-ifneq ($(LINUX26_SOURCE_DIR),$(LINUX26_BUILD_DIR))
-LINUX26_MAKE_FLAGS += O="$(LINUX26_BUILD_DIR)"
+	DEPMOD=$(HOST_DIR)/usr/sbin/depmod
+
+ifneq ($(LINUX_SOURCE_DIR),$(LINUX_DIR))
+LINUX_MAKE_FLAGS += O="$(LINUX_DIR)"
 endif
 
 # Get the real Linux version, which tells us where kernel modules are
 # going to be installed in the target filesystem.
-LINUX26_VERSION_PROBED = $(shell $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) --no-print-directory -s kernelrelease)
+LINUX_VERSION_PROBED = $(shell $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) --no-print-directory -s kernelrelease)
+
+KERNELVERSION=$(shell cat $(LINUX_SOURCE_DIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
 
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
-LINUX26_IMAGE_NAME=$(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
+LINUX_IMAGE_NAME=$(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
 else
 ifeq ($(BR2_LINUX_KERNEL_UIMAGE),y)
-LINUX26_IMAGE_NAME=uImage
-LINUX26_DEPENDENCIES+=$(MKIMAGE)
+LINUX_IMAGE_NAME=uImage
+LINUX_DEPENDENCIES+=host-uboot-tools
 else ifeq ($(BR2_LINUX_KERNEL_BZIMAGE),y)
-LINUX26_IMAGE_NAME=bzImage
+LINUX_IMAGE_NAME=bzImage
 else ifeq ($(BR2_LINUX_KERNEL_ZIMAGE),y)
-LINUX26_IMAGE_NAME=zImage
+LINUX_IMAGE_NAME=zImage
 else ifeq ($(BR2_LINUX_KERNEL_VMLINUX_BIN),y)
-LINUX26_IMAGE_NAME=vmlinux.bin
+LINUX_IMAGE_NAME=vmlinux.bin
 else ifeq ($(BR2_LINUX_KERNEL_VMLINUX),y)
-LINUX26_IMAGE_NAME=vmlinux
+LINUX_IMAGE_NAME=vmlinux
+else ifeq ($(BR2_LINUX_KERNEL_VMLINUZ),y)
+LINUX_IMAGE_NAME=vmlinuz
 endif
 endif
 
@@ -62,168 +84,189 @@ endif
 # for bzImage, arch/i386 and arch/x86_64 do not exist when copying the
 # defconfig file.
 ifeq ($(KERNEL_ARCH),i386)
-KERNEL_ARCH_PATH=$(LINUX26_BUILD_DIR)/arch/x86
+KERNEL_ARCH_PATH=$(LINUX_DIR)/arch/x86
 else ifeq ($(KERNEL_ARCH),x86_64)
-KERNEL_ARCH_PATH=$(LINUX26_BUILD_DIR)/arch/x86
+KERNEL_ARCH_PATH=$(LINUX_DIR)/arch/x86
 else
-KERNEL_ARCH_PATH=$(LINUX26_BUILD_DIR)/arch/$(KERNEL_ARCH)
+KERNEL_ARCH_PATH=$(LINUX_DIR)/arch/$(KERNEL_ARCH)
 endif
 
 ifeq ($(BR2_LINUX_KERNEL_VMLINUX),y)
-LINUX26_IMAGE_PATH=$(LINUX26_DIR)/$(LINUX26_IMAGE_NAME)
+LINUX_IMAGE_PATH=$(LINUX_DIR)/$(LINUX_IMAGE_NAME)
+else ifeq ($(BR2_LINUX_KERNEL_VMLINUZ),y)
+LINUX_IMAGE_PATH=$(LINUX_DIR)/$(LINUX_IMAGE_NAME)
 else
 ifeq ($(KERNEL_ARCH),avr32)
-LINUX26_IMAGE_PATH=$(KERNEL_ARCH_PATH)/boot/images/$(LINUX26_IMAGE_NAME)
+LINUX_IMAGE_PATH=$(KERNEL_ARCH_PATH)/boot/images/$(LINUX_IMAGE_NAME)
 else
-LINUX26_IMAGE_PATH=$(KERNEL_ARCH_PATH)/boot/$(LINUX26_IMAGE_NAME)
+LINUX_IMAGE_PATH=$(KERNEL_ARCH_PATH)/boot/$(LINUX_IMAGE_NAME)
 endif
 endif # BR2_LINUX_KERNEL_VMLINUX
 
-# Download
-$(LINUX26_BUILD_DIR)/.stamp_downloaded:
-	@$(call MESSAGE,"Downloading kernel")
-	$(call DOWNLOAD,$(LINUX26_SITE),$(LINUX26_SOURCE))
-	$(foreach patch,$(filter ftp://% http://%,$(LINUX26_PATCH)),\
-		$(call DOWNLOAD,$(dir $(patch)),$(notdir $(patch)))$(sep))
-	mkdir -p $(@D)
-	touch $@
+define LINUX_DOWNLOAD_PATCHES
+	$(if $(LINUX_PATCHES),
+		@$(call MESSAGE,"Download additional patches"))
+	$(foreach patch,$(filter ftp://% http://%,$(LINUX_PATCHES)),\
+		$(call DOWNLOAD,$(patch))$(sep))
+endef
 
-# Extraction
-$(LINUX26_BUILD_DIR)/.stamp_extracted: $(LINUX26_BUILD_DIR)/.stamp_downloaded
-ifneq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
-	@$(call MESSAGE,"Extracting kernel")
-	mkdir -p $(@D)
-	$(Q)$(INFLATE$(suffix $(LINUX26_SOURCE))) $(DL_DIR)/$(LINUX26_SOURCE) | \
-		tar -C $(@D) $(TAR_STRIP_COMPONENTS)=1 $(TAR_OPTIONS) -
-endif
-	$(Q)touch $@
+LINUX_POST_DOWNLOAD_HOOKS += LINUX_DOWNLOAD_PATCHES
 
-KERNELVERSION=$(shell cat $(LINUX26_SOURCE_DIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
-# Patch
-$(LINUX26_BUILD_DIR)/.stamp_patched: $(LINUX26_BUILD_DIR)/.stamp_extracted
-	@$(call MESSAGE,"Patching kernel")
-	for p in $(LINUX26_PATCH) ; do \
+define LINUX_APPLY_PATCHES
+	for p in $(LINUX_PATCHES) ; do \
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
-			toolchain/patch-kernel.sh $(@D) $(DL_DIR) `basename $$p` ; \
+			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) $(DL_DIR) `basename $$p` ; \
 		elif test -d $$p ; then \
-			toolchain/patch-kernel.sh $(LINUX26_SOURCE_DIR) $$p linux-$(KERNELVERSION)-\*.patch ; \
+			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) $$p linux-$(KERNELVERSION)-\*.patch ; \
 		else \
-			toolchain/patch-kernel.sh $(@D) `dirname $$p` `basename $$p` ; \
+			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) `dirname $$p` `basename $$p` ; \
 		fi \
 	done
-	$(Q)touch $@
+endef
 
+LINUX_POST_PATCH_HOOKS += LINUX_APPLY_PATCHES
 
-# Configuration
-$(LINUX26_BUILD_DIR)/.stamp_configured: $(LINUX26_BUILD_DIR)/.stamp_patched
-	@$(call MESSAGE,"Configuring kernel")
+ifeq ($(KERNEL_ARCH),microblaze)
+# on microblaze, we always want mkimage
+LINUX_DEPENDENCIES+=host-uboot-tools
+
+define LINUX_COPY_DTS
+    if test -f "$(BR2_LINUX_KERNEL_DTS_FILE)" ; then \
+        cp $(BR2_LINUX_KERNEL_DTS_FILE) $(@D)/arch/microblaze/boot/dts ; \
+    else \
+        echo "Cannot copy dts file!" ; \
+    fi
+endef
+endif
+
 ifeq ($(BR2_LINUX_KERNEL_USE_DEFCONFIG),y)
-	$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig
+KERNEL_SOURCE_CONFIG = $(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig
 else ifeq ($(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),y)
-	cp $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE) $(LINUX26_SOURCE_DIR)/arch/$(KERNEL_ARCH)/configs/buildroot_defconfig
-	$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) buildroot_defconfig
-	rm $(LINUX26_SOURCE_DIR)/arch/$(KERNEL_ARCH)/configs/buildroot_defconfig
+KERNEL_SOURCE_CONFIG = $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
 endif
-ifeq ($(BR2_ARM_EABI),y)
-	$(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config)
-else
-	$(call KCONFIG_DISABLE_OPT,CONFIG_AEABI,$(@D)/.config)
-endif
-ifeq ($(BR2_TARGET_ROOTFS_INITRAMFS),y)
-	$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config)
-	$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,\"$(BINARIES_DIR)/rootfs.initramfs\",$(@D)/.config)
-	$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_UID,0,$(@D)/.config)
-	$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_GID,0,$(@D)/.config)
-	$(call KCONFIG_DISABLE_OPT,CONFIG_INITRAMFS_COMPRESSION_NONE,$(@D)/.config)
-	$(call KCONFIG_ENABLE_OPT,CONFIG_INITRAMFS_COMPRESSION_GZIP,$(@D)/.config)
-endif
-ifneq ($(BR2_ROOTFS_DEVICE_CREATION_STATIC),y)
-	$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS,$(@D)/.config)
-	$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS_MOUNT,$(@D)/.config)
-endif
-ifeq ($(BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV),y)
-	$(call KCONFIG_SET_OPT,CONFIG_UEVENT_HELPER_PATH,\"/sbin/mdev\",$(@D)/.config)
-endif
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) oldconfig
-	$(Q)touch $@
+
+define LINUX_CONFIGURE_CMDS
+	$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) $(KERNEL_SOURCE_CONFIG)
+	$(if $(BR2_ARM_EABI),
+		$(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config),
+		$(call KCONFIG_DISABLE_OPT,CONFIG_AEABI,$(@D)/.config))
+    $(if $(BR2_microblaze),
+        $(call LINUX_COPY_DTS))
+	# As the kernel gets compiled before root filesystems are
+	# built, we create a fake cpio file. It'll be
+	# replaced later by the real cpio archive, and the kernel will be
+	# rebuilt using the linux26-rebuild-with-initramfs target.
+	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
+		touch $(BINARIES_DIR)/rootfs.cpio
+		$(call KCONFIG_ENABLE_OPT,CONFIG_BLK_DEV_INITRD,$(@D)/.config)
+		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_SOURCE,\"$(BINARIES_DIR)/rootfs.cpio\",$(@D)/.config)
+		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_UID,0,$(@D)/.config)
+		$(call KCONFIG_SET_OPT,CONFIG_INITRAMFS_ROOT_GID,0,$(@D)/.config)
+		$(call KCONFIG_DISABLE_OPT,CONFIG_INITRAMFS_COMPRESSION_NONE,$(@D)/.config)
+		$(call KCONFIG_ENABLE_OPT,CONFIG_INITRAMFS_COMPRESSION_GZIP,$(@D)/.config))
+	$(if $(BR2_ROOTFS_DEVICE_CREATION_STATIC),,
+		$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS,$(@D)/.config)
+		$(call KCONFIG_ENABLE_OPT,CONFIG_DEVTMPFS_MOUNT,$(@D)/.config))
+	$(if $(BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV),
+		$(call KCONFIG_SET_OPT,CONFIG_UEVENT_HELPER_PATH,\"/sbin/mdev\",$(@D)/.config))
+	$(if $(BR2_PACKAGE_SYSTEMD),
+		$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS,$(@D)/.config))
+	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) oldconfig
+endef
 
 # Compilation. We make sure the kernel gets rebuilt when the
 # configuration has changed.
-$(LINUX26_BUILD_DIR)/.stamp_compiled: $(LINUX26_BUILD_DIR)/.stamp_configured $(LINUX26_BUILD_DIR)/.config
-	@$(call MESSAGE,"Compiling kernel")
-ifeq ($(BR2_TARGET_ROOTFS_INITRAMFS),y)
+define LINUX_BUILD_CMDS
+	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
 	# Remove the any previously generated initramfs if do recompilation.
-	$(RM) -f $(BINARIES_DIR)/rootfs.initramfs
-	$(RM) -f $(@D)/usr/initramfs_data.cpio*
-	# As the kernel gets compiled before root filesystems are
-	# built, we create a fake initramfs file list. It'll be
-	# replaced later by the real list, and the kernel will be
-	# rebuilt using the linux26-rebuild-with-initramfs target.
-	touch $(BINARIES_DIR)/rootfs.initramfs
-endif
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) $(LINUX26_IMAGE_NAME)
-	@if [ $(shell grep -c "CONFIG_MODULES=y" $(LINUX26_BUILD_DIR)/.config) != 0 ] ; then 	\
-		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) modules ;	\
+		$(RM) -f $(BINARIES_DIR)/rootfs.initramfs
+		$(RM) -f $(@D)/usr/initramfs_data.cpio*
+		touch $(BINARIES_DIR)/rootfs.initramfs)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) $(LINUX_IMAGE_NAME)
+	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
+		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) modules ;	\
 	fi
-ifeq ($(BR2_TARGET_ROOTFS_INITRAMFS),y)
-	cp $(LINUX26_IMAGE_PATH) $(KERNEL_ARCH_PATH)/boot/vmImage
-endif
-	$(Q)touch $@
+	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
+		cp $(LINUX_IMAGE_PATH) $(KERNEL_ARCH_PATH)/boot/vmImage)
+endef
 
-# Installation
-$(LINUX26_BUILD_DIR)/.stamp_installed: $(LINUX26_BUILD_DIR)/.stamp_compiled
-	@$(call MESSAGE,"Installing kernel")
-	cp $(LINUX26_IMAGE_PATH) $(BINARIES_DIR)
+
+ifeq ($(BR2_LINUX_KERNEL_INSTALL_TARGET),y)
+define LINUX_INSTALL_KERNEL_IMAGE_TO_TARGET
+	install -m 0644 -D $(LINUX_IMAGE_PATH) $(TARGET_DIR)/boot/$(LINUX_IMAGE_NAME)
+endef
+endif
+
+define LINUX_INSTALL_IMAGES_CMDS
+	cp $(LINUX_IMAGE_PATH) $(BINARIES_DIR)
+	cp $(KERNEL_ARCH_PATH)/boot/vmImage $(BINARIES_DIR)
+endef
+
+define LINUX_INSTALL_TARGET_CMDS
+	$(LINUX_INSTALL_KERNEL_IMAGE_TO_TARGET)
 	# Install modules and remove symbolic links pointing to build
 	# directories, not relevant on the target
-	@if [ $(shell grep -c "CONFIG_MODULES=y" $(LINUX26_BUILD_DIR)/.config) != 0 ] ; then 	\
-		$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) 		\
+	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
+		$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) 	\
 			DEPMOD="$(HOST_DIR)/usr/sbin/depmod" modules_install ;		\
-		rm -f $(TARGET_DIR)/lib/modules/$(LINUX26_VERSION_PROBED)/build ;	\
-		rm -f $(TARGET_DIR)/lib/modules/$(LINUX26_VERSION_PROBED)/source ;	\
+		rm -f $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/build ;		\
+		rm -f $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/source ;	\
 	fi
-	$(Q)touch $@
+endef
 
-linux linux26: host-module-init-tools $(LINUX26_DEPENDENCIES) $(LINUX26_BUILD_DIR)/.stamp_installed
+include linux/linux-ext-*.mk
 
-linux-config linux-menuconfig linux-xconfig linux-gconfig linux-nconfig linux26-menuconfig linux26-xconfig linux26-gconfig linux26-nconfig: dirs $(LINUX26_BUILD_DIR)/.stamp_configured
-	$(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) \
+$(eval $(call GENTARGETS))
+
+ifeq ($(BR2_LINUX_KERNEL),y)
+linux-config linux-menuconfig linux-xconfig linux-gconfig linux-nconfig linux26-menuconfig linux26-xconfig linux26-gconfig linux26-nconfig: dirs linux-configure
+	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) \
+		$(subst linux-,,$(subst linux26-,,$@))
+	rm -f $(LINUX_DIR)/.stamp_{built,target_installed,images_installed}
+
+linux-savedefconfig linux26-savedefconfig: dirs linux-configure
+	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) \
 		$(subst linux-,,$(subst linux26-,,$@))
 
-# Support for rebuilding the kernel after the initramfs file list has
-# been generated in $(BINARIES_DIR)/rootfs.initramfs.
-$(LINUX26_BUILD_DIR)/.stamp_initramfs_rebuilt: $(LINUX26_BUILD_DIR)/.stamp_installed $(BINARIES_DIR)/rootfs.initramfs
+ifeq ($(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),y)
+linux-update-config linux26-update-config: linux-configure $(LINUX_DIR)/.config
+	cp -f $(LINUX_DIR)/.config $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
+
+linux-update-defconfig linux26-update-defconfig: linux-savedefconfig
+	cp -f $(LINUX_DIR)/defconfig $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
+else
+linux-update-config linux26-update-config: ;
+linux-update-defconfig linux26-update-defconfig: ;
+endif
+endif
+
+# Support for rebuilding the kernel after the cpio archive has
+# been generated in $(BINARIES_DIR)/rootfs.cpio.
+$(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LINUX_DIR)/.stamp_images_installed $(BINARIES_DIR)/rootfs.cpio
 	@$(call MESSAGE,"Rebuilding kernel with initramfs")
-	# Remove the previously generated initramfs which was empty,
-	# to make sure the kernel will actually regenerate it.
-	$(RM) -f $(@D)/usr/initramfs_data.cpio*
 	# Build the kernel.
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX26_MAKE_FLAGS) -C $(LINUX26_SOURCE_DIR) $(LINUX26_IMAGE_NAME)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) $(LINUX_IMAGE_NAME)
 	# Copy the kernel image to its final destination
-	cp $(LINUX26_IMAGE_PATH) $(BINARIES_DIR)
-	cp $(KERNEL_ARCH_PATH)/boot/vmImage $(BINARIES_DIR)
+	cp $(LINUX_IMAGE_PATH) $(BINARIES_DIR)
+	# If there is a .ub file copy it to the final destination
+	test ! -f $(LINUX_IMAGE_PATH).ub || cp $(LINUX_IMAGE_PATH).ub $(BINARIES_DIR)
 	$(Q)touch $@
 
 # The initramfs building code must make sure this target gets called
 # after it generated the initramfs list of files.
-linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX26_BUILD_DIR)/.stamp_initramfs_rebuilt
+linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
 
-LINUX26_VERSION=$(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
-LINUX26_PATCHES=$(wildcard $(LINUX26_PATCH)/linux-$(KERNELVERSION)-*.patch)
+LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCH)/linux-$(KERNELVERSION)-*.patch)
 linux-unpatch:
 ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
-ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX26_VERSION)/.stamp_patched),)
+ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX_VERSION)/.stamp_patched),)
 	@echo "unpatch linux kernel...."
-	for p in $(LINUX26_PATCHES) ; do \
-		patch -RE -p1 -d $(LINUX26_SOURCE_DIR) < $$p; \
+	for p in $(LINUX_PATCH_LIST) ; do \
+		patch -RE -p1 -d $(LINUX_SOURCE_DIR) < $$p; \
 	done
 else
 	@echo "linux kernel didn't patched, skip unpatch...."
 endif
-endif
-
-ifeq ($(BR2_LINUX_KERNEL),y)
-TARGETS+=linux26
 endif
 
 # Checks to give errors that the user can understand

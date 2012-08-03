@@ -4,17 +4,14 @@
 #
 #############################################################
 DIRECTFB_VERSION_MAJOR = 1.4
-DIRECTFB_VERSION = $(DIRECTFB_VERSION_MAJOR).11
+DIRECTFB_VERSION = $(DIRECTFB_VERSION_MAJOR).16
 DIRECTFB_SITE = http://www.directfb.org/downloads/Core/DirectFB-$(DIRECTFB_VERSION_MAJOR)
 DIRECTFB_SOURCE = DirectFB-$(DIRECTFB_VERSION).tar.gz
 DIRECTFB_AUTORECONF = YES
 DIRECTFB_INSTALL_STAGING = YES
 DIRECTFB_CONF_OPT = \
 	--localstatedir=/var \
-	--enable-static \
-	--enable-shared \
 	--disable-explicit-deps \
-	--program-prefix='' \
 	--enable-zlib \
 	--enable-freetype \
 	--enable-fbdev \
@@ -123,8 +120,6 @@ endif
 
 HOST_DIRECTFB_DEPENDENCIES = host-pkg-config host-libpng
 HOST_DIRECTFB_CONF_OPT = \
-		--enable-shared \
-		--disable-static \
 		--disable-debug \
 		--disable-multi \
 		--enable-png \
@@ -145,8 +140,8 @@ endef
 
 DIRECTFB_POST_INSTALL_STAGING_HOOKS += DIRECTFB_STAGING_CONFIG_FIXUP
 
-$(eval $(call AUTOTARGETS,package,directfb))
-$(eval $(call AUTOTARGETS,package,directfb,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))
 
 # directfb-csource for the host
 DIRECTFB_HOST_BINARY:=$(HOST_DIR)/usr/bin/directfb-csource

@@ -4,7 +4,7 @@
 #
 #############################################################
 
-PCIUTILS_VERSION = 3.1.7
+PCIUTILS_VERSION = 3.1.9
 PCIUTILS_SITE = ftp://atrey.karlin.mff.cuni.cz/pub/linux/pci
 ifeq ($(BR2_PACKAGE_ZLIB),y)
 	PCIUTILS_ZLIB=yes
@@ -14,6 +14,11 @@ else
 endif
 PCIUTILS_DNS=no
 PCIUTILS_SHARED=yes
+
+# Build after busybox since it's got a lightweight lspci
+ifeq ($(BR2_PACKAGE_BUSYBOX),y)
+	PCIUTILS_DEPENDENCIES += busybox
+endif
 
 define PCIUTILS_CONFIGURE_CMDS
 	$(SED) 's/wget --no-timestamping/wget/' $(PCIUTILS_DIR)/update-pciids.sh
@@ -45,4 +50,4 @@ define PCIUTILS_INSTALL_TARGET_CMDS
 		SHARED=$(PCIUTILS_SHARED) install-lib
 endef
 
-$(eval $(call GENTARGETS,package,pciutils))
+$(eval $(call GENTARGETS))

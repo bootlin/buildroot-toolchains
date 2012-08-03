@@ -4,51 +4,40 @@
 #
 #############################################################
 
-SYSLINUX_VERSION:=3.85
-SYSLINUX_DIR=$(BUILD_DIR)/syslinux-$(SYSLINUX_VERSION)
-SYSLINUX_SOURCE=syslinux-$(SYSLINUX_VERSION).tar.bz2
-SYSLINUX_CAT:=$(BZCAT)
-SYSLINUX_SITE=$(BR2_KERNEL_MIRROR)/linux/utils/boot/syslinux/3.xx/
+SYSLINUX_VERSION = 4.04
+SYSLINUX_SOURCE  = syslinux-$(SYSLINUX_VERSION).tar.bz2
+SYSLINUX_SITE    = $(BR2_KERNEL_MIRROR)/linux/utils/boot/syslinux/4.xx/
 
-$(DL_DIR)/$(SYSLINUX_SOURCE):
-	 $(call DOWNLOAD,$(SYSLINUX_SITE),$(SYSLINUX_SOURCE))
+SYSLINUX_INSTALL_TARGET = NO
+SYSLINUX_INSTALL_IMAGES = YES
 
-syslinux-source: $(DL_DIR)/$(SYSLINUX_SOURCE)
+SYSLINUX_DEPENDENCIES = host-nasm
 
-$(SYSLINUX_DIR)/.unpacked: $(DL_DIR)/$(SYSLINUX_SOURCE) $(SYSLINUX_PATCH)
-	mkdir -p $(@D)
-	$(SYSLINUX_CAT) $(DL_DIR)/$(SYSLINUX_SOURCE) | tar $(TAR_STRIP_COMPONENTS)=1 -C $(@D) $(TAR_OPTIONS) -
-	toolchain/patch-kernel.sh $(@D) boot/syslinux/ \*.patch
-	touch -c $@
+define SYSLINUX_BUILD_CMDS
+	$(TARGET_MAKE_ENV) $(MAKE) CC="$(HOSTCC)" AR="$(HOSTAR)" -C $(@D)
+endef
 
-$(SYSLINUX_DIR)/.compiled: $(SYSLINUX_DIR)/.unpacked
-	$(TARGET_MAKE_ENV) $(MAKE) CC="$(HOSTCC)" AR="$(HOSTAR)" -C $(SYSLINUX_DIR)
-	touch -c $@
+SYSLINUX_IMAGES-$(BR2_TARGET_SYSLINUX_ISOLINUX) += isolinux.bin
+SYSLINUX_IMAGES-$(BR2_TARGET_SYSLINUX_PXELINUX) += pxelinux.bin
 
-$(BINARIES_DIR)/isolinux.bin: $(SYSLINUX_DIR)/.compiled
-	cp -a $(SYSLINUX_DIR)/core/isolinux.bin $@
+define SYSLINUX_INSTALL_IMAGES_CMDS
+	for i in $(SYSLINUX_IMAGES-y); do \
+		$(INSTALL) -D -m 0755 $(@D)/core/$$i $(BINARIES_DIR)/$$i; \
+	done
+endef
 
-$(BINARIES_DIR)/pxelinux.bin: $(SYSLINUX_DIR)/.compiled
-	cp -a $(SYSLINUX_DIR)/core/pxelinux.bin $@
 
-syslinux: host-nasm $(BINARIES_DIR)/isolinux.bin
-pxelinux: host-nasm $(BINARIES_DIR)/pxelinux.bin
+define HOST_SYSLINUX_BUILD_CMDS
+	$(HOST_MAKE_ENV) $(MAKE) -C $(@D)
+endef
 
-pxelinux-clean syslinux-clean:
-	rm -f $(BINARIES_DIR)/isolinux.bin $(BINARIES_DIR)/pxelinux.bin
-	-$(MAKE) -C $(SYSLINUX_DIR) clean
+define HOST_SYSLINUX_INSTALL_CMDS
+	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) INSTALLROOT=$(HOST_DIR) install
+endef
 
-pxelinux-dirclean syslinux-dirclean:
-	rm -rf $(SYSLINUX_DIR)
+define HOST_SYSLINUX_CLEAN_CMDS
+	$(HOST_MAKE_ENV) $(MAKE) -C $(@D) clean
+endef
 
-#############################################################
-#
-# Toplevel Makefile options
-#
-#############################################################
-ifeq ($(BR2_TARGET_SYSLINUX),y)
-TARGETS+=syslinux
-endif
-ifeq ($(BR2_TARGET_PXELINUX),y)
-TARGETS+=pxelinux
-endif
+$(eval $(call GENTARGETS))
+$(eval $(call GENTARGETS,host))

@@ -4,9 +4,17 @@
 #
 #############################################################
 
-GAWK_VERSION = 3.1.8
+GAWK_VERSION = 4.0.1
 GAWK_SITE = $(BR2_GNU_MIRROR)/gawk
 GAWK_TARGET_BINS = awk gawk igawk pgawk
+
+# Prefer full-blown gawk over busybox awk
+ifeq ($(BR2_PACKAGE_BUSYBOX),y)
+GAWK_DEPENDENCIES += busybox
+endif
+
+# we don't have a host-busybox
+HOST_GAWK_DEPENDENCIES =
 
 define GAWK_CREATE_SYMLINK
 	ln -sf /usr/bin/gawk $(TARGET_DIR)/usr/bin/awk
@@ -22,5 +30,5 @@ define GAWK_UNINSTALL_TARGET_CMDS
 	rm -rf $(TARGET_DIR)/usr/share/awk
 endef
 
-$(eval $(call AUTOTARGETS,package,gawk))
-$(eval $(call AUTOTARGETS,package,gawk,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))

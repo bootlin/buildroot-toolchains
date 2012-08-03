@@ -8,6 +8,7 @@ ICU_VERSION = 4.4.2
 ICU_SOURCE = icu4c-$(subst .,_,$(ICU_VERSION))-src.tgz
 ICU_SITE = http://download.icu-project.org/files/icu4c/$(ICU_VERSION)
 ICU_DEPENDENCIES = host-icu
+HOST_ICU_DEPENDENCIES =
 ICU_INSTALL_STAGING = YES
 ICU_CONF_OPT = --with-cross-build=$(HOST_ICU_DIR)/source --disable-samples \
 		--disable-tests
@@ -24,5 +25,5 @@ endef
 
 ICU_POST_INSTALL_TARGET_HOOKS += ICU_PREFIX_FIXUP
 
-$(eval $(call AUTOTARGETS,package,icu))
-$(eval $(call AUTOTARGETS,package,icu,host))
+$(eval $(call AUTOTARGETS))
+$(eval $(call AUTOTARGETS,host))

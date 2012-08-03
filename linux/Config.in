@@ -19,10 +19,10 @@ if BR2_LINUX_KERNEL
 #
 choice
 	prompt "Kernel version"
-	default BR2_LINUX_KERNEL_2_6_38
+	default BR2_LINUX_KERNEL_3_3
 
-config BR2_LINUX_KERNEL_2_6_38
-	bool "2.6.38.7"
+config BR2_LINUX_KERNEL_3_3
+	bool "3.3.7"
 
 config BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	bool "Same as toolchain kernel headers"
@@ -47,6 +47,12 @@ config BR2_LINUX_KERNEL_CUSTOM_TARBALL
 	  This option allows to specify the http or ftp location of a
 	  specific kernel source tarball
 
+config BR2_LINUX_KERNEL_CUSTOM_GIT
+	bool "Custom Git tree"
+	help
+	  This option allows Buildroot to get the Linux kernel source
+	  code from a Git repository.
+
 config BR2_LINUX_KERNEL_CUSTOM_TREE
 	bool "Custom unpacked tree"
 	help
@@ -57,11 +63,22 @@ endchoice
 config BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE
 	string "Kernel version"
 	depends on BR2_LINUX_KERNEL_CUSTOM_VERSION
-	default "2.6.38.7"
 
 config BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION
 	string "URL of custom kernel tarball"
 	depends on BR2_LINUX_KERNEL_CUSTOM_TARBALL
+
+config BR2_LINUX_KERNEL_CUSTOM_GIT_REPO_URL
+	string "URL of custom Git repository"
+	depends on BR2_LINUX_KERNEL_CUSTOM_GIT
+
+config BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION
+	string "Custom Git version"
+	default "HEAD"
+	depends on BR2_LINUX_KERNEL_CUSTOM_GIT
+	help
+	  Git revision to use in the format used by git rev-parse,
+	  E.G. a sha id, a tag, branch, ..
 
 config BR2_LINUX_KERNEL_CUSTOM_PATH
 	string "PATH of custom kernel tree"
@@ -69,10 +86,11 @@ config BR2_LINUX_KERNEL_CUSTOM_PATH
 
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "2.6.38.7" if BR2_LINUX_KERNEL_2_6_38
+	default "3.3.7" if BR2_LINUX_KERNEL_3_3
 	default BR2_DEFAULT_KERNEL_HEADERS if BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE if BR2_LINUX_KERNEL_CUSTOM_VERSION
 	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL || BR2_LINUX_KERNEL_CUSTOM_TREE
+	default $BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION if BR2_LINUX_KERNEL_CUSTOM_GIT
 
 #
 # Patch selection
@@ -115,6 +133,14 @@ config BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE
 	help
 	  Path to the kernel configuration file
 
+config BR2_LINUX_KERNEL_DTS_FILE
+    string "Device Tree dts file location"
+    depends on BR2_microblaze
+    help
+      Path from where the dts file has to be copied
+      The final "custom target" name depends on the
+      dts file name:
+          <name>.dts --> simpleImage.<name>
 #
 # Binary format
 #
@@ -140,6 +166,9 @@ config BR2_LINUX_KERNEL_VMLINUX_BIN
 
 config BR2_LINUX_KERNEL_VMLINUX
 	bool "vmlinux"
+
+config BR2_LINUX_KERNEL_VMLINUZ
+	bool "vmlinuz"
 	depends on BR2_mips || BR2_mipsel
 
 config BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM
@@ -161,6 +190,18 @@ config BR2_LINUX_KERNEL_IMAGE_TARGET_NAME
 	help
 	  Specify the kernel make target to build the kernel that you
 	  need.
+
+config BR2_LINUX_KERNEL_INSTALL_TARGET
+	bool "Install kernel image to /boot in target"
+	depends on !BR2_TARGET_ROOTFS_INITRAMFS
+	help
+	  Select this option to have the kernel image installed to
+	  /boot in the target root filesystem, as is typically done on
+	  x86/x86_64 systems.
+
+
+# Linux extensions
+source "linux/Config.ext.in"
 
 endif # BR2_LINUX_KERNEL
 

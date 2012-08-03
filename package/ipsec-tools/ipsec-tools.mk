@@ -4,9 +4,9 @@
 #
 #############################################################
 
-IPSEC_TOOLS_VERSION = 0.7.3
+IPSEC_TOOLS_VERSION = 0.8.0
 IPSEC_TOOLS_SOURCE = ipsec-tools-$(IPSEC_TOOLS_VERSION).tar.bz2
-IPSEC_TOOLS_SITE = http://ftp.sunet.se/pub/NetBSD/misc/ipsec-tools/0.7/
+IPSEC_TOOLS_SITE = http://ftp.sunet.se/pub/NetBSD/misc/ipsec-tools/0.8/
 IPSEC_TOOLS_INSTALL_STAGING = YES
 IPSEC_TOOLS_MAKE = $(MAKE1)
 IPSEC_TOOLS_DEPENDENCIES = openssl flex host-flex
@@ -38,16 +38,16 @@ else
 IPSEC_TOOLS_CONF_OPT+= --disable-frag
 endif
 
+ifeq ($(BR2_PACKAGE_IPSEC_TOOLS_DPD), y)
+IPSEC_TOOLS_CONF_OPT+= --enable-dpd
+else
+IPSEC_TOOLS_CONF_OPT+= --disable-dpd
+endif
+
 ifeq ($(BR2_PACKAGE_IPSEC_TOOLS_STATS), y)
 IPSEC_TOOLS_CONF_OPT+= --enable-stats
 else
 IPSEC_TOOLS_CONF_OPT+= --disable-stats
-endif
-
-ifeq ($(BR2_INET_IPV6),y)
-IPSEC_TOOLS_CONF_OPT+= --enable-ipv6
-else
-IPSEC_TOOLS_CONF_OPT+= --disable-ipv6
 endif
 
 ifneq ($(BR2_PACKAGE_IPSEC_TOOLS_READLINE), y)
@@ -66,4 +66,4 @@ ifeq ($(BR2_PACKAGE_IPSEC_SECCTX_KERNEL),y)
 IPSEC_TOOLS_CONF_OPT+= --enable-security-context=kernel
 endif
 
-$(eval $(call AUTOTARGETS,package,ipsec-tools))
+$(eval $(call AUTOTARGETS))
