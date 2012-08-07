@@ -99,12 +99,7 @@ TARGET_LDFLAGS=$(call qstrip,$(BR2_TARGET_LDFLAGS))
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_CTNG),y)
 TARGET_CROSS=$(HOST_DIR)/usr/bin/$(REAL_GNU_TARGET_NAME)-
 else
-TOOLCHAIN_EXTERNAL_LOCATION=$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_PATH))
-ifeq ($(TOOLCHAIN_EXTERNAL_LOCATION),)
-TARGET_CROSS=$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_PREFIX))-
-else
 TARGET_CROSS=$(HOST_DIR)/usr/bin/$(call qstrip,$(BR2_TOOLCHAIN_EXTERNAL_PREFIX))-
-endif
 endif
 
 # Quotes are needed for spaces et al in path components.
