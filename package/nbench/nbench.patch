@@ -15,7 +15,7 @@ index 5045c77..1e565f4 100644
  
  pointer.h: pointer Makefile
 -	$(CC) $(MACHINE) $(DEFINES) $(CFLAGS)\
-+	$(HOST_CC) $(MACHINE) $(DEFINES) $(CFLAGS)\
++	$(HOST_CC) $(MACHINE) $(DEFINES) $(HOST_CFLAGS)\
  		-o pointer pointer.c
  	rm -f pointer.h
  	if [ "4" = `./pointer` ] ; then touch pointer.h ;\
