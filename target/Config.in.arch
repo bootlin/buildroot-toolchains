@@ -140,6 +140,10 @@ config BR2_ABI_ELF
 	default y
 	depends on !BR2_ABI_FLAT
 
+config BR2_NOMMU
+	bool "Target has no MMU support"
+	default n
+
 config BR2_microblaze
 	bool
 	default y if BR2_microblazeel || BR2_microblazebe
@@ -254,6 +258,28 @@ config BR2_BFIN_SHARED_FLAT
 	select BR2_ABI_FLAT
 	select BR2_PREFER_STATIC_LIB
 endchoice
+
+choice
+	prompt "Target Architecture Variant"
+	depends on BR2_bfin
+	default BR2_bf609
+	help
+	  Specific CPU variant to use
+config BR2_bf609
+	bool "bf609"
+config BR2_bf537
+	bool "bf537"
+endchoice
+
+config BR2_BFIN_INSTALL_ELF_SHARED
+	depends on BR2_bfin && !BR2_BFIN_FDPIC
+	bool "Install ELF shared libraries"
+	default y
+
+config BR2_BFIN_INSTALL_FLAT_SHARED
+	depends on BR2_bfin && !BR2_BFIN_SHARED_FLAT
+	bool "Install FLAT shared libraries"
+	default y
 
 choice
 	prompt "Target Architecture Variant"
@@ -864,3 +890,9 @@ config BR2_GCC_TARGET_CPU
 	default sparchfleonv8	if BR2_sparc_sparchfleonv8
 	default sparcsfleon	if BR2_sparc_sparcsfleon
 	default sparcsfleonv8	if BR2_sparc_sparcsfleonv8
+	default bf609		if BR2_bf609
+	default bf537		if BR2_bf537
+
+config BR2_GCC_TARGET_CPU_REVISION
+	string "Target CPU revision"
+
