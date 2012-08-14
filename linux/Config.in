@@ -53,8 +53,8 @@ config BR2_LINUX_KERNEL_CUSTOM_GIT
 	  This option allows Buildroot to get the Linux kernel source
 	  code from a Git repository.
 
-config BR2_LINUX_KERNEL_CUSTOM_TREE
-	bool "Custom unpacked tree"
+config BR2_LINUX_KERNEL_CUSTOM_OVERRIDE
+	bool "Custom override kernel source"
 	help
 	  This option allows use of an already unpacked linux tree.
 
@@ -80,16 +80,16 @@ config BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION
 	  Git revision to use in the format used by git rev-parse,
 	  E.G. a sha id, a tag, branch, ..
 
-config BR2_LINUX_KERNEL_CUSTOM_PATH
-	string "PATH of custom kernel tree"
-	depends on BR2_LINUX_KERNEL_CUSTOM_TREE
+config BR2_LINUX_KERNEL_CUSTOM_OVERRIDE_PATH
+	string "PATH of custom override kernel"
+	depends on BR2_LINUX_KERNEL_CUSTOM_OVERRIDE
 
 config BR2_LINUX_KERNEL_VERSION
 	string
 	default "3.3.7" if BR2_LINUX_KERNEL_3_3
 	default BR2_DEFAULT_KERNEL_HEADERS if BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE if BR2_LINUX_KERNEL_CUSTOM_VERSION
-	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL || BR2_LINUX_KERNEL_CUSTOM_TREE
+	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL || BR2_LINUX_KERNEL_CUSTOM_OVERRIDE
 	default $BR2_LINUX_KERNEL_CUSTOM_GIT_VERSION if BR2_LINUX_KERNEL_CUSTOM_GIT
 
 #

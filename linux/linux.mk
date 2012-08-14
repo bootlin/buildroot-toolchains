@@ -7,7 +7,9 @@ LINUX_VERSION=$(call qstrip,$(BR2_LINUX_KERNEL_VERSION))
 
 # Compute LINUX_SOURCE and LINUX_SITE from the configuration
 ifeq ($(LINUX_VERSION),custom)
-ifneq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
+ifeq ($(BR2_LINUX_KERNEL_CUSTOM_OVERRIDE),y)
+LINUX_OVERRIDE_SRCDIR = $(BR2_LINUX_KERNEL_CUSTOM_OVERRIDE_PATH)
+else
 LINUX_TARBALL = $(call qstrip,$(BR2_LINUX_KERNEL_CUSTOM_TARBALL_LOCATION))
 LINUX_SITE = $(dir $(LINUX_TARBALL))
 LINUX_SOURCE = $(notdir $(LINUX_TARBALL))
@@ -31,18 +33,12 @@ LINUX_SITE := $(LINUX_SITE)testing/
 endif # -rc
 endif
 
-ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
-LINUX_SOURCE_DIR := $(BR2_LINUX_KERNEL_CUSTOM_PATH)
-else
-LINUX_SOURCE_DIR := $(LINUX_DIR)
-endif
-
 LINUX_PATCHES = $(call qstrip,$(BR2_LINUX_KERNEL_PATCH))
 
 LINUX_INSTALL_IMAGES = YES
 LINUX_DEPENDENCIES  += host-module-init-tools
 
-LINUX_MAKE_FLAGS = \
+LINUX_MAKE_FLAGS += \
 	HOSTCC="$(HOSTCC)" \
 	HOSTCFLAGS="$(HOSTCFLAGS)" \
 	ARCH=$(KERNEL_ARCH) \
@@ -50,15 +46,11 @@ LINUX_MAKE_FLAGS = \
 	CROSS_COMPILE="$(CCACHE) $(TARGET_CROSS)" \
 	DEPMOD=$(HOST_DIR)/usr/sbin/depmod
 
-ifneq ($(LINUX_SOURCE_DIR),$(LINUX_DIR))
-LINUX_MAKE_FLAGS += O="$(LINUX_DIR)"
-endif
-
 # Get the real Linux version, which tells us where kernel modules are
 # going to be installed in the target filesystem.
-LINUX_VERSION_PROBED = $(shell $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) --no-print-directory -s kernelrelease)
+LINUX_VERSION_PROBED = $(shell $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) --no-print-directory -s kernelrelease)
 
-KERNELVERSION=$(shell cat $(LINUX_SOURCE_DIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
+KERNELVERSION=$(shell cat $(LINUX_SRCDIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
 
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
 LINUX_IMAGE_NAME=$(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
@@ -115,11 +107,11 @@ LINUX_POST_DOWNLOAD_HOOKS += LINUX_DOWNLOAD_PATCHES
 define LINUX_APPLY_PATCHES
 	for p in $(LINUX_PATCHES) ; do \
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
-			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) $(DL_DIR) `basename $$p` ; \
+			support/scripts/apply-patches.sh $(LINUX_SRCDIR) $(DL_DIR) `basename $$p` ; \
 		elif test -d $$p ; then \
-			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) $$p linux-$(KERNELVERSION)-\*.patch ; \
+			support/scripts/apply-patches.sh $(LINUX_SRCDIR) $$p linux-$(KERNELVERSION)-\*.patch ; \
 		else \
-			support/scripts/apply-patches.sh $(LINUX_SOURCE_DIR) `dirname $$p` `basename $$p` ; \
+			support/scripts/apply-patches.sh $(LINUX_SRCDIR) `dirname $$p` `basename $$p` ; \
 		fi \
 	done
 endef
@@ -146,7 +138,7 @@ KERNEL_SOURCE_CONFIG = $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
 endif
 
 define LINUX_CONFIGURE_CMDS
-	$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) $(KERNEL_SOURCE_CONFIG)
+	$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) $(KERNEL_SOURCE_CONFIG)
 	$(if $(BR2_ARM_EABI),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config),
 		$(call KCONFIG_DISABLE_OPT,CONFIG_AEABI,$(@D)/.config))
@@ -171,7 +163,7 @@ define LINUX_CONFIGURE_CMDS
 		$(call KCONFIG_SET_OPT,CONFIG_UEVENT_HELPER_PATH,\"/sbin/mdev\",$(@D)/.config))
 	$(if $(BR2_PACKAGE_SYSTEMD),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_CGROUPS,$(@D)/.config))
-	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) oldconfig
+	yes '' | $(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) oldconfig
 endef
 
 # Compilation. We make sure the kernel gets rebuilt when the
@@ -182,9 +174,9 @@ define LINUX_BUILD_CMDS
 		$(RM) -f $(BINARIES_DIR)/rootfs.initramfs
 		$(RM) -f $(@D)/usr/initramfs_data.cpio*
 		touch $(BINARIES_DIR)/rootfs.initramfs)
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) $(LINUX_IMAGE_NAME)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) $(LINUX_IMAGE_NAME)
 	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
-		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) modules ;	\
+		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) modules ;	\
 	fi
 	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
 		cp $(LINUX_IMAGE_PATH) $(KERNEL_ARCH_PATH)/boot/vmImage)
@@ -208,7 +200,7 @@ define LINUX_INSTALL_TARGET_CMDS
 	# Install modules and remove symbolic links pointing to build
 	# directories, not relevant on the target
 	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
-		$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) 	\
+		$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) 	\
 			DEPMOD="$(HOST_DIR)/usr/sbin/depmod" modules_install ;		\
 		rm -f $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/build ;		\
 		rm -f $(TARGET_DIR)/lib/modules/$(LINUX_VERSION_PROBED)/source ;	\
@@ -221,12 +213,12 @@ $(eval $(call GENTARGETS))
 
 ifeq ($(BR2_LINUX_KERNEL),y)
 linux-config linux-menuconfig linux-xconfig linux-gconfig linux-nconfig linux26-menuconfig linux26-xconfig linux26-gconfig linux26-nconfig: dirs linux-configure
-	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) \
+	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) \
 		$(subst linux-,,$(subst linux26-,,$@))
 	rm -f $(LINUX_DIR)/.stamp_{built,target_installed,images_installed}
 
 linux-savedefconfig linux26-savedefconfig: dirs linux-configure
-	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) \
+	$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) \
 		$(subst linux-,,$(subst linux26-,,$@))
 
 ifeq ($(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),y)
@@ -246,7 +238,7 @@ endif
 $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LINUX_DIR)/.stamp_images_installed $(BINARIES_DIR)/rootfs.cpio
 	@$(call MESSAGE,"Rebuilding kernel with initramfs")
 	# Build the kernel.
-	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SOURCE_DIR) $(LINUX_IMAGE_NAME)
+	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) $(LINUX_IMAGE_NAME)
 	# Copy the kernel image to its final destination
 	cp $(LINUX_IMAGE_PATH) $(BINARIES_DIR)
 	# If there is a .ub file copy it to the final destination
@@ -259,11 +251,11 @@ linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp
 
 LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCHES)/linux-$(KERNELVERSION)-*.patch)
 linux-unpatch:
-ifeq ($(BR2_LINUX_KERNEL_CUSTOM_TREE),y)
+ifeq ($(BR2_LINUX_KERNEL_CUSTOM_OVERRIDE),y)
 ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX_VERSION)/.stamp_patched),)
 	@echo "unpatch linux kernel...."
 	for p in $(LINUX_PATCH_LIST) ; do \
-		patch -RE -p1 -d $(LINUX_SOURCE_DIR) < $$p; \
+		patch -RE -p1 -d $(LINUX_SRCDIR) < $$p; \
 	done
 else
 	@echo "linux kernel didn't patched, skip unpatch...."
