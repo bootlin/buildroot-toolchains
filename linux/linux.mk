@@ -50,8 +50,6 @@ LINUX_MAKE_FLAGS += \
 # going to be installed in the target filesystem.
 LINUX_VERSION_PROBED = $(shell $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) --no-print-directory -s kernelrelease)
 
-KERNELVERSION=$(shell cat $(LINUX_SRCDIR)/Makefile | awk 'BEGIN { FS = " *= *" }  NF != 2 { next } $$1 == "VERSION" { maj = $$2} $$1 == "PATCHLEVEL" { mid = $$2 } $$1 == "SUBLEVEL" { mic = $$2 } END {print maj "." mid "." mic}')
-
 ifeq ($(BR2_LINUX_KERNEL_IMAGE_TARGET_CUSTOM),y)
 LINUX_IMAGE_NAME=$(call qstrip,$(BR2_LINUX_KERNEL_IMAGE_TARGET_NAME))
 else
@@ -109,7 +107,7 @@ define LINUX_APPLY_PATCHES
 		if echo $$p | grep -q -E "^ftp://|^http://" ; then \
 			support/scripts/apply-patches.sh $(LINUX_SRCDIR) $(DL_DIR) `basename $$p` ; \
 		elif test -d $$p ; then \
-			support/scripts/apply-patches.sh $(LINUX_SRCDIR) $$p linux-$(KERNELVERSION)-\*.patch ; \
+			support/scripts/apply-patches.sh $(LINUX_SRCDIR) $$p linux-\*.patch ; \
 		else \
 			support/scripts/apply-patches.sh $(LINUX_SRCDIR) `dirname $$p` `basename $$p` ; \
 		fi \
@@ -249,7 +247,7 @@ $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LI
 # after it generated the initramfs list of files.
 linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
 
-LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCHES)/linux-$(KERNELVERSION)-*.patch)
+LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCHES)/linux-*.patch)
 linux-unpatch:
 ifeq ($(BR2_LINUX_KERNEL_CUSTOM_OVERRIDE),y)
 ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX_VERSION)/.stamp_patched),)
