@@ -1,0 +1,14 @@
+--- /tmp/can-utils-50775159276d896d8b3102b6dbc658a91a2a1d53/isotpserver.c	2012-03-09 02:32:45.000000000 +0800
++++ can-utils-50775159276d896d8b3102b6dbc658a91a2a1d53/isotpserver.c	2012-08-15 16:52:39.449921654 +0800
+@@ -278,7 +278,11 @@
+ 		sa = accept(sl,(struct sockaddr *)&clientaddr, &sin_size);
+ 		if (sa > 0 ){
+ 
++#ifdef __NOMMU__
++			if (vfork())
++#else
+ 			if (fork())
++#endif
+ 				close(sa);
+ 			else
+ 				break;

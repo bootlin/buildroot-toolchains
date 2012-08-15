@@ -1,0 +1,20 @@
+--- /tmp/can-utils-50775159276d896d8b3102b6dbc658a91a2a1d53/candump.c	2012-03-09 02:32:45.000000000 +0800
++++ can-utils-50775159276d896d8b3102b6dbc658a91a2a1d53/candump.c	2012-08-15 16:51:57.417922970 +0800
+@@ -202,7 +202,7 @@
+ 	fd_set rdfs;
+ 	int s[MAXSOCK];
+ 	int bridge = 0;
+-	useconds_t bridge_delay = 0;
++	unsigned long bridge_delay = 0;
+ 	unsigned char timestamp = 0;
+ 	unsigned char dropmonitor = 0;
+ 	unsigned char silent = SILENT_INI;
+@@ -316,7 +316,7 @@
+ 			break;
+ 	    
+ 		case 'u':
+-			bridge_delay = (useconds_t)strtoul(optarg, (char **)NULL, 10);
++			bridge_delay = (unsigned long)strtoul(optarg, (char **)NULL, 10);
+ 			break;
+ 
+ 		case 'l':
