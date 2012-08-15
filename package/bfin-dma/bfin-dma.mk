@@ -26,4 +26,4 @@ define BFIN_DMA_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/bfin-dma
 endef
 
-$(eval $(call GENTARGETS,package,bfin-dma))
+$(eval $(call GENTARGETS))

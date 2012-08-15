@@ -23,5 +23,5 @@ define RTSCTS_UTIL_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/rtscts_test
 endef
 
-$(eval $(call GENTARGETS,package,rtscts_util))
+$(eval $(call GENTARGETS))
 

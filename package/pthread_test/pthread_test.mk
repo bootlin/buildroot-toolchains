@@ -31,4 +31,4 @@ define PTHREAD_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/ptest
 endef
 
-$(eval $(call GENTARGETS,package,pthread_test))
+$(eval $(call GENTARGETS))

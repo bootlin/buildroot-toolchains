@@ -29,4 +29,4 @@ define SQLITE_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/wishlist.sql
 endef
 
-$(eval $(call GENTARGETS,package,sqlite_test))
+$(eval $(call GENTARGETS))

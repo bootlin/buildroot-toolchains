@@ -36,4 +36,4 @@ define CPUFREQUTILS_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/lib/libcpufreq.so.*
 endef
 
-$(eval $(call GENTARGETS,package,cpufrequtils))
+$(eval $(call GENTARGETS))

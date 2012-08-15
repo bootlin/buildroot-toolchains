@@ -29,4 +29,4 @@ define BFIN_GPTIMER_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/$(BFIN_GPTIMER_EXE)
 endef
 
-$(eval $(call GENTARGETS,package,bfin_gptimer))
+$(eval $(call GENTARGETS))

@@ -27,4 +27,4 @@ define ERESTART_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/erestart
 endef
 
-$(eval $(call GENTARGETS,package,erestart_test))
+$(eval $(call GENTARGETS))

@@ -26,4 +26,4 @@ define EDN_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/edn
 endef
 
-$(eval $(call GENTARGETS,package,edn))
+$(eval $(call GENTARGETS))

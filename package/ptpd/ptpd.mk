@@ -16,4 +16,4 @@ define PTPD_INSTALL_TARGET_CMDS
 #	install -m 755 package/ptpd/ptpd.sysvinit $(TARGET_DIR)/etc/init.d/S65ptp
 endef
 
-$(eval $(call GENTARGETS,package,ptpd))
+$(eval $(call GENTARGETS))

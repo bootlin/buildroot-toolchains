@@ -26,4 +26,4 @@ define MALLOC_PERF_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/malloc-perf
 endef
 
-$(eval $(call GENTARGETS,package,malloc_perf_test))
+$(eval $(call GENTARGETS))

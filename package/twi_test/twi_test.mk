@@ -27,4 +27,4 @@ define TWI_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/twi
 endef
 
-$(eval $(call GENTARGETS,package,twi_test))
+$(eval $(call GENTARGETS))

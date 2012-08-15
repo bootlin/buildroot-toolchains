@@ -22,4 +22,4 @@ LINPHONE_CONF_OPT:=--without-crypto \
 
 LINPHONE_DEPENDENCIES:=speex libosip2 libeXosip2 libbfgdots alsa-lib
 
-$(eval $(call AUTOTARGETS,package,linphone))
+$(eval $(call AUTOTARGETS))

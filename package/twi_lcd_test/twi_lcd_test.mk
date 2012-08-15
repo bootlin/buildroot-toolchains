@@ -27,4 +27,4 @@ define TWI_LCD_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/twi_lcd
 endef
 
-$(eval $(call GENTARGETS,package,twi_lcd_test))
+$(eval $(call GENTARGETS))

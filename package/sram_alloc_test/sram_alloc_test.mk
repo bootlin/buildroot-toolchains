@@ -26,4 +26,4 @@ define SRAM_ALLOC_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/sram_alloc
 endef
 
-$(eval $(call GENTARGETS,package,sram_alloc_test))
+$(eval $(call GENTARGETS))

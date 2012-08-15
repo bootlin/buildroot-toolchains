@@ -15,4 +15,4 @@ define PTPD2_INSTALL_TARGET_CMDS
 	cp -dpf $(@D)/src/ptpd2 $(TARGET_DIR)/usr/sbin
 endef
 
-$(eval $(call GENTARGETS,package,ptpd2))
+$(eval $(call GENTARGETS))

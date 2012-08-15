@@ -19,7 +19,7 @@ define STRING_TEST_CLEAN_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) clean
 endef
 
-$(eval $(call GENTARGETS,package,string_test))
+$(eval $(call GENTARGETS))
 
 $(BUILD_DIR)/string_test-$(STRING_TEST_VERSION)/.stamp_extracted:
 	@$(call MESSAGE,"Extracting")

@@ -23,5 +23,5 @@ define EVENT_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/event_test
 endef
 
-$(eval $(call GENTARGETS,package,event_test))
+$(eval $(call GENTARGETS))
 

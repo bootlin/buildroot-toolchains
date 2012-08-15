@@ -23,5 +23,5 @@ define VERSION_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/version
 endef
 
-$(eval $(call GENTARGETS,package,version))
+$(eval $(call GENTARGETS))
 
