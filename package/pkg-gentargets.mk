@@ -185,12 +185,14 @@ $(2)_BASE_NAME	=  $(1)-$$($(2)_VERSION)
 $(2)_DL_DIR	=  $$(DL_DIR)/$$($(2)_BASE_NAME)
 $(2)_DIR	=  $$(BUILD_DIR)/$$($(2)_BASE_NAME)
 
-ifneq ($$($(2)_OVERRIDE_SRCDIR),)
-$(2)_VERSION = custom
-$(2)_MAKE_FLAGS =  O="$$($(2)_DIR)"
-$(2)_SRCDIR	=  $$($(2)_OVERRIDE_SRCDIR)
-else
-$(2)_SRCDIR	=  $$($(2)_DIR)
+ifndef $(2)_SRCDIR
+ ifneq ($$($(2)_OVERRIDE_SRCDIR),)
+  $(2)_VERSION = custom
+  $(2)_MAKE_FLAGS =  O="$$($(2)_DIR)"
+  $(2)_SRCDIR	=  $$($(2)_OVERRIDE_SRCDIR)
+ else
+  $(2)_SRCDIR	=  $$($(2)_DIR)
+ endif
 endif
 
 ifndef $(2)_SOURCE
