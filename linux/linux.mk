@@ -206,6 +206,16 @@ define LINUX_INSTALL_TARGET_CMDS
 	fi
 endef
 
+LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCHES)/linux-*.patch)
+define LINUX_CLEAN_CMDS
+	$(if $(wildcard $(LINUX_TARGET_PATCH)),
+		echo "Remove patch from override linux kernel...."
+		for p in $(LINUX_PATCH_LIST) ; do \
+			patch -RE -p1 -d $(LINUX_SRCDIR) < $$p; \
+		done
+		rm -f $(LINUX_TARGET_PATCH))
+endef
+
 include linux/linux-ext-*.mk
 
 $(eval $(call GENTARGETS))
@@ -247,19 +257,6 @@ $(LINUX_DIR)/.stamp_initramfs_rebuilt: $(LINUX_DIR)/.stamp_target_installed $(LI
 # The initramfs building code must make sure this target gets called
 # after it generated the initramfs list of files.
 linux-rebuild-with-initramfs linux26-rebuild-with-initramfs: $(LINUX_DIR)/.stamp_initramfs_rebuilt
-
-LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCHES)/linux-*.patch)
-linux-unpatch:
-ifeq ($(BR2_LINUX_KERNEL_CUSTOM_OVERRIDE),y)
-ifneq ($(wildcard $(BUILD_DIR)/linux-$(LINUX_VERSION)/.stamp_patched),)
-	@echo "unpatch linux kernel...."
-	for p in $(LINUX_PATCH_LIST) ; do \
-		patch -RE -p1 -d $(LINUX_SRCDIR) < $$p; \
-	done
-else
-	@echo "linux kernel didn't patched, skip unpatch...."
-endif
-endif
 
 # Checks to give errors that the user can understand
 ifeq ($(filter source,$(MAKECMDGOALS)),)
