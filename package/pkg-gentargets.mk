@@ -187,8 +187,9 @@ $(2)_DIR	=  $$(BUILD_DIR)/$$($(2)_BASE_NAME)
 
 ifneq ($$($(2)_OVERRIDE_SRCDIR),)
  $(2)_VERSION = custom
- $(2)_MAKE_FLAGS =  O="$$($(2)_DIR)"
- $(2)_SRCDIR	=  $$($(2)_OVERRIDE_SRCDIR)
+ ifndef $(2)_SRCDIR
+  $(2)_SRCDIR	=  $$($(2)_OVERRIDE_SRCDIR)
+ endif
 else
  ifndef $(2)_SRCDIR
   $(2)_SRCDIR	=  $$($(2)_DIR)
