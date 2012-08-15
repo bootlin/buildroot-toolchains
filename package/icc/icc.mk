@@ -14,7 +14,7 @@ ICC_DIR:=$(BUILD_DIR)/icc-$(ICC_VERSION)
 ICC_SOURCE:=icc-$(ICC_VERSION).tar.gz
 ICC_CAT=$(ZCAT)
 
-KERNEL_DIR = $(TOPDIR)/$(LINUX26_SOURCE_DIR)
+KERNEL_DIR = $(TOPDIR)/$(LINUX_SRCDIR)
 ICC_INCLUDE = $(ICC_DIR)/include
 MCAPI_INCLUDE=$(STAGING_DIR)/usr/include/mcapi-2.0_coreb/
 MCAPI_TEST_INCLUDE=$(STAGING_DIR)/usr/include/mcapi-2.0/
@@ -82,8 +82,8 @@ icc-source: $(DL_DIR)/$(ICC_SOURCE)
 
 $(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE) linux
 	$(ICC_CAT) $(DL_DIR)/$(ICC_SOURCE) | $(TAR) -C $(BUILD_DIR) $(TAR_OPTIONS) -
-	cp -dpfr $(LINUX26_BUILD_DIR)/include/generated $(ICC_DIR)/include/
-	cp -dpfr $(LINUX26_BUILD_DIR)/arch/blackfin/include/generated/* $(ICC_DIR)/include/
+	cp -dpfr $(LINUX_DIR)/include/generated $(ICC_DIR)/include/
+	cp -dpfr $(LINUX_DIR)/arch/blackfin/include/generated/* $(ICC_DIR)/include/
 	$(PATCH_ICC_DEBUG_CMD)
 	$(Q)touch $@
 
