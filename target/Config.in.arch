@@ -277,8 +277,8 @@ config BR2_BFIN_INSTALL_ELF_SHARED
 	default y
 
 config BR2_BFIN_INSTALL_FLAT_SHARED
-	depends on BR2_bfin && !BR2_BFIN_SHARED_FLAT
-	bool "Install FLAT shared libraries"
+	depends on BR2_bfin
+	bool "Install FLAT shared libraries" if !BR2_BFIN_SHARED_FLAT
 	default y
 
 choice
