@@ -110,6 +110,12 @@ ifeq ($(BR2_ABI_FLAT),y)
 TARGET_LDFLAGS += -Wl,-elf2flt
 endif
 
+ifeq ($(BR2_BFIN_FLAT_SEP_DATA),y)
+TARGET_LDFLAGS += -msep-data
+TARGET_CFLAGS += -msep-data
+TARGET_CXXFLAGS += -msep-data
+endif
+
 ifeq ($(BR2_BFIN_SHARED_FLAT), y)
 TARGET_LDFLAGS += -mid-shared-library -mshared-library-id=0
 TARGET_CFLAGS += -mid-shared-library -mshared-library-id=0
