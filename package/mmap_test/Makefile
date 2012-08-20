@@ -1,2 +1,2 @@
-include  $(BASE_DIR)/../target/device/AnalogDevices/kernel-module.mk
+include  $(BASE_DIR)/../board/AnalogDevices/blackfin/kernel-module.mk
 obj-m := simple.o
