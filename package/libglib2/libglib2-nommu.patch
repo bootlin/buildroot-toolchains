@@ -118,20 +118,6 @@
          {
          case -1:
            g_warning ("fork() failed: %m");
---- libglib2/gio/tests/gdbus-non-socket.c	2011-12-27 12:48:28.030046895 +0800
-+++ libglib2.nommu/gio/tests/gdbus-non-socket.c	2011-12-27 12:48:47.018297144 +0800
-@@ -222,7 +222,11 @@
-   g_assert_cmpint (pipe (in_pipes), ==, 0);
-   g_assert_cmpint (pipe (out_pipes), ==, 0);
- 
-+#ifdef __NOMMU__
-+  switch ((child = vfork ()))
-+#else
-   switch ((child = fork ()))
-+#endif
-     {
-     case -1:
-       g_assert_not_reached ();
 --- libglib2/gio/tests/socket.c	2011-12-27 12:45:25.674046990 +0800
 +++ libglib2.nommu/gio/tests/socket.c	2011-12-27 12:46:04.735134260 +0800
 @@ -105,7 +105,11 @@
@@ -299,7 +285,7 @@
      exit (1);
  
 --- libglib2/tests/timeloop-closure.c	2011-12-27 12:55:41.102046409 +0800
-+++ libglib2./tests/timeloop-closure.c	2011-12-27 12:57:14.094047108 +0800
++++ libglib2.nommu/tests/timeloop-closure.c	2011-12-27 12:57:14.094047108 +0800
 @@ -24,7 +24,11 @@
    if (pipe(fds) < 0)
      {
@@ -360,3 +346,29 @@
      }
  }
  
+--- libglib2-2.30.2/gio/tests/gdbus-non-socket.c	2011-11-12 01:56:52.000000000 +0800
++++ libglib2-2.30.2.nommu/gio/tests/gdbus-non-socket.c	2012-08-21 11:52:36.227225161 +0800
+@@ -232,7 +232,11 @@
+   g_assert_cmpint (pipe (in_pipes), ==, 0);
+   g_assert_cmpint (pipe (out_pipes), ==, 0);
+ 
++#ifdef __NOMMU__
++  switch ((first_child = vfork ()))
++#else
+   switch ((first_child = fork ()))
++#endif
+     {
+     case -1:
+       g_assert_not_reached ();
+@@ -350,7 +354,11 @@
+ 
+   g_object_unref (connection);
+   g_main_loop_unref (loop);
++#ifdef __NOMMU__
++  _exit (0);
++#else
+   exit (0);
++#endif
+ }
+ 
+ #else /* G_OS_UNIX */
