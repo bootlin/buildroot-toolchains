@@ -140,10 +140,6 @@ config BR2_ABI_ELF
 	default y
 	depends on !BR2_ABI_FLAT
 
-config BR2_NOMMU
-	bool "Target has no MMU support"
-	default n
-
 config BR2_microblaze
 	bool
 	default y if BR2_microblazeel || BR2_microblazebe

@@ -99,7 +99,7 @@ ifeq ($(BR2_LARGEFILE),y)
 TARGET_CFLAGS+=-D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64
 endif
 
-ifeq ($(BR2_NOMMU), y)
+ifneq ($(BR2_USE_MMU), y)
 TARGET_CFLAGS += -D__NOMMU__ -D__uClinux__
 endif
 
