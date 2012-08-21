@@ -35,7 +35,7 @@ mount -t devpts devpts /dev/pts -o noexec,nosuid
 # lost when we reboot.
 #
 mount -t tmpfs var /var
-mkdir /var/tmp /var/log /var/run /var/lock /var/lib
+mkdir /var/tmp /var/log /var/run /var/lock /var/lib /var/run/dbus
 
 #
 # Give temp files a read/write location not in flash/etc...
