@@ -1,0 +1,211 @@
+--- gpsd-2.95/gpsd.c.old	2012-08-21 17:33:39.498362385 +0800
++++ gpsd-2.95/gpsd.c	2012-08-21 17:35:56.870362354 +0800
+@@ -195,39 +195,6 @@
+     signalled = (sig_atomic_t) sig;
+ }
+ 
+-static int daemonize(void)
+-{
+-    int fd;
+-    pid_t pid;
+-
+-    /*@ -type @*//* weirdly, splint 3.1.2 is confused by fork() */
+-    switch (pid = fork()) {
+-    case -1:
+-	return -1;
+-    case 0:			/* child side */
+-	break;
+-    default:			/* parent side */
+-	exit(0);
+-    }
+-    /*@ +type @*/
+-
+-    if (setsid() == -1)
+-	return -1;
+-    if (chdir("/") == -1)
+-	return -1;
+-    /*@ -nullpass @*/
+-    if ((fd = open(_PATH_DEVNULL, O_RDWR, 0)) != -1) {
+-	(void)dup2(fd, STDIN_FILENO);
+-	(void)dup2(fd, STDOUT_FILENO);
+-	(void)dup2(fd, STDERR_FILENO);
+-	if (fd > 2)
+-	    (void)close(fd);
+-    }
+-    /*@ +nullpass @*/
+-    in_background = true;
+-    return 0;
+-}
+-
+ #if defined(PPS_ENABLE)
+ static pthread_mutex_t report_mutex;
+ #endif /* PPS_ENABLE */
+@@ -1642,7 +1609,7 @@
+     }
+ 
+     if (go_background)
+-	(void)daemonize();
++	(void)daemon(0,0);
+ 
+     if (pid_file) {
+ 	FILE *fp;
+--- gpsd-2.95/lcdgps.c.old	2012-08-21 17:34:08.622112191 +0800
++++ gpsd-2.95/lcdgps.c	2012-08-21 17:38:19.094361945 +0800
+@@ -88,7 +88,6 @@
+ 
+ /* Prototypes. */
+ void latlon2maidenhead(char *st,float n,float e);
+-static void daemonize(void);
+ ssize_t sockreadline(int sockd,void *vptr,size_t maxlen);
+ ssize_t sockwriteline(int sockd,const void *vptr,size_t n);
+ int send_lcd(char *buf);
+@@ -135,42 +134,6 @@
+ #endif
+ }
+ 
+-/* Daemonize me. */
+-static void daemonize(void) {
+-  int i, ignore;
+-
+-  /* Run as my child. */
+-  i=fork();
+-  if (i == -1) exit(1); /* fork error */
+-  if (i > 0) exit(0); /* parent exits */
+-
+-  /* Obtain a new process group. */
+-  setsid();
+-
+-  /* Close all open descriptors. */
+-  for(i=getdtablesize();i>=0;--i)
+-    close(i);
+-
+-  /* Reopen STDIN, STDOUT, STDERR to /dev/null. */
+-  i=open("/dev/null",O_RDWR); /* STDIN */
+-  ignore=dup(i); /* STDOUT */
+-  ignore=dup(i); /* STDERR */
+-
+-  /* Know thy mask. */
+-  umask(027);
+-
+-  /* Run from a known location. */
+-  ignore=chdir("/");
+-
+-  /* Catch child sig */
+-  signal(SIGCHLD,SIG_IGN);
+-
+-  /* Ignore tty signals */
+-  signal(SIGTSTP,SIG_IGN);
+-  signal(SIGTTOU,SIG_IGN);
+-  signal(SIGTTIN,SIG_IGN);
+-}
+-
+ /*  Read a line from a socket  */
+ ssize_t sockreadline(int sockd,void *vptr,size_t maxlen) {
+   ssize_t n,rc;
+@@ -468,7 +431,7 @@
+       gpsd_source_spec(NULL, &source);
+ 
+     /* Daemonize... */
+-    daemonize();
++    daemon(0,0);
+ 
+     /* Open the stream to gpsd. */
+     if (gps_open_r(source.server, source.port, &gpsdata) != 0) {
+--- gpsd-2.95/gpspipe.c	2010-06-11 17:21:42.000000000 +0800
++++ gpsd-2.95.nommu/gpspipe.c	2012-08-21 17:48:59.753446319 +0800
+@@ -59,48 +59,6 @@
+ static char serbuf[255];
+ static int debug;
+ 
+-static void daemonize(void)
+-/* Daemonize me. */
+-{
+-    int i;
+-    pid_t pid;
+-
+-    /* Run as my child. */
+-    pid = fork();
+-    if (pid == -1)
+-	exit(1);		/* fork error */
+-    if (pid > 0)
+-	exit(0);		/* parent exits */
+-
+-    /* Obtain a new process group. */
+-    (void)setsid();
+-
+-    /* Close all open descriptors. */
+-    for (i = getdtablesize(); i >= 0; --i)
+-	(void)close(i);
+-
+-    /* Reopen STDIN, STDOUT, STDERR to /dev/null. */
+-    i = open("/dev/null", O_RDWR);	/* STDIN */
+-    /*@ -sefparams @*/
+-    assert(dup(i) != -1);	/* STDOUT */
+-    assert(dup(i) != -1);	/* STDERR */
+-
+-    /* Know thy mask. */
+-    (void)umask(0x033);
+-
+-    /* Run from a known spot. */
+-    assert(chdir("/") != -1);
+-    /*@ +sefparams @*/
+-
+-    /* Catch child sig */
+-    (void)signal(SIGCHLD, SIG_IGN);
+-
+-    /* Ignore tty signals */
+-    (void)signal(SIGTSTP, SIG_IGN);
+-    (void)signal(SIGTTOU, SIG_IGN);
+-    (void)signal(SIGTTIN, SIG_IGN);
+-}
+-
+ static void open_serial(char *device)
+ /* open the serial port and set it up */
+ {
+@@ -161,7 +119,7 @@
+     bool timestamp = false;
+     char *format = "%c";
+     char tmstr[200];
+-    bool daemon = false;
++    bool dm = false;
+     bool binary = false;
+     bool sleepy = false;
+     bool new_line = true;
+@@ -203,7 +161,7 @@
+ 	    binary = true;
+ 	    break;
+ 	case 'd':
+-	    daemon = true;
++	    dm = true;
+ 	    break;
+ 	case 'l':
+ 	    sleepy = true;
+@@ -252,7 +210,7 @@
+ 	exit(1);
+     }
+ 
+-    if (outfile == NULL && daemon) {
++    if (outfile == NULL && dm) {
+ 	(void)fprintf(stderr, "gpspipe: use of '-d' requires '-f'.\n");
+ 	exit(1);
+     }
+@@ -264,8 +222,8 @@
+     }
+ 
+     /* Daemonize if the user requested it. */
+-    if (daemon)
+-	daemonize();
++    if (dm)
++	daemon(0,0);
+ 
+     /* Sleep for ten seconds if the user requested it. */
+     if (sleepy)
+@@ -307,7 +265,7 @@
+ 	flags |= WATCH_DEVICE;
+     (void)gps_stream(&gpsdata, flags, source.device);
+ 
+-    if ((isatty(STDERR_FILENO) == 0) || daemon)
++    if ((isatty(STDERR_FILENO) == 0) || dm)
+ 	vflag = 0;
+ 
+     for (;;) {
