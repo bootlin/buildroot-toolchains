@@ -80,7 +80,7 @@ $(DL_DIR)/$(ICC_SOURCE): PKG=ICC
 
 icc-source: $(DL_DIR)/$(ICC_SOURCE)
 
-$(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE) linux
+$(ICC_DIR)/.stamp_unpacked: $(DL_DIR)/$(ICC_SOURCE)
 	$(ICC_CAT) $(DL_DIR)/$(ICC_SOURCE) | $(TAR) -C $(BUILD_DIR) $(TAR_OPTIONS) -
 	cp -dpfr $(LINUX_DIR)/include/generated $(ICC_DIR)/include/
 	cp -dpfr $(LINUX_DIR)/arch/blackfin/include/generated/* $(ICC_DIR)/include/
@@ -105,7 +105,7 @@ icc-install: icc-build $(ICC_DIR)/.stamp_install
 icc-build: icc-extract  $(ICC_DIR)/.stamp_build 
 
 
-icc-extract: $(ICC_DIR)/.stamp_unpacked
+icc-extract: linux $(ICC_DIR)/.stamp_unpacked
 
 icc-clean: $(ICC_DIR)/.stamp_clean
 
