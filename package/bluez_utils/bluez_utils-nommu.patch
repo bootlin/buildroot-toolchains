@@ -1,17 +1,3 @@
---- bluez_utils/tools/main.c	2011-12-27 16:11:23.626297083 +0800
-+++ bluez_utils.nommu/tools/main.c	2011-12-27 16:11:41.531412878 +0800
-@@ -277,7 +277,11 @@
- 		cmdargv[i] = (strcmp(argv[i], "{}") == 0) ? devname : argv[i];
- 	cmdargv[i] = NULL;
- 
-+#ifdef __NOMMU__
-+	pid = vfork();
-+#else
- 	pid = fork();
-+#endif
- 
- 	switch (pid) {
- 	case 0:
 --- bluez_utils/tools/hciattach.c	2011-12-27 16:21:41.646046531 +0800
 +++ bluez_utils.nommu/tools/hciattach.c	2011-12-27 16:21:59.751154005 +0800
 @@ -1405,7 +1405,11 @@
@@ -230,3 +216,88 @@
  			}
  		}
  		sleep(4);
+--- bluez_utils/tools/rfcomm.c	2012-08-21 11:16:24.119225025 +0800
++++ bluez_utils.nommu/tools/rfcomm.c	2012-08-21 11:18:07.111223697 +0800
+@@ -277,7 +277,11 @@
+ 		cmdargv[i] = (strcmp(argv[i], "{}") == 0) ? devname : argv[i];
+ 	cmdargv[i] = NULL;
+ 
++#ifdef __NOMMU__
++	pid = vfork();
++#else
+ 	pid = fork();
++#endif
+ 
+ 	switch (pid) {
+ 	case 0:
+--- bluez_utils/compat/dun.c	2012-08-21 11:23:38.931473630 +0800
++++ bluez_utils.nommu/compat/dun.c	2012-08-21 11:19:46.791224958 +0800
+@@ -156,9 +156,15 @@
+ 
+ static int dun_exec(char *tty, char *prog, char **args)
+ {
+-	int pid = fork();
++	int pid;
+ 	int fd;
+ 
++#ifdef __NOMMU__
++	pid = vfork();
++#else
++	pid = fork();
++#endif
++
+ 	switch (pid) {
+ 	case -1:
+ 		return -1;
+--- bluez_utils/compat/dund.c	2012-08-21 11:24:54.775224785 +0800
++++ bluez_utils.nommu/compat/dund.c	2012-08-21 11:27:02.683225445 +0800
+@@ -170,7 +170,11 @@
+ 			continue;
+ 		}
+ 
++#ifdef __NOMMU__
++		switch (vfork()) {
++#else
+ 		switch (fork()) {
++#endif
+ 		case 0:
+ 			break;
+ 		case -1:
+@@ -202,7 +206,11 @@
+ 			syslog(LOG_INFO, "New connection from %s", ba);
+ 
+ 		close(nsk);
++#ifdef __NOMMU__
++		_exit(0);
++#else
+ 		exit(0);
++#endif
+ 	}
+ 
+ 	if (use_sdp)
+--- bluez_utils/compat/pand.c	2012-08-21 11:28:58.863225622 +0800
++++ bluez_utils.nommu/compat/pand.c	2012-08-21 11:31:16.503224886 +0800
+@@ -110,7 +110,11 @@
+ 	if (access(script, R_OK | X_OK))
+ 		return;
+ 
++#ifdef __NOMMU__
++	if (vfork())
++#else
+ 	if (fork())
++#endif
+ 		return;
+ 
+ 	if (sk >= 0)
+@@ -131,7 +135,11 @@
+ 
+ 	execv(script, argv);
+ 
++#ifdef __NOMMU__
++	_exit(1);
++#else
+ 	exit(1);
++#endif
+ }
+ 
+ /* Wait for disconnect or error condition on the socket */
