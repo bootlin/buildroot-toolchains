@@ -1,0 +1,20 @@
+--- iproute2-3.3.0.old/ip/ipnetns.c	2012-03-20 08:27:12.000000000 +0800
++++ iproute2-3.3.0/ip/ipnetns.c	2012-08-22 14:43:26.357315734 +0800
+@@ -148,7 +148,7 @@
+ 		return -1;
+ 	}
+ 
+-	if (unshare(CLONE_NEWNS) < 0) {
++	if (syscall(SYS_unshare, CLONE_NEWNS) < 0) {
+ 		fprintf(stderr, "unshare failed: %s\n", strerror(errno));
+ 		return -1;
+ 	}
+@@ -225,7 +225,7 @@
+ 		return -1;
+ 	}
+ 	close(fd);
+-	if (unshare(CLONE_NEWNET) < 0) {
++	if (syscall(SYS_unshare, CLONE_NEWNET) < 0) {
+ 		fprintf(stderr, "Failed to create a new network namespace: %s\n",
+ 			strerror(errno));
+ 		goto out_delete;
