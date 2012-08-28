@@ -1,0 +1,4 @@
+config BR2_PACKAGE_VIDEO_TEST
+	bool "video test program"
+        help
+          Application for frame buffer video test
