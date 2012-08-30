@@ -1,0 +1,20 @@
+--- bluez_utils/Makefile.in	2012-03-05 17:04:30.000000000 +0800
++++ bluez_utils.agent/Makefile.in	2012-08-30 17:51:26.138123587 +0800
+@@ -392,7 +392,8 @@
+ @TOOLS_TRUE@	tools/ciptool$(EXEEXT)
+ @READLINE_TRUE@@TOOLS_TRUE@am__EXEEXT_2 = attrib/gatttool$(EXEEXT)
+ @DFUTOOL_TRUE@am__EXEEXT_3 = tools/dfutool$(EXEEXT)
+-@TEST_TRUE@am__EXEEXT_4 = test/l2test$(EXEEXT) test/rctest$(EXEEXT)
++@TEST_TRUE@am__EXEEXT_4 = test/l2test$(EXEEXT) test/rctest$(EXEEXT) \
++@TEST_TRUE@	test/bdaddr$(EXEEXT) test/agent$(EXEEXT)
+ @HIDD_TRUE@am__EXEEXT_5 = compat/hidd$(EXEEXT)
+ @PAND_TRUE@am__EXEEXT_6 = compat/pand$(EXEEXT)
+ @DUND_TRUE@am__EXEEXT_7 = compat/dund$(EXEEXT)
+@@ -410,7 +411,6 @@
+ @TEST_TRUE@	test/scotest$(EXEEXT) test/attest$(EXEEXT) \
+ @TEST_TRUE@	test/hstest$(EXEEXT) test/avtest$(EXEEXT) \
+ @TEST_TRUE@	test/ipctest$(EXEEXT) test/lmptest$(EXEEXT) \
+-@TEST_TRUE@	test/bdaddr$(EXEEXT) test/agent$(EXEEXT) \
+ @TEST_TRUE@	test/btiotest$(EXEEXT) test/test-textfile$(EXEEXT) \
+ @TEST_TRUE@	test/uuidtest$(EXEEXT) test/mpris-player$(EXEEXT) \
+ @TEST_TRUE@	$(am__EXEEXT_12)
