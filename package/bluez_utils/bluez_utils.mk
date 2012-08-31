@@ -45,4 +45,14 @@ BLUEZ_UTILS_CONF_OPT +=	\
 	--disable-usb
 endif
 
+# bccmd support
+ifeq ($(BR2_PACKAGE_BLUEZ_UTILS_BCCMD),y)
+BLUEZ_UTILS_DEPENDENCIES += libusb
+BLUEZ_UTILS_CONF_OPT +=	\
+	--enable-bccmd
+else
+BLUEZ_UTILS_CONF_OPT +=	\
+	--disable-bccmd
+endif
+
 $(eval $(call AUTOTARGETS))

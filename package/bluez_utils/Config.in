@@ -28,6 +28,12 @@ config BR2_PACKAGE_BLUEZ_UTILS_USB
 	help
 	  USB support
 
+config BR2_PACKAGE_BLUEZ_UTILS_BCCMD
+	bool "bccmd support"
+	select BR2_PACKAGE_LIBUSB
+	help
+	  bccmd support
+
 endif
 
 comment "bluez-utils require a toolchain with WCHAR support"
