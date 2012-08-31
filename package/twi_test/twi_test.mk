@@ -16,6 +16,7 @@ define TWI_TEST_INSTALL_TARGET_CMDS
 		mkdir -p $(TARGET_DIR)/bin/; \
 	fi
 	$(INSTALL) -D -m 0755 $(@D)/twi_test $(TARGET_DIR)/bin/
+	cp -a $(@D)/twi_smbus_test.ko $(TARGET_DIR)/lib/modules
 endef
 
 define TWI_TEST_CLEAN_CMDS
@@ -23,7 +24,7 @@ define TWI_TEST_CLEAN_CMDS
 endef
 
 define TWI_TEST_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/bin/twi_test
+	rm -f $(TARGET_DIR)/bin/twi_test $(TARGET_DIR)/lib/modules/twi_smbus_test.ko
 endef
 
 $(eval $(call GENTARGETS))
