@@ -7,7 +7,6 @@
 FILE_VERSION = 5.11
 FILE_SITE = ftp://ftp.astron.com/pub/file
 FILE_DEPENDENCIES = host-file zlib
-HOST_FILE_DEPENDENCIES = host-zlib
 FILE_INSTALL_STAGING = YES
 
 define FILE_UNINSTALL_TARGET_CMDS
@@ -15,5 +14,5 @@ define FILE_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/lib/libmagic.*
 endef
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

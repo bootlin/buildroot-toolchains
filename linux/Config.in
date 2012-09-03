@@ -19,10 +19,10 @@ if BR2_LINUX_KERNEL
 #
 choice
 	prompt "Kernel version"
-	default BR2_LINUX_KERNEL_3_3
+	default BR2_LINUX_KERNEL_3_4
 
-config BR2_LINUX_KERNEL_3_3
-	bool "3.3.7"
+config BR2_LINUX_KERNEL_3_4
+	bool "3.4.7"
 
 config BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	bool "Same as toolchain kernel headers"
@@ -86,7 +86,7 @@ config BR2_LINUX_KERNEL_CUSTOM_OVERRIDE_PATH
 
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "3.3.7" if BR2_LINUX_KERNEL_3_3
+	default "3.4.7" if BR2_LINUX_KERNEL_3_4
 	default BR2_DEFAULT_KERNEL_HEADERS if BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE if BR2_LINUX_KERNEL_CUSTOM_VERSION
 	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL || BR2_LINUX_KERNEL_CUSTOM_OVERRIDE
@@ -124,8 +124,9 @@ config BR2_LINUX_KERNEL_DEFCONFIG
 	string "Defconfig name"
 	depends on BR2_LINUX_KERNEL_USE_DEFCONFIG
 	help
-	 Name of the defconfig file to use, without the trailing
-	 _defconfig
+	 Name of the kernel defconfig file to use, without the
+	 trailing _defconfig.  The defconfig is located in
+	 arch/<arch>/configs in the kernel tree.
 
 config BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE
 	string "Configuration file path"
@@ -133,17 +134,12 @@ config BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE
 	help
 	  Path to the kernel configuration file
 
-config BR2_LINUX_KERNEL_DTS_FILE
-    string "Device Tree dts file location"
-    depends on BR2_microblaze
-    help
-      Path from where the dts file has to be copied
-      The final "custom target" name depends on the
-      dts file name:
-          <name>.dts --> simpleImage.<name>
 #
 # Binary format
 #
+
+config BR2_LINUX_KERNEL_UBOOT_IMAGE
+       bool
 
 choice
 	prompt "Kernel binary format"
@@ -151,6 +147,14 @@ choice
 config BR2_LINUX_KERNEL_UIMAGE
 	bool "uImage"
 	depends on BR2_arm || BR2_armeb || BR2_bfin || BR2_powerpc || BR2_avr32 || BR2_sh || BR2_sh64
+	select BR2_LINUX_KERNEL_UBOOT_IMAGE
+
+config BR2_LINUX_KERNEL_APPENDED_UIMAGE
+	bool "uImage with appended DT"
+	depends on BR2_arm || BR2_armeb
+	select BR2_LINUX_KERNEL_DTS_SUPPORT
+	select BR2_LINUX_KERNEL_APPENDED_DTB
+	select BR2_LINUX_KERNEL_UBOOT_IMAGE
 
 config BR2_LINUX_KERNEL_BZIMAGE
 	bool "bzImage"
@@ -159,6 +163,33 @@ config BR2_LINUX_KERNEL_BZIMAGE
 config BR2_LINUX_KERNEL_ZIMAGE
 	bool "zImage"
 	depends on BR2_arm || BR2_armeb || BR2_powerpc || BR2_sparc || BR2_sh || BR2_sh64 || BR2_xtensa
+
+config BR2_LINUX_KERNEL_APPENDED_ZIMAGE
+	bool "zImage with appended DT"
+	depends on BR2_arm || BR2_armeb
+	select BR2_LINUX_KERNEL_DTS_SUPPORT
+	select BR2_LINUX_KERNEL_APPENDED_DTB
+
+config BR2_LINUX_KERNEL_CUIMAGE
+	bool "cuImage"
+	depends on BR2_powerpc
+	select BR2_LINUX_KERNEL_UBOOT_IMAGE
+	select BR2_LINUX_KERNEL_DTS_SUPPORT
+	select BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
+
+config BR2_LINUX_KERNEL_SIMPLEIMAGE
+	bool "simpleImage"
+	depends on BR2_microblaze
+	select BR2_LINUX_KERNEL_UBOOT_IMAGE
+	select BR2_LINUX_KERNEL_DTS_SUPPORT
+	select BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
+
+config BR2_LINUX_KERNEL_LINUX_BIN
+	bool "linux.bin"
+	depends on BR2_microblaze
+	select BR2_LINUX_KERNEL_UBOOT_IMAGE
+	select BR2_LINUX_KERNEL_DTS_SUPPORT
+	select BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
 
 config BR2_LINUX_KERNEL_VMLINUX_BIN
 	bool "vmlinux.bin"
@@ -190,6 +221,68 @@ config BR2_LINUX_KERNEL_IMAGE_TARGET_NAME
 	help
 	  Specify the kernel make target to build the kernel that you
 	  need.
+
+config BR2_LINUX_KERNEL_DTS_SUPPORT
+	bool "Device tree support"
+	help
+	  Compile a device tree source into a device tree blob.
+	  Select the dts file to compile in the options below.
+
+if BR2_LINUX_KERNEL_DTS_SUPPORT
+
+# We have mainly three cases when it comes to device tree support:
+#   1) We don't want any support at all. Then the ..DTS_SUPPORT
+#      variable won't be set
+#   2) We want device tree support, so we need the user to enter
+#      the device tree name or the the path to the custom device
+#      he uses, but the kernel abstracts this from us and only
+#      build an image that looks like a regular kernel image. In
+#      this case, we only need to derive the kernel image name from
+#      the given device tree name, and all the rest is as usual
+#   3) We want device tree support, but the kernel requires us to
+#      build the device tree blob separately. In this case, some
+#      more logic will be needed.
+# The variable below address the second case, were you only want
+# limited actions from buildroot.
+config BR2_LINUX_KERNEL_DTB_IS_SELF_BUILT
+	bool
+
+config BR2_LINUX_KERNEL_APPENDED_DTB
+	bool
+
+choice
+	prompt "Device tree source"
+	default BR2_LINUX_KERNEL_USE_INTREE_DTS
+
+config BR2_LINUX_KERNEL_USE_INTREE_DTS
+	bool "Use a device tree present in the kernel."
+	help
+	   Use a device tree source distributed with
+	   the kernel sources. The dts files are located
+           in the arch/<arch>/boot/dts folder.
+
+config BR2_LINUX_KERNEL_USE_CUSTOM_DTS
+	bool "Use a custom device tree file"
+	help
+	  Use a custom device tree file, i.e, a device
+	  tree file that does not belong to the kernel
+	  source tree.
+endchoice
+
+config BR2_LINUX_KERNEL_INTREE_DTS_NAME
+	string "Device Tree Source file name"
+	depends on BR2_LINUX_KERNEL_USE_INTREE_DTS
+	help
+	 Name of the device tree source file, without
+	 the trailing .dts
+
+config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
+	string "Device Tree Source file path"
+	depends on BR2_LINUX_KERNEL_USE_CUSTOM_DTS
+	help
+	  Path to the device tree source file
+
+endif
 
 config BR2_LINUX_KERNEL_INSTALL_TARGET
 	bool "Install kernel image to /boot in target"

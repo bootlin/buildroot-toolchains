@@ -5,7 +5,7 @@
 #############################################################
 MADPLAY_VERSION:=0.15.2b
 MADPLAY_SOURCE:=madplay-$(MADPLAY_VERSION).tar.gz
-MADPLAY_SITE:=http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/mad
+MADPLAY_SITE:=http://downloads.sourceforge.net/project/mad/madplay/$(MADPLAY_VERSION)
 MADPLAY_LIBTOOL_PATCH=NO
 MADPLAY_DEPENDENCIES=libmad libid3tag
 
@@ -16,4 +16,4 @@ MADPLAY_CONF_OPT+=--with-alsa
 MADPLAY_DEPENDENCIES+=alsa-lib
 endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

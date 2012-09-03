@@ -28,4 +28,4 @@ define FIXED_CODE_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/fixed_code_p
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

@@ -10,6 +10,10 @@ config BR2_VERSION
 	string
 	option env="BR2_VERSION_FULL"
 
+config BR2_HOSTARCH
+	string
+	option env="HOSTARCH"
+
 source "target/Config.in.arch"
 
 menu "Build options"
@@ -119,6 +123,22 @@ config BR2_PRIMARY_SITE
 	  NOTE: This works for all packages using the central package
 	  infrastructure (generic, autotools, cmake, ...)
 
+config BR2_PRIMARY_SITE_ONLY
+	bool "Only allow downloads from primary download site"
+	depends on BR2_PRIMARY_SITE != ""
+	help
+	  If this option is enabled, downloads will only be attempted
+	  from the primary download site. Other locations, like the
+	  package's official download location or the backup download
+	  site, will not be considered. Therefore, if the package is
+	  not present on the primary site, the download fails.
+
+	  This is useful for project developers who want to ensure
+	  that the project can be built even if the upstream tarball
+	  locations disappear.
+
+if !BR2_PRIMARY_SITE_ONLY
+
 config BR2_BACKUP_SITE
 	string "Backup download site"
 	default "http://sources.buildroot.net/"
@@ -126,18 +146,6 @@ config BR2_BACKUP_SITE
 	  Backup site to download from. If this option is set then buildroot
 	  will fall back to download package sources from here if the
 	  normal location fails.
-
-config BR2_SOURCEFORGE_MIRROR
-	string "Sourceforge mirror site"
-	default "kent"
-	help
-	  Sourceforge has a system of mirror sites.  Some sites may be
-	  closer to your location, and sometimes mirror sites go down
-	  and are no longer available.  This option allows you to select
-	  your preferred Sourceforge mirror site.
-
-	  The list of mirrors is available here:
-	  http://sourceforge.net/apps/trac/sourceforge/wiki/Mirrors
 
 config BR2_KERNEL_MIRROR
 	string "Kernel.org mirror"
@@ -175,13 +183,17 @@ config BR2_DEBIAN_MIRROR
 	  Usually, just add your country code like XX here:
 	  http://ftp.XX.debian.org
 
+endif
+
 endmenu
 
 config BR2_JLEVEL
-	int "Number of jobs to run simultaneously"
-	default "2"
+	int "Number of jobs to run simultaneously (0 for auto)"
+	default "0"
 	help
-	  Number of jobs to run simultaneously
+	  Number of jobs to run simultaneously.  If 0, determine
+	  automatically according to number of CPUs on the host
+	  system.
 
 config BR2_CCACHE
 	bool "Enable compiler cache"
@@ -282,6 +294,25 @@ config BR2_STRIP_none
 	  Do not strip binaries and libraries in the target
 	  filesystem.
 endchoice
+
+config BR2_STRIP_EXCLUDE_FILES
+	string "executables that should not be stripped"
+	depends on !BR2_STRIP_none
+	default ""
+	help
+	  You may specify a space-separated list of binaries and libraries
+	  here that should not be stripped on the target.
+
+config BR2_STRIP_EXCLUDE_DIRS
+	string "directories that should be skipped when stripping"
+	depends on !BR2_STRIP_none
+	default ""
+	help
+	  You may specify a space-separated list of directories that should
+	  be skipped when stripping. Binaries and libraries in these
+	  directories will not be touched.
+	  The directories should be specified relative to the target directory,
+	  without leading slash.
 
 choice
 	prompt "gcc optimization level"

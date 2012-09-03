@@ -46,7 +46,7 @@ endef
 
 GDK_PIXBUF_POST_INSTALL_TARGET_HOOKS += GDK_PIXBUF_POST_INSTALL_TWEAKS
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))
 
 HOST_GDK_PIXBUF_CONF_OPT = \
 	--without-libjpeg \
@@ -54,4 +54,4 @@ HOST_GDK_PIXBUF_CONF_OPT = \
 
 HOST_GDK_PIXBUF_DEPENDENCIES = host-libpng
 
-$(eval $(call AUTOTARGETS,host))
+$(eval $(host-autotools-package))

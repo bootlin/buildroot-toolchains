@@ -3,7 +3,7 @@
 # memtester
 #
 #############################################################
-MEMTESTER_VERSION = 4.2.1
+MEMTESTER_VERSION = 4.3.0
 MEMTESTER_SOURCE = memtester-$(MEMTESTER_VERSION).tar.gz
 MEMTESTER_SITE = http://pyropus.ca/software/memtester/old-versions/
 
@@ -26,4 +26,4 @@ define MEMTESTER_CLEAN_CMDS
 	-$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

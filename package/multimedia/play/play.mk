@@ -28,4 +28,4 @@ define PLAY_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/tone
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

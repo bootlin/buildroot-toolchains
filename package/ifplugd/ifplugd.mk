@@ -6,10 +6,13 @@
 
 IFPLUGD_VERSION = 0.28
 IFPLUGD_SITE = http://0pointer.de/lennart/projects/ifplugd
+IFPLUGD_LICENSE = GPLv2
+IFPLUGD_LICENSE_FILES = LICENSE
 IFPLUGD_AUTORECONF = YES
+
 # install-strip unconditionally overwrites $(TARGET_DIR)/etc/ifplugd/ifplugd.*
 IFPLUGD_INSTALL_TARGET_OPT = DESTDIR=$(TARGET_DIR) install-exec
-IFPLUGD_CONF_OPT = --disable-lynx
+IFPLUGD_CONF_OPT = --disable-lynx --with-initdir=/etc/init.d/
 IFPLUGD_DEPENDENCIES = libdaemon
 
 # Prefer big ifplugd
@@ -33,4 +36,4 @@ endef
 
 IFPLUGD_POST_INSTALL_TARGET_HOOKS += IFPLUGD_INSTALL_FIXUP
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

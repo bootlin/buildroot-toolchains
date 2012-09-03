@@ -278,47 +278,47 @@
 +MS_FILTER_DESC_EXPORT(ms_g729_enc_desc)
 --- linphone/mediastreamer2/src/Makefile.in
 +++ linphone.bfin/mediastreamer2/src/Makefile.in
-@@ -82,7 +82,7 @@
+@@ -134,7 +134,7 @@
+ 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) \
  	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
- 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
- 	$(am__DEPENDENCIES_2)
--am__libmediastreamer_la_SOURCES_DIST = mscommon.c msfilter.c msqueue.c \
-+am__libmediastreamer_la_SOURCES_DIST = g729.c mscommon.c msfilter.c msqueue.c \
- 	msticker.c alaw.c ulaw.c mssndcard.c msfileplayer.c msrtp.c \
- 	dtmfgen.c msfilerec.c ice.c tee.c msconf.c msjoin.c \
- 	g711common.h msvolume.c mswebcam.c mtu.c void.c audiostream.c \
-@@ -107,7 +107,7 @@
- @BUILD_THEORA_TRUE@am__objects_11 = theora.lo
- @BUILD_SPEEX_TRUE@am__objects_12 = msspeex.lo speexec.lo
- @BUILD_GSM_TRUE@am__objects_13 = gsm.lo
--am_libmediastreamer_la_OBJECTS = mscommon.lo msfilter.lo msqueue.lo \
-+am_libmediastreamer_la_OBJECTS = g729.lo mscommon.lo msfilter.lo msqueue.lo \
- 	msticker.lo alaw.lo ulaw.lo mssndcard.lo msfileplayer.lo \
- 	msrtp.lo dtmfgen.lo msfilerec.lo ice.lo tee.lo msconf.lo \
- 	msjoin.lo msvolume.lo mswebcam.lo mtu.lo void.lo \
-@@ -326,7 +326,7 @@
- CLEANFILES = alldescs.h filterdescs.txt
+ 	$(am__DEPENDENCIES_3)
+-am__libmediastreamer_la_SOURCES_DIST = mscommon.c gitversion.h \
++am__libmediastreamer_la_SOURCES_DIST = g729.c mscommon.c gitversion.h \
+ 	msfilter.c msqueue.c msticker.c eventqueue.c alaw.c ulaw.c \
+ 	mssndcard.c msrtp.c dtmfgen.c ice.c tee.c msconf.c msjoin.c \
+ 	g711common.h msvolume.c mswebcam.c mtu.c void.c dsptools.c \
+@@ -193,7 +193,7 @@
+ @BUILD_VIDEO_TRUE@	msvideo_neon.lo rfc3984.lo mire.lo \
+ @BUILD_VIDEO_TRUE@	extdisplay.lo layouts.lo nowebcam.lo \
+ @BUILD_VIDEO_TRUE@	videostream.lo
+-am_libmediastreamer_la_OBJECTS = mscommon.lo $(am__objects_1) \
++am_libmediastreamer_la_OBJECTS = g729.lo mscommon.lo $(am__objects_1) \
+ 	msfilter.lo msqueue.lo msticker.lo eventqueue.lo alaw.lo \
+ 	ulaw.lo mssndcard.lo msrtp.lo dtmfgen.lo ice.lo tee.lo \
+ 	msconf.lo msjoin.lo msvolume.lo mswebcam.lo mtu.lo void.lo \
+@@ -510,7 +510,7 @@
+ CLEANFILES = alldescs.h filterdescs.txt $(GITVERSION_FILE)
  INCLUDES = -I$(top_srcdir)/include/
  lib_LTLIBRARIES = libmediastreamer.la
--libmediastreamer_la_SOURCES = mscommon.c msfilter.c msqueue.c \
-+libmediastreamer_la_SOURCES = g729.c mscommon.c msfilter.c msqueue.c \
- 	msticker.c alaw.c ulaw.c mssndcard.c msfileplayer.c msrtp.c \
- 	dtmfgen.c msfilerec.c ice.c tee.c msconf.c msjoin.c \
- 	g711common.h msvolume.c mswebcam.c mtu.c void.c audiostream.c \
-@@ -336,7 +336,7 @@
- 	$(am__append_10) $(am__append_11) $(am__append_12) \
- 	$(am__append_13)
- libmediastreamer_la_LIBADD = $(ORTP_LIBS) $(PORTAUDIO_LIBS) \
--	$(ALSA_LIBS) $(ARTS_LIBS) $(SPEEX_LIBS) $(GSM_LIBS) \
-+	$(ALSA_LIBS) $(ARTS_LIBS) $(SPEEX_LIBS) $(GSM_LIBS) -lg729ab \
- 	$(THEORA_LIBS) $(am__append_14)
- libmediastreamer_la_LDFLAGS = -rdynamic
- AM_CFLAGS = -I$(top_srcdir) $(ORTP_CFLAGS) $(SPEEX_CFLAGS) \
-@@ -423,6 +423,7 @@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ice.Plo@am__quote@
+-libmediastreamer_la_SOURCES = mscommon.c $(GITVERSION_FILE) msfilter.c \
++libmediastreamer_la_SOURCES = g729.c mscommon.c $(GITVERSION_FILE) msfilter.c \
+ 	msqueue.c msticker.c eventqueue.c alaw.c ulaw.c mssndcard.c \
+ 	msrtp.c dtmfgen.c ice.c tee.c msconf.c msjoin.c g711common.h \
+ 	msvolume.c mswebcam.c mtu.c void.c dsptools.c kiss_fft.c \
+@@ -530,7 +530,7 @@
+ 
+ #dummy c++ file to force libtool to use c++ linking (because of msdscap-mingw.cc)
+ nodist_EXTRA_libmediastreamer_la_SOURCES = dummy.cxx
+-libmediastreamer_la_LIBADD = $(ORTP_LIBS) $(PORTAUDIO_LIBS) \
++libmediastreamer_la_LIBADD = -lg729ab $(ORTP_LIBS) $(PORTAUDIO_LIBS) \
+ 	$(ALSA_LIBS) $(ARTS_LIBS) $(LIBPULSE_LIBS) $(SPEEX_LIBS) \
+ 	$(GSM_LIBS) $(LIBV4L1_LIBS) $(LIBV4L2_LIBS) $(SPANDSP_LIBS) \
+ 	$(am__append_27) $(am__append_30) $(am__append_31) \
+@@ -655,6 +655,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/layouts.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/macsnd.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mire.Plo@am__quote@
 +@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g729.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mscommon.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msconf.Plo@am__quote@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msfileplayer.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/msdscap-mingw.Plo@am__quote@

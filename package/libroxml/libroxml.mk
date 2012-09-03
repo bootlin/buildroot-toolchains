@@ -2,7 +2,7 @@
 # libroxml
 #
 
-LIBROXML_VERSION = 2.1.2
+LIBROXML_VERSION = 2.2.0
 LIBROXML_SITE = http://libroxml.googlecode.com/files
 LIBROXML_INSTALL_STAGING = YES
 
@@ -30,4 +30,4 @@ define LIBROXML_CLEAN_CMDS
 	-$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

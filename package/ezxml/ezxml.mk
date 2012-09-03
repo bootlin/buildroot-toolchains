@@ -5,7 +5,7 @@
 #############################################################
 EZXML_VERSION = 0.8.6
 EZXML_SOURCE = ezxml-$(EZXML_VERSION).tar.gz
-EZXML_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/ezxml/
+EZXML_SITE = http://downloads.sourceforge.net/project/ezxml/ezXML/ezXML%20$(EZXML_VERSION)
 EZXML_INSTALL_STAGING=YES
 
 define EZXML_BUILD_CMDS
@@ -37,4 +37,4 @@ define EZXML_CLEAN_CMDS
 	-$(MAKE) -C $(@D) -f GNUmakefile clean
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

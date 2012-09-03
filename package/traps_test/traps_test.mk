@@ -26,4 +26,4 @@ define TRAPS_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/traps_test
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

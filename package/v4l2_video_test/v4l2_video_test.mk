@@ -28,4 +28,4 @@ define V4L2_VIDEO_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/v4l2_video_display
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

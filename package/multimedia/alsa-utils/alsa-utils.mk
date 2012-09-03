@@ -7,6 +7,8 @@
 ALSA_UTILS_VERSION = 1.0.25
 ALSA_UTILS_SOURCE = alsa-utils-$(ALSA_UTILS_VERSION).tar.bz2
 ALSA_UTILS_SITE = ftp://ftp.alsa-project.org/pub/utils
+ALSA_UTILS_LICENSE = GPLv2
+ALSA_UTILS_LICENSE_FILES = COPYING
 ALSA_UTILS_INSTALL_STAGING = YES
 ALSA_UTILS_DEPENDENCIES = alsa-lib \
 	$(if $(BR2_PACKAGE_NCURSES),ncurses)
@@ -58,4 +60,4 @@ define ALSA_UTILS_UNINSTALL_TARGET_CMDS
 	rm -f $(addprefix $(TARGET_DIR)/,$(ALSA_UTILS_TARGETS_) $(ALSA_UTILS_TARGETS_y))
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

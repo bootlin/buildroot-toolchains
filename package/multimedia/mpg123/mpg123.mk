@@ -4,9 +4,9 @@
 #
 #############################################################
 
-MPG123_VERSION = 1.13.8
+MPG123_VERSION = 1.14.2
 MPG123_SOURCE = mpg123-$(MPG123_VERSION).tar.bz2
-MPG123_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/sourceforge/mpg123
+MPG123_SITE = http://downloads.sourceforge.net/project/mpg123/mpg123/$(MPG123_VERSION)
 MPG123_CONF_OPT = --with-optimization=0 --disable-lfs-alias
 MPG123_INSTALL_STAGING = YES
 
@@ -64,4 +64,4 @@ MPG123_DEPENDENCIES += libtool
 MPG123_CONF_OPT += --with-modules --with-module-suffix=.so
 endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

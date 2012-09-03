@@ -16,5 +16,5 @@ ifneq ($(BR2_iwmmxt),y)
 PIXMAN_CONF_OPT += --disable-arm-iwmmxt
 endif
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

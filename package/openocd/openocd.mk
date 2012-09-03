@@ -5,7 +5,7 @@
 #############################################################
 OPENOCD_VERSION:=0.5.0
 OPENOCD_SOURCE = openocd-$(OPENOCD_VERSION).tar.bz2
-OPENOCD_SITE = http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/project/openocd/openocd/$(OPENOCD_VERSION)
+OPENOCD_SITE = http://downloads.sourceforge.net/project/openocd/openocd/$(OPENOCD_VERSION)
 
 OPENOCD_AUTORECONF = YES
 OPENOCD_CONF_OPT = \
@@ -39,5 +39,5 @@ HOST_OPENOCD_CONF_OPT = 	\
 	--enable-jlink 		\
 	--enable-vsllink
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

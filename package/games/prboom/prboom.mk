@@ -4,6 +4,7 @@
 #
 #############################################################
 PRBOOM_VERSION = 2.5.0
+PRBOOM_SITE = http://downloads.sourceforge.net/project/prboom/prboom%20stable/$(PRBOOM_VERSION)
 PRBOOM_CONF_ENV = ac_cv_type_uid_t=yes
 PRBOOM_DEPENDENCIES = sdl sdl_net sdl_mixer
 
@@ -41,4 +42,4 @@ define PRBOOM_UINSTALL_TARGET_CMDS
 		$(TARGET_DIR)/usr/games/prboom
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

@@ -4,7 +4,7 @@
 #
 #############################################################
 
-BIND_VERSION = 9.6-ESV-R6
+BIND_VERSION = 9.6-ESV-R7-P2
 BIND_SITE = ftp://ftp.isc.org/isc/bind9/$(BIND_VERSION)
 BIND_MAKE = $(MAKE1)
 BIND_TARGET_SBINS = lwresd named named-checkconf named-checkzone
@@ -63,4 +63,4 @@ define BIND_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/etc/init.d/S81named
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

@@ -181,7 +181,6 @@ config BR2_arm1176jz_s
 	bool "arm1176jz-s"
 config BR2_arm1176jzf_s
 	bool "arm1176jzf-s"
-comment "cortex-A8/A9 needs gcc >= 4.4.x"
 config BR2_cortex_a8
 	bool "cortex-A8"
 config BR2_cortex_a9
@@ -284,7 +283,7 @@ choice
 	default BR2_mips_1 if BR2_mipsel
 	help
 	  Specific CPU variant to use
-	
+
 	  64bit cabable: 3, 4, 64, 64r2
 	  non-64bit capable: 1, 2, 32, 32r2
 
@@ -321,9 +320,6 @@ config BR2_MIPS_OABI32
 	bool "o32"
 config BR2_MIPS_ABI32
 	bool "n32"
-	depends on BR2_mips_3 || BR2_mips_4 || BR2_mips_64 || BR2_mips_64r2 || BR2_mips_16
-config BR2_MIPS_EABI
-	bool "eabi"
 	depends on BR2_mips_3 || BR2_mips_4 || BR2_mips_64 || BR2_mips_64r2 || BR2_mips_16
 config BR2_MIPS_ABI64
 	bool "n64"
@@ -367,90 +363,152 @@ endchoice
 # gcc builds libstdc++ differently depending on the
 # host tuplet given to it, so let people choose
 #
+
+# i386/x86_64 cpu features
+config BR2_X86_CPU_HAS_MMX
+	bool
+config BR2_X86_CPU_HAS_SSE
+	bool
+config BR2_X86_CPU_HAS_SSE2
+	bool
+config BR2_X86_CPU_HAS_SSE3
+	bool
+config BR2_X86_CPU_HAS_SSSE3
+	bool
+
 choice
 	prompt "Target Architecture Variant"
-	depends on BR2_i386
-	default BR2_x86_i586
+	depends on BR2_i386 || BR2_x86_64
+	default BR2_x86_i586 if BR2_i386
+	default BR2_x86_generic if BR2_x86_64
 	help
 	  Specific CPU variant to use
 
+config BR2_x86_generic
+	bool "generic"
 config BR2_x86_i386
 	bool "i386"
+	depends on !BR2_x86_64
 config BR2_x86_i486
 	bool "i486"
+	depends on !BR2_x86_64
 config BR2_x86_i586
 	bool "i586"
+	depends on !BR2_x86_64
 config BR2_x86_i686
 	bool "i686"
+	depends on !BR2_x86_64
 config BR2_x86_pentiumpro
 	bool "pentium pro"
+	depends on !BR2_x86_64
 config BR2_x86_pentium_mmx
 	bool "pentium MMX"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 config BR2_x86_pentium_m
 	bool "pentium mobile"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	depends on !BR2_x86_64
 config BR2_x86_pentium2
 	bool "pentium2"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 config BR2_x86_pentium3
 	bool "pentium3"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	depends on !BR2_x86_64
 config BR2_x86_pentium4
 	bool "pentium4"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
+	depends on !BR2_x86_64
 config BR2_x86_prescott
 	bool "prescott"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
+	select BR2_X86_CPU_HAS_SSE3
+	depends on !BR2_x86_64
 config BR2_x86_nocona
 	bool "nocona"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
+	select BR2_X86_CPU_HAS_SSE3
 config BR2_x86_core2
 	bool "core2"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
+	select BR2_X86_CPU_HAS_SSE3
+	select BR2_X86_CPU_HAS_SSSE3
 config BR2_x86_atom
 	bool "atom"
-comment "atom needs gcc >= 4.5.x"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
+	select BR2_X86_CPU_HAS_SSE3
+	select BR2_X86_CPU_HAS_SSSE3
 config BR2_x86_k6
 	bool "k6"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 config BR2_x86_k6_2
 	bool "k6-2"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 config BR2_x86_athlon
 	bool "athlon"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 config BR2_x86_athlon_4
 	bool "athlon-4"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	depends on !BR2_x86_64
 config BR2_x86_opteron
 	bool "opteron"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
 config BR2_x86_opteron_sse3
 	bool "opteron w/ SSE3"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
+	select BR2_X86_CPU_HAS_SSE3
 config BR2_x86_barcelona
 	bool "barcelona"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	select BR2_X86_CPU_HAS_SSE2
+	select BR2_X86_CPU_HAS_SSE3
 config BR2_x86_geode
 	bool "geode"
+	# Don't include MMX support because there several variant of geode
+	# processor, some with MMX support, some without.
+	# See: http://en.wikipedia.org/wiki/Geode_%28processor%29
+	depends on !BR2_x86_64
 config BR2_x86_c3
 	bool "Via/Cyrix C3 (Samuel/Ezra cores)"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 config BR2_x86_c32
 	bool "Via C3-2 (Nehemiah cores)"
+	select BR2_X86_CPU_HAS_MMX
+	select BR2_X86_CPU_HAS_SSE
+	depends on !BR2_x86_64
 config BR2_x86_winchip_c6
 	bool "IDT Winchip C6"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 config BR2_x86_winchip2
 	bool "IDT Winchip 2"
-endchoice
-
-choice
-	prompt "Target Architecture Variant"
-	depends on BR2_x86_64
-	default BR2_x86_64_generic
-	help
-	  Specific CPU variant to use
-
-config BR2_x86_64_generic
-	bool "generic"
-config BR2_x86_64_barcelona
-	bool "barcelona"
-config BR2_x86_64_opteron_sse3
-	bool "opteron w/ sse3"
-config BR2_x86_64_opteron
-	bool "opteron"
-config BR2_x86_64_nocona
-	bool "nocona"
-config BR2_x86_64_core2
-	bool "core2"
-config BR2_x86_64_atom
-	bool "atom"
-comment "atom needs gcc >= 4.5.x"
+	select BR2_X86_CPU_HAS_MMX
+	depends on !BR2_x86_64
 endchoice
 
 choice
@@ -466,7 +524,6 @@ config BR2_sparc_cypress
 	bool "cypress"
 config BR2_sparc_v8
 	bool "v8"
-comment "LEON SPARC needs gcc = 4.4.x"
 config BR2_sparc_sparchfleon
 	bool "hfleon"
 config BR2_sparc_sparchfleonv8
@@ -590,13 +647,10 @@ config BR2_powerpc_8540
 	bool "8540 / e500v1"
 config BR2_powerpc_8548
 	bool "8548 / e500v2"
-comment "e300c2 needs gcc >= 4.4.x"
 config BR2_powerpc_e300c2
 	bool "e300c2"
-comment "e300c3 needs gcc >= 4.4.x"
 config BR2_powerpc_e300c3
 	bool "e300c3"
-comment "e500mc needs gcc >= 4.4.x"
 config BR2_powerpc_e500mc
 	bool "e500mc"
 endchoice
@@ -604,8 +658,8 @@ endchoice
 choice
 	prompt "Target ABI"
 	depends on BR2_powerpc
-	default BR2_powerpc_CLASSIC if BR2_powerpc_e500mc
 	default BR2_powerpc_SPE if BR2_powerpc_8540 || BR2_powerpc_8548
+	default BR2_powerpc_CLASSIC
 	help
 	  Application Binary Interface to use
 
@@ -614,7 +668,7 @@ config BR2_powerpc_CLASSIC
 	depends on !(BR2_powerpc_8540 || BR2_powerpc_8548)
 config BR2_powerpc_SPE
 	bool "SPE"
-	depends on BR2_powerpc_8540 || BR2_powerpc_8548 || BR2_powerpc_e500mc
+	depends on BR2_powerpc_8540 || BR2_powerpc_8548
 endchoice
 
 config BR2_ARCH
@@ -639,16 +693,17 @@ config BR2_ARCH
 	default "i686"		if BR2_x86_pentium_m
 	default "i686"		if BR2_x86_pentiumpro
 	default "i686"		if BR2_x86_prescott
-	default "i686"		if BR2_x86_nocona
-	default "i686"		if BR2_x86_core2
-	default "i686"		if BR2_x86_atom
-	default "i686"		if BR2_x86_opteron
-	default "i686"		if BR2_x86_opteron_sse3
-	default "i686"		if BR2_x86_barcelona
+	default "i686"		if BR2_x86_nocona && BR2_i386
+	default "i686"		if BR2_x86_core2 && BR2_i386
+	default "i686"		if BR2_x86_atom && BR2_i386
+	default "i686"		if BR2_x86_opteron && BR2_i386
+	default "i686"		if BR2_x86_opteron_sse3 && BR2_i386
+	default "i686"		if BR2_x86_barcelona && BR2_i386
 	default "i686"		if BR2_x86_k6
 	default "i686"		if BR2_x86_k6_2
 	default "i686"		if BR2_x86_athlon
 	default "i686"		if BR2_x86_athlon_4
+	default "x86_64"	if BR2_x86_64
 	default "m68k"		if BR2_m68k
 	default "microblaze"	if BR2_microblaze
 	default "mips"		if BR2_mips
@@ -664,14 +719,6 @@ config BR2_ARCH
 	default "sh4aeb"	if BR2_sh4aeb
 	default "sh64"		if BR2_sh64
 	default "sparc"		if BR2_sparc
-	default "x86_64"	if BR2_x86_64
-	default "x86_64"	if BR2_x86_64_generic
-	default "x86_64"	if BR2_x86_64_nocona
-	default "x86_64"	if BR2_x86_64_core2
-	default "x86_64"	if BR2_x86_64_atom
-	default "x86_64"	if BR2_x86_64_opteron
-	default "x86_64"	if BR2_x86_64_opteron_sse3
-	default "x86_64"	if BR2_x86_64_barcelona
 	default "xtensa"	if BR2_xtensa
 
 
@@ -713,13 +760,7 @@ config BR2_GCC_TARGET_TUNE
 	default c3		if BR2_x86_c3
 	default c3-2		if BR2_x86_c32
 	default geode		if BR2_x86_geode
-	default generic		if BR2_x86_64_generic
-	default nocona		if BR2_x86_64_nocona
-	default core2		if BR2_x86_64_core2
-	default atom		if BR2_x86_64_atom
-	default k8		if BR2_x86_64_opteron
-	default k8-sse3		if BR2_x86_64_opteron_sse3
-	default barcelona	if BR2_x86_64_barcelona
+	default generic		if BR2_x86_generic
 	default arm600		if BR2_arm600
 	default arm610		if BR2_arm610
 	default arm620		if BR2_arm620
@@ -827,12 +868,6 @@ config BR2_GCC_TARGET_ARCH
 	default athlon-4	if BR2_x86_athlon_4
 	default winchip-c6	if BR2_x86_winchip_c6
 	default winchip2	if BR2_x86_winchip2
-	default nocona		if BR2_x86_64_nocona
-	default core2		if BR2_x86_64_core2
-	default atom		if BR2_x86_64_atom
-	default k8		if BR2_x86_64_opteron
-	default k8-sse3		if BR2_x86_64_opteron_sse3
-	default barcelona	if BR2_x86_64_barcelona
 	default c3		if BR2_x86_c3
 	default c3-2		if BR2_x86_c32
 	default geode		if BR2_x86_geode
@@ -863,16 +898,12 @@ config BR2_GCC_TARGET_ARCH
 config BR2_GCC_TARGET_ABI
 	string
 	default apcs-gnu	if BR2_ARM_OABI
-	default atpcs		if BR2_arm_dunno
-	default aapcs		if BR2_arm_dunno
 	default aapcs-linux	if BR2_ARM_EABI
 	default 32		if BR2_MIPS_OABI32
 	default n32		if BR2_MIPS_ABI32
 	default eabi		if BR2_MIPS_EABI
 	default o64		if BR2_MIPS_OABI64
 	default 64		if BR2_MIPS_ABI64
-	default mmixware	if BR2_mmix && BR2_MMIX_ABI_native
-	default gnu		if BR2_mmix && !BR2_MMIX_ABI_native
 	default altivec		if BR2_powerpc && BR2_PPC_ABI_altivec
 	default no-altivec	if BR2_powerpc && BR2_PPC_ABI_no-altivec
 	default spe		if BR2_powerpc && BR2_PPC_ABI_spe

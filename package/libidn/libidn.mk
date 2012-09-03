@@ -4,7 +4,7 @@
 #
 #############################################################
 
-LIBIDN_VERSION = 1.24
+LIBIDN_VERSION = 1.25
 LIBIDN_SITE = $(BR2_GNU_MIRROR)/libidn
 LIBIDN_INSTALL_STAGING = YES
 LIBIDN_CONF_ENV = EMACS="no"
@@ -30,4 +30,4 @@ define LIBIDN_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/bin/idn
 endef
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

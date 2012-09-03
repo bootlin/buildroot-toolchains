@@ -4,8 +4,10 @@
 #
 #############################################################
 
-LIGHTTPD_VERSION = 1.4.30
+LIGHTTPD_VERSION = 1.4.31
 LIGHTTPD_SITE = http://download.lighttpd.net/lighttpd/releases-1.4.x
+LIGHTTPD_LICENSE = BSD-3c
+LIGHTTPD_LICENSE_FILES = COPYING
 LIGHTTPD_DEPENDENCIES = host-pkg-config
 LIGHTTPD_CONF_OPT = \
 	--libdir=/usr/lib/lighttpd \
@@ -57,9 +59,8 @@ LIGHTTPD_CONF_OPT += --without-lua
 endif
 
 define LIGHTTPD_INSTALL_CONFIG
-	mkdir -p $(TARGET_DIR)/etc/lighttpd
-	mkdir -p $(TARGET_DIR)/etc/lighttpd/conf.d
-	mkdir -p $(TARGET_DIR)/srv/www/htdocs
+	$(INSTALL) -d -m 0755 $(TARGET_DIR)/etc/lighttpd/conf.d
+	$(INSTALL) -d -m 0755 $(TARGET_DIR)/var/www
 
 	[ -f $(TARGET_DIR)/etc/lighttpd/lighttpd.conf ] || \
 		$(INSTALL) -D -m 755 $(@D)/doc/config/lighttpd.conf \
@@ -88,10 +89,27 @@ endef
 
 LIGHTTPD_POST_INSTALL_TARGET_HOOKS += LIGHTTPD_INSTALL_CONFIG
 
-define LIGHTTPD_UNINSTALL_TARGET_CMDS
-	rm -f $(TARGET_DIR)/usr/sbin/lighttpd
-	rm -f $(TARGET_DIR)/usr/sbin/lighttpd-angel
-	rm -rf $(TARGET_DIR)/usr/lib/lighttpd
+define LIGHTTPD_INSTALL_INIT_SYSV
+	[ -f $(TARGET_DIR)/etc/init.d/S50lighttpd ] || \
+		$(INSTALL) -D -m 755 package/lighttpd/S50lighttpd \
+			$(TARGET_DIR)/etc/init.d/S50lighttpd
 endef
 
-$(eval $(call AUTOTARGETS))
+define LIGHTTPD_INSTALL_INIT_SYSTEMD
+	[ -f $(TARGET_DIR)/etc/systemd/system/lighttpd.service ] || \
+		$(INSTALL) -D -m 755 package/lighttpd/lighttpd.service \
+			$(TARGET_DIR)/etc/systemd/system/lighttpd.service
+
+	mkdir -p $(TARGET_DIR)/etc/systemd/system/multi-user.target.wants
+
+	ln -fs ../lighttpd.service \
+		$(TARGET_DIR)/etc/systemd/system/multi-user.target.wants/lighttpd.service
+endef
+
+define LIGHTTPD_UNINSTALL_TARGET_CMDS
+	$(RM) $(TARGET_DIR)/usr/sbin/lighttpd
+	$(RM) $(TARGET_DIR)/usr/sbin/lighttpd-angel
+	$(RM) -r $(TARGET_DIR)/usr/lib/lighttpd
+endef
+
+$(eval $(autotools-package))

@@ -25,4 +25,4 @@ endef
 
 endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

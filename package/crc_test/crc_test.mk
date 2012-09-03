@@ -26,4 +26,4 @@ define CRC_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/bfin_crc_test
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

@@ -4,7 +4,7 @@
 #
 #############################################################
 
-BISON_VERSION = 2.5
+BISON_VERSION = 2.5.1
 BISON_SITE = $(BR2_GNU_MIRROR)/bison
 
 BISON_CONF_ENV += ac_cv_path_M4=/usr/bin/m4
@@ -16,5 +16,5 @@ endef
 
 BISON_POST_CONFIGURE_HOOKS += BISON_DISABLE_EXAMPLES
 
-$(eval $(call AUTOTARGETS))
-$(eval $(call AUTOTARGETS,host))
+$(eval $(autotools-package))
+$(eval $(host-autotools-package))

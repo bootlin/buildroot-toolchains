@@ -1,4 +1,4 @@
-KMOD_VERSION = 8
+KMOD_VERSION = 9
 KMOD_SOURCE = kmod-$(KMOD_VERSION).tar.xz
 KMOD_SITE = $(BR2_KERNEL_MIRROR)/linux/utils/kernel/kmod/
 KMOD_INSTALL_STAGING = YES
@@ -30,4 +30,4 @@ else
 KMOD_CONF_OPT += --disable-tools
 endif
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

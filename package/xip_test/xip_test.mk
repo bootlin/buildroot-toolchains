@@ -26,4 +26,4 @@ define XIP_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/xip_test
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

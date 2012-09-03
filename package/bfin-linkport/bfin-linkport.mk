@@ -25,4 +25,4 @@ define BFIN_LINKPORT_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/$(BFIN_LINKPORT_EXE)
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

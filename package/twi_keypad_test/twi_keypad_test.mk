@@ -27,4 +27,4 @@ define TWI_KEYPAD_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/twi_keypad
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

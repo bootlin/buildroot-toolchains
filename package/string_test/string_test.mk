@@ -19,8 +19,6 @@ define STRING_TEST_CLEAN_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) clean
 endef
 
-$(eval $(call GENTARGETS))
-
 $(BUILD_DIR)/string_test-$(STRING_TEST_VERSION)/.stamp_extracted:
 	@$(call MESSAGE,"Extracting")
 	$(Q)cd $(@D)/../
@@ -28,4 +26,5 @@ $(BUILD_DIR)/string_test-$(STRING_TEST_VERSION)/.stamp_extracted:
 	$(Q)cp $($(PKG)_DIR_PREFIX)/string_test/Makefile $(@D)/
 	$(Q)touch $@
 
+$(eval $(generic-package))
 

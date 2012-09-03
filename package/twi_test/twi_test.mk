@@ -27,13 +27,12 @@ define TWI_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/twi_test $(TARGET_DIR)/lib/modules/twi_smbus_test.ko
 endef
 
-$(eval $(call GENTARGETS))
-
-
 $(BUILD_DIR)/twi_test-$(TWI_TEST_VERSION)/.stamp_extracted:
 	@$(call MESSAGE,"Extracting")
 	$(Q)cd $(@D)/../
 	$(Q)$(TAR) zxf $(DL_DIR)/$($(PKG)_SOURCE) -C $(@D)/../ 
 	$(Q)cp $($(PKG)_DIR_PREFIX)/twi_test/Makefile $(@D)/
 	$(Q)touch $@
+
+$(eval $(generic-package))
 

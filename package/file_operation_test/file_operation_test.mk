@@ -38,4 +38,4 @@ define FILE_OPERATION_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/file_operation
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

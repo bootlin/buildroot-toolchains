@@ -7,6 +7,9 @@ XLOADER_VERSION    = 6f3a26101303051e0f91b6213735b68ce804e94e
 XLOADER_SITE       = git://gitorious.org/x-loader/x-loader.git
 XLOADER_BOARD_NAME = $(call qstrip,$(BR2_TARGET_XLOADER_BOARDNAME))
 
+XLOADER_LICENSE = GPLv2+
+XLOADER_LICENSE_FILES = README
+
 XLOADER_INSTALL_IMAGES = YES
 
 define XLOADER_BUILD_CMDS
@@ -19,7 +22,7 @@ define XLOADER_INSTALL_IMAGES_CMDS
 	$(INSTALL) -D -m 0755 $(@D)/MLO $(BINARIES_DIR)/
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))
 
 #############################################################
 #

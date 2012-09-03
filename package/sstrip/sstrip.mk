@@ -6,7 +6,7 @@
 
 SSTRIP_SITE = svn://dev.openwrt.org/openwrt/trunk/tools/sstrip
 SSTRIP_VERSION = 20154
-HOST_SSTRIP_BINARY = $(REAL_GNU_TARGET_NAME)-sstrip
+HOST_SSTRIP_BINARY = $(GNU_TARGET_NAME)-sstrip
 
 # This is a kludge to get host-ccache built before us or it fails
 ifeq ($(BR2_CCACHE),y)
@@ -41,5 +41,5 @@ define HOST_SSTRIP_UNINSTALL_CMDS
 	rm -f $(HOST_DIR)/usr/bin/$(HOST_SSTRIP_BINARY)
 endef
 
-$(eval $(call GENTARGETS))
-$(eval $(call GENTARGETS,host))
+$(eval $(generic-package))
+$(eval $(host-generic-package))

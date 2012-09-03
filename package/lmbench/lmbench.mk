@@ -5,7 +5,9 @@
 #############################################################
 LMBENCH_VERSION:=3.0-a9
 LMBENCH_SOURCE:=lmbench-$(LMBENCH_VERSION).tgz
-LMBENCH_SITE:=http://$(BR2_SOURCEFORGE_MIRROR).dl.sourceforge.net/project/lmbench/development/lmbench-3.0-a9/
+LMBENCH_SITE:=http://downloads.sourceforge.net/project/lmbench/development/lmbench-$(LMBENCH_VERSION)/
+LMBENCH_LICENSE =  lmbench license (based on GPLv2)
+LMBENCH_LICENSE_FILES = COPYING COPYING-2
 
 define LMBENCH_CONFIGURE_CMDS
 	$(call CONFIG_UPDATE,$(@D))
@@ -27,4 +29,4 @@ define LMBENCH_CLEAN_CMDS
 	$(MAKE) -C $(@D)/src clean
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

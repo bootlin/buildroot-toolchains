@@ -19,12 +19,12 @@ define MMAP_TEST_CLEAN_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) clean
 endef
 
-$(eval $(call GENTARGETS))
-
 $(BUILD_DIR)/mmap_test-$(MMAP_TEST_VERSION)/.stamp_extracted:
 	@$(call MESSAGE,"Extracting")
 	$(Q)cd $(@D)/../
 	$(Q)$(TAR) zxf $(DL_DIR)/$($(PKG)_SOURCE) -C $(@D)/../ 
 	$(Q)cp $($(PKG)_DIR_PREFIX)/mmap_test/Makefile $(@D)/
 	$(Q)touch $@
+
+$(eval $(generic-package))
 

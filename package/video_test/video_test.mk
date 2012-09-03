@@ -26,4 +26,4 @@ define VIDEO_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/video_test
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))

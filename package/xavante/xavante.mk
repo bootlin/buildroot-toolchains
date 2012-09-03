@@ -4,9 +4,10 @@
 #
 #############################################################
 
-XAVANTE_VERSION = 2.2.0
+XAVANTE_VERSION = 2.2.1
 XAVANTE_SITE = http://github.com/downloads/keplerproject/xavante
 XAVANTE_DEPENDENCIES = cgilua copas coxpcall lua luafilesystem luasocket wsapi
+XAVANTE_LICENSE = MIT
 
 define XAVANTE_INSTALL_TARGET_CMDS
 	$(MAKE) -C $(@D) PREFIX=/usr \
@@ -20,4 +21,4 @@ define XAVANTE_UNINSTALL_TARGET_CMDS
 	rm -f "$(TARGET_DIR)/usr/share/sajax.lua"
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))
