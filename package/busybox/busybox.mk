@@ -209,7 +209,7 @@ endef
 
 $(eval $(generic-package))
 
-busybox-menuconfig busybox-xconfig busybox-gconfig: busybox-patch
+busybox-menuconfig busybox-xconfig busybox-gconfig busybox-config: busybox-patch
 	$(BUSYBOX_MAKE_ENV) $(MAKE) $(BUSYBOX_MAKE_OPTS) -C $(BUSYBOX_DIR) \
 		$(subst busybox-,,$@)
 	rm -f $(BUSYBOX_DIR)/.stamp_built
