@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PPIFCD_TEST
+	bool "ppifcd test"
+	help
+	  ppifcd test suite
