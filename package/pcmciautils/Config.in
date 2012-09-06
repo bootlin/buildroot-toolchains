@@ -1,0 +1,5 @@
+config BR2_PACKAGE_PCMCIAUTILS
+	bool "pcmciautils"
+	depends on BR2_PACKAGE_LIBSYSFS
+	help
+	  pcmciautils
