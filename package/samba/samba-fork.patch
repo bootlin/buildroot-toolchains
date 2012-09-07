@@ -1,7 +1,23 @@
-diff --git a/source/lib/sock_exec.c b/source/lib/sock_exec.c
+diff --git a/lib/util/system.c b/lib/util/system.c
+index 17c0553..f208fe0 100644
+--- a/lib/util/system.c
++++ b/lib/util/system.c
+@@ -96,7 +96,11 @@ static pid_t mypid = (pid_t)-1;
+ 
+ _PUBLIC_ pid_t sys_fork(void)
+ {
++#ifdef __NOMMU__
++	pid_t forkret = vfork();
++#else
+ 	pid_t forkret = fork();
++#endif
+ 
+ 	if (forkret == (pid_t)0) {
+ 		/* Child - reset mypid so sys_getpid does a system call. */
+diff --git a/source3/lib/sock_exec.c b/source3/lib/sock_exec.c
 index 2333d7c..24be729 100644
---- a/source/lib/sock_exec.c
-+++ b/source/lib/sock_exec.c
+--- a/source3/lib/sock_exec.c
++++ b/source3/lib/sock_exec.c
 @@ -101,7 +101,11 @@ int sock_exec(const char *prog)
  		DEBUG(0,("socketpair_tcp failed (%s)\n", strerror(errno)));
  		return -1;
@@ -14,26 +30,10 @@ index 2333d7c..24be729 100644
  		close(fd[0]);
  		close(0);
  		close(1);
-diff --git a/source/lib/system.c b/source/lib/system.c
-index 36745b1..346af7e 100644
---- a/source/lib/system.c
-+++ b/source/lib/system.c
-@@ -1164,7 +1164,11 @@ static pid_t mypid = (pid_t)-1;
- 
- pid_t sys_fork(void)
- {
-+#ifdef __NOMMU__
-+	pid_t forkret = vfork();
-+#else
- 	pid_t forkret = fork();
-+#endif
- 
- 	if (forkret == (pid_t)0) /* Child - reset mypid so sys_getpid does a system call. */
- 		mypid = (pid_t) -1;
-diff --git a/source/web/startstop.c b/source/web/startstop.c
-index b24410a..758464f 100644
---- a/source/web/startstop.c
-+++ b/source/web/startstop.c
+diff --git a/source3/web/startstop.c b/source3/web/startstop.c
+index 81350e6..3c1e2c4 100644
+--- a/source3/web/startstop.c
++++ b/source3/web/startstop.c
 @@ -30,8 +30,11 @@ void start_smbd(void)
  	if (geteuid() != 0) {
  		 return;
