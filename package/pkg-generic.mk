@@ -123,6 +123,12 @@ $(BUILD_DIR)/%/.stamp_target_installed:
 	$(foreach hook,$($(PKG)_POST_INSTALL_TARGET_HOOKS),$(call $(hook))$(sep))
 	$(Q)touch $@
 
+# Unpatch package
+$(BUILD_DIR)/%/.stamp_unpatched:
+	@$(call MESSAGE,"Unpatching")
+	$($(PKG)_UNPATCH_CMDS)
+	rm -f $(@D)/.stamp_patched
+
 # Clean package
 $(BUILD_DIR)/%/.stamp_cleaned:
 	@$(call MESSAGE,"Cleaning up")
@@ -278,6 +284,7 @@ $(2)_TARGET_PATCH =		$$($(2)_DIR)/.stamp_patched
 $(2)_TARGET_EXTRACT =		$$($(2)_DIR)/.stamp_extracted
 $(2)_TARGET_SOURCE =		$$($(2)_DIR)/.stamp_downloaded
 $(2)_TARGET_UNINSTALL =		$$($(2)_DIR)/.stamp_uninstalled
+$(2)_TARGET_UNPATCH =		$$($(2)_DIR)/.stamp_unpatched
 $(2)_TARGET_CLEAN =		$$($(2)_DIR)/.stamp_cleaned
 $(2)_TARGET_DIRCLEAN =		$$($(2)_DIR)/.stamp_dircleaned
 
@@ -352,6 +359,8 @@ $(1)-extract:		$(1)-source \
 $(1)-depends:		$$($(2)_DEPENDENCIES)
 
 $(1)-source:		$$($(2)_TARGET_SOURCE)
+
+$(1)-unpatch:
 else
 # In the package override case, the sequence of steps
 #  patch
@@ -363,6 +372,8 @@ $(1)-configure:		$(1)-patch $(1)-depends \
 $(1)-patch:		$$($(2)_TARGET_PATCH)
 
 $(1)-depends:		$$($(2)_DEPENDENCIES)
+
+$(1)-unpatch:		$$($(2)_TARGET_UNPATCH)
 endif
 
 $(1)-show-depends:
@@ -370,10 +381,10 @@ $(1)-show-depends:
 
 $(1)-uninstall:		$(1)-configure $$($(2)_TARGET_UNINSTALL)
 
-$(1)-clean:		$(1)-uninstall \
+$(1)-clean:		$(1)-uninstall $(1)-unpatch \
 			$$($(2)_TARGET_CLEAN)
 
-$(1)-dirclean:		$$($(2)_TARGET_DIRCLEAN)
+$(1)-dirclean:		$(1)-unpatch $$($(2)_TARGET_DIRCLEAN)
 
 $(1)-clean-for-rebuild:
 			rm -f $$($(2)_TARGET_BUILD)
@@ -402,6 +413,7 @@ $$($(2)_TARGET_PATCH):			RAWNAME=$(patsubst host-%,%,$(1))
 $$($(2)_TARGET_EXTRACT):		PKG=$(2)
 $$($(2)_TARGET_SOURCE):			PKG=$(2)
 $$($(2)_TARGET_UNINSTALL):		PKG=$(2)
+$$($(2)_TARGET_UNPATCH):		PKG=$(2)
 $$($(2)_TARGET_CLEAN):			PKG=$(2)
 $$($(2)_TARGET_DIRCLEAN):		PKG=$(2)
 
