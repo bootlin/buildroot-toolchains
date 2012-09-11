@@ -269,13 +269,11 @@ define LINUX_INSTALL_TARGET_CMDS
 endef
 
 LINUX_PATCH_LIST=$(wildcard $(LINUX_PATCHES)/linux-*.patch)
-define LINUX_CLEAN_CMDS
+define LINUX_UNPATCH_CMDS
 	$(if $(wildcard $(LINUX_TARGET_PATCH)),
-		echo "Remove patch from override linux kernel...."
 		for p in $(LINUX_PATCH_LIST) ; do \
 			patch -RE -p1 -d $(LINUX_SRCDIR) < $$p; \
-		done
-		rm -f $(LINUX_TARGET_PATCH))
+		done)
 endef
 
 include linux/linux-ext-*.mk
