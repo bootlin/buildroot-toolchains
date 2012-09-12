@@ -1,0 +1,4 @@
+config BR2_PACKAGE_PPI_TEST
+	bool "PPI test program"
+	help
+	  PPI test program
