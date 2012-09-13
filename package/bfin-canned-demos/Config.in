@@ -1,0 +1,27 @@
+menuconfig BR2_PACKAGE_BFIN_CANNED_DEMOS
+	bool "bfin canned demos"
+        select BR2_PACKAGE_THTTPD
+	help
+	  bfin canned demos
+
+if BR2_PACKAGE_BFIN_CANNED_DEMOS
+
+config BR2_PACKAGE_USER_NDSO
+        bool "Networked Software Defined Storage Oscilloscope /dev/sport"
+        select BR2_PACKAGE_LIB_LIBPNG
+        select BR2_PACKAGE_GNUPLOT
+
+config BR2_PACKAGE_USER_NDSO_IIO
+        bool "Networked Software Defined Storage Oscilloscope IIO"
+        select BR2_PACKAGE_LIB_LIBPNG
+        select BR2_PACKAGE_GNUPLOT
+
+config BR2_PACKAGE_USER_AWG
+        bool "Networked Arbitrary Waveform Genertor"
+        select BR2_PACKAGE_LIB_LIBPNG
+        select BR2_PACKAGE_GNUPLOT
+
+config BR2_PACKAGE_USER_PPIFPGACGI
+        bool "Networked PPI/FPGA Demo Project"
+
+endif
