@@ -1,0 +1,68 @@
+diff --git a/libhttpd.c b/libhttpd.c
+index 73689be..09d8c30 100644
+--- a/libhttpd.c
++++ b/libhttpd.c
+@@ -2723,7 +2723,11 @@ ls( httpd_conn* hc )
+ 	    return -1;
+ 	    }
+ 	++hc->hs->cgi_count;
++#ifdef __NOMMU__
++	r = vfork();
++#else
+ 	r = fork( );
++#endif
+ 	if ( r < 0 )
+ 	    {
+ 	    syslog( LOG_ERR, "fork - %m" );
+@@ -3386,7 +3390,11 @@ cgi_child( httpd_conn* hc )
+ 	    httpd_write_response( hc );
+ 	    exit( 1 );
+ 	    }
++#ifdef __NOMMU__
++	r = vfork( );
++#else
+ 	r = fork( );
++#endif
+ 	if ( r < 0 )
+ 	    {
+ 	    syslog( LOG_ERR, "fork - %m" );
+@@ -3431,7 +3439,11 @@ cgi_child( httpd_conn* hc )
+ 	    httpd_write_response( hc );
+ 	    exit( 1 );
+ 	    }
++#ifdef __NOMMU__
++	r = vfork( );
++#else
+ 	r = fork( );
++#endif
+ 	if ( r < 0 )
+ 	    {
+ 	    syslog( LOG_ERR, "fork - %m" );
+@@ -3537,7 +3549,11 @@ cgi( httpd_conn* hc )
+ 	    }
+ 	++hc->hs->cgi_count;
+ 	httpd_clear_ndelay( hc->conn_fd );
++#ifdef __NOMMU__
++	r = vfork( );
++#else
+ 	r = fork( );
++#endif
+ 	if ( r < 0 )
+ 	    {
+ 	    syslog( LOG_ERR, "fork - %m" );
+diff --git a/thttpd.c b/thttpd.c
+index fe21b44..d1b9d54 100644
+--- a/thttpd.c
++++ b/thttpd.c
+@@ -506,7 +506,11 @@ main( int argc, char** argv )
+ 	    exit( 1 );
+ 	    }
+ #else /* HAVE_DAEMON */
++#ifdef __NOMMU__
++	switch ( vfork() )
++#else
+ 	switch ( fork() )
++#endif
+ 	    {
+ 	    case 0:
+ 	    break;
