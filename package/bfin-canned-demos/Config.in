@@ -24,4 +24,7 @@ config BR2_PACKAGE_USER_AWG
 config BR2_PACKAGE_USER_PPIFPGACGI
         bool "Networked PPI/FPGA Demo Project"
 
+config BR2_PACKAGE_PPIFCDCGI
+        bool "CGI based Test Application for the PPI Frame Capture Driver"
+
 endif
