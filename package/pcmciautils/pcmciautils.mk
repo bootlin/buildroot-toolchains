@@ -27,4 +27,4 @@ define PCMCIAUTILS_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/sbin/lspcmcia
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))
