@@ -53,6 +53,9 @@ define BFIN_CANNED_DEMOS_BUILD_CMDS
 endef
 
 define BFIN_CANNED_DEMOS_INSTALL_TARGET_CMDS
+if ! [ -d $(TARGET_DIR)/home ]; then \
+	mkdir -p $(TARGET_DIR)/home; \
+fi
 $(foreach package_install, $(BFIN_CANNED_DEMOS_INSTALL), $(call $(package_install)$(sep)))
 ln -sf -s index.htm $(TARGET_DIR)/home/httpd/index.html
 endef

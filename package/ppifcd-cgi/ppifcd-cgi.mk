@@ -12,6 +12,9 @@ define PPIFCD_CGI_BUILD_CMDS
 endef
 
 define PPIFCD_CGI_INSTALL_TARGET_CMDS
+if ! [ -d $(TARGET_DIR)/home ]; then \
+	mkdir -p $(TARGET_DIR)/home; \
+fi
 cp -rdpf $(@D)/web $(TARGET_DIR)/home/httpd
 $(INSTALL) -m 0755 -D $(@D)/src/fcd.cgi  $(TARGET_DIR)/home/httpd/cgi-bin/fcd.cgi
 ln -sf -s index.htm $(TARGET_DIR)/home/httpd/index.html
