@@ -27,4 +27,4 @@ ICC_CONF_OPT="CFLAGS=-I$(KERNEL_DIR)/drivers/staging/icc/include -I$(KERNEL_DIR)
 
 LIBMCAPI_CONF_OPT+=$(ICC_CONF_OPT)
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

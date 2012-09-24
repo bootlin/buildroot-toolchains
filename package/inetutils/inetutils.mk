@@ -16,4 +16,4 @@ INETUTILS_CONF_OPT = \
 		     --enable-rcp \
 		     --enable-rsh \
 		     --enable-rshd
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

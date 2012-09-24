@@ -33,5 +33,5 @@ define NBENCH_CLEAN_CMDS
 	$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call AUTOTARGETS,package,nbench))
+$(eval $(autotools-package))
 

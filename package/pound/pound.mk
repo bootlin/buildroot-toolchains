@@ -38,5 +38,5 @@ define POUND_CLEAN_CMDS
 	$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(call AUTOTARGETS,package,pound))
+$(eval $(autotools-package))
 

@@ -12,4 +12,4 @@ LIRC_INSTALL_STAGING = NO
 LIRC_CONF_OPT = \
 	--without-x \
 	--with-driver=userspace
-$(eval $(call AUTOTARGETS,package,lirc))
+$(eval $(autotools-package))

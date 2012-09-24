@@ -8,4 +8,4 @@ NETEMBRYO_SITE = http://lscube.org/files/downloads/netembryo
 NETEMBRYO_SOURCE = netembryo-$(NETEMBRYO_VERSION).tar.bz2
 NETEMBRYO_INSTALL_STAGING = YES
 
-$(eval $(call AUTOTARGETS))
+$(eval $(autotools-package))

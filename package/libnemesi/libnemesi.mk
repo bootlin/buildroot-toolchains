@@ -12,4 +12,4 @@ LIBNEMESI_AUTORECONF = YES
 LIBNEMESI_INSTALL_STAGING = YES
 LIBNEMESI_CONF_OPT = --disable-sctp
 
-$(eval $(call AUTOTARGETS,package,libnemesi))
+$(eval $(autotools-package))
