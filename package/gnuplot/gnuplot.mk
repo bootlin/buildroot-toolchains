@@ -10,4 +10,4 @@ GNUPLOT_INSTALL_STAGING = YES
 GNUPLOT_INSTALL_TARGET = YES
 GNUPLOT_CONF_OPT = --without-demo --disable-demo
 
-$(eval $(generic-package))
+$(eval $(autotools-package))

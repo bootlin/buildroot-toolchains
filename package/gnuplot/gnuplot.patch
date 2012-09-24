@@ -7,7 +7,7 @@ index bc0f2b2..5c00fe5 100644
  AUTOMAKE_OPTIONS = foreign 1.2h
  
 -SUBDIRS = config m4 term src docs $(LISPDIR) man demo tutorial share
-+SUBDIRS = config m4 term src docs $(LISPDIR) man tutorial share
++SUBDIRS = config m4 term src $(LISPDIR) man tutorial share
  
  EXTRA_DIST = BUGS CodeStyle Copyright FAQ.pdf GNUmakefile INSTALL INSTALL.gnu \
  Makefile.maint PATCHLEVEL PGPKEYS PORTING README README.1ST \
@@ -20,7 +20,7 @@ index 71118bc..86df133 100644
  top_srcdir = @top_srcdir@
  AUTOMAKE_OPTIONS = foreign 1.2h
 -SUBDIRS = config m4 term src docs $(LISPDIR) man demo tutorial share
-+SUBDIRS = config m4 term src docs $(LISPDIR) man tutorial share
++SUBDIRS = config m4 term src $(LISPDIR) man tutorial share
  EXTRA_DIST = BUGS CodeStyle Copyright FAQ.pdf GNUmakefile INSTALL INSTALL.gnu \
  Makefile.maint PATCHLEVEL PGPKEYS PORTING README README.1ST \
  VERSION configure.vms pm3d win
