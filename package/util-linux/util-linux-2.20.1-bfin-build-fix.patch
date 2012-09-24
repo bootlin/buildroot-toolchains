@@ -1,0 +1,157 @@
+commit 21d39d84434e628c6fee0c4187cd57154723bb30
+Author: Steven Miao <realmz6@gmail.com>
+Date:   Mon Sep 24 16:47:27 2012 +0800
+
+    2
+
+diff --git a/fdisk/fdiskbsdlabel.h b/fdisk/fdiskbsdlabel.h
+index 9f9e091..9b5ef9d 100644
+--- a/fdisk/fdiskbsdlabel.h
++++ b/fdisk/fdiskbsdlabel.h
+@@ -48,7 +48,7 @@
+ 
+ #if defined (i386) || defined (__sparc__) || defined (__arm__) || \
+     defined (__mips__) || defined (__s390__) || defined (__sh__) || \
+-    defined(__x86_64__) || defined (__avr32__) || defined(__cris__)
++    defined(__x86_64__) || defined (__avr32__) || defined(__cris__) || defined(__bfin__)
+ #define BSD_LABELSECTOR   1
+ #define BSD_LABELOFFSET   0
+ #elif defined (__alpha__) || defined (__powerpc__) || defined (__ia64__) || defined (__hppa__)
+diff --git a/libblkid/src/topology/dm.c b/libblkid/src/topology/dm.c
+index 72ec9bd..dba2ac9 100644
+--- a/libblkid/src/topology/dm.c
++++ b/libblkid/src/topology/dm.c
+@@ -62,7 +62,11 @@ static int probe_dm_tp(blkid_probe pr,
+ 		goto nothing;
+ 	}
+ 
++#ifdef __NOMMU__
++	switch (vfork()) {
++#else
+ 	switch (fork()) {
++#endif
+ 	case 0:
+ 	{
+ 		char *dmargv[7], maj[16], min[16];
+diff --git a/libblkid/src/topology/lvm.c b/libblkid/src/topology/lvm.c
+index 632c42b..bb688c6 100644
+--- a/libblkid/src/topology/lvm.c
++++ b/libblkid/src/topology/lvm.c
+@@ -72,7 +72,11 @@ static int probe_lvm_tp(blkid_probe pr,
+ 		goto nothing;
+ 	}
+ 
++#ifdef __NOMMU__
++	switch (vfork()) {
++#else
+ 	switch (fork()) {
++#endif
+ 	case 0:
+ 	{
+ 		char *lvargv[3];
+diff --git a/sys-utils/flock.c b/sys-utils/flock.c
+index a500319..e3c934b 100644
+--- a/sys-utils/flock.c
++++ b/sys-utils/flock.c
+@@ -295,7 +295,12 @@ int main(int argc, char *argv[])
+ 
+     /* Clear any inherited settings */
+     signal(SIGCHLD, SIG_DFL);
++
++#ifdef __NOMMU__
++    f = vfork();
++#else
+     f = fork();
++#endif
+ 
+     if ( f < 0 ) {
+       err = errno;
+diff --git a/sys-utils/setsid.c b/sys-utils/setsid.c
+index baf3b0a..b4aea73 100644
+--- a/sys-utils/setsid.c
++++ b/sys-utils/setsid.c
+@@ -28,7 +28,11 @@ main(int argc, char *argv[]) {
+ 		exit(1);
+ 	}
+ 	if (getpgrp() == getpid()) {
++#ifdef __NOMMU__
++		switch(vfork()){
++#else
+ 		switch(fork()){
++#endif
+ 		case -1:
+ 			perror("fork");
+ 			exit(1);
+diff --git a/sys-utils/switch_root.c b/sys-utils/switch_root.c
+index f86b8c6..76a9eed 100644
+--- a/sys-utils/switch_root.c
++++ b/sys-utils/switch_root.c
+@@ -159,7 +159,11 @@ static int switchroot(const char *newroot)
+ 	}
+ 
+ 	if (cfd >= 0) {
++#ifdef __NOMMU__
++		pid = vfork();
++#else
+ 		pid = fork();
++#endif
+ 		if (pid <= 0) {
+ 			recursiveRemove(cfd);
+ 			if (pid == 0)
+diff --git a/term-utils/script.c b/term-utils/script.c
+index f708e91..a26c922 100644
+--- a/term-utils/script.c
++++ b/term-utils/script.c
+@@ -256,7 +256,7 @@ main(int argc, char **argv) {
+ 	sigaddset(&block_mask, SIGCHLD);
+ 
+ 	sigprocmask(SIG_SETMASK, &block_mask, &unblock_mask);
+-	child = fork();
++	child = vfork();
+ 	sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
+ 
+ 	if (child < 0) {
+@@ -266,7 +266,11 @@ main(int argc, char **argv) {
+ 	if (child == 0) {
+ 
+ 		sigprocmask(SIG_SETMASK, &block_mask, NULL);
++#ifdef __NOMMU__
++		subchild = child = vfork();
++#else
+ 		subchild = child = fork();
++#endif
+ 		sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
+ 
+ 		if (child < 0) {
+diff --git a/text-utils/more.c b/text-utils/more.c
+index a2ade68..3656216 100644
+--- a/text-utils/more.c
++++ b/text-utils/more.c
+@@ -1658,7 +1658,11 @@ void execute (char *filename, char *cmd, ...)
+ 
+ 	fflush (stdout);
+ 	reset_tty ();
++#ifdef __NOMMU__
++	for (n = 10; (id = vfork ()) < 0 && n > 0; n--)
++#else
+ 	for (n = 10; (id = fork ()) < 0 && n > 0; n--)
++#endif
+ 	    sleep (5);
+ 	if (id == 0) {
+ 	    if (!isatty(0)) {
+diff --git a/text-utils/pg.c b/text-utils/pg.c
+index 84bb9fb..238abea 100644
+--- a/text-utils/pg.c
++++ b/text-utils/pg.c
+@@ -1461,7 +1461,11 @@ found_bw:
+ 					write_all(1, "\n", 1);
+ 					my_sigset(SIGINT, SIG_IGN);
+ 					my_sigset(SIGQUIT, SIG_IGN);
++#ifdef __NOMMU__
++					switch (cpid = vfork()) {
++#else
+ 					switch (cpid = fork()) {
++#endif
+ 					case 0:
+ 						p = getenv("SHELL");
+ 						if (p == NULL) p = "/bin/sh";
