@@ -1,0 +1,534 @@
+--- util-linux-2.20.1/fsck/fsck.c	2011-10-11 21:23:46.000000000 +0800
++++ util-linux-2.20.1.nommu/fsck/fsck.c	2012-09-24 16:03:15.082233454 +0800
+@@ -574,7 +574,11 @@
+ 	/* Fork and execute the correct program. */
+ 	if (noexecute)
+ 		pid = -1;
++#ifdef __NOMMU__
++	else if ((pid = vfork()) < 0) {
++#else
+ 	else if ((pid = fork()) < 0) {
++#endif
+ 		perror("fork");
+ 		free(inst);
+ 		return errno;
+@@ -584,7 +588,11 @@
+ 		(void) execv(s, argv);
+ 		perror(argv[0]);
+ 		free(inst);
++#ifdef __NOMMU__
++		_exit(EXIT_ERROR);
++#else
+ 		exit(EXIT_ERROR);
++#endif
+ 	}
+ 
+ 	for (i=0; i < argc; i++)
+@@ -720,10 +728,18 @@
+ 			 * time to set up the signal handler
+ 			 */
+ 			if (inst2->start_time < time(0)+2) {
++#ifdef __NOMMU__
++				if (vfork() == 0) {
++#else
+ 				if (fork() == 0) {
++#endif
+ 					sleep(1);
+ 					kill(inst2->pid, SIGUSR1);
++#ifdef __NOMMU__
++					_exit(EXIT_OK);
++#else
+ 					exit(EXIT_OK);
++#endif
+ 				}
+ 			} else
+ 				kill(inst2->pid, SIGUSR1);
+--- util-linux-2.20.1/libblkid/src/topology/lvm.c	2011-09-26 17:50:23.000000000 +0800
++++ util-linux-2.20.1.nommu/libblkid/src/topology/lvm.c	2012-09-21 18:36:45.434356124 +0800
+@@ -72,7 +72,11 @@
+ 		goto nothing;
+ 	}
+ 
++#ifdef __NOMMU__
++	switch (vfork()) {
++#else
+ 	switch (fork()) {
++#endif
+ 	case 0:
+ 	{
+ 		char *lvargv[3];
+@@ -97,7 +101,11 @@
+ 
+ 		DBG(DEBUG_LOWPROBE,
+ 			printf("Failed to execute %s: errno=%d", cmd, errno));
++#ifdef __NOMMU__
++		_exit(1);
++#else
+ 		exit(1);
++#endif
+ 	}
+ 	case -1:
+ 		DBG(DEBUG_LOWPROBE,
+--- util-linux-2.20.1/libblkid/src/topology/dm.c	2011-09-26 17:50:23.000000000 +0800
++++ util-linux-2.20.1.nommu/libblkid/src/topology/dm.c	2012-09-21 18:41:29.630139897 +0800
+@@ -62,7 +62,11 @@
+ 		goto nothing;
+ 	}
+ 
++#ifdef __NOMMU__
++	switch (vfork()) {
++#else
+ 	switch (fork()) {
++#endif
+ 	case 0:
+ 	{
+ 		char *dmargv[7], maj[16], min[16];
+@@ -94,7 +98,11 @@
+ 
+ 		DBG(DEBUG_LOWPROBE,
+ 			printf("Failed to execute %s: errno=%d", cmd, errno));
++#ifdef __NOMMU__
++		_exit(1);
++#else
+ 		exit(1);
++#endif
+ 	}
+ 	case -1:
+ 		DBG(DEBUG_LOWPROBE,
+--- util-linux-2.20.1/libmount/src/context_umount.c	2011-10-18 20:22:28.000000000 +0800
++++ util-linux-2.20.1.nommu/libmount/src/context_umount.c	2012-09-24 16:11:28.814106080 +0800
+@@ -328,17 +328,29 @@
+ 
+ 	DBG_FLUSH;
+ 
++#ifdef __NOMMU__
++	switch (vfork()) {
++#else
+ 	switch (fork()) {
++#endif
+ 	case 0:
+ 	{
+ 		const char *args[10], *type;
+ 		int i = 0;
+ 
+ 		if (setgid(getgid()) < 0)
++#ifdef __NOMMU__
++			_exit(EXIT_FAILURE);
++#else
+ 			exit(EXIT_FAILURE);
++#endif
+ 
+ 		if (setuid(getuid()) < 0)
++#ifdef __NOMMU__
++			_exit(EXIT_FAILURE);
++#else
+ 			exit(EXIT_FAILURE);
++#endif
+ 
+ 		type = mnt_fs_get_fstype(cxt->fs);
+ 
+@@ -369,7 +381,11 @@
+ #endif
+ 		DBG_FLUSH;
+ 		execv(cxt->helper, (char * const *) args);
++#ifdef __NOMMU__
++		_exit(EXIT_FAILURE);
++#else
+ 		exit(EXIT_FAILURE);
++#endif
+ 	}
+ 	default:
+ 	{
+--- util-linux-2.20.1/libmount/src/context_mount.c	2011-10-18 20:22:27.000000000 +0800
++++ util-linux-2.20.1.nommu/libmount/src/context_mount.c	2012-09-24 16:13:10.502811841 +0800
+@@ -309,17 +309,29 @@
+ 
+ 	DBG_FLUSH;
+ 
++#ifdef __NOMMU__
++	switch (vfork()) {
++#else
+ 	switch (fork()) {
++#endif
+ 	case 0:
+ 	{
+ 		const char *args[12], *type;
+ 		int i = 0;
+ 
+ 		if (setgid(getgid()) < 0)
++#ifdef __NOMMU__
++			_exit(EXIT_FAILURE);
++#else
+ 			exit(EXIT_FAILURE);
++#endif
+ 
+ 		if (setuid(getuid()) < 0)
++#ifdef __NOMMU__
++			_exit(EXIT_FAILURE);
++#else
+ 			exit(EXIT_FAILURE);
++#endif
+ 
+ 		type = mnt_fs_get_fstype(cxt->fs);
+ 
+@@ -352,7 +364,11 @@
+ #endif
+ 		DBG_FLUSH;
+ 		execv(cxt->helper, (char * const *) args);
++#ifdef __NOMMU__
++		_exit(EXIT_FAILURE);
++#else
+ 		exit(EXIT_FAILURE);
++#endif
+ 	}
+ 	default:
+ 	{
+--- util-linux-2.20.1/libuuid/src/gen_uuid.c	2011-10-18 20:22:26.000000000 +0800
++++ util-linux-2.20.1.nommu/libuuid/src/gen_uuid.c	2012-09-24 15:27:31.942105288 +0800
+@@ -513,11 +513,19 @@
+ 		if (access_ret == 0 && (st.st_mode & (S_ISUID | S_ISGID)) == 0)
+ 			access_ret = access(UUIDD_DIR, W_OK);
+ 		if (access_ret == 0 && start_attempts++ < 5) {
++#ifdef __NOMMU__
++			if ((pid = vfork()) == 0) {
++#else
+ 			if ((pid = fork()) == 0) {
++#endif
+ 				close_all_fds();
+ 				execl(uuidd_path, "uuidd", "-qT", "300",
+ 				      (char *) NULL);
++#ifdef __NOMMU__
++				_exit(1);
++#else
+ 				exit(1);
++#endif
+ 			}
+ 			(void) waitpid(pid, 0, 0);
+ 			if (connect(s, (const struct sockaddr *) &srv_addr,
+--- util-linux-2.20.1/login-utils/login.c	2011-10-18 13:41:47.000000000 +0800
++++ util-linux-2.20.1.nommu/login-utils/login.c	2012-09-24 16:17:34.178106088 +0800
+@@ -1185,8 +1185,11 @@
+      * We must fork before setuid() because we need to call
+      * pam_close_session() as root.
+      */
+-
++#ifdef __NOMMU__
++    child_pid = vfork();
++#else
+     child_pid = fork();
++#endif
+     if (child_pid < 0) {
+        /* error in fork() */
+        warn(_("failure forking"));
+@@ -1284,7 +1287,11 @@
+     else
+ 	warn(_("no shell"));
+ 
++#ifdef __NOMMU__
++    _exit(EXIT_SUCCESS);
++#else
+     exit(EXIT_SUCCESS);
++#endif
+ }
+ 
+ #ifndef HAVE_SECURITY_PAM_MISC_H
+--- util-linux-2.20.1/login-utils/vipw.c	2011-10-18 13:41:47.000000000 +0800
++++ util-linux-2.20.1.nommu/login-utils/vipw.c	2012-09-24 16:18:17.566106144 +0800
+@@ -236,7 +236,11 @@
+ 	else 
+ 		p = editor;
+ 
++#ifdef __NOMMU__
++	pid = vfork();
++#else
+ 	pid = fork();
++#endif
+ 	if (pid < 0)
+ 		err(EXIT_FAILURE, _("fork failed"));
+ 
+--- util-linux-2.20.1/mount/swapon.c	2011-10-11 21:23:47.000000000 +0800
++++ util-linux-2.20.1.nommu/mount/swapon.c	2012-09-24 16:14:12.918106883 +0800
+@@ -258,7 +258,11 @@
+ 
+ 	warnx(_("%s: reinitializing the swap."), device);
+ 
++#ifdef __NOMMU__
++	switch((pid=vfork())) {
++#else
+ 	switch((pid=fork())) {
++#endif
+ 	case -1: /* fork error */
+ 		warn(_("fork failed"));
+ 		return -1;
+--- util-linux-2.20.1/mount/mount.c	2011-10-18 20:22:28.000000000 +0800
++++ util-linux-2.20.1.nommu/mount/mount.c	2012-09-24 16:16:30.034106359 +0800
+@@ -777,7 +777,11 @@
+ 		if (verbose)
+ 			fflush(stdout);
+ 
++#ifdef __NOMMU__
++		switch (vfork()) {
++#else
+ 		switch (fork()) {
++#endif
+ 		case 0: { /* child */
+ 			char *oo, *mountargs[12];
+ 			int i = 0;
+@@ -821,7 +825,11 @@
+ 			}
+ 
+ 			execv(mountprog, mountargs);
++#ifdef __NOMMU__
++			_exit(1);	/* exec failed */
++#else
+ 			exit(1);	/* exec failed */
++#endif
+ 		}
+ 
+ 		default: { /* parent */
+@@ -2208,7 +2216,11 @@
+ 	for (cp = childhead.nxt; cp; cp = cp->nxt) {
+ 		pid_t p = -1;
+ 		if (optfork) {
++#ifdef __NOMMU__
++			p = vfork();
++#else
+ 			p = fork();
++#endif
+ 			if (p == -1) {
+ 				int errsv = errno;
+ 				error(_("mount: cannot fork: %s"),
+@@ -2230,7 +2242,11 @@
+ 			if (mountcount)
+ 				status |= EX_SOMEOK;
+ 			if (p == 0)
++#ifdef __NOMMU__
++				_exit(status);
++#else
+ 				exit(status);
++#endif
+ 		}
+ 	}
+ 
+--- util-linux-2.20.1/sys-utils/setsid.c	2011-06-08 16:15:25.000000000 +0800
++++ util-linux-2.20.1.nommu/sys-utils/setsid.c	2012-09-24 15:38:52.778106307 +0800
+@@ -28,14 +28,22 @@
+ 		exit(1);
+ 	}
+ 	if (getpgrp() == getpid()) {
++#ifdef __NOMMU__
++		switch(vfork()){
++#else
+ 		switch(fork()){
++#endif
+ 		case -1:
+ 			perror("fork");
+ 			exit(1);
+ 		case 0:		/* child */
+ 			break;
+ 		default:	/* parent */
++#ifdef __NOMMU__
++			_exit(0);
++#else
+ 			exit(0);
++#endif
+ 		}
+ 	}
+ 	if (setsid() < 0) {
+@@ -44,5 +52,9 @@
+ 	}
+ 	execvp(argv[1], argv + 1);
+ 	perror("execvp");
++#ifdef __NOMMU__
++	_exit(1);
++#else
+ 	exit(1);
++#endif
+ }
+--- util-linux-2.20.1/sys-utils/switch_root.c	2011-10-20 16:12:28.000000000 +0800
++++ util-linux-2.20.1.nommu/sys-utils/switch_root.c	2012-09-24 15:44:15.314106019 +0800
+@@ -159,11 +159,19 @@
+ 	}
+ 
+ 	if (cfd >= 0) {
++#ifdef __NOMMU__
++		pid = vfork();
++#else
+ 		pid = fork();
++#endif
+ 		if (pid <= 0) {
+ 			recursiveRemove(cfd);
+ 			if (pid == 0)
++#ifdef __NOMMU__
++				_exit(EXIT_SUCCESS);
++#else
+ 				exit(EXIT_SUCCESS);
++#endif
+ 		}
+ 		close(cfd);
+ 	}
+--- util-linux-2.20.1/sys-utils/flock.c	2011-10-18 20:22:27.000000000 +0800
++++ util-linux-2.20.1.nommu/sys-utils/flock.c	2012-09-24 15:45:33.262355924 +0800
+@@ -295,7 +295,11 @@
+ 
+     /* Clear any inherited settings */
+     signal(SIGCHLD, SIG_DFL);
++#ifdef __NOMMU__
++    f = vfork();
++#else
+     f = fork();
++#endif
+ 
+     if ( f < 0 ) {
+       err = errno;
+--- util-linux-2.20.1/term-utils/ttymsg.c	2011-10-18 13:41:47.000000000 +0800
++++ util-linux-2.20.1.nommu/term-utils/ttymsg.c	2012-09-24 16:23:52.278355998 +0800
+@@ -135,7 +135,11 @@
+ 				(void) close(fd);
+ 				_exit(EXIT_FAILURE);
+ 			}
++#ifdef __NOMMU__
++			cpid = vfork();
++#else
+ 			cpid = fork();
++#endif
+ 			if (cpid < 0) {
+ 				if (strlen(strerror(errno)) > 1000)
+ 					(void) sprintf(errbuf, _("cannot fork"));
+--- util-linux-2.20.1/term-utils/script.c	2011-10-18 20:22:26.000000000 +0800
++++ util-linux-2.20.1.nommu/term-utils/script.c	2012-09-24 15:53:50.350356053 +0800
+@@ -256,7 +256,11 @@
+ 	sigaddset(&block_mask, SIGCHLD);
+ 
+ 	sigprocmask(SIG_SETMASK, &block_mask, &unblock_mask);
++#ifdef __NOMMU__
++	child = vfork();
++#else
+ 	child = fork();
++#endif
+ 	sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
+ 
+ 	if (child < 0) {
+@@ -266,7 +270,11 @@
+ 	if (child == 0) {
+ 
+ 		sigprocmask(SIG_SETMASK, &block_mask, NULL);
++#ifdef __NOMMU__
++		subchild = child = vfork();
++#else
+ 		subchild = child = fork();
++#endif
+ 		sigprocmask(SIG_SETMASK, &unblock_mask, NULL);
+ 
+ 		if (child < 0) {
+@@ -490,11 +498,21 @@
+ 
+ 	if(eflg) {
+ 		if (WIFSIGNALED(childstatus))
+-			exit(WTERMSIG(childstatus) + 0x80);
++#ifdef __NOMMU__
++			_exit(WTERMSIG(childstatus) + 0x80);
++		else
++			exit(WEXITSTATUS(childstatus));
++#else
++			_exit(WTERMSIG(childstatus) + 0x80);
+ 		else
+ 			exit(WEXITSTATUS(childstatus));
++#endif
+ 	}
++#ifdef __NOMMU__
++	_exit(EXIT_SUCCESS);
++#else
+ 	exit(EXIT_SUCCESS);
++#endif
+ }
+ 
+ void
+--- util-linux-2.20.1/text-utils/pg.c	2011-10-11 21:23:48.000000000 +0800
++++ util-linux-2.20.1.nommu/text-utils/pg.c	2012-09-24 15:59:40.866106356 +0800
+@@ -1461,7 +1461,11 @@
+ 					write_all(1, "\n", 1);
+ 					my_sigset(SIGINT, SIG_IGN);
+ 					my_sigset(SIGQUIT, SIG_IGN);
++#ifdef __NOMMU__
++					switch (cpid = vfork()) {
++#else
+ 					switch (cpid = fork()) {
++#endif
+ 					case 0:
+ 						p = getenv("SHELL");
+ 						if (p == NULL) p = "/bin/sh";
+--- util-linux-2.20.1/text-utils/more.c	2011-09-26 17:50:25.000000000 +0800
++++ util-linux-2.20.1.nommu/text-utils/more.c	2012-09-24 15:57:06.006106885 +0800
+@@ -1658,7 +1658,11 @@
+ 
+ 	fflush (stdout);
+ 	reset_tty ();
++#ifdef __NOMMU__
++	for (n = 10; (id = vfork ()) < 0 && n > 0; n--)
++#else
+ 	for (n = 10; (id = fork ()) < 0 && n > 0; n--)
++#endif
+ 	    sleep (5);
+ 	if (id == 0) {
+ 	    if (!isatty(0)) {
+@@ -1690,7 +1694,11 @@
+ 	
+ 	    execvp (cmd, args);
+ 	    putserr(_("exec failed\n"));
++#ifdef __NOMMU__
++	    _exit (EXIT_FAILURE);
++#else
+ 	    exit (EXIT_FAILURE);
++#endif
+ 	}
+ 	if (id > 0) {
+ 	    signal (SIGINT, SIG_IGN);
+--- util-linux-2.20.1/fdisk/fdiskbsdlabel.h	2011-06-08 16:15:24.000000000 +0800
++++ util-linux-2.20.1.nommu/fdisk/fdiskbsdlabel.h	2012-09-24 15:34:54.643041390 +0800
+@@ -48,7 +48,8 @@
+ 
+ #if defined (i386) || defined (__sparc__) || defined (__arm__) || \
+     defined (__mips__) || defined (__s390__) || defined (__sh__) || \
+-    defined(__x86_64__) || defined (__avr32__) || defined(__cris__)
++    defined(__x86_64__) || defined (__avr32__) || defined(__cris__) || \
++    defined(__bfin__)
+ #define BSD_LABELSECTOR   1
+ #define BSD_LABELOFFSET   0
+ #elif defined (__alpha__) || defined (__powerpc__) || defined (__ia64__) || defined (__hppa__)
+--- util-linux-2.20.1/libuuid/src/Makefile.am	2011-09-26 17:50:23.000000000 +0800
++++ util-linux-2.20.1.nommu/libuuid/src/Makefile.am	2012-09-24 18:57:11.438105274 +0800
+@@ -25,7 +25,8 @@
+ 
+ # move lib from $(usrlib_execdir) to $(libdir) if needed
+ install-exec-hook:
+-	if test "$(usrlib_execdir)" != "$(libdir)"; then \
++	ls $(DESTDIR)$(usrlib_execdir)/libuuid.so.*; \
++	if $? == 0 && test "$(usrlib_execdir)" != "$(libdir)"; then \
+ 		mkdir -p $(DESTDIR)$(libdir); \
+ 		mv $(DESTDIR)$(usrlib_execdir)/libuuid.so.* $(DESTDIR)$(libdir); \
+ 		so_img_name=$$(readlink $(DESTDIR)$(usrlib_execdir)/libuuid.so); \
+--- util-linux-2.20.1/libmount/src/Makefile.am	2011-09-26 17:50:23.000000000 +0800
++++ util-linux-2.20.1.nommu/libmount/src/Makefile.am	2012-09-24 19:04:33.374356330 +0800
+@@ -45,7 +45,8 @@
+ 
+ # move lib from $(usrlib_execdir) to $(libdir) if needed
+ install-exec-hook:
+-	if test "$(usrlib_execdir)" != "$(libdir)"; then \
++	ls $(DESTDIR)$(usrlib_execdir)/libmount.so.*; \
++	if $? == 0 && test "$(usrlib_execdir)" != "$(libdir)"; then \
+ 		mkdir -p $(DESTDIR)$(libdir); \
+ 		mv $(DESTDIR)$(usrlib_execdir)/libmount.so.* $(DESTDIR)$(libdir); \
+ 		so_img_name=$$(readlink $(DESTDIR)$(usrlib_execdir)/libmount.so); \
+--- util-linux-2.20.1/libblkid/src/Makefile.am	2011-09-26 17:50:22.000000000 +0800
++++ util-linux-2.20.1.nommu/libblkid/src/Makefile.am	2012-09-24 19:05:51.806106375 +0800
+@@ -58,7 +58,8 @@
+ 
+ # move lib from $(usrlib_execdir) to $(libdir) if needed
+ install-exec-hook:
+-	if test "$(usrlib_execdir)" != "$(libdir)"; then \
++	ls $(DESTDIR)$(usrlib_execdir)/libblkid.so.*; \
++	if $? == 0 && test "$(usrlib_execdir)" != "$(libdir)"; then \
+ 		mkdir -p $(DESTDIR)$(libdir); \
+ 		mv $(DESTDIR)$(usrlib_execdir)/libblkid.so.* $(DESTDIR)$(libdir); \
+ 		so_img_name=$$(readlink $(DESTDIR)$(usrlib_execdir)/libblkid.so); \
