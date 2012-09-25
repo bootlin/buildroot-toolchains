@@ -27,4 +27,4 @@ define PPIFCD_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/ppifcd_test
 endef
 
-$(eval $(call GENTARGETS))
+$(eval $(generic-package))
