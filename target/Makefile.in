@@ -4,6 +4,10 @@ TARGETS-$(BR2_BFIN_INSTALL_ELF_SHARED) += romfs.shared.libs.elf
 TARGETS-$(BR2_BFIN_INSTALL_FLAT_SHARED) += romfs.shared.libs.flat
 TARGETS += $(TARGETS-y)
 
+ifeq ($(BR2_BFIN_FDPIC),y)
+USR_LIB_EXTERNAL_LIBS+=libgfortran.so libgomp.so libmudflap.so libmudflapth.so libobjc.so
+endif
+
 CROSS_COMPILE_SHARED_ELF ?= bfin-linux-uclibc-
 romfs.shared.libs.elf:
 	set -e; \
