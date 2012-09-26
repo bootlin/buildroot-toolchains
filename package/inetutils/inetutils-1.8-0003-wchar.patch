@@ -10,3 +10,19 @@
  #endif
  
  #undef _GL_ALREADY_INCLUDING_WCHAR_H
+--- inetutils-1.8/lib/stdint.in.h	2010-05-15 19:35:16.000000000 +0800
++++ inetutils-1.8.wchar/lib/stdint.in.h	2012-09-26 12:41:24.346105974 +0800
+@@ -480,11 +480,13 @@
+    This include is not on the top, above, because on OSF/1 4.0 we have a sequence of nested
+    includes <wchar.h> -> <stdio.h> -> <getopt.h> -> <stdlib.h>, and the latter includes
+    <stdint.h> and assumes its types are already defined.  */
++/*
+ #if ! (defined WCHAR_MIN && defined WCHAR_MAX)
+ # define _GL_JUST_INCLUDE_SYSTEM_WCHAR_H
+ # include <wchar.h>
+ # undef _GL_JUST_INCLUDE_SYSTEM_WCHAR_H
+ #endif
++*/
+ #undef WCHAR_MIN
+ #undef WCHAR_MAX
+ #define WCHAR_MIN  \
