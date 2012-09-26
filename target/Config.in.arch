@@ -300,6 +300,10 @@ config BR2_bf536
 	bool "bf536"
 config BR2_bf537
 	bool "bf537"
+config BR2_bf538
+	bool "bf538"
+config BR2_bf539
+	bool "bf539"
 config BR2_bf542
 	bool "bf542"
 config BR2_bf544
