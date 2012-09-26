@@ -1,0 +1,13 @@
+--- ffmpeg-0.8.12/configure	2012-06-10 04:09:20.000000000 +0800
++++ ffmpeg-0.8.12.ipv6/configure	2012-09-26 14:08:09.382105906 +0800
+@@ -2808,7 +2808,9 @@
+ if enabled network; then
+     check_type "sys/types.h sys/socket.h" socklen_t
+     check_type netdb.h "struct addrinfo"
+-    check_type netinet/in.h "struct ipv6_mreq" -D_DARWIN_C_SOURCE
++    if check_cpp_condition netinet/in.h "defined __UCLIBC_HAS_IPV6__" ; then
++        check_type netinet/in.h "struct ipv6_mreq" -D_DARWIN_C_SOURCE
++    fi
+     check_type netinet/in.h "struct sockaddr_in6"
+     check_type "sys/types.h sys/socket.h" "struct sockaddr_storage"
+     check_struct "sys/types.h sys/socket.h" "struct sockaddr" sa_len
