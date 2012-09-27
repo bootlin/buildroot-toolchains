@@ -1,6 +1,8 @@
---- Makefile.bak	2012-09-26 14:44:04.770101771 +0800
-+++ Makefile	2012-09-26 14:58:15.626075131 +0800
-@@ -222,15 +222,15 @@
+diff --git a/Makefile b/Makefile
+index cc30ae4..d24410b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -222,15 +222,15 @@ ccdv:
  
  $(PCCARDCTL): $(LIBC) src/$(PCCARDCTL).o src/$(PCCARDCTL).c $(OBJS) $(HEADERS)
  	$(QUIET) $(LD) $(LDFLAGS) -o $@ $(CRT0) src/$(PCCARDCTL).o $(LIB_OBJS) $(ARCH_LIB_OBJS)
@@ -19,7 +21,7 @@
  
  yacc_config.o lex_config.o: %.o: %.c
  	$(CC) -c -MD -O -pipe $(CPPFLAGS) $<
-@@ -239,11 +239,11 @@
+@@ -239,11 +239,11 @@ debugtools: ccdv $(CBDUMP) $(CISDUMP)
  
  $(CBDUMP): $(LIBC) debug/cbdump.o
  	$(QUIET) $(LD) $(LDFLAGS) -o $@ $(CRT0) debug/$(CBDUMP).o $(LIB_PCI_OBJS) $(ARCH_LIB_OBJS)
@@ -33,3 +35,6 @@
  
  udevrules:
  	cat $(UDEV_RULES) > $(UDEV_RULES_FILE)
+-- 
+1.7.9.5
+
