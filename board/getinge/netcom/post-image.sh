@@ -16,5 +16,4 @@ ${BINARIES_DIR}/../host/usr/bin/fwupgrade-tool  \
     -p rootfs:${BINARIES_DIR}/rootfs.jffs2      \
     -i ${HWID}
 
-# Generate production files
-sh ./board/getinge/netcom/prodtest/generate.sh ${BINARIES_DIR} output/images/prodtest
+
