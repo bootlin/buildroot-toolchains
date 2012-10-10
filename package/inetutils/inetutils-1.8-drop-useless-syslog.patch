@@ -1,0 +1,12 @@
+diff --git a/src/rshd.c b/src/rshd.c
+index 9b45ce9..c7279c4 100644
+--- a/src/rshd.c
++++ b/src/rshd.c
+@@ -442,7 +442,6 @@ doit (int sockfd, struct sockaddr_in *fromp)
+        * client's, just change the port# to the one specified
+        * by the clent as the secondary port.
+        */
+-      syslog (LOG_ERR, "2nd port not reserved %d\n", port);
+ 
+       fromp->sin_port = htons (port);
+       if (connect (s, (struct sockaddr *) fromp, sizeof (*fromp)) < 0)
