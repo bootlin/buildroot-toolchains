@@ -1,0 +1,7 @@
+config BR2_PACKAGE_GNUPLOT_WITH_NO_LIBGD
+	bool "gnuplot old version"
+	help
+	  A portable command-line driven graphing utility.
+
+	  http://www.gnuplot.info/
+

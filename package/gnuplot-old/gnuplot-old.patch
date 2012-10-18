@@ -1,0 +1,26 @@
+diff --git a/Makefile b/Makefile
+index a8cb538..b37991d 100644
+--- a/Makefile
++++ b/Makefile
+@@ -31,7 +31,7 @@ CORETERM = term/aed.trm term/ai.trm term/amiga.trm term/apollo.trm \
+ 
+ CFLAGS := $(subst -Wall,,$(CFLAGS))
+ CFLAGS := -I. -DSHORT_TERMLIST -DHAVE_GETCWD -DHELPFILE=\"/usr/local/share/gnuplot.gih\" -DGNUPLOT_BINDIR=\"/bin\" -DCONTACT=\"bug-gnuplot@dartmouth.edu\"  $(CFLAGS)
+-LDLIBS := $(shell $(PKG_CONFIG) libpng --libs) -lm
++LDLIBS := -lpng -lz -lm
+ CFLAGS := $(subst -g,, $(CFLAGS))
+ CFLAGS := $(subst -O2,-Os, $(CFLAGS))
+ 
+diff --git a/term/png.trm b/term/png.trm
+index 54704c8..a008c7e 100644
+--- a/term/png.trm
++++ b/term/png.trm
+@@ -379,7 +379,7 @@ PNG_text()
+ 	    info_ptr->valid |= PNG_INFO_tRNS;
+ 	    info_ptr->num_trans = 1;
+ 	    pal_trans[0] = 0;
+-	    info_ptr->trans=pal_trans;
++	    info_ptr->trans_alpha=pal_trans;
+ 	}
+ 
+ 	for (i = 0; i < WEB_N_COLORS; i++) {
