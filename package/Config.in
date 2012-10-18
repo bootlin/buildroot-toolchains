@@ -73,6 +73,7 @@ source "toolchain/gcc/Config.in.2"
 source "package/gettext/Config.in"
 source "package/gmp/Config.in"
 source "package/gnuplot/Config.in"
+source "package/gnuplot-old/Config.in"
 source "package/gperf/Config.in"
 if BR2_PACKAGE_BUSYBOX_SHOW_OTHERS
 source "package/grep/Config.in"
