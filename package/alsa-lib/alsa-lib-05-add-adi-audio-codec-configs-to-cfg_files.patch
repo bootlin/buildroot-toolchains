@@ -32,3 +32,22 @@
  	FM801.conf \
  	GUS.conf \
  	HDA-Intel.conf \
+--- alsa-lib-1.0.25/src/conf/cards/Makefile.in.org	2012-01-25 17:29:37.000000000 +0800
++++ alsa-lib-1.0.25/src/conf/cards/Makefile.in	2012-10-19 15:43:45.254371856 +0800
+@@ -201,12 +201,14 @@
+ top_srcdir = @top_srcdir@
+ alsaconfigdir = @ALSA_CONFIG_DIR@
+ alsadir = $(alsaconfigdir)/cards
+-cfg_files = aliases.conf AACI.conf ATIIXP.conf ATIIXP-SPDMA.conf \
++cfg_files = aliases.conf AACI.conf AD1980.conf AD1980-no-mmap.conf AD73322.asound.conf \
++	AD73322.conf ADAU1371.conf ADAU1373.conf ATIIXP.conf ATIIXP-SPDMA.conf \
+ 	ATIIXP-MODEM.conf AU8810.conf AU8820.conf AU8830.conf \
+ 	Audigy.conf Audigy2.conf Aureon51.conf Aureon71.conf \
++	bfin-ad1836.conf bfin-ad193x.conf bfin-ad73311.conf bfin-ssm2602.conf \
+ 	CA0106.conf CMI8338.conf CMI8338-SWIEC.conf CMI8738-MC6.conf \
+ 	CMI8738-MC8.conf CMI8788.conf CS46xx.conf EMU10K1.conf \
+-	EMU10K1X.conf ENS1370.conf ENS1371.conf ES1968.conf FM801.conf \
++	EMU10K1X.conf ENS1370.conf ENS1371.conf ES1968.conf eval-adau1x61.conf FM801.conf \
+ 	FWSpeakers.conf FireWave.conf GUS.conf HDA-Intel.conf \
+ 	ICE1712.conf ICE1724.conf ICH.conf ICH4.conf ICH-MODEM.conf \
+ 	Maestro3.conf NFORCE.conf PC-Speaker.conf PMac.conf \
