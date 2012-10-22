@@ -1,0 +1,7 @@
+config BR2_PACKAGE_LINUXPTP
+	bool "linuxptp"
+	help
+	  Precision Time Protocol (PTP) as defined by the IEEE 1588 standard version 2
+	  Linux implementation with Linux hardware timestamp API support.
+
+	  http://sourceforge.net/projects/linuxptp
