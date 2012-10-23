@@ -1,6 +1,6 @@
 menuconfig BR2_PACKAGE_BFIN_CANNED_DEMOS
 	bool "bfin canned demos"
-        select BR2_PACKAGE_THTTPD
+        select BR2_PACKAGE_THTTPD_OLD
 	help
 	  bfin canned demos
 
