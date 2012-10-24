@@ -215,11 +215,18 @@ else ifeq ($(BR2_mips)$(BR2_mipsel),y)
 QT_EMB_PLATFORM = mips
 else ifeq ($(BR2_powerpc),y)
 QT_EMB_PLATFORM = powerpc
+else ifeq ($(BR2_bfin),y)
+QT_EMB_PLATFORM = bfin
 else
 QT_EMB_PLATFORM = generic
 endif
 
 QT_CONFIGURE_OPTS += -embedded $(QT_EMB_PLATFORM)
+
+ifeq ($(DBR2_ABI_FLAT),y)
+QT_CFLAGS += -DQT_NO_DYNAMIC_LIBRARY
+QT_CXXFLAGS += -DQT_NO_DYNAMIC_LIBRARY
+endif
 
 ifneq ($(BR2_PACKAGE_QT_GUI_MODULE),y)
 QT_CONFIGURE_OPTS += -no-gui

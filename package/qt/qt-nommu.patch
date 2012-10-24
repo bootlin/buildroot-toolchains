@@ -1,0 +1,61 @@
+--- qt.old/src/gui/painting/qpdf.cpp	2012-10-23 18:04:56.498356174 +0800
++++ qt/src/gui/painting/qpdf.cpp	2012-10-23 18:05:10.850105648 +0800
+@@ -1698,12 +1698,20 @@
+             return false;
+         }
+ 
++#ifdef __NOMMU__
++        pid_t pid = vfork();
++#else
+         pid_t pid = fork();
++#endif
+         if (pid == 0) {       // child process
+             // if possible, exit quickly, so the actual lp/lpr
+             // becomes a child of init, and ::waitpid() is
+             // guaranteed not to wait.
++#ifdef __NOMMU__
++            if (vfork() > 0) {
++#else
+             if (fork() > 0) {
++#endif
+                 closeAllOpenFds();
+ 
+                 // try to replace this process with "true" - this prevents
+--- qt-4.8.2/src/corelib/io/qprocess_unix.cpp.old	2012-10-23 18:06:37.810355635 +0800
++++ qt-4.8.2/src/corelib/io/qprocess_unix.cpp	2012-10-23 18:08:47.174114276 +0800
+@@ -647,7 +647,11 @@
+ #if defined(Q_OS_QNX)
+     pid_t childPid = spawnChild(workingDirPtr, argv, envp);
+ #else
++# ifdef __NOMMU__
++    pid_t childPid = vfork();
++# else
+     pid_t childPid = fork();
++# endif
+     int lastForkErrno = errno;
+ #endif
+     if (childPid != 0) {
+@@ -1340,7 +1344,11 @@
+     int pidPipe[2];
+     qt_safe_pipe(pidPipe);
+ 
++#ifdef __NOMMU__
++    pid_t childPid = vfork();
++#else
+     pid_t childPid = fork();
++#endif
+     if (childPid == 0) {
+         struct sigaction noaction;
+         memset(&noaction, 0, sizeof(noaction));
+@@ -1352,7 +1360,11 @@
+         qt_safe_close(startedPipe[0]);
+         qt_safe_close(pidPipe[0]);
+ 
++#ifdef __NOMMU__
++        pid_t doubleForkPid = vfork();
++#else
+         pid_t doubleForkPid = fork();
++#endif
+         if (doubleForkPid == 0) {
+             qt_safe_close(pidPipe[1]);
+ 

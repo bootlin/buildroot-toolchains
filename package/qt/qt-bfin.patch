@@ -1,0 +1,204 @@
+--- qt.old/mkspecs/qws/linux-bfin-g++/qmake.conf	2012-09-19 19:00:21.006106289 +0800
++++ qt/mkspecs/qws/linux-bfin-g++/qmake.conf	2012-10-24 14:00:00.342106251 +0800
+@@ -0,0 +1,24 @@
++#
++# qmake configuration for linux-bfin-g++
++#
++
++include(../../common/linux.conf)
++include(../../common/gcc-base-unix.conf)
++include(../../common/g++-unix.conf)
++include(../../common/qws.conf)
++PKG_CONFIG = 
++QMAKE_LFLAGS = 
++QMAKE_CXXFLAGS = 
++QMAKE_CFLAGS = 
++QMAKE_STRIP = 
++QMAKE_RANLIB = 
++QMAKE_OBJCOPY = 
++QMAKE_AR = 
++QMAKE_LINK_SHLIB = 
++QMAKE_LINK = 
++QMAKE_CXX = 
++QMAKE_CC = 
++
++
++load(qt_config)
++
+--- qt.old/mkspecs/qws/linux-bfin-g++/qplatformdefs.h	2012-09-19 19:00:21.006106289 +0800
++++ qt/mkspecs/qws/linux-bfin-g++/qplatformdefs.h	2012-10-24 10:34:35.122106651 +0800
+@@ -0,0 +1,2 @@
++#include "../../linux-g++/qplatformdefs.h"
++
+--- qt.old/src/corelib/io/qfilesystemwatcher_inotify.cpp	2012-10-24 14:30:51.530105542 +0800
++++ qt/src/corelib/io/qfilesystemwatcher_inotify.cpp	2012-10-24 14:32:15.694354016 +0800
+@@ -125,6 +125,11 @@
+ # define __NR_inotify_add_watch	241
+ # define __NR_inotify_rm_watch	242
+ // no inotify_init1 for AVR32
++#elif defined (__bfin__)
++# define __NR_inotify_init      291
++# define __NR_inotify_add_watch 292
++# define __NR_inotify_rm_watch  293
++# define __NR_inotify_init1     365
+ #elif defined (__mc68000__)
+ # define __NR_inotify_init      284
+ # define __NR_inotify_add_watch 285
+--- a/src/corelib/arch/bfin/arch.pri
++++ b/src/corelib/arch/bfin/arch.pri
+@@ -1,3 +1,5 @@
+ # 
+ # Blackfin architecture
+ #
++
++unix:SOURCES += qatomic_bfin_unix.cpp
+--- a/src/corelib/arch/bfin/qatomic_bfin_unix.cpp
++++ b/src/corelib/arch/bfin/qatomic_bfin_unix.cpp
+@@ -0,0 +1,125 @@
++/****************************************************************************
++**
++** Copyright (C) 2009 Nokia Corporation and/or its subsidiary(-ies).
++** Contact: Qt Software Information (qt-info@nokia.com)
++**
++** This file is part of the QtCore module of the Qt Toolkit.
++**
++** $QT_BEGIN_LICENSE:LGPL$
++** Commercial Usage
++** Licensees holding valid Qt Commercial licenses may use this file in
++** accordance with the Qt Commercial License Agreement provided with the
++** Software or, alternatively, in accordance with the terms contained in
++** a written agreement between you and Nokia.
++**
++** GNU Lesser General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU Lesser
++** General Public License version 2.1 as published by the Free Software
++** Foundation and appearing in the file LICENSE.LGPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU Lesser General Public License version 2.1 requirements
++** will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
++**
++** In addition, as a special exception, Nokia gives you certain
++** additional rights. These rights are described in the Nokia Qt LGPL
++** Exception version 1.0, included in the file LGPL_EXCEPTION.txt in this
++** package.
++**
++** GNU General Public License Usage
++** Alternatively, this file may be used under the terms of the GNU
++** General Public License version 3.0 as published by the Free Software
++** Foundation and appearing in the file LICENSE.GPL included in the
++** packaging of this file.  Please review the following information to
++** ensure the GNU General Public License version 3.0 requirements will be
++** met: http://www.gnu.org/copyleft/gpl.html.
++**
++** If you are unsure which license is appropriate for your use, please
++** contact the sales department at qt-sales@nokia.com.
++** $QT_END_LICENSE$
++**
++****************************************************************************/
++
++#ifndef QATOMIC_BFIN_H
++#define QATOMIC_BFIN_H
++
++#include "qplatformdefs.h"
++
++#include <QtCore/qatomic.h>
++
++QT_BEGIN_INCLUDE_NAMESPACE
++#include <bfin_fixed_code.h>
++QT_END_INCLUDE_NAMESPACE
++
++Q_CORE_EXPORT
++bool QBasicAtomicInt_testAndSetOrdered(volatile int *_q_value, int expectedValue, int newValue)
++{
++    int oldValue = (int)bfin_atomic_cas32((uint32_t *)_q_value, expectedValue, newValue);
++    return oldValue == expectedValue ? true : false;
++}
++
++Q_CORE_EXPORT
++int QBasicAtomicInt_fetchAndStoreOrdered(volatile int *_q_value, int newValue)
++{
++    return bfin_atomic_xchg32((uint32_t *)_q_value, newValue);
++}
++
++Q_CORE_EXPORT
++int QBasicAtomicInt_fetchAndAddOrdered(volatile int *_q_value, int valueToAdd)
++{
++    /*return bfin_atomic_add32(_q_value, valueToAdd) - valueToAdd;*/
++    int oldValue;
++    __asm__ __volatile__(
++        "CALL (%[add32])"
++        : "=q1" (oldValue), "=m" (*_q_value), "+&q0" (valueToAdd)
++        : [add32] "a" (ATOMIC_ADD32), "qA" (_q_value), "m" (*_q_value)
++        : "RETS", "memory"
++    );
++    return oldValue;
++}
++
++Q_CORE_EXPORT
++bool QBasicAtomicPointer_testAndSetOrdered(void * volatile *_q_value,
++                                           void *expectedValue,
++                                           void *newValue)
++{
++    /*void *oldValue = (void *)bfin_atomic_cas32((uint32_t *)_q_value, expectedValue, newValue);*/
++    void *oldValue;
++    __asm__ __volatile__(
++        "CALL (%[cas32])"
++        : "=q0" (oldValue), "=m" (*_q_value)
++        : [cas32] "a" (ATOMIC_CAS32), "q1" (expectedValue), "q2" (newValue),
++          "qA" (_q_value), "m" (*_q_value)
++        : "RETS", "memory"
++    );
++    return oldValue == expectedValue ? true : false;
++}
++
++Q_CORE_EXPORT
++void *QBasicAtomicPointer_fetchAndStoreOrdered(void * volatile *_q_value, void *newValue)
++{
++    void *oldValue;
++    __asm__ __volatile__(
++        "CALL (%[xchg32])"
++        : "=q0" (oldValue), "=m" (*_q_value)
++        : [xchg32] "a" (ATOMIC_XCHG32), "q1" (newValue),
++          "qA" (_q_value), "m" (*_q_value)
++        : "RETS", "memory"
++    );
++    return oldValue;
++}
++
++Q_CORE_EXPORT
++void *QBasicAtomicPointer_fetchAndAddOrdered(void * volatile *_q_value, qptrdiff valueToAdd)
++{
++    /*return bfin_atomic_add32(_q_value, valueToAdd) - valueToAdd;*/
++    void *oldValue;
++    __asm__ __volatile__(
++        "CALL (%[add32])"
++        : "=q1" (oldValue), "=m" (*_q_value), "+&q0" (valueToAdd)
++        : [add32] "a" (ATOMIC_ADD32), "qA" (_q_value), "m" (*_q_value)
++        : "RETS", "memory"
++    );
++    return oldValue;
++}
++
++#endif
+--- qt.old/src/gui/painting/qblendfunctions.cpp	2012-10-24 14:35:41.622355319 +0800
++++ qt/src/gui/painting/qblendfunctions.cpp	2012-10-24 14:36:08.818108148 +0800
+@@ -309,7 +309,7 @@
+         const uchar *src = srcPixels + y * sbpl;
+         const uchar *srcEnd = src + srcOffset;
+         while (src < srcEnd) {
+-#if defined(QT_ARCH_ARMV5) || defined(QT_ARCH_POWERPC) || defined(QT_ARCH_SH) || defined(QT_ARCH_AVR32) || (defined(QT_ARCH_WINDOWSCE) && !defined(_X86_)) || (defined(QT_ARCH_SPARC) && defined(Q_CC_GNU)) || (defined(QT_ARCH_INTEGRITY) && !defined(_X86_))
++#if defined(QT_ARCH_ARMV5) || defined(QT_ARCH_BFIN) || defined(QT_ARCH_POWERPC) || defined(QT_ARCH_SH) || defined(QT_ARCH_AVR32) || (defined(QT_ARCH_WINDOWSCE) && !defined(_X86_)) || (defined(QT_ARCH_SPARC) && defined(Q_CC_GNU)) || (defined(QT_ARCH_INTEGRITY) && !defined(_X86_))
+             // non-16-bit aligned memory access is not possible on PowerPC,
+             // ARM <v6 (QT_ARCH_ARMV5) & SH & AVR32 & SPARC w/GCC
+             quint16 spix = (quint16(src[2])<<8) + src[1];
+--- qt.old/src/corelib/global/qglobal.h	2012-10-24 14:37:19.038105912 +0800
++++ qt/src/corelib/global/qglobal.h	2012-10-24 14:37:37.150107921 +0800
+@@ -1159,7 +1159,7 @@
+ 
+ typedef int QNoImplicitBoolCast;
+ 
+-#if defined(QT_ARCH_ARM) || defined(QT_ARCH_ARMV6) || defined(QT_ARCH_AVR32) || (defined(QT_ARCH_MIPS) && (defined(Q_WS_QWS) || defined(Q_WS_QPA) || defined(Q_OS_WINCE))) || defined(QT_ARCH_SH) || defined(QT_ARCH_SH4A)
++#if defined(QT_ARCH_ARM) || defined(QT_ARCH_BFIN) || defined(QT_ARCH_ARMV6) || defined(QT_ARCH_AVR32) || (defined(QT_ARCH_MIPS) && (defined(Q_WS_QWS) || defined(Q_WS_QPA) || defined(Q_OS_WINCE))) || defined(QT_ARCH_SH) || defined(QT_ARCH_SH4A)
+ #define QT_NO_FPU
+ #endif
+ 

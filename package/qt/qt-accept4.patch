@@ -1,0 +1,11 @@
+--- qt.old/src/network/socket/qnet_unix_p.h	2012-10-23 18:50:37.226356298 +0800
++++ qt/src/network/socket/qnet_unix_p.h	2012-10-23 18:36:36.902106371 +0800
+@@ -118,7 +118,7 @@
+     int sockflags = SOCK_CLOEXEC;
+     if (flags & O_NONBLOCK)
+         sockflags |= SOCK_NONBLOCK;
+-    fd = ::accept4(s, addr, static_cast<QT_SOCKLEN_T *>(addrlen), sockflags);
++    fd = QtLibcSupplement::accept4(s, addr, static_cast<QT_SOCKLEN_T *>(addrlen), sockflags);
+     if (fd != -1 || !(errno == ENOSYS || errno == EINVAL))
+         return fd;
+ #endif
