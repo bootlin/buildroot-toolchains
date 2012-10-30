@@ -21,7 +21,7 @@
 +QMAKE_LINK = 
 +QMAKE_CXX = 
 +QMAKE_CC = 
-+
++QMAKE_LIBS_DYNLOAD =
 +
 +load(qt_config)
 +
