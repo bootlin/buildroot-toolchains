@@ -61,7 +61,9 @@ if ! [ -d $(TARGET_DIR)/home ]; then \
 	mkdir -p $(TARGET_DIR)/home; \
 fi
 $(foreach package_install, $(BFIN_CANNED_DEMOS_INSTALL), $(call $(package_install)$(sep)))
-ln -sf -s index.htm $(TARGET_DIR)/home/httpd/index.html
+if [ -f $(TARGET_DIR)/home/httpd/index.html ]; then \
+	ln -sf index.htm $(TARGET_DIR)/home/httpd/index.html; \
+fi
 endef
 
 define BFIN_CANNED_DEMOS_CLEAN_CMDS
