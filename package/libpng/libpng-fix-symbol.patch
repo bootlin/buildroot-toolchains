@@ -1,0 +1,12 @@
+diff --git a/Makefile.in b/Makefile.in
+index 1518831..0849db1 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -1219,6 +1219,7 @@ libpng.sym: png.h pngconf.h
+ 		's|^.*PNG_FUNCTION_EXPORT[ 	]*\([$(AN)]*\).*$$|$(SYMBOL_PREFIX)\1|p' \
+ 		-e 's|^.*PNG_DATA_EXPORT[ 	]*\([$(AN)]*\).*$$|$(SYMBOL_PREFIX)\1|p' \
+ 			>$@.new
++	$(SED) -n -i 's|^_\([$(AN)]*\)|\1|p' $@.new
+ 	mv $@.new $@
+ 
+ libpng.vers: libpng.sym
