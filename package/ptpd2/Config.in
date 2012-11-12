@@ -1,7 +1,0 @@
-config BR2_PACKAGE_PTPD2
-	bool "ptpd v2"
-	help
-	  Precision Time Protocol (PTP) as defined by the IEEE 1588 standard version 2
-	  plus support for Linux hardware timestamp API.
-
-	  https://github.com/richardcochran/ptpd-phc
