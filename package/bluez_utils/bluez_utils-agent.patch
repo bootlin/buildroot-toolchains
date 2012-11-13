@@ -1,20 +1,55 @@
---- bluez_utils/Makefile.in	2012-03-05 17:04:30.000000000 +0800
-+++ bluez_utils.agent/Makefile.in	2012-08-30 17:51:26.138123587 +0800
-@@ -392,7 +392,8 @@
- @TOOLS_TRUE@	tools/ciptool$(EXEEXT)
- @READLINE_TRUE@@TOOLS_TRUE@am__EXEEXT_2 = attrib/gatttool$(EXEEXT)
- @DFUTOOL_TRUE@am__EXEEXT_3 = tools/dfutool$(EXEEXT)
--@TEST_TRUE@am__EXEEXT_4 = test/l2test$(EXEEXT) test/rctest$(EXEEXT)
-+@TEST_TRUE@am__EXEEXT_4 = test/l2test$(EXEEXT) test/rctest$(EXEEXT) \
-+@TEST_TRUE@	test/bdaddr$(EXEEXT) test/agent$(EXEEXT)
- @HIDD_TRUE@am__EXEEXT_5 = compat/hidd$(EXEEXT)
- @PAND_TRUE@am__EXEEXT_6 = compat/pand$(EXEEXT)
- @DUND_TRUE@am__EXEEXT_7 = compat/dund$(EXEEXT)
-@@ -410,7 +411,6 @@
- @TEST_TRUE@	test/scotest$(EXEEXT) test/attest$(EXEEXT) \
- @TEST_TRUE@	test/hstest$(EXEEXT) test/avtest$(EXEEXT) \
- @TEST_TRUE@	test/ipctest$(EXEEXT) test/lmptest$(EXEEXT) \
--@TEST_TRUE@	test/bdaddr$(EXEEXT) test/agent$(EXEEXT) \
- @TEST_TRUE@	test/btiotest$(EXEEXT) test/test-textfile$(EXEEXT) \
- @TEST_TRUE@	test/uuidtest$(EXEEXT) test/mpris-player$(EXEEXT) \
- @TEST_TRUE@	$(am__EXEEXT_12)
+diff --git a/Makefile.am b/Makefile.am
+index 1c214c6..eca9449 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -441,21 +441,6 @@ endif
+ 
+ unit_objects =
+ 
+-if TEST
+-unit_tests = unit/test-eir
+-
+-noinst_PROGRAMS += $(unit_tests)
+-
+-unit_test_eir_SOURCES = unit/test-eir.c src/eir.c src/glib-helper.c
+-unit_test_eir_LDADD = lib/libbluetooth-private.la @GLIB_LIBS@ @CHECK_LIBS@
+-unit_test_eir_CFLAGS = $(AM_CFLAGS) @CHECK_CFLAGS@
+-unit_objects += $(unit_test_eir_OBJECTS)
+-else
+-unit_tests =
+-endif
+-
+-TESTS = $(unit_tests)
+-
+ pkgconfigdir = $(libdir)/pkgconfig
+ 
+ pkgconfig_DATA = bluez.pc
+diff --git a/Makefile.tools b/Makefile.tools
+index 5b1efb8..6caa595 100644
+--- a/Makefile.tools
++++ b/Makefile.tools
+@@ -160,9 +160,9 @@ endif
+ if TEST
+ sbin_PROGRAMS += test/hciemu
+ 
+-bin_PROGRAMS += test/l2test test/rctest
++sbin_PROGRAMS += test/l2test test/rctest
+ 
+-noinst_PROGRAMS += test/gaptest test/sdptest test/scotest \
++sbin_PROGRAMS += test/gaptest test/sdptest test/scotest \
+ 			test/attest test/hstest test/avtest test/ipctest \
+ 					test/lmptest test/bdaddr test/agent \
+ 					test/btiotest test/test-textfile \
+diff --git a/acinclude.m4 b/acinclude.m4
+index 1d6d736..36fbe85 100644
+--- a/acinclude.m4
++++ b/acinclude.m4
+@@ -387,7 +387,7 @@ AC_DEFUN([AC_ARG_BLUEZ], [
+ 	AM_CONDITIONAL(PAND, test "${pand_enable}" = "yes")
+ 	AM_CONDITIONAL(DUND, test "${dund_enable}" = "yes")
+ 	AM_CONDITIONAL(CUPS, test "${cups_enable}" = "yes")
+-	AM_CONDITIONAL(TEST, test "${test_enable}" = "yes" && test "${check_found}" = "yes")
++	AM_CONDITIONAL(TEST, test "${test_enable}" = "yes")
+ 	AM_CONDITIONAL(TOOLS, test "${tools_enable}" = "yes")
+ 	AM_CONDITIONAL(BCCMD, test "${bccmd_enable}" = "yes")
+ 	AM_CONDITIONAL(PCMCIA, test "${pcmcia_enable}" = "yes")

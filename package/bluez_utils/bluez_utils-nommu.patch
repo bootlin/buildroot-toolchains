@@ -301,3 +301,19 @@
  }
  
  /* Wait for disconnect or error condition on the socket */
+diff --git a/compat/pand.c b/compat/pand.c
+index e56887c..40cde69 100644
+--- a/compat/pand.c
++++ b/compat/pand.c
+@@ -262,7 +262,11 @@ static int do_listen(void)
+ 			continue;
+ 		}
+ 
++#ifdef __NOMMU__
++		switch (vfork()) {
++#else
+ 		switch (fork()) {
++#endif
+ 		case 0:
+ 			break;
+ 		case -1:
