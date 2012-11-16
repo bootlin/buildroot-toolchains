@@ -1,0 +1,4 @@
+config BR2_PACKAGE_COREBLD
+	bool "Core B support tools"
+	help
+	  Core B support tools
