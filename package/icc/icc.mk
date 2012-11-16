@@ -105,7 +105,7 @@ icc-install: icc-build $(ICC_DIR)/.stamp_install
 icc-build: icc-extract  $(ICC_DIR)/.stamp_build 
 
 
-icc-extract: linux $(ICC_DIR)/.stamp_unpacked
+icc-extract: linux libmcapi $(ICC_DIR)/.stamp_unpacked
 
 icc-clean: $(ICC_DIR)/.stamp_clean
 
