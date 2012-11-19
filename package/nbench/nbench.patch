@@ -1,25 +1,23 @@
 diff --git a/Makefile b/Makefile
-index 5045c77..1e565f4 100644
+index 5045c77..fa276bc 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -20,6 +20,7 @@
- # compiled into the executable.
- 
- CC = gcc
-+HOST_CC = gcc
- 
- # generic options for gcc
- CFLAGS = -s -static -Wall -O3
-@@ -119,7 +120,7 @@
+@@ -119,12 +119,9 @@ emfloat.o: emfloat.h emfloat.c nmglobal.h pointer.h Makefile
+ 	$(CC) $(MACHINE) $(DEFINES) $(CFLAGS)\
  		-c emfloat.c
  
- pointer.h: pointer Makefile
+-pointer.h: pointer Makefile
 -	$(CC) $(MACHINE) $(DEFINES) $(CFLAGS)\
-+	$(HOST_CC) $(MACHINE) $(DEFINES) $(HOST_CFLAGS)\
- 		-o pointer pointer.c
+-		-o pointer pointer.c
++pointer.h: Makefile
  	rm -f pointer.h
- 	if [ "4" = `./pointer` ] ; then touch pointer.h ;\
-@@ -151,3 +150,9 @@ clean:
+-	if [ "4" = `./pointer` ] ; then touch pointer.h ;\
+-	else echo "#define LONG64" >pointer.h ; fi
++	touch pointer.h
+ 
+ misc.o: misc.h misc.c Makefile
+ 	$(CC) $(MACHINE) $(DEFINES) $(CFLAGS)\
+@@ -151,3 +148,9 @@ clean:
  
  mrproper: clean
  	- /bin/rm -f nbench
@@ -29,10 +27,3 @@ index 5045c77..1e565f4 100644
 +	if [ ! -d $(BASE)/bin ]; then mkdir $(BASE)/bin; fi
 +	if [ ! -d $(BASE)/lib ]; then mkdir $(BASE)/lib; fi
 +	cp nbench COM.DAT NNET.DAT $(BASE)/bin
-diff --git a/pointer.h b/pointer.h
-new file mode 100644
-index 0000000..0badd44
---- /dev/null
-+++ b/pointer.h
-@@ -0,0 +1 @@
-+#define LONG64
