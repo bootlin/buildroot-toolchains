@@ -1,0 +1,44 @@
+#! /bin/sh
+
+# Update the bootloaders as necessary
+
+. /etc/init.d/functions.sh
+
+begin "Checking bootloaders"
+
+at91boot_hash=$(fw_printenv -n at91boot_md5) 2> /dev/null
+new_at91boot_hash=$(md5sum /usr/share/netcom/dataflash_at91sam9m10g45ek.bin | cut -d ' ' -f 1)
+
+if [ "$at91boot_hash" != "$new_at91boot_hash" ]; then
+  information "Updating at91bootstrap from $at91boot_hash to $new_at91boot_hash"
+  warning "Do not turn off during update."
+  flash_erase /dev/mtd/at91bootstrap 0 0 && \
+  flashcp /usr/share/netcom/dataflash_at91sam9m10g45ek.bin /dev/mtd/at91bootstrap && \
+  fw_setenv at91boot_md5 $new_at91boot_hash && \
+  information "Done" && reboot=1 || error "Failed" && \
+  logger -t bootstrap -p err "Failed to update at91bootstrap"
+fi
+
+
+uboot_hash=$(fw_printenv -n uboot_md5) 2> /dev/null
+new_uboot_hash=$(md5sum /usr/share/netcom/u-boot.bin | cut -d ' ' -f 1)
+
+if [ "$uboot_hash" != "$new_uboot_hash" ]; then
+  echo timer > /sys/class/leds/pwr-lan/trigger
+  echo 50 > /sys/class/leds/pwr-lan/delay_on
+  echo 50 > /sys/class/leds/pwr-lan/delay_off
+  information "Updating u-boot from $uboot_hash to $new_uboot_hash"
+  warning "Do not turn off during update."
+  flash_erase /dev/mtd/u-boot 0 0 && \
+  flashcp /usr/share/netcom/u-boot.bin /dev/mtd/u-boot && \
+  fw_setenv uboot_md5 $new_uboot_hash && \
+  information "Done" && reboot=1 || error "Failed" && \
+  logger -t bootstrap -p err "Failed to update u-boot"
+  echo network > /sys/class/leds/pwr-lan/trigger
+fi
+
+[ "$reboot" == "1" ] && reboot
+
+end $?
+
+exit 0
