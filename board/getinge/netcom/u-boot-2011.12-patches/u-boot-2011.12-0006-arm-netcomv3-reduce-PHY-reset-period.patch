@@ -1,0 +1,13 @@
+Index: b/board/getinge/netcomv3/netcomv3.c
+===================================================================
+--- a/board/getinge/netcomv3/netcomv3.c	2012-11-22 10:46:55.930179027 +0100
++++ b/board/getinge/netcomv3/netcomv3.c	2012-11-22 10:55:23.577783257 +0100
+@@ -169,7 +169,7 @@
+ 	erstl = readl(&rstc->mr) & AT91_RSTC_MR_ERSTL_MASK;
+ 
+ 	/* Need to reset PHY -> 500ms reset */
+-	writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(13) |
++	writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(8) |
+ 		AT91_RSTC_MR_URSTEN, &rstc->mr);
+ 
+ 	writel(AT91_RSTC_KEY | AT91_RSTC_CR_EXTRST, &rstc->cr);

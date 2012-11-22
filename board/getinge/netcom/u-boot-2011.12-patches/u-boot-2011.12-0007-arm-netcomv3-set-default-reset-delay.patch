@@ -1,0 +1,27 @@
+Index: b/board/getinge/netcomv3/netcomv3.c
+===================================================================
+--- a/board/getinge/netcomv3/netcomv3.c	2012-11-22 11:55:22.436447272 +0100
++++ b/board/getinge/netcomv3/netcomv3.c	2012-11-22 11:55:48.028693016 +0100
+@@ -193,6 +193,13 @@
+ }
+ #endif
+ 
++static void getinge_netcomv3_reset_delay_init(void)
++{
++	struct at91_rstc *rstc = (struct at91_rstc *)ATMEL_BASE_RSTC;
++
++        writel(AT91_RSTC_KEY | AT91_RSTC_MR_ERSTL(0) |
++                AT91_RSTC_MR_URSTEN, &rstc->mr);
++}
+ int board_early_init_f(void)
+ {
+ 	at91_seriald_hw_init();
+@@ -230,6 +237,8 @@
+ #ifdef CONFIG_CMD_LED
+ 	getinge_netcomv3_led_init();
+ #endif
++        /* Set default reset delay */
++	getinge_netcomv3_reset_delay_init();
+ 
+ 	/* Ensure that the ACKUPD interrupt hasn't remained enabled by
+ 	   Linux. Booting a Linux kernel with this interrupt enabled
