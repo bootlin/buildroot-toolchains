@@ -10,17 +10,21 @@ at91boot_ver=$(fw_printenv -n at91boot_ver) 2> /dev/null
 new_at91boot_ver=$(cat /usr/share/netcom/dataflash_at91sam9m10g45ek.ver)
 
 if [ "$at91boot_ver" != "$new_at91boot_ver" ]; then
-  [ -e /usr/sbin/flashcp ] || \
-    logger -t bootstrap -p err "Failed - Flashcp missing" &&\
+  if [ ! -e /usr/sbin/flashcp ]; then
+    logger -t bootstrap -p err "Failed - Flashcp missing"
     error "Failed"
+  fi
   information "Updating at91bootstrap from version: $at91boot_ver to version: $new_at91boot_ver"
   warning "Do not turn off during update."
   flash_erase /dev/mtd/at91bootstrap 0 0 && \
   flashcp /usr/share/netcom/dataflash_at91sam9m10g45ek.bin /dev/mtd/at91bootstrap && \
-  fw_setenv at91boot_ver $new_at91boot_ver && \
-  information "Done" && reboot=1 || \
-    logger -t bootstrap -p err "Failed to update at91bootstrap" && \
+  fw_setenv at91boot_ver $new_at91boot_ver
+  if [ $? -eq 0 ]; then
+    information "Done" && reboot=1
+  else
+    logger -t bootstrap -p err "Failed to update at91bootstrap"
     error "Failed to update at91bootstrap"
+  fi
 fi
 
 
@@ -38,10 +42,13 @@ if [ "$uboot_ver" != "$new_uboot_ver" ]; then
   warning "Do not turn off during update."
   flash_erase /dev/mtd/u-boot 0 0 && \
   flashcp /usr/share/netcom/u-boot.bin /dev/mtd/u-boot && \
-  fw_setenv uboot_ver $new_uboot_ver && \
-  information "Done" && reboot=1 || \
-    logger -t bootstrap -p err "Failed to update u-boot" && \
-    error "Failed"
+  fw_setenv uboot_ver $new_uboot_ver
+  if [ $? -eq 0 ]; then
+    information "Done" && reboot=1
+  else
+    logger -t bootstrap -p err "Failed to update u-boot"
+    error "Failed to update u-boot"
+  fi
   echo network > /sys/class/leds/pwr-lan/trigger
   echo none > /sys/class/leds/error/trigger
 fi
