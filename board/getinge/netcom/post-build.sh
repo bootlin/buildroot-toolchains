@@ -57,8 +57,9 @@ ln -sf /etc/init.d/netcom-common ${TARGETDIR}/etc/init.d/S70telnetd
 # Patch the bootloader file size as required by the exception vector sanity check
 #   when writing the bootloader from userspace (this writes the filesize into position 20)
 #   This is normally done by sam-ba when the dataflash is written during production
+#   (be careful to use /bin/echo - sometimes the built-in echo acts differently)
 binSize=`stat -c%s ${IMAGEDIR}/dataflash_at91sam9m10g45ek.bin | awk '{printf "%08x", $0}'` && \
-  echo -en `echo $binSize | sed -r 's/(..)(..)(..)(..)/\\\\x\4\\\\x\3\\\\x\2\\\\x\1/g'` | \
+  /bin/echo -en `/bin/echo $binSize | sed -r 's/(..)(..)(..)(..)/\\\\x\4\\\\x\3\\\\x\2\\\\x\1/g'` | \
   dd of=${IMAGEDIR}/dataflash_at91sam9m10g45ek.bin obs=1 seek=20 conv=block,notrunc cbs=4
 
 # Add bootloader binaries to the image
