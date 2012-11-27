@@ -1,0 +1,4 @@
+config BR2_PACKAGE_NMI_WDT_TEST
+	bool "nmi wdt test"
+	help
+	  nmi wdt test suite
