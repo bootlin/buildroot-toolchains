@@ -17,6 +17,7 @@ define V4L2_VIDEO_TEST_INSTALL_TARGET_CMDS
 	fi
 	$(INSTALL) -D -m 0755 $(@D)/v4l2_video_capture $(TARGET_DIR)/bin/
 	$(INSTALL) -D -m 0755 $(@D)/v4l2_video_display $(TARGET_DIR)/bin/
+	$(INSTALL) -D -m 0755 $(@D)/v4l2_video_loopback $(TARGET_DIR)/bin/
 endef
 
 define V4L2_VIDEO_TEST_CLEAN_CMDS
@@ -26,6 +27,7 @@ endef
 define V4L2_VIDEO_TEST_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/bin/v4l2_video_capture
 	rm -f $(TARGET_DIR)/bin/v4l2_video_display
+	rm -f $(TARGET_DIR)/bin/v4l2_video_loopback
 endef
 
 $(eval $(generic-package))
