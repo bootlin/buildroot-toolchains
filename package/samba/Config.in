@@ -27,7 +27,6 @@ menu "Samba tools selection"
 
 config BR2_PACKAGE_SAMBA_EVENTLOGADM
 	bool "eventlogadm"
-	default y
 	help
 	  Write Eventlog records to a tdb or perform other eventlog functions
 
@@ -45,132 +44,111 @@ comment "findsmb       - disabled (requires nmblookup, smbclient and perl)"
 
 config BR2_PACKAGE_SAMBA_NET
 	bool "net"
-	default y
 	help
 	  Distributed SMB/CIFS Server Management Utility
 
 config BR2_PACKAGE_SAMBA_NMBD
 	bool "nmbd"
-	default y
 	help
 	  NetBIOS name server to provide NetBIOS over IP naming services
 	  to clients
 
 config BR2_PACKAGE_SAMBA_NMBLOOKUP
 	bool "nmblookup"
-	default y
 	help
 	  Query NetBIOS names and map them to IP addresses in a network
 	  using NetBIOS over TCP/IP queries
 
 config BR2_PACKAGE_SAMBA_NTLM_AUTH
 	bool "ntlm_auth"
-	default y
 	help
 	  Helper utility that authenticates users using NT/LM authentication
 
 config BR2_PACKAGE_SAMBA_PDBEDIT
 	bool "pdbedit"
-	default y
 	help
 	  Manage the SAM database (Database of Samba Users)
 
 config BR2_PACKAGE_SAMBA_PROFILES
 	bool "profiles"
-	default y
 	help
 	  Utility that reports and changes SIDs in Windows NT registry files
 
 config BR2_PACKAGE_SAMBA_RPCCLIENT
 	bool "rpcclient"
 	select BR2_PACKAGE_READLINE
-	default y
 	help
 	  Tool for executing client side MS-RPC functions using RPC
 	  calls from a UNIX workstation.
 
 config BR2_PACKAGE_SAMBA_SMBCACLS
 	bool "smbcacls"
-	default y
 	help
 	  Set or get ACLs on an NT file or directory names
 
 config BR2_PACKAGE_SAMBA_SMBCLIENT
 	bool "smbclient"
 	select BR2_PACKAGE_READLINE
-	default y
 	help
 	  ftp-like client to access SMB/CIFS resources on servers
 
 config BR2_PACKAGE_SAMBA_SMBCONTROL
 	bool "smbcontrol"
-	default y
 	help
 	  Send messages to smbd, nmbd or winbindd processes
 
 config BR2_PACKAGE_SAMBA_SMBCQUOTAS
 	bool "smbcquotas"
-	default y
 	help
 	  Set or get QUOTAs of NTFS 5 shares
 
 config BR2_PACKAGE_SAMBA_SMBD
 	bool "smbd"
-	default y
 	help
 	  The server daemon that provides filesharing and printing services
 
 config BR2_PACKAGE_SAMBA_SMBGET
 	bool "smbget"
-	default y
 	help
 	  wget-like utility for download files over SMB
 
 config BR2_PACKAGE_SAMBA_SMBLDBTOOLS
 	bool "smbldbtools"
-	default y
 	help
 	  ldbadd ldbdel ldbedit ldbmodify ldbrename ldbsearch tools
 
 config BR2_PACKAGE_SAMBA_SMBPASSWD
 	bool "smbpasswd"
-	default y
 	help
 	  Change a user's SMB passwd
 
 config BR2_PACKAGE_SAMBA_SMBSHARESEC
 	bool "smbsharesec"
-	default y
 	help
 	  Manipulate share permissions on SMB file shares
 
 config BR2_PACKAGE_SAMBA_SMBSPOOL
 	bool "smbspool"
-	default y
 	help
 	  Send a print file to an SMB printer
 
 config BR2_PACKAGE_SAMBA_SMBSTATUS
 	bool "smbstatus"
-	default y
 	help
 	  Report on current Samba connections
 
 config BR2_PACKAGE_SAMBA_SMBTREE
 	bool "smbtree"
-	default y
 	help
 	  A text based smb network browser
 
 config BR2_PACKAGE_SAMBA_SWAT
 	bool "swat"
-	default y
 	help
 	  Samba Web Administration Tool
 
 config BR2_PACKAGE_SAMBA_SMBTAR
 	bool "smbtar"
-	default y
 	depends on BR2_PACKAGE_SAMBA_SMBCLIENT
 	help
 	  tar-like script that wraps smbclient
@@ -180,25 +158,21 @@ comment "smbtar        - disabled (requires smbclient)"
 
 config BR2_PACKAGE_SAMBA_TDB
 	bool "tdb"
-	default y
 	help
 	  Tools to operate on the .tdb database files
 
 config BR2_PACKAGE_SAMBA_TESTPARM
 	bool "testparm"
-	default y
 	help
 	  Check an smb.conf configuration file for internal correctness
 
 config BR2_PACKAGE_SAMBA_WINBINDD
 	bool "winbindd"
-	default y
 	help
 	  Name Service Switch daemon for resolving names from NT servers
 
 config BR2_PACKAGE_SAMBA_WBINFO
 	bool "wbinfo"
-	default y
 	depends on BR2_PACKAGE_SAMBA_WINBINDD
 	help
 	  Query information from winbind daemon
