@@ -217,9 +217,10 @@ endif
 define LINUX_BUILD_CMDS
 	$(if $(BR2_TARGET_ROOTFS_INITRAMFS),
 	# Remove the any previously generated initramfs if do recompilation.
-		$(RM) -f $(BINARIES_DIR)/rootfs.initramfs
-		$(RM) -f $(@D)/usr/initramfs_data.cpio*
-		touch $(BINARIES_DIR)/rootfs.initramfs)
+		$(RM) -f $(BINARIES_DIR)/rootfs.cpio
+		$(RM) -f $(@D)/usr/initramfs_data.*
+		$(RM) -f $(@D)/.stamp_initramfs_rebuilt
+		touch $(BINARIES_DIR)/rootfs.cpio)
 	$(if $(BR2_LINUX_KERNEL_USE_CUSTOM_DTS),
 		cp $(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH) $(KERNEL_ARCH_PATH)/boot/dts/)
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) $(LINUX_IMAGE_NAME)
