@@ -17,6 +17,7 @@ DIRECTFB_CONF_OPT = \
 	--enable-zlib \
 	--enable-freetype \
 	--enable-fbdev \
+	--disable-devmem \
 	--disable-sysfs \
 	--disable-sdl \
 	--disable-vnc \

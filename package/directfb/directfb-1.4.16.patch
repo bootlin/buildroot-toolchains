@@ -1,0 +1,23 @@
+--- directfb-1.4.16/src/core/windowstack.c	2012-03-20 13:21:09.000000000 -0400
++++ ./windowstack.c	2012-12-05 13:50:04.580818334 -0500
+@@ -132,15 +132,18 @@
+ static void
+ stack_containers_remove(CoreWindowStack *p)
+ {
+-     Stack_Container    *stack_cntr = NULL;
++     Stack_Container    *stack_cntr = NULL, *tmp;
+ 
+      D_DEBUG_AT( Core_WindowStack, "Enter:%s()\n", __FUNCTION__);
+ 
+      pthread_mutex_lock( &stack_containers_lock );
+ 
+-     direct_list_foreach(stack_cntr, stack_containers) {
++     for (stack_cntr = (Stack_Container *)stack_containers;
++		     direct_list_check_link((DirectLink*)(stack_cntr));
++		     stack_cntr = tmp) {
+           if((void *)p == stack_cntr->ctx) {
+                direct_list_remove(&stack_containers, &stack_cntr->link);
++	       tmp = (Stack_Container *)(((DirectLink*)stack_cntr)->next);
+                D_FREE(stack_cntr);
+           }
+      }
