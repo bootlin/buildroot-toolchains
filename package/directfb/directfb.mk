@@ -17,7 +17,6 @@ DIRECTFB_CONF_OPT = \
 	--enable-zlib \
 	--enable-freetype \
 	--enable-fbdev \
-	--disable-devmem \
 	--disable-sysfs \
 	--disable-sdl \
 	--disable-vnc \
@@ -51,6 +50,12 @@ ifeq ($(BR2_PACKAGE_DIRECTFB_UNIQUE),y)
 DIRECTFB_CONF_OPT += --enable-unique
 else
 DIRECTFB_CONF_OPT += --disable-unique
+endif
+
+ifeq ($(BR2_PACKAGE_DIRECTFB_DEVMEM),y)
+DIRECTFB_CONF_OPT += --enable-devmem
+else
+DIRECTFB_CONF_OPT += --disable-devmem
 endif
 
 DIRECTFB_GFX := \
