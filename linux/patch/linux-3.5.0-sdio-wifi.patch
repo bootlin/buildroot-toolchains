@@ -1,0 +1,17 @@
+diff --git a/drivers/net/wireless/libertas/if_sdio.c b/drivers/net/wireless/libertas/if_sdio.c
+index 8a3d301..f4e9110 100644
+--- a/drivers/net/wireless/libertas/if_sdio.c
++++ b/drivers/net/wireless/libertas/if_sdio.c
+@@ -941,6 +941,12 @@ static int if_sdio_host_to_card(struct lbs_private *priv,
+ 
+ 	lbs_deb_enter_args(LBS_DEB_SDIO, "type %d, bytes %d", type, nb);
+ 
++	/*
++	 * Workaround for getting IP address fail through DHCP.
++	 * Because the data is sent too fast to sdio-wifi card.
++	 */
++	mdelay(20);
++
+ 	card = priv->card;
+ 
+ 	if (nb > (65536 - sizeof(struct if_sdio_packet) - 4)) {
