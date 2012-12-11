@@ -16,4 +16,5 @@ INETUTILS_CONF_OPT = \
 		     --enable-rcp \
 		     --enable-rsh \
 		     --enable-rshd
+INETUTILS_DEPENDENCIES  += host-automake
 $(eval $(autotools-package))
