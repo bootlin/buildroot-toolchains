@@ -1,0 +1,5 @@
+config BR2_PACKAGE_RTC_TEST
+	bool "rtc test"
+	help
+	  Blackfin rtc test suite
+
