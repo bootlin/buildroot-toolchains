@@ -10,7 +10,7 @@ LINUXPTP_SITE_METHOD = git
 define LINUXPTP_BUILD_CMDS
 	$(MAKE) CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS)" LDFLAGS="$(TARGET_LDFLAGS)" -C $(@D)
 	$(TARGET_CC) $(TARGET_CFLAGS) $(TARGET_LDFLAGS) -o $(TOPDIR)/linux/linux-kernel/Documentation/ptp/testptp \
-		-lrt $(TOPDIR)/linux/linux-kernel/Documentation/ptp/testptp.c
+		$(TOPDIR)/linux/linux-kernel/Documentation/ptp/testptp.c -lrt
 endef
 
 define LINUXPTP_INSTALL_TARGET_CMDS
