@@ -3,26 +3,23 @@
 # linphone
 #
 #############################################################
-LINPHONE_VERSION = 3.5.2
-LINPHONE_SITE = http://download-mirror.savannah.gnu.org/releases/linphone/3.5.x/sources/
+LINPHONE_VERSION = 3.3.2
+LINPHONE_SITE = http://download-mirror.savannah.gnu.org/releases/linphone/3.3.x/sources/
 LINPHONE_CONF_OPT = \
-	--enable-external-ortp \
-	--enable-external-mediastreamer
+	--enable-fast-install
 
 LINPHONE_DEPENDENCIES = host-pkg-config ortp mediastreamer libeXosip2 speex
 
-ifeq ($(BR2_BFIN), y)
+ifeq ($(BR2_bfin), y)
 LINPHONE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -fno-strict-aliasing -ffast-math -mfast-fp -Wl,--defsym,__stacksize=0x40000"
 LINPHONE_CONF_OPT += \
-	--without-crypto \
-	--enable-external-ortp \
-	--enable-external-mediastreamer \
 	--without-crypto \
 	--enable-portaudio=no \
 	--enable-gtk_ui=no \
 	--disable-manual \
 	--disable-strict \
 	--disable-glib \
+	--disable-video \
 	--enable-ipv6=no \
 	--disable-shared \
 	--enable-static \

@@ -1,5 +1,6 @@
---- linphone/mediastreamer2/include/mediastreamer2/allfilters.h
-+++ linphone.bfin/mediastreamer2/include/mediastreamer2/allfilters.h
+diff -urN linphone-3.3.2/mediastreamer2/include/mediastreamer2/allfilters.h linphone/mediastreamer2/include/mediastreamer2/allfilters.h
+--- linphone-3.3.2/mediastreamer2/include/mediastreamer2/allfilters.h	2012-12-20 18:27:05.865068936 -0500
++++ linphone/mediastreamer2/include/mediastreamer2/allfilters.h	2012-12-20 18:19:55.701058807 -0500
 @@ -45,6 +45,8 @@
  	MS_SPEEX_DEC_ID,
  	MS_GSM_ENC_ID,
@@ -9,8 +10,9 @@
  	MS_V4L_ID,
  	MS_SDL_OUT_ID,
  	MS_H263_ENC_ID,
---- linphone/mediastreamer2/src/g729.c
-+++ linphone.bfin/mediastreamer2/src/g729.c
+diff -urN linphone-3.3.2/mediastreamer2/src/g729.c linphone/mediastreamer2/src/g729.c
+--- linphone-3.3.2/mediastreamer2/src/g729.c	1969-12-31 19:00:00.000000000 -0500
++++ linphone/mediastreamer2/src/g729.c	2012-12-20 18:36:14.137068345 -0500
 @@ -0,0 +1,264 @@
 +/*
 +mediastreamer2 library - modular sound and video processing and streaming
@@ -276,46 +278,47 @@
 +
 +MS_FILTER_DESC_EXPORT(ms_g729_dec_desc)
 +MS_FILTER_DESC_EXPORT(ms_g729_enc_desc)
---- linphone/mediastreamer2/src/Makefile.in
-+++ linphone.bfin/mediastreamer2/src/Makefile.in
-@@ -134,7 +134,7 @@
- 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2) \
+diff -urN linphone-3.3.2/mediastreamer2/src/Makefile.in linphone/mediastreamer2/src/Makefile.in
+--- linphone-3.3.2/mediastreamer2/src/Makefile.in	2012-12-20 18:40:31.843634415 -0500
++++ linphone/mediastreamer2/src/Makefile.in	2012-12-20 18:19:55.701058807 -0500
+@@ -121,7 +121,7 @@
  	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
- 	$(am__DEPENDENCIES_3)
--am__libmediastreamer_la_SOURCES_DIST = mscommon.c gitversion.h \
-+am__libmediastreamer_la_SOURCES_DIST = g729.c mscommon.c gitversion.h \
- 	msfilter.c msqueue.c msticker.c eventqueue.c alaw.c ulaw.c \
- 	mssndcard.c msrtp.c dtmfgen.c ice.c tee.c msconf.c msjoin.c \
- 	g711common.h msvolume.c mswebcam.c mtu.c void.c dsptools.c \
-@@ -193,7 +193,7 @@
- @BUILD_VIDEO_TRUE@	msvideo_neon.lo rfc3984.lo mire.lo \
- @BUILD_VIDEO_TRUE@	extdisplay.lo layouts.lo nowebcam.lo \
- @BUILD_VIDEO_TRUE@	videostream.lo
--am_libmediastreamer_la_OBJECTS = mscommon.lo $(am__objects_1) \
-+am_libmediastreamer_la_OBJECTS = g729.lo mscommon.lo $(am__objects_1) \
- 	msfilter.lo msqueue.lo msticker.lo eventqueue.lo alaw.lo \
- 	ulaw.lo mssndcard.lo msrtp.lo dtmfgen.lo ice.lo tee.lo \
- 	msconf.lo msjoin.lo msvolume.lo mswebcam.lo mtu.lo void.lo \
-@@ -510,7 +510,7 @@
- CLEANFILES = alldescs.h filterdescs.txt $(GITVERSION_FILE)
+ 	$(am__DEPENDENCIES_2) $(am__DEPENDENCIES_1) \
+ 	$(am__DEPENDENCIES_1)
+-am__libmediastreamer_la_SOURCES_DIST = mscommon.c msfilter.c msqueue.c \
++am__libmediastreamer_la_SOURCES_DIST = g729.c mscommon.c msfilter.c msqueue.c \
+ 	msticker.c eventqueue.c alaw.c ulaw.c mssndcard.c msrtp.c \
+ 	dtmfgen.c ice.c tee.c msconf.c msjoin.c g711common.h \
+ 	msvolume.c mswebcam.c mtu.c void.c dsptools.c kiss_fft.c \
+@@ -159,7 +159,7 @@
+ @BUILD_FFMPEG_TRUE@@BUILD_VIDEO_TRUE@	videoout.lo h264dec.lo
+ @BUILD_VIDEO_TRUE@am__objects_18 = msvideo.lo rfc3984.lo mire.lo \
+ @BUILD_VIDEO_TRUE@	extdisplay.lo videostream.lo
+-am_libmediastreamer_la_OBJECTS = mscommon.lo msfilter.lo msqueue.lo \
++am_libmediastreamer_la_OBJECTS = g729.lo mscommon.lo msfilter.lo msqueue.lo \
+ 	msticker.lo eventqueue.lo alaw.lo ulaw.lo mssndcard.lo \
+ 	msrtp.lo dtmfgen.lo ice.lo tee.lo msconf.lo msjoin.lo \
+ 	msvolume.lo mswebcam.lo mtu.lo void.lo dsptools.lo kiss_fft.lo \
+@@ -434,7 +434,7 @@
+ CLEANFILES = alldescs.h filterdescs.txt
  INCLUDES = -I$(top_srcdir)/include/
  lib_LTLIBRARIES = libmediastreamer.la
--libmediastreamer_la_SOURCES = mscommon.c $(GITVERSION_FILE) msfilter.c \
-+libmediastreamer_la_SOURCES = g729.c mscommon.c $(GITVERSION_FILE) msfilter.c \
- 	msqueue.c msticker.c eventqueue.c alaw.c ulaw.c mssndcard.c \
- 	msrtp.c dtmfgen.c ice.c tee.c msconf.c msjoin.c g711common.h \
+-libmediastreamer_la_SOURCES = mscommon.c msfilter.c msqueue.c \
++libmediastreamer_la_SOURCES = g729.c mscommon.c msfilter.c msqueue.c \
+ 	msticker.c eventqueue.c alaw.c ulaw.c mssndcard.c msrtp.c \
+ 	dtmfgen.c ice.c tee.c msconf.c msjoin.c g711common.h \
  	msvolume.c mswebcam.c mtu.c void.c dsptools.c kiss_fft.c \
-@@ -530,7 +530,7 @@
+@@ -449,7 +449,7 @@
  
  #dummy c++ file to force libtool to use c++ linking (because of msdscap-mingw.cc)
  nodist_EXTRA_libmediastreamer_la_SOURCES = dummy.cxx
 -libmediastreamer_la_LIBADD = $(ORTP_LIBS) $(PORTAUDIO_LIBS) \
 +libmediastreamer_la_LIBADD = -lg729ab $(ORTP_LIBS) $(PORTAUDIO_LIBS) \
  	$(ALSA_LIBS) $(ARTS_LIBS) $(LIBPULSE_LIBS) $(SPEEX_LIBS) \
- 	$(GSM_LIBS) $(LIBV4L1_LIBS) $(LIBV4L2_LIBS) $(SPANDSP_LIBS) \
- 	$(am__append_27) $(am__append_30) $(am__append_31) \
-@@ -655,6 +655,7 @@
- @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/layouts.Plo@am__quote@
+ 	$(GSM_LIBS) $(LIBV4L1_LIBS) $(LIBV4L2_LIBS) $(am__append_19) \
+ 	$(am__append_20) $(am__append_21)
+@@ -562,6 +562,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kiss_fftr.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/macsnd.Plo@am__quote@
  @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mire.Plo@am__quote@
 +@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/g729.Plo@am__quote@
