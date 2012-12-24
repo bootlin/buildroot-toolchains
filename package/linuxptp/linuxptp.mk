@@ -3,7 +3,7 @@
 # linuxptp
 #
 #############################################################
-LINUXPTP_VERSION = HEAD
+LINUXPTP_VERSION = 480f9e7d7a981e86903c6a60e158b79b1bd07416
 LINUXPTP_SITE = http://git.code.sf.net/p/linuxptp/code
 LINUXPTP_SITE_METHOD = git
 
