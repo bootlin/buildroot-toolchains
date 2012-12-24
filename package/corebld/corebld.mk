@@ -18,6 +18,8 @@ define COREBLD_INSTALL_TARGET_CMDS
 	fi
 	$(INSTALL) -D -m 0755 $(@D)/corebld $(TARGET_DIR)/bin/
 	cp -a $(@D)/test_module/dualcore_test.ko $(TARGET_DIR)/lib/modules
+	cp -a $(@D)/example/test_cpp $(TARGET_DIR)/usr/bin
+	cp -a $(@D)/example/test_c $(TARGET_DIR)/usr/bin
 endef
 
 define COREBLD_CLEAN_CMDS
