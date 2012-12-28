@@ -6,6 +6,10 @@ menuconfig BR2_PACKAGE_BFIN_CANNED_DEMOS
 
 if BR2_PACKAGE_BFIN_CANNED_DEMOS
 
+choice
+	prompt "demos to choose"
+	default BR2_PACKAGE_USER_NDSO
+
 config BR2_PACKAGE_USER_NDSO
         bool "Networked Software Defined Storage Oscilloscope /dev/sport"
         select BR2_PACKAGE_LIB_LIBPNG
@@ -27,4 +31,5 @@ config BR2_PACKAGE_USER_PPIFPGACGI
 config BR2_PACKAGE_PPIFCDCGI
         bool "CGI based Test Application for the PPI Frame Capture Driver"
 
+endchoice
 endif
