@@ -518,7 +518,7 @@ menu "Getinge packages"
 
 config BR2_PACKAGE_GETINGE_AXIS_SDK_PATH
         string "Path to Axis SDK"
-	default "$(TOPDIR)/../devboard-R2_00"
+	default "$(TOPDIR)/../devboard-R2_00/NetCOM-axis-sdk"
 
 source "package/getinge/gpbr-tool/Config.in"
 source "package/getinge/ipsetd/Config.in"
