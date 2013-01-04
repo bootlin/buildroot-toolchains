@@ -3,20 +3,6 @@ if BR2_TOOLCHAIN_EXTERNAL
 choice
 	prompt "Toolchain"
 
-config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM201103
-	bool "CodeSourcery ARM 2011.03"
-	depends on BR2_arm
-	select BR2_TOOLCHAIN_EXTERNAL_GLIBC
-	select BR2_INSTALL_LIBSTDCPP
-	help
-	  Toolchain for the ARM architecture, from CodeSourcery. It
-	  uses gcc 4.5.2, binutils 2.20.51, glibc 2.13 and gdb 7.2.50,
-	  kernel headers 2.6.38. It has support for the following
-	  variants:
-            - ARMv5TE, little endian, soft-float, glibc
-            - ARMv4T, little endian, soft-float, glibc
-            - ARMv7-A, Thumb 2, little endian, soft-float, glibc
-
 config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM201203
 	bool "Sourcery CodeBench ARM 2012.03"
 	depends on BR2_arm
@@ -37,6 +23,20 @@ config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM201203
 	      Select Cortex-A8, Cortex-A9 or another ARMv7-A core
 	      Select BR2_SOFT_FLOAT
 	      Set BR2_TARGET_OPTIMIZATION to -mthumb
+
+config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM201103
+	bool "CodeSourcery ARM 2011.03"
+	depends on BR2_arm
+	select BR2_TOOLCHAIN_EXTERNAL_GLIBC
+	select BR2_INSTALL_LIBSTDCPP
+	help
+	  Toolchain for the ARM architecture, from CodeSourcery. It
+	  uses gcc 4.5.2, binutils 2.20.51, glibc 2.13 and gdb 7.2.50,
+	  kernel headers 2.6.38. It has support for the following
+	  variants:
+            - ARMv5TE, little endian, soft-float, glibc
+            - ARMv4T, little endian, soft-float, glibc
+            - ARMv7-A, Thumb 2, little endian, soft-float, glibc
 
 config BR2_TOOLCHAIN_EXTERNAL_CODESOURCERY_ARM201009
 	bool "CodeSourcery ARM 2010.09"

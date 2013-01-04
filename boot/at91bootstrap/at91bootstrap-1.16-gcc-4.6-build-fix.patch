@@ -1,0 +1,13 @@
+Index: b/elf32-littlearm.lds
+===================================================================
+--- a/elf32-littlearm.lds
++++ b/elf32-littlearm.lds
+@@ -6,7 +6,7 @@
+         . = ALIGN(4);
+ 	.text : { 
+ 		_stext = .;
+-		*(.text)
++		*(.text*)
+ 		*(.rodata)                 /* read-only data (constants) */
+ 		*(.rodata*)
+ 		. = ALIGN(4);
