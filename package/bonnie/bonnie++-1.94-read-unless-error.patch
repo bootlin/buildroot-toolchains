@@ -15,7 +15,7 @@
  #else
 -      if(to_read != read(fd, static_cast<void *>(m_buf), to_read))
 +      pbuf = m_buf;
-+      while ((size = read(fd, static_cast<void *>(pbuf), to_read)) > 0) {
++      while (to_read > 0 && (size = read(fd, static_cast<void *>(pbuf), to_read)) > 0) {
 +        pbuf = (void *)((unsigned int)pbuf + size);
 +        to_read -= size;
 +      }
