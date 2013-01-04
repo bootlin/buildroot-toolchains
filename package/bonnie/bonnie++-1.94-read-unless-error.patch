@@ -1,0 +1,25 @@
+--- bonnie-1.94/bon_file.cpp.old	2013-01-04 15:15:42.438106328 +0800
++++ bonnie-1.94/bon_file.cpp	2013-01-04 15:28:25.678106487 +0800
+@@ -622,6 +622,8 @@
+       fd = -1;
+ #else
+     int flags = O_RDONLY;
++    int size;
++    void * pbuf;
+ #ifdef WIN32
+     flags |= O_BINARY;
+ #endif
+@@ -642,7 +644,12 @@
+       rc = DosRead(fd, PVOID(m_buf), to_read, &actual);
+       if(to_read != actual || rc)
+ #else
+-      if(to_read != read(fd, static_cast<void *>(m_buf), to_read))
++      pbuf = m_buf;
++      while ((size = read(fd, static_cast<void *>(pbuf), to_read)) > 0) {
++        pbuf = (void *)((unsigned int)pbuf + size);
++        to_read -= size;
++      }
++      if (to_read > 0)
+ #endif
+       {
+         fprintf(stderr, "Can't read data.\n");
