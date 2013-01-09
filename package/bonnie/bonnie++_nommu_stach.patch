@@ -1,18 +1,16 @@
 --- bonnie-1.94/Makefile.in.old	2012-07-05 14:19:35.562103394 +0800
 +++ bonnie-1.94/Makefile.in	2012-07-05 14:20:09.042352804 +0800
-@@ -9,9 +9,10 @@
- eprefix=@exec_prefix@
+@@ -9,8 +9,8 @@
  #MORE_WARNINGS=-Weffc++ -Wcast-align
  WFLAGS=-Wall -W -Wshadow -Wpointer-arith -Wwrite-strings -pedantic -ffor-scope $(MORE_WARNINGS)
 -CFLAGS=-O2 @debug@ -DNDEBUG $(WFLAGS) $(MORECFLAGS)
-+CFLAGS=-O2 @debug@ -DNDEBUG $(WFLAGS) $(MORECFLAGS) @CFLAGS@
++CFLAGS+=-O2 @debug@ -DNDEBUG $(WFLAGS) $(MORECFLAGS)
  CXX=@CXX@ $(CFLAGS)
  LINK=@CXX@
-+LDFLAGS=@LDFLAGS@
  THREAD_LFLAGS=@thread_ldflags@
  
  INSTALL=@INSTALL@
-@@ -34,7 +35,7 @@
+@@ -34,7 +34,7 @@
  GETCHOBJS=$(GETCHSRC:.cpp=.o)
  
  bonnie++: $(BONOBJS)
