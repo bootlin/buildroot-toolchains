@@ -5,7 +5,7 @@
 #############################################################
 PPI_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/ppi-test
 PPI_TEST_SITE_METHOD = svn
-PPI_TEST_VERSION = HEAD
+PPI_TEST_VERSION = 10832
 
 define PPI_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

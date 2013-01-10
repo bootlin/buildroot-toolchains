@@ -5,7 +5,7 @@
 #############################################################
 SQLITE_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/sqlite_test
 SQLITE_TEST_SITE_METHOD = svn
-SQLITE_TEST_VERSION = HEAD
+SQLITE_TEST_VERSION = 10832
 
 
 define SQLITE_TEST_BUILD_CMDS

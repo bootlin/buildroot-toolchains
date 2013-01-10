@@ -5,7 +5,7 @@
 #############################################################
 SRAM_ALLOC_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/sram-alloc-test
 SRAM_ALLOC_TEST_SITE_METHOD = svn
-SRAM_ALLOC_TEST_VERSION = HEAD
+SRAM_ALLOC_TEST_VERSION = 10832
 
 define SRAM_ALLOC_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

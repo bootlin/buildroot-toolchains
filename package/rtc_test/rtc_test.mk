@@ -5,7 +5,7 @@
 #############################################################
 RTC_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/rtc-test
 RTC_TEST_SITE_METHOD = svn
-RTC_TEST_VERSION = HEAD
+RTC_TEST_VERSION = 10832
 
 define RTC_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

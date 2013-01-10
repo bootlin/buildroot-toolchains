@@ -5,7 +5,7 @@
 #############################################################
 TWI_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/twi_test
 TWI_TEST_SITE_METHOD = svn
-TWI_TEST_VERSION = HEAD
+TWI_TEST_VERSION = 10832
 
 define TWI_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MODULE_DIR=$(BASE_DIR)/build/twi_test-$(TWI_TEST_VERSION)  

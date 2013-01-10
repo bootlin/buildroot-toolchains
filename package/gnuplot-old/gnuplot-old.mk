@@ -5,7 +5,7 @@
 #############################################################
 GNUPLOT_OLD_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/gnuplot
 GNUPLOT_OLD_SITE_METHOD = svn
-GNUPLOT_OLD_VERSION = HEAD
+GNUPLOT_OLD_VERSION = 10832
 GNUPLOT_OLD_DEPENDENCIES = libpng zlib
 
 GNUPLOT_OLD_EXTRA_CFLAGS = -I. -DSHORT_TERMLIST -DHAVE_GETCWD

@@ -5,7 +5,7 @@
 #############################################################
 PTHREAD_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/pthread_test
 PTHREAD_TEST_SITE_METHOD = svn
-PTHREAD_TEST_VERSION = HEAD
+PTHREAD_TEST_VERSION = 10832
 
 
 PTH_LDFLAGS = $(TARGET_LDFLAGS) -lpthread

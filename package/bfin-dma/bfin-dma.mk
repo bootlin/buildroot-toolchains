@@ -5,7 +5,7 @@
 #############################################################
 BFIN_DMA_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/bfin-dma
 BFIN_DMA_SITE_METHOD = svn
-BFIN_DMA_VERSION = HEAD
+BFIN_DMA_VERSION = 10832
 
 define BFIN_DMA_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

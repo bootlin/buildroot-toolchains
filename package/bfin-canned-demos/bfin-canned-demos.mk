@@ -5,7 +5,7 @@
 #############################################################
 BFIN_CANNED_DEMOS_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/ndso
 BFIN_CANNED_DEMOS_SITE_METHOD = svn
-BFIN_CANNED_DEMOS_VERSION = HEAD
+BFIN_CANNED_DEMOS_VERSION = 10832
 
 BFIN_CANNED_DEMOS_TARGET =
 BFIN_CANNED_DEMOS_INSTALL =

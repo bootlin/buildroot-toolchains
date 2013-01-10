@@ -5,7 +5,7 @@
 #############################################################
 CRC_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/crc_test
 CRC_TEST_METHOD = svn
-CRC_TEST_VERSION = HEAD
+CRC_TEST_VERSION = 10832
 
 define CRC_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

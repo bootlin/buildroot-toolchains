@@ -4,7 +4,7 @@
 #
 #############################################################
 
-STRACE_VERSION = HEAD
+STRACE_VERSION = 10832
 STRACE_SITE_METHOD = svn
 STRACE_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/strace
 

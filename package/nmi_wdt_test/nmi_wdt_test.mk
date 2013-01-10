@@ -5,7 +5,7 @@
 #############################################################
 NMI_WDT_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/nmi_wdt_test
 NMI_WDT_TEST_SITE_METHOD = svn
-NMI_WDT_TEST_VERSION = HEAD
+NMI_WDT_TEST_VERSION = 10832
 
 define NMI_WDT_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MODULE_DIR=$(BASE_DIR)/build/nmi_wdt_test-$(NMI_WDT_TEST_VERSION)

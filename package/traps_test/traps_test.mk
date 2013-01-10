@@ -5,7 +5,7 @@
 #############################################################
 TRAPS_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/crash_test
 TRAPS_TEST_SITE_METHOD = svn
-TRAPS_TEST_VERSION = HEAD
+TRAPS_TEST_VERSION = 10832
 
 define TRAPS_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

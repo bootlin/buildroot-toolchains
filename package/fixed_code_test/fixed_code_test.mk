@@ -5,7 +5,7 @@
 #############################################################
 FIXED_CODE_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/fixed_code_test
 FIXED_CODE_TEST_SITE_METHOD = svn
-FIXED_CODE_TEST_VERSION = HEAD
+FIXED_CODE_TEST_VERSION = 10832
 
 define FIXED_CODE_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

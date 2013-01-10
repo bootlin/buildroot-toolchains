@@ -5,7 +5,7 @@
 #############################################################
 EVENT_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/event_test
 EVENT_TEST_SITE_METHOD = svn
-EVENT_TEST_VERSION = HEAD
+EVENT_TEST_VERSION = 10832
 
 define EVENT_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

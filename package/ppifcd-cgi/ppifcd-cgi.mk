@@ -5,7 +5,7 @@
 #############################################################
 PPIFCD_CGI_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/ppifcd-cgi
 PPIFCD_CGI_SITE_METHOD = svn
-PPIFCD_CGI_VERSION = HEAD
+PPIFCD_CGI_VERSION = 10832
 
 define PPIFCD_CGI_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/src

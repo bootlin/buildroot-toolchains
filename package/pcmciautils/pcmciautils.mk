@@ -5,7 +5,7 @@
 #############################################################
 PCMCIAUTILS_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/pcmciautils/pcmciautils-015
 PCMCIAUTILS_SITE_METHOD = svn
-PCMCIAUTILS_VERSION = HEAD
+PCMCIAUTILS_VERSION = 10832
 
 PCMCIAUTILS_DEPENDENCIES = libsysfs
 

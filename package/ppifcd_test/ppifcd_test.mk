@@ -5,7 +5,7 @@
 #############################################################
 PPIFCD_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/ppifcd-test
 PPIFCD_TEST_SITE_METHOD = svn
-PPIFCD_TEST_VERSION = HEAD
+PPIFCD_TEST_VERSION = 10832
 
 
 define PPIFCD_TEST_BUILD_CMDS
