@@ -5,7 +5,7 @@
 #############################################################
 COREBLD_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/corebld
 COREBLD_SITE_METHOD = svn
-COREBLD_VERSION = HEAD
+COREBLD_VERSION = 10834
 COREBLD_DEPENDENCIES = linux
 
 define COREBLD_BUILD_CMDS
