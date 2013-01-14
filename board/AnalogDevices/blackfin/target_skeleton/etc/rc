@@ -40,7 +40,7 @@ mkdir /var/tmp /var/log /var/run /var/lock /var/lib /var/run/dbus
 #
 # Give temp files a read/write location not in flash/etc...
 #
-mount -t tmpfs tmp /tmp -o nosuid,nodev
+mount -t tmpfs tmp /tmp -o nosuid,nodev,mode=777
 
 #
 # Needed if you plan on doing anything USB related
