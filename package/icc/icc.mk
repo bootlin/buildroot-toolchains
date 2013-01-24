@@ -5,7 +5,7 @@
 #############################################################
 ICC_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/icc_utils
 ICC_SITE_METHOD = svn
-ICC_VERSION = 10834
+ICC_VERSION = 10836
 ICC_DL_VERSION = $(ICC_VERSION)
 ICC_BASE_NAME=icc-$(ICC_VERSION)
 ICC_DL_DIR=$(DL_DIR)/$(ICC_BASE_NAME)
