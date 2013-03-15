@@ -302,9 +302,8 @@ $(2)_TARGET_CONFIGURE =		$$($(2)_DIR)/.stamp_configured
 ifneq ($$($(2)_OVERRIDE_RSYNC),)
 $(2)_TARGET_RSYNC =		$$($(2)_DIR)/.stamp_rsynced
 $(2)_TARGET_RSYNC_SOURCE =	$$($(2)_DIR)/.stamp_rsync_sourced
-else
-$(2)_TARGET_PATCH =		$$($(2)_DIR)/.stamp_patched
 endif
+$(2)_TARGET_PATCH =		$$($(2)_DIR)/.stamp_patched
 $(2)_TARGET_EXTRACT =		$$($(2)_DIR)/.stamp_extracted
 $(2)_TARGET_SOURCE =		$$($(2)_DIR)/.stamp_downloaded
 $(2)_TARGET_UNINSTALL =		$$($(2)_DIR)/.stamp_uninstalled
@@ -395,16 +394,16 @@ $(1)-configure:		$(1)-depends \
 			$$($(2)_TARGET_CONFIGURE)
 
 ifneq ($$($(2)_OVERRIDE_RSYNC),)
-$(1)-depends:          $(1)-rsync $$($(2)_DEPENDENCIES)
+$(1)-depends:		$(1)-patch $(1)-rsync $$($(2)_DEPENDENCIES)
 
-$(1)-rsync:            $$($(2)_TARGET_RSYNC)
+$(1)-rsync:		$$($(2)_TARGET_RSYNC)
 else
 $(1)-depends:		$(1)-patch $$($(2)_DEPENDENCIES)
+endif
 
 $(1)-patch:		$$($(2)_TARGET_PATCH)
 
 $(1)-unpatch:		$$($(2)_TARGET_UNPATCH)
-endif
 endif
 
 $(1)-show-depends:
