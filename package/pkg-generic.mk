@@ -402,9 +402,9 @@ else
 $(1)-depends:		$(1)-patch $$($(2)_DEPENDENCIES)
 
 $(1)-patch:		$$($(2)_TARGET_PATCH)
-endif
 
 $(1)-unpatch:		$$($(2)_TARGET_UNPATCH)
+endif
 endif
 
 $(1)-show-depends:
