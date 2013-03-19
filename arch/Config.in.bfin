@@ -1,19 +1,9 @@
-config BR2_ABI_FLAT
-	bool
-	default n
-
-config BR2_ABI_ELF
-	bool
-	default y
-	depends on !BR2_ABI_FLAT
-
 choice
 	prompt "Target ABI"
 	depends on BR2_bfin
 	default BR2_BFIN_FDPIC
 config BR2_BFIN_FDPIC
 	bool "FDPIC"
-	select BR2_ABI_ELF
 config BR2_BFIN_FLAT
 	bool "FLAT"
 	select BR2_ABI_FLAT

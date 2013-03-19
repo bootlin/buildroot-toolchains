@@ -116,26 +116,14 @@ TARGET_CPPFLAGS += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS
 endif
 
 ifneq ($(BR2_USE_MMU), y)
-TARGET_CFLAGS += -D__NOMMU__ -D__uClinux__
+TARGET_CFLAGS += -D__NOMMU__
 endif
 
 TARGET_CXXFLAGS = $(TARGET_CFLAGS)
 TARGET_LDFLAGS = $(call qstrip,$(BR2_TARGET_LDFLAGS))
 
-ifeq ($(BR2_ABI_FLAT),y)
+ifeq ($(BR2_TARGET_ABI_FLAT),y)
 TARGET_LDFLAGS += -Wl,-elf2flt
-endif
-
-ifeq ($(BR2_BFIN_FLAT_SEP_DATA),y)
-TARGET_LDFLAGS += -msep-data
-TARGET_CFLAGS += -msep-data
-TARGET_CXXFLAGS += -msep-data
-endif
-
-ifeq ($(BR2_BFIN_SHARED_FLAT), y)
-TARGET_LDFLAGS += -mid-shared-library -mshared-library-id=0
-TARGET_CFLAGS += -mid-shared-library -mshared-library-id=0
-TARGET_CXXFLAGS += -mid-shared-library -mshared-library-id=0
 endif
 
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_CTNG),y)
