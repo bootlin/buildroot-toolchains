@@ -15,7 +15,7 @@ define NBENCH_CONFIGURE_CMDS
 	touch $@
 endef
 
-ifeq ($(BR2_ABI_FLAT),y)
+ifeq ($(BR2_TARGET_ABI_FLAT),y)
 LINKFLAGS=$(TARGET_LDFLAGS) -Wl,-elf2flt=-s64000
 else
 LINKFLAGS=$(TARGET_LDFLAGS)

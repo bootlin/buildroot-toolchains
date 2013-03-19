@@ -8,7 +8,7 @@ STRACE_VERSION = HEAD
 STRACE_SITE_METHOD = svn
 STRACE_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/strace
 
-ifeq ($(BR2_ABI_FLAT),y)
+ifeq ($(BR2_TARGET_ABI_FLAT),y)
 STRACE_FLT_CONF_ENV = LDFLAGS="$(TARGET_LDFLAGS) -Wl,-elf2flt=-s0x5000"
 endif
 

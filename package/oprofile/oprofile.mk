@@ -14,7 +14,7 @@ OPROFILE_BINARIES = utils/ophelp pp/opannotate pp/oparchive pp/opgprof
 OPROFILE_BINARIES += pp/opreport opjitconv/opjitconv daemon/oprofiled
 OPROFILE_BINARIES += utils/op-check-perfevents pe_profiling/operf libabi/opimport
 
-ifeq ($(BR2_ABI_FLAT),y)
+ifeq ($(BR2_TARGET_ABI_FLAT),y)
 OPROFILE_CONF_ENV = LDFLAGS="$(TARGET_LDFLAGS) -Wl,-elf2flt=-s64000"
 endif
 
