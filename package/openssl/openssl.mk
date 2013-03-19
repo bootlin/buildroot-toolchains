@@ -4,7 +4,7 @@
 #
 #############################################################
 
-OPENSSL_VERSION = 1.0.0j
+OPENSSL_VERSION = 1.0.1e
 OPENSSL_SITE = http://www.openssl.org/source
 OPENSSL_LICENSE = OpenSSL or SSLeay
 OPENSSL_LICENSE_FILES = LICENSE
@@ -12,6 +12,15 @@ OPENSSL_INSTALL_STAGING = YES
 OPENSSL_DEPENDENCIES = zlib
 OPENSSL_TARGET_ARCH = generic32
 OPENSSL_CFLAGS = $(TARGET_CFLAGS)
+
+ifeq ($(BR2_PACKAGE_OPENSSL_BIN),)
+define OPENSSL_DISABLE_APPS
+	$(SED) '/^build_apps/! s/build_apps//' $(@D)/Makefile.org
+	$(SED) '/^DIRS=/ s/apps//' $(@D)/Makefile.org
+endef
+endif
+
+OPENSSL_PRE_CONFIGURE_HOOKS += OPENSSL_DISABLE_APPS
 
 ifeq ($(BR2_PACKAGE_OPENSSL_OCF),y)
 	OPENSSL_CFLAGS += -DHAVE_CRYPTODEV -DUSE_CRYPTODEV_DIGESTS
@@ -29,7 +38,10 @@ endif
 endif
 endif
 ifeq ($(ARCH),powerpc)
+# 4xx cores seem to have trouble with openssl's ASM optimizations
+ifeq ($(BR2_powerpc_401)$(BR2_powerpc_403)$(BR2_powerpc_405)$(BR2_powerpc_405fp)$(BR2_powerpc_440)$(BR2_powerpc_440fp),)
 	OPENSSL_TARGET_ARCH = ppc
+endif
 endif
 ifeq ($(ARCH),x86_64)
 	OPENSSL_TARGET_ARCH = x86_64
@@ -64,8 +76,7 @@ define OPENSSL_CONFIGURE_CMDS
 endef
 
 define OPENSSL_BUILD_CMDS
-	$(MAKE1) -C $(@D) all build-shared
-	$(MAKE1) -C $(@D) do_linux-shared
+	$(MAKE1) -C $(@D)
 endef
 
 define OPENSSL_INSTALL_STAGING_CMDS
@@ -82,14 +93,6 @@ endef
 
 ifneq ($(BR2_HAVE_DEVFILES),y)
 OPENSSL_POST_INSTALL_TARGET_HOOKS += OPENSSL_REMOVE_DEV_FILES
-endif
-
-define OPENSSL_REMOVE_OPENSSL_BIN
-	rm -f $(TARGET_DIR)/usr/bin/openssl
-endef
-
-ifneq ($(BR2_PACKAGE_OPENSSL_BIN),y)
-OPENSSL_POST_INSTALL_TARGET_HOOKS += OPENSSL_REMOVE_OPENSSL_BIN
 endif
 
 define OPENSSL_INSTALL_FIXUPS

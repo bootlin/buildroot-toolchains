@@ -10,19 +10,21 @@ LUA_INSTALL_STAGING = YES
 LUA_LICENSE = MIT
 LUA_LICENSE_FILES = COPYRIGHT
 
-LUA_CFLAGS = -Wall
-ifeq ($(BR2_PACKAGE_LUA_SHARED_LIBRARY),y)
-	LUA_CFLAGS += -fPIC
-endif
-
+LUA_CFLAGS = -Wall -fPIC
 LUA_MYLIBS += -ldl
 
 ifeq ($(BR2_PACKAGE_LUA_INTERPRETER_READLINE),y)
 	LUA_DEPENDENCIES = readline ncurses
 	LUA_MYLIBS += -lreadline -lhistory -lncurses
-	LUA_CFLAGS += -DLUA_USE_LINUX
+	LUA_CFLAGS += -DLUA_USE_POSIX -DLUA_USE_DLOPEN -DLUA_USE_READLINE
+else
+ifeq ($(BR2_PACKAGE_LUA_INTERPRETER_LINENOISE),y)
+	LUA_DEPENDENCIES = linenoise
+	LUA_MYLIBS += -llinenoise
+	LUA_CFLAGS += -DLUA_USE_POSIX -DLUA_USE_DLOPEN -DLUA_USE_LINENOISE
 else
 	LUA_CFLAGS += -DLUA_USE_POSIX -DLUA_USE_DLOPEN
+endif
 endif
 
 # We never want to have host-readline and host-ncurses as dependencies
@@ -46,50 +48,20 @@ define HOST_LUA_BUILD_CMDS
 	PKG_VERSION=$(LUA_VERSION) -C $(@D)/src all
 endef
 
-ifeq ($(BR2_PACKAGE_LUA_SHARED_LIBRARY),y)
-define LUA_INSTALL_STAGING_SHARED_LIB
-	$(INSTALL) -m 0755 -D $(@D)/src/liblua.so.$(LUA_VERSION) \
-		$(STAGING_DIR)/usr/lib/liblua.so.$(LUA_VERSION)
-	ln -sf liblua.so.$(LUA_VERSION) $(STAGING_DIR)/usr/lib/liblua.so
-endef
-endif
-
 define LUA_INSTALL_STAGING_CMDS
 	$(INSTALL) -m 0644 -D $(@D)/etc/lua.pc \
 		$(STAGING_DIR)/usr/lib/pkgconfig/lua.pc
-	$(INSTALL) -m 0644 -D $(@D)/src/liblua.a $(STAGING_DIR)/usr/lib/liblua.a
 	$(INSTALL) -m 0755 -D $(@D)/src/lua $(STAGING_DIR)/usr/bin/lua
 	$(INSTALL) -m 0755 -D $(@D)/src/luac $(STAGING_DIR)/usr/bin/luac
+	$(INSTALL) -m 0755 -D $(@D)/src/liblua.so.$(LUA_VERSION) \
+		$(STAGING_DIR)/usr/lib/liblua.so.$(LUA_VERSION)
+	ln -sf liblua.so.$(LUA_VERSION) $(STAGING_DIR)/usr/lib/liblua.so
+	$(INSTALL) -m 0644 -D $(@D)/src/liblua.a $(STAGING_DIR)/usr/lib/liblua.a
 	$(INSTALL) -m 0644 -D $(@D)/src/lua.h $(STAGING_DIR)/usr/include/lua.h
 	$(INSTALL) -m 0644 -D $(@D)/src/luaconf.h $(STAGING_DIR)/usr/include/luaconf.h
 	$(INSTALL) -m 0644 -D $(@D)/src/lualib.h $(STAGING_DIR)/usr/include/lualib.h
 	$(INSTALL) -m 0644 -D $(@D)/src/lauxlib.h $(STAGING_DIR)/usr/include/lauxlib.h
 endef
-
-ifeq ($(BR2_PACKAGE_LUA_INTERPRETER),y)
-define LUA_INSTALL_INTERPRETER
-	$(INSTALL) -m 0755 -D $(@D)/src/lua $(TARGET_DIR)/usr/bin/lua
-endef
-endif
-
-ifeq ($(BR2_PACKAGE_LUA_COMPILER),y)
-define LUA_INSTALL_COMPILER
-	$(INSTALL) -m 0755 -D $(@D)/src/luac $(TARGET_DIR)/usr/bin/luac
-endef
-endif
-
-ifeq ($(BR2_PACKAGE_LUA_SHARED_LIBRARY),y)
-define LUA_INSTALL_LIBRARY
-	$(INSTALL) -m 0755 -D $(@D)/src/liblua.so.$(LUA_VERSION) \
-		$(TARGET_DIR)/usr/lib/liblua.so.$(LUA_VERSION)
-	ln -sf liblua.so.$(LUA_VERSION) $(TARGET_DIR)/usr/lib/liblua.so
-	$(INSTALL) -m 0644 -D $(@D)/src/liblua.a $(TARGET_DIR)/usr/lib/liblua.a
-endef
-else
-define LUA_INSTALL_LIBRARY
-	$(INSTALL) -m 0644 -D $(@D)/src/liblua.a $(TARGET_DIR)/usr/lib/liblua.a
-endef
-endif
 
 ifeq ($(BR2_HAVE_DEVFILES),y)
 define LUA_INSTALL_DEVFILES
@@ -102,10 +74,14 @@ define LUA_INSTALL_DEVFILES
 endef
 endif
 
+
 define LUA_INSTALL_TARGET_CMDS
-	$(LUA_INSTALL_INTERPRETER)
-	$(LUA_INSTALL_COMPILER)
-	$(LUA_INSTALL_LIBRARY)
+	$(INSTALL) -m 0755 -D $(@D)/src/lua $(TARGET_DIR)/usr/bin/lua
+	$(INSTALL) -m 0755 -D $(@D)/src/luac $(TARGET_DIR)/usr/bin/luac
+	$(INSTALL) -m 0755 -D $(@D)/src/liblua.so.$(LUA_VERSION) \
+		$(TARGET_DIR)/usr/lib/liblua.so.$(LUA_VERSION)
+	ln -sf liblua.so.$(LUA_VERSION) $(TARGET_DIR)/usr/lib/liblua.so
+	$(INSTALL) -m 0644 -D $(@D)/src/liblua.a $(TARGET_DIR)/usr/lib/liblua.a
 	$(LUA_INSTALL_DEVFILES)
 endef
 

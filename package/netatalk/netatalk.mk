@@ -3,11 +3,13 @@
 # netatalk
 #
 #############################################################
-NETATALK_VERSION = 2.2.2
-NETATALK_SITE = http://downloads.sourceforge.net/project/netatalk/netatalk/$(NETATALK_VERSION)/
+NETATALK_VERSION = 3.0
+NETATALK_SITE = http://downloads.sourceforge.net/project/netatalk/netatalk/$(NETATALK_VERSION)
 NETATALK_SOURCE = netatalk-$(NETATALK_VERSION).tar.bz2
 
-NETATALK_DEPENDENCIES = openssl berkeleydb libgcrypt libgpg-error
+NETATALK_AUTORECONF = YES
+
+NETATALK_DEPENDENCIES = host-pkgconf openssl berkeleydb libgcrypt libgpg-error
 NETATALK_CONF_ENV += CC="$(TARGET_CC) -std=gnu99"
 NETATALK_CONF_OPT += --with-cnid-cdb-backend \
 	--with-bdb=$(STAGING_DIR)/usr \
@@ -16,6 +18,7 @@ NETATALK_CONF_OPT += --with-cnid-cdb-backend \
 	--with-libgcrypt-dir=$(STAGING_DIR)/usr \
 	--with-shadow \
 	--disable-shell-check \
+	--without-kerberos \
 	--without-pam
 
 ifeq ($(BR2_PACKAGE_CUPS),y)

@@ -8,7 +8,7 @@ LINPHONE_SITE = http://download-mirror.savannah.gnu.org/releases/linphone/3.3.x/
 LINPHONE_CONF_OPT = \
 	--enable-fast-install
 
-LINPHONE_DEPENDENCIES = host-pkg-config ortp mediastreamer libeXosip2 speex
+LINPHONE_DEPENDENCIES = host-pkgconf ortp mediastreamer libeXosip2 speex
 
 ifeq ($(BR2_bfin), y)
 LINPHONE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -fno-strict-aliasing -ffast-math -mfast-fp -Wl,--defsym,__stacksize=0x40000"

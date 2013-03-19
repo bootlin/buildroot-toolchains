@@ -3,10 +3,10 @@
 # ofono
 #
 #############################################################
-OFONO_VERSION = 1.6
+OFONO_VERSION = 1.7
 OFONO_SITE = $(BR2_KERNEL_MIRROR)/linux/network/ofono
 OFONO_DEPENDENCIES = \
-	host-pkg-config \
+	host-pkgconf \
 	dbus \
 	libglib2 \
 	libcap-ng \

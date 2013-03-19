@@ -19,10 +19,9 @@ if BR2_LINUX_KERNEL
 #
 choice
 	prompt "Kernel version"
-	default BR2_LINUX_KERNEL_3_4
 
-config BR2_LINUX_KERNEL_3_4
-	bool "3.4.7"
+config BR2_LINUX_KERNEL_3_7
+	bool "3.7.8"
 
 config BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	bool "Same as toolchain kernel headers"
@@ -86,7 +85,7 @@ config BR2_LINUX_KERNEL_CUSTOM_OVERRIDE_PATH
 
 config BR2_LINUX_KERNEL_VERSION
 	string
-	default "3.4.7" if BR2_LINUX_KERNEL_3_4
+	default "3.7.8" if BR2_LINUX_KERNEL_3_7
 	default BR2_DEFAULT_KERNEL_HEADERS if BR2_LINUX_KERNEL_SAME_AS_HEADERS
 	default BR2_LINUX_KERNEL_CUSTOM_VERSION_VALUE if BR2_LINUX_KERNEL_CUSTOM_VERSION
 	default "custom" if BR2_LINUX_KERNEL_CUSTOM_TARBALL || BR2_LINUX_KERNEL_CUSTOM_OVERRIDE
@@ -162,7 +161,8 @@ config BR2_LINUX_KERNEL_BZIMAGE
 
 config BR2_LINUX_KERNEL_ZIMAGE
 	bool "zImage"
-	depends on BR2_arm || BR2_armeb || BR2_powerpc || BR2_sparc || BR2_sh || BR2_sh64 || BR2_xtensa
+	depends on BR2_arm || BR2_armeb || BR2_powerpc || BR2_sparc || \
+		   BR2_sh || BR2_sh64 || BR2_xtensa
 
 config BR2_LINUX_KERNEL_APPENDED_ZIMAGE
 	bool "zImage with appended DT"
@@ -270,11 +270,12 @@ config BR2_LINUX_KERNEL_USE_CUSTOM_DTS
 endchoice
 
 config BR2_LINUX_KERNEL_INTREE_DTS_NAME
-	string "Device Tree Source file name"
+	string "Device Tree Source file names"
 	depends on BR2_LINUX_KERNEL_USE_INTREE_DTS
 	help
 	 Name of the device tree source file, without
-	 the trailing .dts
+	 the trailing .dts. You can provide a list of
+	 dts files to build, separated by spaces.
 
 config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
 	string "Device Tree Source file path"

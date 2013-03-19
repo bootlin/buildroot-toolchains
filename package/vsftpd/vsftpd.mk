@@ -4,9 +4,11 @@
 #
 #############################################################
 
-VSFTPD_VERSION = 2.3.5
+VSFTPD_VERSION = 3.0.2
 VSFTPD_SITE = https://security.appspot.com/downloads
 VSFTPD_LIBS = -lcrypt
+VSFTPD_LICENSE = GPLv2
+VSFTPD_LICENSE_FILES = COPYING
 
 define VSFTPD_ENABLE_SSL
 	$(SED) 's/.*VSF_BUILD_SSL/#define VSF_BUILD_SSL/' $(@D)/builddefs.h
@@ -23,6 +25,11 @@ VSFTPD_DEPENDENCIES += libcap
 VSFTPD_LIBS += -lcap
 endif
 
+ifeq ($(BR2_PACKAGE_LINUX_PAM),y)
+VSFTPD_DEPENDENCIES += linux-pam
+VSFTPD_LIBS += -lpam
+endif
+
 define VSFTPD_BUILD_CMDS
 	$(MAKE) CC="$(TARGET_CC)" CFLAGS="$(TARGET_CFLAGS)" \
 		LDFLAGS="$(TARGET_LDFLAGS)" LIBS="$(VSFTPD_LIBS)" -C $(@D)
@@ -37,6 +44,10 @@ define VSFTPD_INSTALL_TARGET_CMDS
 	test -f $(TARGET_DIR)/etc/init.d/S70vsftpd || \
 		$(INSTALL) -D -m 755 package/vsftpd/vsftpd-init \
 			$(TARGET_DIR)/etc/init.d/S70vsftpd
+	test -f $(TARGET_DIR)/etc/vsftpd.conf || \
+		$(INSTALL) -D -m 644 $(@D)/vsftpd.conf \
+			$(TARGET_DIR)/etc/vsftpd.conf
+	install -d -m 700 $(TARGET_DIR)/usr/share/empty
 endef
 
 define VSFTPD_UNINSTALL_TARGET_CMDS

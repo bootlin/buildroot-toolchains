@@ -4,14 +4,17 @@
 #
 #############################################################
 
-LIBECORE_VERSION = 1.1.0
+LIBECORE_VERSION = 1.7.4
 LIBECORE_SOURCE = ecore-$(LIBECORE_VERSION).tar.bz2
 LIBECORE_SITE = http://download.enlightenment.org/releases/
+LIBECORE_LICENSE = BSD-2c
+LIBECORE_LICENSE_FILES = COPYING
+
 LIBECORE_INSTALL_STAGING = YES
 
-LIBECORE_DEPENDENCIES = host-pkg-config libeina
+LIBECORE_DEPENDENCIES = host-pkgconf libeina
 
-HOST_LIBECORE_DEPENDENCIES = host-pkg-config host-libeina host-libevas
+HOST_LIBECORE_DEPENDENCIES = host-pkgconf host-libeina host-libevas
 HOST_LIBECORE_CONF_OPT += 		\
 	--enable-ecore-evas 		\
 	--disable-simple-x11 		\
@@ -33,10 +36,16 @@ endif
 
 ifeq ($(BR2_PACKAGE_OPENSSL),y)
 LIBECORE_DEPENDENCIES += openssl
+LIBECORE_CONF_OPT += --enable-openssl
+else
+LIBECORE_CONF_OPT += --disable-openssl
 endif
 
-ifeq ($(BR2_PACKAGE_GNUTLS),y)
-LIBECORE_DEPENDENCIES += gnutls
+ifeq ($(BR2_PACKAGE_GNUTLS)$(BR2_PACKAGE_LIBGCRYPT),yy)
+LIBECORE_DEPENDENCIES += gnutls libgcrypt
+LIBECORE_CONF_OPT += --enable-gnutls --with-libgcrypt-prefix=$(STAGING_DIR)/usr
+else
+LIBECORE_CONF_OPT += --disable-gnutls
 endif
 
 ifeq ($(BR2_PACKAGE_LIBCURL),y)

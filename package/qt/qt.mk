@@ -11,10 +11,10 @@
 #
 ######################################################################
 
-QT_VERSION = 4.8.2
+QT_VERSION = 4.8.4
 QT_SOURCE  = qt-everywhere-opensource-src-$(QT_VERSION).tar.gz
 QT_SITE    = http://releases.qt-project.org/qt4/source
-QT_DEPENDENCIES = host-pkg-config
+QT_DEPENDENCIES = host-pkgconf
 QT_INSTALL_STAGING = YES
 
 ifeq ($(BR2_PACKAGE_QT_LICENSE_APPROVED),y)
@@ -24,7 +24,7 @@ endif
 QT_CONFIG_FILE=$(call qstrip,$(BR2_PACKAGE_QT_CONFIG_FILE))
 
 ifneq ($(QT_CONFIG_FILE),)
-QT_CONFIGURE_OPTS += -config buildroot
+QT_CONFIGURE_OPTS += -qconfig buildroot
 endif
 
 QT_CFLAGS = $(TARGET_CFLAGS)
@@ -66,7 +66,7 @@ endif
 
 
 ### Pixel depths
-QT_PIXEL_DEPTHS := # empty
+QT_PIXEL_DEPTHS = # empty
 ifeq ($(BR2_PACKAGE_QT_PIXEL_DEPTH_1),y)
 QT_PIXEL_DEPTHS += 1
 endif
@@ -425,10 +425,10 @@ else
 QT_CONFIGURE_OPTS += -no-declarative
 endif
 
-# ccache and precompiled headers don't play well together
-ifeq ($(BR2_CCACHE),y)
+# -no-pch is needed to workaround the issue described at
+# http://comments.gmane.org/gmane.comp.lib.qt.devel/5933.
+# In addition, ccache and precompiled headers don't play well together
 QT_CONFIGURE_OPTS += -no-pch
-endif
 
 # x86x86fix
 # Workaround Qt Embedded bug when crosscompiling for x86 under x86 with linux
@@ -441,7 +441,7 @@ endif
 # End of workaround.
 
 # Variable for other Qt applications to use
-QT_QMAKE:=$(HOST_DIR)/usr/bin/qmake -spec qws/linux-$(QT_EMB_PLATFORM)-g++
+QT_QMAKE = $(HOST_DIR)/usr/bin/qmake -spec qws/linux-$(QT_EMB_PLATFORM)-g++
 
 ################################################################################
 # QT_QMAKE_SET -- helper macro to set <variable> = <value> in

@@ -28,12 +28,19 @@
 $(BUILD_DIR)/%/.stamp_downloaded:
 ifeq ($(DL_MODE),DOWNLOAD)
 # Only show the download message if it isn't already downloaded
-	$(Q)(test -e $(DL_DIR)/$($(PKG)_SOURCE) && \
-		(test -z $($(PKG)_PATCH) || test -e $(DL_DIR)$($(PKG)_PATCH))) || \
-		$(call MESSAGE,"Downloading")
+	$(Q)if test ! -e $(DL_DIR)/$($(PKG)_SOURCE); then \
+		$(call MESSAGE,"Downloading") ; \
+	else \
+		for p in $($(PKG)_PATCH) ; do \
+			if test ! -e $(DL_DIR)/$$p ; then \
+				$(call MESSAGE,"Downloading") ; \
+				break ; \
+			fi ; \
+		done ; \
+	fi
 endif
 	$(if $($(PKG)_SOURCE),$(call DOWNLOAD,$($(PKG)_SITE)/$($(PKG)_SOURCE)))
-	$(if $($(PKG)_PATCH),$(call DOWNLOAD,$($(PKG)_SITE)/$($(PKG)_PATCH)))
+	$(foreach p,$($(PKG)_PATCH),$(call DOWNLOAD,$($(PKG)_SITE)/$(p))$(sep))
 	$(foreach hook,$($(PKG)_POST_DOWNLOAD_HOOKS),$(call $(hook))$(sep))
 ifeq ($(DL_MODE),DOWNLOAD)
 	$(Q)mkdir -p $(@D)
@@ -79,7 +86,7 @@ $(BUILD_DIR)/%/.stamp_patched:
 	@$(call MESSAGE,"Patching $($(PKG)_DIR_PREFIX)/$(RAWNAME)")
 	$(Q)mkdir -p $(@D)
 	$(foreach hook,$($(PKG)_PRE_PATCH_HOOKS),$(call $(hook))$(sep))
-	$(if $($(PKG)_PATCH),support/scripts/apply-patches.sh $(@D) $(DL_DIR) $($(PKG)_PATCH))
+	$(foreach p,$($(PKG)_PATCH),support/scripts/apply-patches.sh $(@D) $(DL_DIR) $(p)$(sep))
 	$(Q)( \
 	if test -d $($(PKG)_DIR_PREFIX)/$(RAWNAME); then \
 	  if test "$(wildcard $($(PKG)_DIR_PREFIX)/$(RAWNAME)/$(NAMEVER)*.patch*)"; then \
@@ -122,6 +129,13 @@ $(BUILD_DIR)/%/.stamp_staging_installed:
 	@$(call MESSAGE,"Installing to staging directory")
 	$($(PKG)_INSTALL_STAGING_CMDS)
 	$(foreach hook,$($(PKG)_POST_INSTALL_STAGING_HOOKS),$(call $(hook))$(sep))
+	$(Q)if test -n "$($(PKG)_CONFIG_SCRIPTS)" ; then \
+		$(call MESSAGE,"Fixing package configuration files") ;\
+			$(SED)  "s,^\(exec_\)\?prefix=.*,\1prefix=$(STAGING_DIR)/usr,g" \
+				-e "s,-I/usr/,-I$(STAGING_DIR)/usr/,g" \
+				-e "s,-L/usr/,-L$(STAGING_DIR)/usr/,g" \
+				$(addprefix $(STAGING_DIR)/usr/bin/,$($(PKG)_CONFIG_SCRIPTS)) ;\
+	fi
 	$(Q)touch $@
 
 # Install to images dir
@@ -140,6 +154,11 @@ $(BUILD_DIR)/%/.stamp_target_installed:
 		$($(PKG)_INSTALL_INIT_SYSV))
 	$($(PKG)_INSTALL_TARGET_CMDS)
 	$(foreach hook,$($(PKG)_POST_INSTALL_TARGET_HOOKS),$(call $(hook))$(sep))
+ifeq ($(BR2_HAVE_DEVFILES),)
+	$(Q)if test -n "$($(PKG)_CONFIG_SCRIPTS)" ; then \
+		$(RM) -f $(addprefix $(TARGET_DIR)/usr/bin/,$($(PKG)_CONFIG_SCRIPTS)) ; \
+	fi
+endif
 	$(Q)touch $@
 
 # Unpatch package
@@ -240,7 +259,7 @@ ifndef $(2)_SOURCE
  ifdef $(3)_SOURCE
   $(2)_SOURCE = $($(3)_SOURCE)
  else
-  $(2)_SOURCE			?= $$($(2)_BASE_NAME).tar.gz
+  $(2)_SOURCE			?= $$($(2)_RAWNAME)-$$($(2)_VERSION).tar.gz
  endif
 endif
 
@@ -277,13 +296,22 @@ ifndef $(2)_LICENSE
  endif
 endif
 
+$(2)_LICENSE			?= unknown
+
 ifndef $(2)_LICENSE_FILES
  ifdef $(3)_LICENSE_FILES
   $(2)_LICENSE_FILES = $($(3)_LICENSE_FILES)
  endif
 endif
 
-$(2)_LICENSE			?= unknown
+ifndef $(2)_REDISTRIBUTE
+ ifdef $(3)_REDISTRIBUTE
+  $(2)_REDISTRIBUTE = $($(3)_REDISTRIBUTE)
+ endif
+endif
+
+$(2)_REDISTRIBUTE		?= YES
+
 
 $(2)_DEPENDENCIES ?= $(filter-out $(1),$(patsubst host-host-%,host-%,$(addprefix host-,$($(3)_DEPENDENCIES))))
 
@@ -328,6 +356,7 @@ $(2)_POST_INSTALL_HOOKS         ?=
 $(2)_POST_INSTALL_STAGING_HOOKS ?=
 $(2)_POST_INSTALL_TARGET_HOOKS  ?=
 $(2)_POST_INSTALL_IMAGES_HOOKS  ?=
+$(2)_POST_LEGAL_INFO_HOOKS      ?=
 
 # human-friendly targets and target sequencing
 $(1):			$(1)-install
@@ -395,6 +424,9 @@ $(1)-configure:		$(1)-depends \
 
 ifneq ($$($(2)_OVERRIDE_RSYNC),)
 $(1)-depends:		$(1)-patch $(1)-rsync $$($(2)_DEPENDENCIES)
+
+$(1)-patch:		$(1)-rsync
+$(1)-extract:		$(1)-rsync
 
 $(1)-rsync:		$$($(2)_TARGET_RSYNC)
 else
@@ -466,32 +498,30 @@ $(2)_KCONFIG_VAR = BR2_PACKAGE_$(2)
 endif
 
 # legal-info: declare dependencies and set values used later for the manifest
-ifneq ($$($(2)_LICENSE),PROPRIETARY)
+ifneq ($$($(2)_LICENSE_FILES),)
+$(2)_MANIFEST_LICENSE_FILES = $$($(2)_LICENSE_FILES)
+endif
+$(2)_MANIFEST_LICENSE_FILES ?= not saved
+
+ifeq ($$($(2)_REDISTRIBUTE),YES)
 ifneq ($$($(2)_SITE_METHOD),local)
 ifneq ($$($(2)_SITE_METHOD),override)
 # Packages that have a tarball need it downloaded and extracted beforehand
 $(1)-legal-info: $(1)-extract $(REDIST_SOURCES_DIR)
 $(2)_MANIFEST_TARBALL = $$($(2)_SOURCE)
-ifneq ($$($(2)_LICENSE_FILES),)
-$(2)_MANIFEST_LICENSE_FILES = $$($(2)_LICENSE_FILES)
 endif
 endif
 endif
-endif
-# defaults for packages without tarball or license files
 $(2)_MANIFEST_TARBALL ?= not saved
-$(2)_MANIFEST_LICENSE_FILES ?= not saved
 
 # legal-info: produce legally relevant info.
 $(1)-legal-info:
 # Packages without a source are assumed to be part of Buildroot, skip them.
 ifneq ($(call qstrip,$$($(2)_SOURCE)),)
-ifeq ($$($(2)_LICENSE),PROPRIETARY)
-# Proprietary packages: nothing to save
-else ifeq ($$($(2)_SITE_METHOD),local)
+ifeq ($$($(2)_SITE_METHOD),local)
 # Packages without a tarball: don't save and warn
 	@$(call legal-warning-pkg-savednothing,$$($(2)_RAWNAME),local)
-else ifeq ($$($(2)_SITE_METHOD),override)
+else ifneq ($$($(2)_OVERRIDE_SRCDIR),)
 	@$(call legal-warning-pkg-savednothing,$$($(2)_RAWNAME),override)
 else
 # Other packages
@@ -504,12 +534,15 @@ else
 		$(call legal-license-file,$$($(2)_RAWNAME),$$$${F},$$($(2)_DIR)/$$$${F}); \
 		done
 endif
+ifeq ($$($(2)_REDISTRIBUTE),YES)
 # Copy the source tarball (just hardlink if possible)
 	@cp -l $(DL_DIR)/$$($(2)_SOURCE) $(REDIST_SOURCES_DIR) 2>/dev/null || \
 	   cp $(DL_DIR)/$$($(2)_SOURCE) $(REDIST_SOURCES_DIR)
 endif
+endif
 	@$(call legal-manifest,$$($(2)_RAWNAME),$$($(2)_VERSION),$$($(2)_LICENSE),$$($(2)_MANIFEST_LICENSE_FILES),$$($(2)_MANIFEST_TARBALL))
 endif # ifneq ($(call qstrip,$$($(2)_SOURCE)),)
+	$(foreach hook,$($(2)_POST_LEGAL_INFO_HOOKS),$(call $(hook))$(sep))
 
 # add package to the general list of targets if requested by the buildroot
 # configuration

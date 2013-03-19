@@ -4,7 +4,7 @@
 #
 #############################################################
 
-SQLITE_VERSION = 3071300
+SQLITE_VERSION = 3071401
 SQLITE_SOURCE = sqlite-autoconf-$(SQLITE_VERSION).tar.gz
 SQLITE_SITE = http://www.sqlite.org
 SQLITE_LICENSE = Public domain
@@ -19,6 +19,22 @@ endif
 
 ifeq ($(BR2_PACKAGE_SQLITE_STAT3),y)
 SQLITE_CFLAGS += -DSQLITE_ENABLE_STAT3
+endif
+
+ifeq ($(BR2_PACKAGE_SQLITE_ENABLE_FTS3),y)
+SQLITE_CFLAGS += -DSQLITE_ENABLE_FTS3
+endif
+
+ifeq ($(BR2_PACKAGE_SQLITE_ENABLE_UNLOCK_NOTIFY),y)
+SQLITE_CFLAGS += -DSQLITE_ENABLE_UNLOCK_NOTIFY
+endif
+
+ifeq ($(BR2_PACKAGE_SQLITE_SECURE_DELETE),y)
+SQLITE_CFLAGS += -DSQLITE_SECURE_DELETE
+endif
+
+ifeq ($(BR2_xtensa),y)
+SQLITE_CFLAGS += -mtext-section-literals
 endif
 
 SQLITE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) $(SQLITE_CFLAGS)"

@@ -10,5 +10,6 @@ LIBDVDREAD_SITE = http://dvdnav.mplayerhq.hu/releases
 LIBDVDREAD_AUTORECONF = YES
 LIBDVDREAD_LIBTOOL_PATCH = YES
 LIBDVDREAD_INSTALL_STAGING = YES
+LIBDVDREAD_CONFIG_SCRIPTS = dvdread-config
 
 $(eval $(autotools-package))
