@@ -430,10 +430,11 @@ $(1)-configure:		$(1)-depends \
 ifneq ($$($(2)_OVERRIDE_RSYNC),)
 $(1)-depends:		$(1)-patch $(1)-rsync $$($(2)_DEPENDENCIES)
 
-$(1)-patch:		$(1)-rsync
 $(1)-extract:		$(1)-rsync
 
 $(1)-rsync:		$$($(2)_TARGET_RSYNC)
+
+$(1)-source:		$$($(2)_TARGET_RSYNC_SOURCE)
 else
 $(1)-depends:		$(1)-patch $$($(2)_DEPENDENCIES)
 endif
