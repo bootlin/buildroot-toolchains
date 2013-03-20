@@ -6,24 +6,21 @@ config BR2_BFIN_FDPIC
 	bool "FDPIC"
 config BR2_BFIN_FLAT
 	bool "FLAT"
-	select BR2_ABI_FLAT
 	select BR2_PREFER_STATIC_LIB
 config BR2_BFIN_FLAT_SEP_DATA
 	bool "FLAT (Separate data)"
-	select BR2_ABI_FLAT
 	select BR2_PREFER_STATIC_LIB
 config BR2_BFIN_SHARED_FLAT
 	bool "Shared FLAT"
-	select BR2_ABI_FLAT
 	select BR2_PREFER_STATIC_LIB
 endchoice
 
 choice
-	prompt "Target Architecture Variant"
+	prompt "Target CPU"
 	depends on BR2_bfin
 	default BR2_bf609
 	help
-	  Specific CPU variant to use
+	  Specify target CPU
 config BR2_bf606
 	bool "bf606"
 config BR2_bf607
@@ -82,6 +79,9 @@ config BR2_bf561
 	bool "bf561"
 endchoice
 
+config BR2_TARGET_CPU_REVISION
+	string "Target CPU revision"
+
 config BR2_BFIN_INSTALL_ELF_SHARED
 	depends on BR2_bfin && !BR2_BFIN_FDPIC
 	bool "Install ELF shared libraries"
@@ -128,3 +128,6 @@ config BR2_GCC_TARGET_CPU
 	default bf549		if BR2_bf549
 	default bf561		if BR2_bf561
 
+config BR2_TARGET_ABI_FLAT
+	default n		if BR2_BFIN_FDPIC
+	default y

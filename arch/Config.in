@@ -174,12 +174,8 @@ config BR2_GCC_TARGET_ABI
 config BR2_GCC_TARGET_CPU
 	string
 
-config BR2_GCC_TARGET_CPU_REVISION
-	string "Target CPU revision"
-
 config BR2_TARGET_ABI_FLAT
 	bool
-	default n
 
 if BR2_arm || BR2_armeb
 source "arch/Config.in.arm"
