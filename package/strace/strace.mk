@@ -7,17 +7,12 @@
 STRACE_VERSION = HEAD
 STRACE_SITE_METHOD = svn
 STRACE_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/strace
-
-ifeq ($(BR2_TARGET_ABI_FLAT),y)
-STRACE_FLT_CONF_ENV = LDFLAGS="$(TARGET_LDFLAGS) -Wl,-elf2flt=-s0x5000"
-endif
-
+STRACE_FLAT_STACKSIZE=0x5000
 
 STRACE_CONF_ENV = ac_cv_header_linux_if_packet_h=yes \
 		  ac_cv_header_linux_netlink_h=yes \
 		  ac_cv_have_long_long_off_t=no \
-		  $(if $(BR2_LARGEFILE),ac_cv_type_stat64=yes,ac_cv_type_stat64=no) \
-			$(STRACE_FLT_CONF_ENV)
+		  $(if $(BR2_LARGEFILE),ac_cv_type_stat64=yes,ac_cv_type_stat64=no)
 
 STRACE_SUBDIR = strace-4.6
 

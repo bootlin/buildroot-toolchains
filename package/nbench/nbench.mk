@@ -6,6 +6,7 @@
 NBENCH_VERSION:=2.2.3
 NBENCH_SOURCE:=nbench-byte-$(NBENCH_VERSION).tar.gz
 NBENCH_SITE:=http://www.tux.org/~mayer/linux/
+NBENCH_FLAT_STACKSIZE=64000
 
 define NBENCH_CONFIGURE_CMDS
 	$(call CONFIG_UPDATE, $(@D))
@@ -15,14 +16,8 @@ define NBENCH_CONFIGURE_CMDS
 	touch $@
 endef
 
-ifeq ($(BR2_TARGET_ABI_FLAT),y)
-LINKFLAGS=$(TARGET_LDFLAGS) -Wl,-elf2flt=-s64000
-else
-LINKFLAGS=$(TARGET_LDFLAGS)
-endif
-
 define NBENCH_BUILD_CMDS
-	$(MAKE1) CFLAGS="$(TARGET_CFLAGS)" LINKFLAGS="$(LINKFLAGS)" OS=$(ARCH) CC=$(TARGET_CC) -C $(@D)
+	$(MAKE1) CFLAGS="$(TARGET_CFLAGS)" LINKFLAGS="$(TARGET_LDFLAGS) $(NBENCH_FLAT_LDFLAGS)" OS=$(ARCH) CC=$(TARGET_CC) -C $(@D)
 endef
 
 define NBENCH_INSTALL_TARGET_CMDS
@@ -33,5 +28,5 @@ define NBENCH_CLEAN_CMDS
 	$(MAKE) -C $(@D) clean
 endef
 
-$(eval $(autotools-package))
+$(eval $(generic-package))
 
