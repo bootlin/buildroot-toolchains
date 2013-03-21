@@ -84,7 +84,6 @@ endif
 $(BUILD_DIR)/%/.stamp_patched: NAMEVER = $(RAWNAME)-$($(PKG)_VERSION)
 $(BUILD_DIR)/%/.stamp_patched:
 	@$(call MESSAGE,"Patching $($(PKG)_DIR_PREFIX)/$(RAWNAME)")
-	$(Q)mkdir -p $(@D)
 	$(foreach hook,$($(PKG)_PRE_PATCH_HOOKS),$(call $(hook))$(sep))
 	$(foreach p,$($(PKG)_PATCH),support/scripts/apply-patches.sh $(@D) $(DL_DIR) $(p)$(sep))
 	$(Q)( \
@@ -250,9 +249,9 @@ $(2)_BUILDDIR		       ?= $$($(2)_DIR)/$$($(2)_SUBDIR)
 
 ifneq ($$($(2)_OVERRIDE_SRCDIR),)
  $(2)_VERSION = custom
- $(2)_SRCDIR			=  $$($(2)_OVERRIDE_SRCDIR)/$$($(2)_SUBDIR)
+ $(2)_SRCDIR			= $$($(2)_OVERRIDE_SRCDIR)/$$($(2)_SUBDIR)
 else
- $(2)_SRCDIR			=  $$($(2)_DIR)/$$($(2)_SUBDIR)
+ $(2)_SRCDIR			= $$($(2)_DIR)/$$($(2)_SUBDIR)
 endif
 
 ifndef $(2)_SOURCE
@@ -333,8 +332,8 @@ $(2)_TARGET_INSTALL_HOST =      $$($(2)_DIR)/.stamp_host_installed
 $(2)_TARGET_BUILD =		$$($(2)_DIR)/.stamp_built
 $(2)_TARGET_CONFIGURE =		$$($(2)_DIR)/.stamp_configured
 ifneq ($$($(2)_OVERRIDE_RSYNC),)
-$(2)_TARGET_RSYNC =		$$($(2)_DIR)/.stamp_rsynced
-$(2)_TARGET_RSYNC_SOURCE =	$$($(2)_DIR)/.stamp_rsync_sourced
+$(2)_TARGET_RSYNC =	        $$($(2)_DIR)/.stamp_rsynced
+$(2)_TARGET_RSYNC_SOURCE =      $$($(2)_DIR)/.stamp_rsync_sourced
 endif
 $(2)_TARGET_PATCH =		$$($(2)_DIR)/.stamp_patched
 $(2)_TARGET_EXTRACT =		$$($(2)_DIR)/.stamp_extracted
@@ -479,8 +478,8 @@ $$($(2)_TARGET_INSTALL_IMAGES):		PKG=$(2)
 $$($(2)_TARGET_INSTALL_HOST):           PKG=$(2)
 $$($(2)_TARGET_BUILD):			PKG=$(2)
 $$($(2)_TARGET_CONFIGURE):		PKG=$(2)
-$$($(2)_TARGET_RSYNC):			SRCDIR=$$($(2)_OVERRIDE_SRCDIR)
-$$($(2)_TARGET_RSYNC):			PKG=$(2)
+$$($(2)_TARGET_RSYNC):                  SRCDIR=$$($(2)_OVERRIDE_SRCDIR)
+$$($(2)_TARGET_RSYNC):                  PKG=$(2)
 $$($(2)_TARGET_RSYNC_SOURCE):		SRCDIR=$$($(2)_OVERRIDE_SRCDIR)
 $$($(2)_TARGET_RSYNC_SOURCE):		PKG=$(2)
 $$($(2)_TARGET_PATCH):			PKG=$(2)
