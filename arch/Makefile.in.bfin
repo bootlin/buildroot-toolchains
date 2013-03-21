@@ -5,8 +5,6 @@ TARGETS += $(TARGETS-y)
 
 ifeq ($(BR2_BFIN_FDPIC),y)
 USR_LIB_EXTERNAL_LIBS+=libgfortran.so libgomp.so libmudflap.so libmudflapth.so libobjc.so
-else
-TARGET_LDFLAGS += -Wl,-elf2flt
 endif
 
 CROSS_COMPILE_SHARED_ELF ?= bfin-linux-uclibc-
