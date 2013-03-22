@@ -1,0 +1,5 @@
+# The architecture specific Makefile.in.$ARCH should be included only
+# when the arch macro is selected.
+ifeq ($(BR2_bfin),y)
+include arch/Makefile.in.bfin
+endif

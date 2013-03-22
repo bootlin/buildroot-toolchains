@@ -329,7 +329,7 @@ ifneq ($(PACKAGE_OVERRIDE_FILE),)
 -include $(PACKAGE_OVERRIDE_FILE)
 endif
 
-include arch/Makefile.in.*
+include arch/Makefile.in
 
 include package/*/*.mk
 
