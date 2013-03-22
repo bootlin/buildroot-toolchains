@@ -112,10 +112,13 @@ endif
 # defconfig file.
 ifeq ($(KERNEL_ARCH),i386)
 KERNEL_ARCH_PATH=$(LINUX_DIR)/arch/x86
+KERNEL_SRC_ARCH_PATH=$(LINUX_SRCDIR)/arch/x86
 else ifeq ($(KERNEL_ARCH),x86_64)
 KERNEL_ARCH_PATH=$(LINUX_DIR)/arch/x86
+KERNEL_SRC_ARCH_PATH=$(LINUX_SRCDIR)/arch/x86
 else
 KERNEL_ARCH_PATH=$(LINUX_DIR)/arch/$(KERNEL_ARCH)
+KERNEL_SRC_ARCH_PATH=$(LINUX_SRCDIR)/arch/$(KERNEL_ARCH)
 endif
 
 ifeq ($(BR2_LINUX_KERNEL_VMLINUX),y)
@@ -155,15 +158,15 @@ LINUX_POST_PATCH_HOOKS += LINUX_APPLY_PATCHES
 
 
 ifeq ($(BR2_LINUX_KERNEL_USE_DEFCONFIG),y)
-KERNEL_SOURCE_CONFIG = $(KERNEL_ARCH_PATH)/configs/$(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig
+KERNEL_SOURCE_CONFIG = $(KERNEL_SRC_ARCH_PATH)/configs/$(call qstrip,$(BR2_LINUX_KERNEL_DEFCONFIG))_defconfig
 else ifeq ($(BR2_LINUX_KERNEL_USE_CUSTOM_CONFIG),y)
 KERNEL_SOURCE_CONFIG = $(BR2_LINUX_KERNEL_CUSTOM_CONFIG_FILE)
 endif
 
 define LINUX_CONFIGURE_CMDS
-        cp $(KERNEL_SOURCE_CONFIG) $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
+        cp $(KERNEL_SOURCE_CONFIG) $(KERNEL_SRC_ARCH_PATH)/configs/buildroot_defconfig
 	$(TARGET_MAKE_ENV) $(MAKE1) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) buildroot_defconfig
-        rm $(KERNEL_ARCH_PATH)/configs/buildroot_defconfig
+        rm $(KERNEL_SRC_ARCH_PATH)/configs/buildroot_defconfig
 	$(if $(BR2_ARM_EABI),
 		$(call KCONFIG_ENABLE_OPT,CONFIG_AEABI,$(@D)/.config),
 		$(call KCONFIG_DISABLE_OPT,CONFIG_AEABI,$(@D)/.config))
@@ -240,7 +243,7 @@ define LINUX_BUILD_CMDS
 		$(RM) -f $(@D)/.stamp_initramfs_rebuilt
 		touch $(BINARIES_DIR)/rootfs.cpio)
 	$(if $(BR2_LINUX_KERNEL_USE_CUSTOM_DTS),
-		cp $(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH) $(KERNEL_ARCH_PATH)/boot/dts/)
+		cp $(BR2_LINUX_KERNEL_CUSTOM_DTS_PATH) $(KERNEL_SRC_ARCH_PATH)/boot/dts/)
 	$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) $(LINUX_IMAGE_TARGET)
 	@if grep -q "CONFIG_MODULES=y" $(@D)/.config; then 	\
 		$(TARGET_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_SRCDIR) modules ;	\
