@@ -314,7 +314,7 @@ $(2)_REDISTRIBUTE		?= YES
 
 ifeq ($(BR2_TARGET_ABI_FLAT),y)
  ifneq ($$($(2)_FLAT_STACKSIZE),)
-  $(2)_FLAT_LDFLAGS = -Wl,-elf2flt=-s$($(2)_FLAT_STACKSIZE)
+  $(2)_FLAT_LDFLAGS = -Wl,-elf2flt=-s$$($(2)_FLAT_STACKSIZE)
  endif
 endif
 
