@@ -88,6 +88,12 @@ ifeq ($(BR2_TARGET_ABI_FLAT),y)
  endif
 endif
 
+ifeq ($$($(2)_OVERRIDE_SRCDIR),)
+$(2)_CONFIGURE = ./configure
+else
+$(2)_CONFIGURE = $($(2)_OVERRIDE_SRCDIR)/$($(2)_SUBDIR)/configure
+endif
+
 #
 # Configure step. Only define it if not already defined by the package
 # .mk file. And take care of the differences between host and target
@@ -102,7 +108,7 @@ define $(2)_CONFIGURE_CMDS
 	$$(TARGET_CONFIGURE_OPTS) \
 	$$(TARGET_CONFIGURE_ARGS) \
 	$$($$(PKG)_CONF_ENV) \
-	$$($$(PKG)_SRCDIR)/configure \
+	$$($$(PKG)_CONFIGURE) \
 		--target=$$(GNU_TARGET_NAME) \
 		--host=$$(GNU_TARGET_NAME) \
 		--build=$$(GNU_HOST_NAME) \
@@ -125,12 +131,12 @@ else
 # because it often relies on host tools which may or may not be
 # installed.
 define $(2)_CONFIGURE_CMDS
-	(cd $$($$(PKG)_SRCDIR) && rm -rf config.cache; \
+	(cd $$($$(PKG)_BUILDDIR) && rm -rf config.cache; \
 	        $$(HOST_CONFIGURE_OPTS) \
 		CFLAGS="$$(HOST_CFLAGS)" \
 		LDFLAGS="$$(HOST_LDFLAGS)" \
                 $$($$(PKG)_CONF_ENV) \
-		./configure \
+		$$($$(PKG)_CONFIGURE) \
 		--prefix="$$(HOST_DIR)/usr" \
 		--sysconfdir="$$(HOST_DIR)/etc" \
 		--enable-shared --disable-static \
