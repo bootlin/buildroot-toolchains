@@ -174,8 +174,35 @@ config BR2_GCC_TARGET_ABI
 config BR2_GCC_TARGET_CPU
 	string
 
-config BR2_TARGET_ABI_FLAT
-	bool
+config BR2_GCC_TARGET_CPU_REVISION
+	string
+
+# Set up target binary format
+choice
+	prompt "Target Binary Format"
+	default BR2_BINFMT_ELF
+config BR2_BINFMT_ELF
+	bool "ELF"
+config BR2_BINFMT_FDPIC
+	bool "FDPIC"
+config BR2_BINFMT_FLAT
+	bool "FLAT"
+	select BR2_PREFER_STATIC_LIB
+endchoice
+
+# Set up flat binary type
+choice
+	prompt "FLAT Binary type"
+	depends on BR2_BINFMT_FLAT
+	default BR2_BINFMT_FLAT_ONE
+config BR2_BINFMT_FLAT_ONE
+	bool "One binary"
+config BR2_BINFMT_FLAT_SEP_DATA
+	bool "Separate data and code"
+config BR2_BINFMT_FLAT_SHARED
+	bool "Shared binary"
+endchoice
+
 
 if BR2_arm || BR2_armeb
 source "arch/Config.in.arm"
