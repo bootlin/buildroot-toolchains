@@ -1,50 +1,30 @@
-TARGETS-y =
-TARGETS-$(BR2_BFIN_INSTALL_ELF_SHARED) += romfs.shared.libs.elf
-TARGETS-$(BR2_BFIN_INSTALL_FLAT_SHARED) += romfs.shared.libs.flat
-TARGETS += $(TARGETS-y)
+TARGETS_BFIN-$(BR2_BFIN_INSTALL_FDPIC_SHARED) += target-shared-libs-fdpic
+TARGETS_BFIN-$(BR2_BFIN_INSTALL_FLAT_SHARED) += target-shared-libs-flat
+TARGETS += $(TARGETS_BFIN-y)
 
 ifeq ($(BR2_BFIN_FDPIC),y)
 USR_LIB_EXTERNAL_LIBS += libgfortran.so libgomp.so libmudflap.so libmudflapth.so libobjc.so
 endif
 
-CROSS_COMPILE_SHARED_ELF ?= bfin-linux-uclibc-
-romfs.shared.libs.elf:
+CROSS_COMPILE_SHARED_FDPIC ?= bfin-linux-uclibc-
+target-shared-libs-fdpic:
 	set -e; \
-	t=`$(CROSS_COMPILE_SHARED_ELF)gcc $(CPUFLAGS) -print-file-name=libc.a`; \
+	t=`$(CROSS_COMPILE_SHARED_FDPIC)gcc $(CPUFLAGS) -print-file-name=libc.a`; \
 	t=`dirname $$t`/../..; \
 	for i in $$t/lib/*so*; do \
 		i=`readlink -f "$$i"`; \
-		soname=`$(CROSS_COMPILE_SHARED_ELF)readelf -d "$$i" | sed -n '/(SONAME)/s:.*[[]\(.*\)[]].*:\1:p'`; \
+		soname=`$(CROSS_COMPILE_SHARED_FDPIC)readelf -d "$$i" | sed -n '/(SONAME)/s:.*[[]\(.*\)[]].*:\1:p'`; \
 		$(INSTALL) -D $$i $(TARGET_DIR)/lib/$$soname; \
 	done
 
 CROSS_COMPILE_SHARED_FLAT ?= bfin-uclinux-
-romfs.shared.libs.flat:
+target-shared-libs-flat:
 	set -e; \
 	t=`$(CROSS_COMPILE_SHARED_FLAT)gcc $(CPUFLAGS) -mid-shared-library -print-file-name=libc`; \
 	if [ -f $$t -a ! -h $$t ] ; then \
 		$(INSTALL) -D $$t $(TARGET_DIR)/lib/lib1.so; \
 	fi
 
-ifeq ($(BR2_TARGET_CPU_REVISION),)
-TARGET_CPU = -mcpu=$(BR2_GCC_TARGET_CPU)
-else
-TARGET_CPU = -mcpu=$(BR2_GCC_TARGET_CPU)-$(BR2_TARGET_CPU_REVISION)
-endif
-TARGET_CFLAGS += $(call qstrip,$(TARGET_CPU))
-
 ifneq ($(BR2_USE_MMU), y)
 TARGET_CFLAGS += -D__uClinux__
-endif
-
-ifeq ($(BR2_BFIN_FLAT_SEP_DATA),y)
-TARGET_LDFLAGS += -msep-data
-TARGET_CFLAGS += -msep-data
-TARGET_CXXFLAGS += -msep-data
-endif
-
-ifeq ($(BR2_BFIN_SHARED_FLAT), y)
-TARGET_LDFLAGS += -mid-shared-library -mshared-library-id=0
-TARGET_CFLAGS += -mid-shared-library -mshared-library-id=0
-TARGET_CXXFLAGS += -mid-shared-library -mshared-library-id=0
 endif

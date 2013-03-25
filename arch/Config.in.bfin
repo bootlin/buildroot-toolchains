@@ -1,21 +1,4 @@
 choice
-	prompt "Target ABI"
-	depends on BR2_bfin
-	default BR2_BFIN_FDPIC
-config BR2_BFIN_FDPIC
-	bool "FDPIC"
-config BR2_BFIN_FLAT
-	bool "FLAT"
-	select BR2_PREFER_STATIC_LIB
-config BR2_BFIN_FLAT_SEP_DATA
-	bool "FLAT (Separate data)"
-	select BR2_PREFER_STATIC_LIB
-config BR2_BFIN_SHARED_FLAT
-	bool "Shared FLAT"
-	select BR2_PREFER_STATIC_LIB
-endchoice
-
-choice
 	prompt "Target CPU"
 	depends on BR2_bfin
 	default BR2_bf609
@@ -79,18 +62,26 @@ config BR2_bf561
 	bool "bf561"
 endchoice
 
-config BR2_TARGET_CPU_REVISION
-	string "Target CPU revision"
-
-config BR2_BFIN_INSTALL_ELF_SHARED
-	depends on BR2_bfin && !BR2_BFIN_FDPIC
-	bool "Install ELF shared libraries"
+config BR2_BFIN_INSTALL_FDPIC_SHARED
+	depends on BR2_bfin && !BR2_BINFMT_FDPIC
+	bool "Install FDPIC shared libraries"
 	default y
+	help
+	  Blackfin Linux kernel supports running both FDPIC and FLAT applications
+	  concurrently if the binary format specific libraries installed properly.
+	  This option allow developer to install FDPIC libraries into a buildroot
+	  rootfs image built with binary format macro other than BR2_BINFMT_FDPIC.
 
 config BR2_BFIN_INSTALL_FLAT_SHARED
 	depends on BR2_bfin
-	bool "Install FLAT shared libraries" if !BR2_BFIN_SHARED_FLAT
+	bool "Install FLAT shared libraries" if !BR2_BINFMT_FLAT_SHARED
 	default y
+	help
+	  Blackfin Linux kernel supports running both FDPIC and FLAT applications
+	  concurrently if the binary format specific libraries installed properly.
+	  This option allow developer to install FLAT libraries into a buildroot
+	  rootfs image built with binary format macro other than
+	  BR2_BINFMT_FLAT_SHARED.
 
 config BR2_ARCH
 	default "bfin"
@@ -128,6 +119,7 @@ config BR2_GCC_TARGET_CPU
 	default bf549		if BR2_bf549
 	default bf561		if BR2_bf561
 
-config BR2_TARGET_ABI_FLAT
-	default n		if BR2_BFIN_FDPIC
-	default y
+config BR2_GCC_TARGET_CPU_REVISION
+	string "Target CPU revision"
+	help
+	  Specify target cpu revision which is passed to compiler as a parameter.
