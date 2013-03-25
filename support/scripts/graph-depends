@@ -168,6 +168,8 @@ TARGET_EXCEPTIONS = [
     "erase-fakeroots",
     "target-generic-hostname",
     "target-root-passwd",
+    "target-shared-libs-fdpic",
+    "target-shared-libs-flat",
 ]
 
 # In full mode, start with the result of get_targets() to get the main
