@@ -203,7 +203,6 @@ config BR2_BINFMT_FLAT_SHARED
 	bool "Shared binary"
 endchoice
 
-
 if BR2_arm || BR2_armeb
 source "arch/Config.in.arm"
 endif
