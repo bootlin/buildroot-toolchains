@@ -73,8 +73,8 @@ config BR2_BFIN_INSTALL_FDPIC_SHARED
 	  rootfs image built with binary format macro other than BR2_BINFMT_FDPIC.
 
 config BR2_BFIN_INSTALL_FLAT_SHARED
-	depends on BR2_bfin
-	bool "Install FLAT shared libraries" if !BR2_BINFMT_FLAT_SHARED
+	depends on BR2_bfin && !BR2_BINFMT_FLAT_SHARED
+	bool "Install FLAT shared libraries"
 	default y
 	help
 	  Blackfin Linux kernel supports running both FDPIC and FLAT applications
