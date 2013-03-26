@@ -2,10 +2,6 @@ TARGETS_BFIN-$(BR2_BFIN_INSTALL_FDPIC_SHARED) += target-shared-libs-fdpic
 TARGETS_BFIN-$(BR2_BFIN_INSTALL_FLAT_SHARED) += target-shared-libs-flat
 TARGETS += $(TARGETS_BFIN-y)
 
-ifeq ($(BR2_BFIN_FDPIC),y)
-USR_LIB_EXTERNAL_LIBS += libgfortran.so libgomp.so libmudflap.so libmudflapth.so libobjc.so
-endif
-
 CROSS_COMPILE_SHARED_FDPIC ?= bfin-linux-uclibc-
 target-shared-libs-fdpic:
 	set -e; \
