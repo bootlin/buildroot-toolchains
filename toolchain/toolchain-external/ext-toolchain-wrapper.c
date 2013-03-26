@@ -47,6 +47,9 @@ static char *predef_args[] = {
 #ifdef BR_64
 	"-m64",
 #endif
+#ifdef BR_BINFMT_FLAT
+	"-Wl,-elf2flt",
+#endif
 #ifdef BR_BINFMT_FLAT_SEP_DATA
 	"-msep-data",
 #endif
