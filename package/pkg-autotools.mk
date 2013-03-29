@@ -82,7 +82,7 @@ $(2)_CLEAN_OPT			?= clean
 $(2)_UNINSTALL_STAGING_OPT	?= DESTDIR=$$(STAGING_DIR) uninstall
 $(2)_UNINSTALL_TARGET_OPT	?= DESTDIR=$$(TARGET_DIR)  uninstall
 
-ifeq ($(BR2_TARGET_ABI_FLAT),y)
+ifeq ($(BR2_BINFMT_FLAT),y)
  ifneq ($$($(2)_FLAT_STACKSIZE),)
   $(2)_CONF_ENV			+= LDFLAGS="$(TARGET_LDFLAGS) -Wl,-elf2flt=-s$$($(2)_FLAT_STACKSIZE)"
  endif
