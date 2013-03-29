@@ -35,3 +35,18 @@ index 2260630..82d4a1e 100644
  int no_xen;
  char * xenimage;
  char * xen_range;
+--- oprofile-0.9.8/libperf_events/operf_utils.h	2012-08-28 02:59:14.000000000 +0800
++++ oprofile.new/libperf_events/operf_utils.h	2013-03-29 18:37:27.078091726 +0800
+@@ -160,6 +160,12 @@
+ #define cpu_relax()	asm volatile("" ::: "memory")
+ #endif
+ 
++#ifdef __bfin__
++#include <asm/unistd.h>
++#define rmb()		asm volatile("":::"memory")
++#define cpu_relax()	asm volatile("":::"memory")
++#endif
++
+ #ifdef __tile__
+ #include <asm/unistd.h>
+ #define rmb()		__insn_mf()

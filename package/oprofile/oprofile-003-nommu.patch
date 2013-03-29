@@ -98,3 +98,53 @@ index 77b7bed..466c41d 100644
  }
  
  
+--- oprofile-0.9.8/pe_profiling/operf.cpp	2012-08-28 02:59:15.000000000 +0800
++++ oprofile.new/pe_profiling/operf.cpp	2013-03-29 18:29:43.458341010 +0800
+@@ -288,7 +288,11 @@
+ 			perror("Internal error: operf-record could not create pipe");
+ 			_exit(EXIT_FAILURE);
+ 		}
++#ifdef __NOMMU__
++		app_PID = vfork();
++#else
+ 		app_PID = fork();
++#endif
+ 		if (app_PID < 0) {
+ 			perror("Internal error: fork failed");
+ 			_exit(EXIT_FAILURE);
+@@ -306,7 +310,11 @@
+ 		perror("Internal error: could not create pipe");
+ 		return -1;
+ 	}
++#ifdef __NOMMU__
++	operf_record_pid = vfork();
++#else
+ 	operf_record_pid = fork();
++#endif
+ 	if (operf_record_pid < 0) {
+ 		return -1;
+ 	} else if (operf_record_pid == 0) { // operf-record process
+@@ -594,7 +602,11 @@
+ 	if (!operf_options::post_conversion) {
+ 		if (!(!app_started && !operf_options::system_wide)) {
+ 			cverb << vdebug << "Forking read pid" << endl;
++#ifdef __NOMMU__
++			operf_read_pid = vfork();
++#else
+ 			operf_read_pid = fork();
++#endif
+ 			if (operf_read_pid < 0) {
+ 				perror("Internal error: fork failed");
+ 				_exit(EXIT_FAILURE);
+@@ -798,7 +810,11 @@
+ 	char opjitconv_path[PATH_MAX + 1];
+ 	char * exec_args[8];
+ 
++#ifdef __NOMMU__
++	jitconv_pid = vfork();
++#else
+ 	jitconv_pid = fork();
++#endif
+ 	switch (jitconv_pid) {
+ 	case -1:
+ 		perror("Error forking JIT dump process!");
