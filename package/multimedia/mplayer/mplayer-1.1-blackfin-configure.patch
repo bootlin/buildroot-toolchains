@@ -1,0 +1,22 @@
+--- MPlayer-1.1.bak/configure	2012-05-23 02:01:51.000000000 +0800
++++ MPlayer-1.1/configure	2013-03-29 17:44:52.002341305 +0800
+@@ -1526,6 +1531,7 @@
+       *mips*) host_arch=mips ;;
+       vax) host_arch=vax ;;
+       xtensa*) host_arch=xtensa ;;
++      bf*) host_arch=bfin ;;
+       *) host_arch=UNKNOWN ;;
+   esac
+ else # if test -z "$_target"
+@@ -2489,6 +2495,11 @@
+     iproc='xtensa'
+     ;;
+ 
++  bf*)
++    arch='bfin'
++    iproc='bfin'
++    ;;
++
+   generic)
+     arch='generic'
+     ;;
