@@ -32,7 +32,11 @@ ifeq ($(OPROFILE_ARCH),)
 OPROFILE_ARCH = $(BR2_ARCH)
 endif
 
-OPROFILE_DEPENDENCIES = popt binutils
+OPROFILE_DEPENDENCIES = popt
+ifneq ($(BR2_bfin),y)
+OPROFILE_DEPENDENCIES = binutils
+endif
+
 
 define OPROFILE_INSTALL_TARGET_CMDS
 	$(INSTALL) -d -m 755 $(TARGET_DIR)/usr/bin
@@ -45,7 +49,9 @@ define OPROFILE_INSTALL_TARGET_CMDS
 	$(INSTALL) -m 644 $(@D)/libregex/stl.pat $(TARGET_DIR)/usr/share/oprofile
 	$(INSTALL) -m 755 $(@D)/utils/opcontrol $(TARGET_DIR)/usr/bin
 	$(INSTALL) -m 755 $(addprefix $(@D)/, $(OPROFILE_BINARIES)) $(TARGET_DIR)/usr/bin
-	$(INSTALL) -m 755 $(@D)/libopagent/.libs/*.so* $(TARGET_DIR)/usr/lib/oprofile
+	if [ $(BR2_BINFMT_FLAT) != y ]; then \
+	$(INSTALL) -m 755 $(@D)/libopagent/.libs/*.so* $(TARGET_DIR)/usr/lib/oprofile; \
+	fi
 endef
 
 define OPROFILE_UNINSTALL_TARGET_CMDS
