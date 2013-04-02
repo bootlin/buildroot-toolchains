@@ -250,8 +250,10 @@ $(2)_BUILDDIR		       ?= $$($(2)_DIR)/$$($(2)_SUBDIR)
 
 ifneq ($$($(2)_OVERRIDE_SRCDIR),)
  $(2)_VERSION = custom
+ $(2)_SRCROOT			= $$($(2)_OVERRIDE_SRCDIR)
  $(2)_SRCDIR			= $$($(2)_OVERRIDE_SRCDIR)/$$($(2)_SUBDIR)
 else
+ $(2)_SRCROOT			= $$($(2)_DIR)
  $(2)_SRCDIR			= $$($(2)_DIR)/$$($(2)_SUBDIR)
 endif
 
@@ -485,7 +487,7 @@ $$($(2)_TARGET_RSYNC_SOURCE):		SRCDIR=$$($(2)_OVERRIDE_SRCDIR)
 $$($(2)_TARGET_RSYNC_SOURCE):		PKG=$(2)
 $$($(2)_TARGET_PATCH):			PKG=$(2)
 $$($(2)_TARGET_PATCH):			RAWNAME=$(patsubst host-%,%,$(1))
-$$($(2)_TARGET_PATCH):			SRCDIR=$$($(2)_SRCDIR)
+$$($(2)_TARGET_PATCH):			SRCDIR=$$($(2)_SRCROOT)
 $$($(2)_TARGET_EXTRACT):		PKG=$(2)
 $$($(2)_TARGET_SOURCE):			PKG=$(2)
 $$($(2)_TARGET_UNINSTALL):		PKG=$(2)
