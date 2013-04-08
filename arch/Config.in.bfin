@@ -122,4 +122,7 @@ config BR2_GCC_TARGET_CPU
 config BR2_GCC_TARGET_CPU_REVISION
 	string "Target CPU revision"
 	help
-	  Specify target cpu revision which is passed to compiler as a parameter.
+	  Specify a target CPU revision, which will be appended to the
+	  value of the -mcpu option. For example, if the selected CPU is
+	  bf609, and then selected CPU revision is "0.0", then gcc will
+	  receive the -mcpu=bf609-0.0 option.
