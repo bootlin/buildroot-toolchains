@@ -62,18 +62,22 @@ config BR2_bf561
 	bool "bf561"
 endchoice
 
-config BR2_INSTALL_FDPIC_SHARED
+config BR2_BFIN_INSTALL_FDPIC_SHARED
 	bool "Install FDPIC shared libraries"
-	default y if BR2_BINFMT_FDPIC
+	depends on !BR2_BINFMT_FDPIC
 	help
 	  The Linux kernel supports running both FDPIC and FLAT applications
 	  concurrently if the binary format specific libraries are installed properly.
 	  This option allows developer to install FDPIC libraries into a buildroot
 	  rootfs image built with binary format that is not FDPIC.
 
-config BR2_INSTALL_FLAT_SHARED
+config BR2_BFIN_INSTALL_FLAT_SHARED
+	depends on BR2_BINFMT_FLAT_SHARED
+	default y
+
+config BR2_BFIN_INSTALL_FLAT_SHARED
 	bool "Install FLAT shared libraries"
-	default y if BR2_BINFMT_FLAT_SHARED
+	depends on !BR2_BINFMT_FLAT_SHARED
 	help
 	  The Linux kernel supports running both FDPIC and FLAT applications
 	  concurrently if the binary format specific libraries are installed properly.
