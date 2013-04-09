@@ -54,7 +54,8 @@ static char *predef_args[] = {
 	"-msep-data",
 #endif
 #ifdef BR_BINFMT_FLAT_SHARED
-	"-mid-shared-library -mshared-library-id=0",
+	"-mid-shared-library",
+	"-mshared-library-id=0",
 #endif
 #ifdef BR_ADDITIONAL_CFLAGS
 	BR_ADDITIONAL_CFLAGS
