@@ -105,6 +105,7 @@ TARGET_LDFLAGS = $(call qstrip,$(BR2_TARGET_LDFLAGS))
 
 ifneq ($(BR2_USE_MMU), y)
 TARGET_CFLAGS += -D__NOMMU__
+TARGET_CFLAGS += -D__uClinux__
 endif
 
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_CTNG),y)

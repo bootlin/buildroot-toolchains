@@ -329,8 +329,6 @@ ifneq ($(PACKAGE_OVERRIDE_FILE),)
 -include $(PACKAGE_OVERRIDE_FILE)
 endif
 
-include arch/Makefile.in
-
 include package/*/*.mk
 
 include boot/common.mk
