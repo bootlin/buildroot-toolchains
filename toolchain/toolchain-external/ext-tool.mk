@@ -472,7 +472,6 @@ $(STAMP_DIR)/ext-toolchain-installed: $(STAMP_DIR)/ext-toolchain-checked
 		done ; \
 	fi ; \
 	$(call MESSAGE,"Copying external toolchain sysroot to staging...") ; \
-	echo "sysroot=$${SYSROOT_DIR}, ARCH_SYSROOT_DIR=$${ARCH_SYSROOT_DIR}, ARCH_SUBDIR=$${ARCH_SUBDIR}, SUPPORT_LIB_DIR=$${SUPPORT_LIB_DIR}" ; \
 	$(call copy_toolchain_sysroot,$${SYSROOT_DIR},$${ARCH_SYSROOT_DIR},$${ARCH_SUBDIR},$${ARCH_LIB_DIR},$${SUPPORT_LIB_DIR}) ; \
 	if [ -L $${ARCH_SYSROOT_DIR}/lib64 ] ; then \
 		$(call create_lib64_symlinks) ; \
