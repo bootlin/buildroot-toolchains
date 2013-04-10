@@ -314,12 +314,6 @@ endif
 
 $(2)_REDISTRIBUTE		?= YES
 
-ifeq ($(BR2_BINFMT_FLAT),y)
- ifneq ($$($(2)_FLAT_STACKSIZE),)
-  $(2)_FLAT_LDFLAGS = -Wl,-elf2flt=-s$$($(2)_FLAT_STACKSIZE)
- endif
-endif
-
 $(2)_DEPENDENCIES ?= $(filter-out $(1),$(patsubst host-host-%,host-%,$(addprefix host-,$($(3)_DEPENDENCIES))))
 
 $(2)_INSTALL_STAGING		?= NO
