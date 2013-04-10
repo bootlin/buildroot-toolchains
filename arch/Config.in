@@ -216,10 +216,12 @@ choice
 	prompt "FLAT Binary type"
 	depends on BR2_BINFMT_FLAT
 	default BR2_BINFMT_FLAT_ONE
+
 config BR2_BINFMT_FLAT_ONE
 	bool "One memory region"
 	help
 	  All segments are linked into one memory region.
+
 config BR2_BINFMT_FLAT_SEP_DATA
 	bool "Separate data and code region"
 	depends on BR2_bfin || BR2_m68k
@@ -232,6 +234,7 @@ config BR2_BINFMT_FLAT_SHARED
 	depends on BR2_bfin || BR2_m68k
 	help
 	  Allow to load and link indiviual FLAT binaries at run time.
+
 endchoice
 
 if BR2_arm || BR2_armeb

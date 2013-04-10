@@ -314,6 +314,7 @@ endif
 
 $(2)_REDISTRIBUTE		?= YES
 
+
 $(2)_DEPENDENCIES ?= $(filter-out $(1),$(patsubst host-host-%,host-%,$(addprefix host-,$($(3)_DEPENDENCIES))))
 
 $(2)_INSTALL_STAGING		?= NO
