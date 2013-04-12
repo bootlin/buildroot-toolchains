@@ -5,7 +5,7 @@
 #############################################################
 LIBBFGDOTS_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/lib/libbfgdots/g729
 LIBBFGDOTS_SITE_METHOD = svn
-LIBBFGDOTS_VERSION = 10459
+LIBBFGDOTS_VERSION = HEAD
 LIBBFGDOTS_INSTALL_STAGING = YES
 LIBBFGDOTS_INSTALL_TARGET = YES
 
