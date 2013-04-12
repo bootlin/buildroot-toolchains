@@ -396,7 +396,6 @@ $(STAMP_DIR)/ext-toolchain-checked: $(TOOLCHAIN_EXTERNAL_DEPENDENCIES)
 #                       our sysroot, and the directory will also be
 #                       considered when searching libraries for copy
 #                       to the target filesystem.
-#
 
 $(STAMP_DIR)/ext-toolchain-installed: $(STAMP_DIR)/ext-toolchain-checked
 	$(Q)LIBC_A_LOCATION=`readlink -f $$(LANG=C $(TOOLCHAIN_EXTERNAL_CC) -print-file-name=libc.a)` ; \
@@ -427,12 +426,12 @@ $(STAMP_DIR)/ext-toolchain-installed: $(STAMP_DIR)/ext-toolchain-checked
 	fi ; \
 	if test x"$(BR2_BFIN_INSTALL_FLAT_SHARED)" == x"y" ; then \
 		$(call MESSAGE,"Install external toolchain FLAT libraries to target...") ; \
-# The flat libraries are found and linked according to the index in \
-# name "libN.so". Index 1 is reserved for the standard C library. \
-# Customer libraries can use 4 and above. \
 		FLAT_EXTERNAL_CC=$(dir $(TOOLCHAIN_EXTERNAL_CC))../../bfin-uclinux/bin/bfin-uclinux-gcc ; \
 		FLAT_LIBC_A_LOCATION=`$${FLAT_EXTERNAL_CC} $(TOOLCHAIN_EXTERNAL_CFLAGS) -mid-shared-library -print-file-name=libc`; \
 		if [ -f $${FLAT_LIBC_A_LOCATION} -a ! -h $${FLAT_LIBC_A_LOCATION} ] ; then \
+# The flat libraries are found and linked according to the index in \
+# name "libN.so". Index 1 is reserved for the standard C library. \
+# Customer libraries can use 4 and above. \
 			$(INSTALL) -D $${FLAT_LIBC_A_LOCATION} $(TARGET_DIR)/lib/lib1.so; \
 		fi ; \
 	fi ; \
