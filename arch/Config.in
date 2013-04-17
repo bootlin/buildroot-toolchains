@@ -180,12 +180,12 @@ config BR2_GCC_TARGET_CPU_REVISION
 # Set up target binary format
 choice
 	prompt "Target Binary Format"
-	default BR2_BINFMT_FDPIC if BR2_bfin
-	default BR2_BINFMT_ELF
+	depends on BR2_bfin || BR2_m68k
+	default BR2_BINFMT_FDPIC
 
 config BR2_BINFMT_ELF
 	bool "ELF"
-	depends on !BR2_bfin
+	depends on !BR2_bfin && !BR2_m68k
 	help
 	  ELF (Executable and Linkable Format) is a format for libraries and
 	  executables used across different architectures and operating
@@ -193,7 +193,7 @@ config BR2_BINFMT_ELF
 
 config BR2_BINFMT_FDPIC
 	bool "FDPIC"
-	depends on BR2_bfin
+	depends on BR2_bfin || BR2_m68k
 	help
 	  ELF FDPIC binaries are based on ELF, but allow the individual load
 	  segments of a binary to be located in memory independently of each
@@ -202,7 +202,7 @@ config BR2_BINFMT_FDPIC
 
 config BR2_BINFMT_FLAT
 	bool "FLAT"
-	depends on BR2_bfin
+	depends on BR2_bfin || BR2_m68k
 	select BR2_PREFER_STATIC_LIB
 	help
 	  FLAT binary is a relatively simple and lightweight executable format
