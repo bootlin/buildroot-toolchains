@@ -118,7 +118,7 @@ TARGET_CFLAGS += -msep-data
 TARGET_CXXFLAGS += -msep-data
 endif
 
-ifneq ($(BR2_USE_MMU), y)
+ifneq ($(BR2_USE_MMU),y)
 TARGET_CFLAGS += -D__NOMMU__
 TARGET_CFLAGS += -D__uClinux__
 endif
