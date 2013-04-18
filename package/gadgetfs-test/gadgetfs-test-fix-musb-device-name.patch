@@ -1,0 +1,21 @@
+diff -ur gadgetfs-test-undefined/usb.c gadgetfs-test/usb.c
+--- gadgetfs-test-undefined/usb.c	2013-04-18 17:51:21.564831823 -0400
++++ gadgetfs-test/usb.c	2013-04-18 18:23:55.821318502 -0400
+@@ -356,7 +356,7 @@
+ 		EP_STATUS_NAME = "ep3in-int";
+ 
+ 	/* Something based on Mentor USB Highspeed Dual-Role Controller */
+-	} else if (stat (DEVNAME = "musb_hdrc", &statb) == 0) {
++	} else if (stat (DEVNAME = "musb-hdrc", &statb) == 0) {
+ 		HIGHSPEED = 1;
+ 		device_desc.bcdDevice = __constant_cpu_to_le16 (0x0107),
+ 
+@@ -537,7 +537,7 @@
+ 	/* Something based on Mentor USB Highspeed Dual-Role Controller;
+ 	 * assumes a core that doesn't include high bandwidth support.
+ 	 */
+-	} else if (stat (DEVNAME = "musb_hdrc", &statb) == 0) {
++	} else if (stat (DEVNAME = "musb-hdrc", &statb) == 0) {
+ 		unsigned	bInterval, wMaxPacketSize;
+ 
+ 		HIGHSPEED = 1;
