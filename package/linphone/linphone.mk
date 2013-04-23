@@ -11,7 +11,8 @@ LINPHONE_CONF_OPT = \
 LINPHONE_DEPENDENCIES = host-pkgconf ortp mediastreamer libeXosip2 speex
 
 ifeq ($(BR2_bfin), y)
-LINPHONE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -fno-strict-aliasing -ffast-math -mfast-fp -Wl,--defsym,__stacksize=0x40000"
+LINPHONE_FLAT_STACKSIZE=0x40000
+LINPHONE_CONF_ENV = CFLAGS="$(TARGET_CFLAGS) -fno-strict-aliasing -ffast-math -mfast-fp"
 LINPHONE_CONF_OPT += \
 	--without-crypto \
 	--enable-portaudio=no \
