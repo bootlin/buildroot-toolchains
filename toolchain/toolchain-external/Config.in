@@ -885,16 +885,9 @@ config BR2_BFIN_INSTALL_FDPIC_SHARED
 # of the corresponding libraries. When a different binary format is
 # used, we offer the option of installing the FLAT shared libraries.
 config BR2_BFIN_INSTALL_FLAT_SHARED
+	bool "Install FLAT shared libraries" if !BR2_BINFMT_FLAT_SHARED
+	depends on BR2_bfin
 	default y if BR2_BINFMT_FLAT_SHARED
-	help
-	  The Linux kernel supports running both FDPIC and FLAT applications
-	  concurrently if the binary format specific libraries are installed
-	  properly. This option always installs FLAT libraries into a
-	  buildroot rootfs image built with binary format shared FLAT.
-
-config BR2_BFIN_INSTALL_FLAT_SHARED
-	bool "Install FLAT shared libraries"
-	depends on BR2_bfin && !BR2_BINFMT_FLAT_SHARED
 	help
 	  The Linux kernel supports running both FDPIC and FLAT applications
 	  concurrently if the binary format specific libraries are installed
