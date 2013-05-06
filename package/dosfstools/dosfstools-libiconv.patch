@@ -1,0 +1,24 @@
+--- dosfstools-3.0.12/Makefile.old	2013-03-01 16:01:02.000000000 +0800
++++ dosfstools-3.0.12/Makefile	2013-05-06 12:13:56.646094198 +0800
+@@ -24,6 +24,7 @@
+ SBINDIR = $(PREFIX)/sbin
+ DOCDIR = $(PREFIX)/share/doc
+ MANDIR = $(PREFIX)/share/man
++OBJS = boot.o check.o common.o fat.o file.o io.o lfn.o charconv.o
+ 
+ #OPTFLAGS = -O2 -fomit-frame-pointer -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64
+ OPTFLAGS = -O2 -fomit-frame-pointer $(shell getconf LFS_CFLAGS)
+@@ -38,9 +39,11 @@
+ 
+ build: dosfsck dosfslabel mkdosfs
+ 
+-dosfsck: boot.o check.o common.o fat.o file.o io.o lfn.o charconv.o dosfsck.o
++dosfsck: $(OBJS) dosfsck.o
++	$(CC) $(OBJS) dosfsck.o $(LDFLAGS) -L$(STAGING_DIR)/usr/lib -liconv -o dosfsck
+ 
+-dosfslabel: boot.o check.o common.o fat.o file.o io.o lfn.o charconv.o dosfslabel.o
++dosfslabel: $(OBJS) dosfslabel.o
++	$(CC) $(OBJS) dosfslabel.o $(LDFLAGS) -L$(STAGING_DIR)/usr/lib -liconv -o dosfslabel
+ 
+ mkdosfs: mkdosfs.o
+ 
