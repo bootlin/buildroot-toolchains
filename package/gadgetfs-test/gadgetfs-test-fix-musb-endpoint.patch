@@ -1,0 +1,56 @@
+--- gadgetfs-test-undefined/usb.c	2013-05-08 16:10:39.924806044 -0400
++++ gadgetfs-test/usb.c	2013-05-08 16:10:01.441065008 -0400
+@@ -362,11 +362,11 @@
+ 
+ 		fs_source_desc.bEndpointAddress
+ 			= hs_source_desc.bEndpointAddress
+-			= USB_DIR_IN | 1;
+-		EP_IN_NAME = "ep1in";
++			= USB_DIR_IN | 5;
++		EP_IN_NAME = "ep5in";
+ 		fs_sink_desc.bEndpointAddress = hs_sink_desc.bEndpointAddress
+-			= USB_DIR_OUT | 1;
+-		EP_OUT_NAME = "ep1out";
++			= USB_DIR_OUT | 6;
++		EP_OUT_NAME = "ep6out";
+ 
+ 		source_sink_intf.bNumEndpoints = 3;
+ 		fs_status_desc.bEndpointAddress
+@@ -548,7 +548,7 @@
+ 
+ 		fs_source_desc.bEndpointAddress
+ 			= hs_source_desc.bEndpointAddress
+-			= USB_DIR_IN | 1;
++			= USB_DIR_IN | 5;
+ 		fs_source_desc.bmAttributes
+ 			= hs_source_desc.bmAttributes
+ 			= USB_ENDPOINT_XFER_ISOC;
+@@ -556,11 +556,11 @@
+ 		hs_source_desc.wMaxPacketSize = wMaxPacketSize;
+ 		fs_source_desc.bInterval = interval + 1;
+ 		hs_source_desc.bInterval = bInterval;
+-		EP_IN_NAME = "ep1in";
++		EP_IN_NAME = "ep5in";
+ 
+ 		fs_sink_desc.bEndpointAddress
+ 			= hs_sink_desc.bEndpointAddress
+-			= USB_DIR_OUT | 1;
++			= USB_DIR_OUT | 6;
+ 		fs_sink_desc.bmAttributes
+ 			= hs_sink_desc.bmAttributes
+ 			= USB_ENDPOINT_XFER_ISOC;
+@@ -568,12 +568,12 @@
+ 		hs_sink_desc.wMaxPacketSize = wMaxPacketSize;
+ 		fs_sink_desc.bInterval = interval + 1;
+ 		hs_sink_desc.bInterval = bInterval;
+-		EP_OUT_NAME = "ep1out";
++		EP_OUT_NAME = "ep6out";
+ 
+ 		source_sink_intf.bNumEndpoints = 3;
+ 		fs_status_desc.bEndpointAddress
+ 			= hs_status_desc.bEndpointAddress
+-			= USB_DIR_IN | 11;
++			= USB_DIR_IN | 3;
+ 		EP_STATUS_NAME = "ep3";
+ 
+ 	/* Atmel AT91 processors, full speed only */
