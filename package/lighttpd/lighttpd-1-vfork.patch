@@ -1,0 +1,46 @@
+diff -Nur a/src/lighttpd-angel.c b/src/lighttpd-angel.c
+--- a/src/lighttpd-angel.c	2013-05-08 11:58:46.713732278 +0800
++++ b/src/lighttpd-angel.c	2013-05-08 12:08:18.697732502 +0800
+@@ -93,7 +93,11 @@
+ 		int exitcode = 0;
+ 
+ 		if (start_process) {
++			#ifdef __NOMMU__
++			pid = vfork();
++			#else
+ 			pid = fork();
++			#endif
+ 
+ 			if (0 == pid) {
+ 				/* i'm the child */
+diff -Nur a/src/mod_cgi.c b/src/mod_cgi.c
+--- a/src/mod_cgi.c	2013-05-08 11:58:59.204498456 +0800
++++ b/src/mod_cgi.c	2013-05-08 12:10:00.149487605 +0800
+@@ -771,7 +771,11 @@
+ 	}
+ 
+ 	/* fork, execve */
++	#ifdef __NOMMU__
++	switch (pid = vfork()) {
++	#else
+ 	switch (pid = fork()) {
++	#endif
+ 	case 0: {
+ 		/* child */
+ 		char **args;
+diff -Nur a/src/proc_open.c b/src/proc_open.c
+--- a/src/proc_open.c	2013-05-08 11:58:35.493487805 +0800
++++ b/src/proc_open.c	2013-05-08 12:08:18.697732502 +0800
+@@ -245,8 +245,11 @@
+ 	}
+ 
+ 	/* the unix way */
+-
++	#ifdef __NOMMU__
++	child = vfork();
++	#else
+ 	child = fork();
++	#endif
+ 
+ 	if (child == 0) {
+ 		/* this is the child process */
