@@ -1,0 +1,74 @@
+diff -Nur b/src/mod_cgi.c c/src/mod_cgi.c
+--- b/src/mod_cgi.c	2013-05-08 12:10:00.149487605 +0800
++++ c/src/mod_cgi.c	2013-05-08 12:10:44.774232328 +0800
+@@ -770,6 +770,11 @@
+ 		return -1;
+ 	}
+ 
++	char_array env;
++	env.ptr = NULL;
++	env.size = 0;
++	env.used = 0;
++
+ 	/* fork, execve */
+ 	#ifdef __NOMMU__
+ 	switch (pid = vfork()) {
+@@ -778,12 +783,11 @@
+ 	#endif
+ 	case 0: {
+ 		/* child */
+-		char **args;
+-		int argc;
++		/* converted args into an automatic variable */
++		char *args[3];
+ 		int i = 0;
+ 		char buf[32];
+ 		size_t n;
+-		char_array env;
+ 		char *c;
+ 		const char *s;
+ 		server_socket *srv_sock = con->srv_socket;
+@@ -803,10 +807,6 @@
+ 		close(to_cgi_fds[1]);
+ 
+ 		/* create environment */
+-		env.ptr = NULL;
+-		env.size = 0;
+-		env.used = 0;
+-
+ 		if (buffer_is_empty(con->conf.server_tag)) {
+ 			cgi_env_add(&env, CONST_STR_LEN("SERVER_SOFTWARE"), CONST_STR_LEN(PACKAGE_DESC));
+ 		} else {
+@@ -1026,10 +1026,7 @@
+ 		env.ptr[env.used] = NULL;
+ 
+ 		/* set up args */
+-		argc = 3;
+-		args = malloc(sizeof(*args) * argc);
+ 		i = 0;
+-
+ 		if (cgi_handler->used > 1) {
+ 			args[i++] = cgi_handler->ptr;
+ 		}
+@@ -1196,6 +1193,21 @@
+ 
+ 			return -1;
+ 		}
++		/* Once converted to vfork() some leaking will occur if not managed.
++		* Following the vfork() the parent will suspend until the child exits
++		* or execs.  During that time the child dynamically builds the
++		* environment, but because it has not yet exec'ed the dynamic memory
++		* used exists in the parent's memory map.  As such, if we don't free
++		* it here after the parents resumes the memory will leak */
++		if(NULL != env.ptr) {
++		    for(int i=0; i<env.used; i++) {
++			if(NULL != env.ptr[i]) {
++			    free(env.ptr[i]);
++			}
++		    }
++		    free(env.ptr);
++		    env.ptr = NULL;
++		}
+ 
+ 		break;
+ 	}
