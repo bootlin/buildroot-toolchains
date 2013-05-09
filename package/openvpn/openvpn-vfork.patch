@@ -1,0 +1,15 @@
+diff -Nur openvpn-2.2.2_orig/ps.c openvpn-2.2.2/ps.c
+--- openvpn-2.2.2_orig/ps.c	2013-05-09 11:59:33.038232312 +0800
++++ openvpn-2.2.2/ps.c	2013-05-09 13:53:29.361982545 +0800
+@@ -736,7 +736,11 @@
+   /*
+    * Fork off background proxy process.
+    */
++#ifdef __NOMMU__
++  pid = vfork ();
++#else
+   pid = fork ();
++#endif
+ 
+   if (pid)
+     {
