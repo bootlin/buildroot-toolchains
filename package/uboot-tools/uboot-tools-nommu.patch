@@ -1,0 +1,76 @@
+--- uboot-tools-2013.01.01/tools/kernel-doc/docproc.c.old	2013-05-28 18:15:36.770091497 +0800
++++ uboot-tools-2013.01.01/tools/kernel-doc/docproc.c	2013-05-28 18:25:08.174091549 +0800
+@@ -112,7 +112,11 @@
+ 	char real_filename[PATH_MAX + 1];
+ 	/* Make sure output generated so far are flushed */
+ 	fflush(stdout);
++#ifdef __NOMMU__
++	switch (pid=vfork()) {
++#else
+ 	switch (pid=fork()) {
++#endif
+ 		case -1:
+ 			perror("fork");
+ 			exit(1);
+@@ -124,7 +128,11 @@
+ 			execvp(real_filename, svec);
+ 			fprintf(stderr, "exec ");
+ 			perror(real_filename);
++#ifdef __NOMMU__
++			_exit(1);
++#else
+ 			exit(1);
++#endif
+ 		default:
+ 			waitpid(pid, &ret ,0);
+ 	}
+@@ -368,7 +376,11 @@
+ 		exit(1);
+ 	}
+ 
++#ifdef __NOMMU__
++	switch (pid=vfork()) {
++#else
+ 	switch (pid=fork()) {
++#endif
+ 		case -1:
+ 			perror("fork");
+ 			exit(1);
+@@ -382,7 +394,11 @@
+ 			execvp(real_filename, vec);
+ 			fprintf(stderr, "exec ");
+ 			perror(real_filename);
++#ifdef __NOMMU__
++			_exit(1);
++#else
+ 			exit(1);
++#endif
+ 		default:
+ 			close(pipefd[1]);
+ 			data = malloc(4096);
+--- uboot-tools-2013.01.01/common/hush.c.old	2013-05-28 18:21:34.734341261 +0800
++++ uboot-tools-2013.01.01/common/hush.c	2013-05-28 18:23:38.758091758 +0800
+@@ -1683,7 +1683,11 @@
+ 		}
+ 
+ 		/* XXX test for failed fork()? */
++#ifdef __NOMMU__
++		if (!(child->pid = vfork())) {
++#else
+ 		if (!(child->pid = fork())) {
++#endif
+ 			/* Set the handling for job control signals back to the default.  */
+ 			signal(SIGINT, SIG_DFL);
+ 			signal(SIGQUIT, SIG_DFL);
+@@ -2641,7 +2645,11 @@
+ #if 1
+ 	int pid, channel[2];
+ 	if (pipe(channel)<0) perror_msg_and_die("pipe");
++#ifdef __NOMMU__
++	pid=vfork();
++#else
+ 	pid=fork();
++#endif
+ 	if (pid<0) {
+ 		perror_msg_and_die("fork");
+ 	} else if (pid==0) {
