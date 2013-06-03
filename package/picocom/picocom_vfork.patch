@@ -1,0 +1,14 @@
+--- picocom_orig.c	2013-06-03 17:14:07.518072398 +0800
++++ picocom.c	2013-06-03 17:11:17.305572461 +0800
+@@ -574,7 +574,11 @@
+ 	sigaddset(&sigm, SIGTERM);
+ 	sigprocmask(SIG_BLOCK, &sigm, &sigm_old);
+ 
++	#ifdef __NOMMU__
++	pid = vfork();
++	#else
+ 	pid = fork();
++	#endif
+ 
+ 	if ( pid < 0 ) {
+ 		sigprocmask(SIG_SETMASK, &sigm_old, NULL);
