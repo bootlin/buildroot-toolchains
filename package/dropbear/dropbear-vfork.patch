@@ -1,0 +1,14 @@
+--- svr-main_orig.c	2013-06-03 18:11:58.526322318 +0800
++++ svr-main.c	2013-06-03 18:13:09.730322623 +0800
+@@ -262,7 +262,11 @@
+ #ifdef DEBUG_NOFORK
+ 			fork_ret = 0;
+ #else
++			#ifdef __NOMMU__
++			fork_ret = vfork();
++			#else
+ 			fork_ret = fork();
++			#endif
+ #endif
+ 			if (fork_ret < 0) {
+ 				dropbear_log(LOG_WARNING, "Error forking: %s", strerror(errno));
