@@ -4,14 +4,14 @@
 #
 #############################################################
 
-DOSFSTOOLS_VERSION = 3.0.12
+DOSFSTOOLS_VERSION = 3.0.20
 DOSFSTOOLS_SITE = http://fossies.org/linux/misc/
 DOSFSTOOLS_LICENSE = GPLv3+
 DOSFSTOOLS_LICENSE_FILES = COPYING
 DOSFSTOOLS_DEPENDENCIES = libiconv
-MKDOSFS_BINARY = mkdosfs
-DOSFSCK_BINARY = dosfsck
-DOSFSLABEL_BINARY = dosfslabel
+MKDOSFS_BINARY = mkfs.fat
+DOSFSCK_BINARY = fsck.fat
+DOSFSLABEL_BINARY = fatlabel
 
 define DOSFSTOOLS_BUILD_CMDS
 	$(MAKE) CFLAGS="$(TARGET_CFLAGS)" LDFLAGS="$(TARGET_LDFLAGS)" \
