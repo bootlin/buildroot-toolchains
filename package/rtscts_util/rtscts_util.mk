@@ -3,7 +3,7 @@
 # rtscts test util
 #
 #############################################################
-RTSCTS_UTIL_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/rtscts_test
+RTSCTS_UTIL_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/rtscts_test
 RTSCTS_UTIL_SITE_METHOD = svn
 RTSCTS_UTIL_VERSION = HEAD
 

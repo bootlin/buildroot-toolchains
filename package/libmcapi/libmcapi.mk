@@ -6,7 +6,7 @@
 
 LIBMCAPI_VERSION = HEAD
 LIBMCAPI_SITE_METHOD = svn
-LIBMCAPI_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/lib/libmcapi
+LIBMCAPI_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/libs/libmcapi
 
 LIBMCAPI_SUBDIR = libmcapi-2.0
 LIBMCAPI_INSTALL_STAGING = YES

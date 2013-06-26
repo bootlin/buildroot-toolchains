@@ -4,7 +4,7 @@
 #
 #############################################################
 
-POUND_SITE:=svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/pound
+POUND_SITE:=http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/pound
 POUND_SITE_METHOD = svn
 POUND_VERSION = HEAD
 POUND_DEPENDENCIES = openssl

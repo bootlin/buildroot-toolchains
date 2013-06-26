@@ -3,7 +3,7 @@
 # play and tone applications
 #
 #############################################################
-PLAY_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/play
+PLAY_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/play
 PLAY_SITE_METHOD = svn
 PLAY_VERSION = HEAD
 

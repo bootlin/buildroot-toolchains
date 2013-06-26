@@ -3,7 +3,7 @@
 # version
 #
 #############################################################
-VERSION_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/version
+VERSION_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/version
 VERSION_SITE_METHOD = svn
 VERSION_VERSION = HEAD
 

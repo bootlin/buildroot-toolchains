@@ -3,7 +3,7 @@
 # twi_lcd test
 #
 #############################################################
-TWI_LCD_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/twi_lcd-test
+TWI_LCD_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/twi_lcd-test
 TWI_LCD_TEST_SITE_METHOD = svn
 TWI_LCD_TEST_VERSION = HEAD
 

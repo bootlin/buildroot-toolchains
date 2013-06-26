@@ -3,7 +3,7 @@
 # nmi_wdt test
 #
 #############################################################
-NMI_WDT_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/nmi_wdt_test
+NMI_WDT_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/nmi_wdt_test
 NMI_WDT_TEST_SITE_METHOD = svn
 NMI_WDT_TEST_VERSION = HEAD
 

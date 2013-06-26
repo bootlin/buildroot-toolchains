@@ -3,7 +3,7 @@
 # bfin gptimer test
 #
 #############################################################
-BFIN_GPTIMER_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/gptimer_test
+BFIN_GPTIMER_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/gptimer_test
 BFIN_GPTIMER_SITE_METHOD = svn
 BFIN_GPTIMER_VERSION = HEAD
 

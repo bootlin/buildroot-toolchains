@@ -3,7 +3,7 @@
 # bfin ppifcd-cgi
 #
 #############################################################
-PPIFCD_CGI_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/ppifcd-cgi
+PPIFCD_CGI_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/ppifcd-cgi
 PPIFCD_CGI_SITE_METHOD = svn
 PPIFCD_CGI_VERSION = HEAD
 

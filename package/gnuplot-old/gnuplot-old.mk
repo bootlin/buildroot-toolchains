@@ -3,7 +3,7 @@
 # gnuplot old version for uclinux
 #
 #############################################################
-GNUPLOT_OLD_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/gnuplot
+GNUPLOT_OLD_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/gnuplot
 GNUPLOT_OLD_SITE_METHOD = svn
 GNUPLOT_OLD_VERSION = HEAD
 GNUPLOT_OLD_DEPENDENCIES = libpng zlib

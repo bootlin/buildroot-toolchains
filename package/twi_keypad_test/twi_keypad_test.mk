@@ -3,7 +3,7 @@
 # twi_keypad test
 #
 #############################################################
-TWI_KEYPAD_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/twi_keypad-test
+TWI_KEYPAD_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/twi_keypad-test
 TWI_KEYPAD_TEST_SITE_METHOD = svn
 TWI_KEYPAD_TEST_VERSION = HEAD
 

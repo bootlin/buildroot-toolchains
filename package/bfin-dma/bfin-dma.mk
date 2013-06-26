@@ -3,7 +3,7 @@
 # bfin dma test
 #
 #############################################################
-BFIN_DMA_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/bfin-dma
+BFIN_DMA_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/bfin-dma
 BFIN_DMA_SITE_METHOD = svn
 BFIN_DMA_VERSION = HEAD
 

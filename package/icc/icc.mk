@@ -3,7 +3,7 @@
 # bfin icc
 #
 #############################################################
-ICC_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/icc_utils
+ICC_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/icc_utils
 ICC_SITE_METHOD = svn
 ICC_VERSION = HEAD
 ICC_DL_VERSION = $(ICC_VERSION)

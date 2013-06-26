@@ -6,7 +6,7 @@
 
 STRACE_VERSION = HEAD
 STRACE_SITE_METHOD = svn
-STRACE_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/strace
+STRACE_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/strace
 STRACE_FLAT_STACKSIZE=0x5000
 
 STRACE_CONF_ENV = ac_cv_header_linux_if_packet_h=yes \

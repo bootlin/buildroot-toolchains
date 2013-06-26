@@ -3,7 +3,7 @@
 # fixed_code test
 #
 #############################################################
-FIXED_CODE_TEST_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-test/fixed_code_test
+FIXED_CODE_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/fixed_code_test
 FIXED_CODE_TEST_SITE_METHOD = svn
 FIXED_CODE_TEST_VERSION = HEAD
 

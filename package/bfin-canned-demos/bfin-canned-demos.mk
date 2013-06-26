@@ -3,7 +3,7 @@
 # bfin canned demos
 #
 #############################################################
-BFIN_CANNED_DEMOS_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/ndso
+BFIN_CANNED_DEMOS_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/ndso
 BFIN_CANNED_DEMOS_SITE_METHOD = svn
 BFIN_CANNED_DEMOS_VERSION = HEAD
 

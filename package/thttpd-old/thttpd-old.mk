@@ -4,7 +4,7 @@
 #
 #############################################################
 
-THTTPD_OLD_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/user/blkfin-apps/ndso/thttpd
+THTTPD_OLD_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/ndso/thttpd
 THTTPD_OLD_SITE_METHOD = svn
 THTTPD_OLD_VERSION = HEAD
 

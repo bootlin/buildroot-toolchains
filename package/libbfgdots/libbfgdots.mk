@@ -3,7 +3,7 @@
 # libbfgdots
 #
 #############################################################
-LIBBFGDOTS_SITE = svn://firewall-sources.blackfin.uclinux.org:80/svn/uclinux-dist/trunk/lib/libbfgdots/g729
+LIBBFGDOTS_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/libs/libbfgdots/g729
 LIBBFGDOTS_SITE_METHOD = svn
 LIBBFGDOTS_VERSION = HEAD
 LIBBFGDOTS_INSTALL_STAGING = YES
