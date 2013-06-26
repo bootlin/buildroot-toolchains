@@ -1,6 +1,6 @@
 [submodule "linux/linux-kernel"]
 	path = linux/linux-kernel
-	url = ssh://anonymous@firewall-sources.blackfin.uclinux.org/git/linux-kernel
+	url = http://git.code.sf.net/p/adi-linux/code
 [submodule "testsuites"]
 	path = testsuites
-	url = ssh://anonymous@firewall-sources.blackfin.uclinux.org/git/buildroot_test
+	url = http://git.code.sf.net/p/adi-buildroot/buildroot-test/code
