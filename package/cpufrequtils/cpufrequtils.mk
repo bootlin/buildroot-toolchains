@@ -4,7 +4,7 @@
 #
 #############################################################
 CPUFREQUTILS_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/cpufrequtils
-CPUFREQUTILS_METHOD = svn
+CPUFREQUTILS_SITE_METHOD = svn
 CPUFREQUTILS_VERSION = HEAD
 
 define CPUFREQUTILS_BUILD_CMDS
