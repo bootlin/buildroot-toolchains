@@ -6,6 +6,7 @@
 MMAP_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/mmap_test
 MMAP_TEST_SITE_METHOD = svn
 MMAP_TEST_VERSION = HEAD
+MMAP_TEST_DEPENDENCIES = linux
 
 define MMAP_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MODULE_DIR=$(BASE_DIR)/build/mmap_test-$(MMAP_TEST_VERSION)
