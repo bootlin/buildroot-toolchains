@@ -3,7 +3,7 @@
 # edn test
 #
 #############################################################
-EDN_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/blkfin-apps/edn
+EDN_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/edn
 EDN_SITE_METHOD = svn
 EDN_VERSION = HEAD
 
