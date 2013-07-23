@@ -143,6 +143,9 @@ libmcapi_coreb-install: libmcapi_coreb-build
 			DESTDIR=$(STAGING_DIR) install
 
 icc_task-build:
+	cd $(ICC_DIR)/example/task/jpeg-7; \
+	./configure --host=bfin-uclinux CFLAGS=-mlong-calls; \
+	cd -
 	$(MAKE1) -C $(ICC_DIR)/example/task/jpeg-7  KERNEL_DIR=$(KERNEL_DIR)
 	$(MAKE1) -C $(ICC_DIR)/example/task  KERNEL_DIR=$(KERNEL_DIR) ICC_MACHINE=$(ICC_MACHINE) \
 			ICC_INCLUDE=$(ICC_INCLUDE) \
