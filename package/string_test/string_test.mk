@@ -5,7 +5,7 @@
 #############################################################
 STRING_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/string_test
 STRING_TEST_SITE_METHOD = svn
-STRING_TEST_VERSION = 10630
+STRING_TEST_VERSION = HEAD
 
 define STRING_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MODULE_DIR=$(BASE_DIR)/build/string_test-$(STRING_TEST_VERSION)
