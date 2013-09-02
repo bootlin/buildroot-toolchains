@@ -1,0 +1,50 @@
+--- linuxptp-6bcda22752d5ea946d6104ff719acaffdf2ba49b/pi.c	2013-08-02 17:24:40.000000000 +0800
++++ linuxptp/pi.c	2013-09-02 13:42:24.486352194 +0800
+@@ -44,7 +44,7 @@
+ double configured_pi_ki_scale = 0.0;
+ double configured_pi_ki_exponent = 0.4;
+ double configured_pi_ki_norm_max = 0.3;
+-double configured_pi_offset = 0.0;
++double configured_pi_offset = 1.0;
+ double configured_pi_f_offset = 0.0000001; /* 100 nanoseconds */
+ int configured_pi_max_freq = 900000000;
+ 
+--- linuxptp-6bcda22752d5ea946d6104ff719acaffdf2ba49b/sk.c	2013-08-02 17:24:40.000000000 +0800
++++ linuxptp/sk.c	2013-09-02 18:15:18.085112830 +0800
+@@ -35,7 +35,7 @@
+ 
+ /* globals */
+ 
+-int sk_tx_timeout = 1;
++int sk_tx_timeout = 100;
+ 
+ /* private methods */
+ 
+@@ -214,14 +214,15 @@
+ 	msg.msg_control = control;
+ 	msg.msg_controllen = sizeof(control);
+ 
++retry:
+ 	if (flags == MSG_ERRQUEUE) {
+-		struct pollfd pfd = { fd, 0, 0 };
++		struct pollfd pfd = { fd, POLLIN, 0 };
+ 		res = poll(&pfd, 1, sk_tx_timeout);
+ 		if (res < 1) {
+ 			pr_err(res ? "poll tx timestamp failed: %m" :
+ 			             "poll tx timestamp timeout");
+ 			return res;
+-		} else if (!(pfd.revents & POLLERR)) {
++		} else if (!(pfd.revents & POLLIN)) {
+ 			pr_err("poll tx woke up on non ERR event");
+ 			return -1;
+ 		}
+@@ -245,6 +246,9 @@
+ 		}
+ 	}
+ 
++	if (flags == MSG_ERRQUEUE && cm == NULL)
++		goto retry;
++
+ 	if (!ts) {
+ 		memset(&hwts->ts, 0, sizeof(hwts->ts));
+ 		return cnt;
