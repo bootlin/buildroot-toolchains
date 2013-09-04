@@ -1,5 +1,9 @@
+comment "xenomai requires thread support in toolchain"
+	depends on !BR2_TOOLCHAIN_HAS_THREADS
+
 config BR2_PACKAGE_XENOMAI
 	bool "Xenomai Userspace"
+	depends on BR2_TOOLCHAIN_HAS_THREADS
 	depends on BR2_i386 || BR2_x86_64 || BR2_arm || \
 		   BR2_bfin || BR2_powerpc || BR2_sh4
 	help
@@ -38,13 +42,6 @@ config BR2_PACKAGE_XENOMAI_VERSION
 	  a patch manually with
 	  BR2_LINUX_KERNEL_EXT_XENOMAI_ADEOS_PATCH, in the Linux
 	  Kernel -> Linux Kernel Extensions menu.
-
-config BR2_PACKAGE_XENOMAI_SMP
-	bool "Enable SMP support"
-	depends on BR2_cortex_a9 || !BR2_arm # only A9 has SMP support
-	help
-	  This option allows to enable or disable SMP support. It has
-	  to match your kernel configuration.
 
 config BR2_PACKAGE_XENOMAI_TESTSUITE
        bool "Install testsuite"

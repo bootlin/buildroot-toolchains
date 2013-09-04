@@ -1,13 +1,11 @@
-diff --git a/configure b/configure
-index ad5c164..887eb31 100755
---- a/configure
-+++ b/configure
-@@ -18384,7 +18384,7 @@ fi
+--- oprofile-0.9.8/configure.ac	2013-09-04 15:54:28.614102951 +0800
++++ oprofile-0.9.8/configure.ac	2013-09-04 15:54:36.470352490 +0800
+@@ -293,7 +293,7 @@
  LIBS="$ORIG_SAVE_LIBS"
  LIBERTY_LIBS="-liberty $DL_LIB $INTL_LIB"
  BFD_LIBS="-lbfd -liberty $DL_LIB $INTL_LIB $Z_LIB"
 -POPT_LIBS="-lpopt"
 +POPT_LIBS="-lpopt -liconv"
- 
- 
- 
+ AC_SUBST(LIBERTY_LIBS)
+ AC_SUBST(BFD_LIBS)
+ AC_SUBST(POPT_LIBS)

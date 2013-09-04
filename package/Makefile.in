@@ -7,11 +7,12 @@ endif
 HOSTMAKE :=$(shell which $(HOSTMAKE) || type -p $(HOSTMAKE) || echo make)
 
 # If BR2_LEVEL is 0, scale the maximum concurrency with the number of
-# CPUs.  A coefficient of 2 is used in order to keep processors busy
+# CPUs. An additional job is used in order to keep processors busy
 # while waiting on I/O.
+# If the number of processors is not available, assume one.
 ifeq ($(BR2_JLEVEL),0)
 PARALLEL_JOBS:=$(shell echo \
-	$$((2 * `getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`)))
+	$$((1 + `getconf _NPROCESSORS_ONLN 2>/dev/null || echo 1`)))
 else
 PARALLEL_JOBS:=$(BR2_JLEVEL)
 endif
@@ -20,24 +21,34 @@ MAKE1:=$(HOSTMAKE) -j1
 MAKE:=$(HOSTMAKE) -j$(PARALLEL_JOBS)
 
 # Compute GNU_TARGET_NAME
-GNU_TARGET_NAME=$(ARCH)-buildroot-linux-$(LIBC)$(ABI)
+GNU_TARGET_NAME=$(ARCH)-buildroot-$(TARGET_OS)-$(LIBC)$(ABI)
 
-ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_CTNG_uClibc)$(BR2_TOOLCHAIN_EXTERNAL_UCLIBC),y)
+# Blackfin FLAT needs uclinux
+ifeq ($(BR2_bfin)$(BR2_BINFMT_FLAT),yy)
+TARGET_OS=uclinux
+else
+TARGET_OS=linux
+endif
+
+ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
 LIBC=uclibc
 else
 LIBC=gnu
 endif
 
 # The ABI suffix is a bit special on ARM, as it needs to be
-# -uclibcgnueabi for uClibc EABI, -uclibc for uClibc OABI, -gnueabi
-# for glibc EABI and -gnu for glibc OABI. This means that the LIBC and
-# ABI aren't strictly orthogonal, which explains why we need the test
-# on LIBC below.
-ifeq ($(BR2_ARM_EABI),y)
+# -uclibcgnueabi for uClibc EABI, and -gnueabi for glibc EABI.
+# This means that the LIBC and ABI aren't strictly orthogonal,
+# which explains why we need the test on LIBC below.
+ifeq ($(BR2_arm)$(BR2_armeb),y)
 ifeq ($(LIBC),uclibc)
 ABI=gnueabi
 else
 ABI=eabi
+endif
+
+ifeq ($(BR2_ARM_EABIHF),y)
+ABI:=$(ABI)hf
 endif
 endif
 
@@ -121,6 +132,11 @@ endif
 ifneq ($(BR2_USE_MMU),y)
 TARGET_CFLAGS += -D__NOMMU__
 TARGET_CFLAGS += -D__uClinux__
+endif
+
+ifeq ($(BR2_TOOLCHAIN_BUILDROOT_USE_SSP),y)
+TARGET_CFLAGS += -fstack-protector-all
+TARGET_CXXFLAGS += -fstack-protector-all
 endif
 
 ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_CTNG),y)
@@ -262,7 +278,7 @@ HOST_MAKE_ENV=PATH=$(HOST_PATH) \
 		PERLLIB="$(HOST_DIR)/usr/lib/perl"
 
 
-#######################################################################
+################################################################################
 # settings we need to pass to configure
 
 # does unaligned access trap?
@@ -298,7 +314,7 @@ TARGET_CONFIGURE_ARGS= \
 	lt_cv_sys_lib_search_path_spec="" \
 	$(BR2_AC_CV_C_BIGENDIAN)
 
-#######################################################################
+################################################################################
 
 ifeq ($(BR2_ENABLE_LOCALE),y)
 DISABLE_NLS:=

@@ -14,32 +14,16 @@ config BR2_TARGET_UBOOT_BOARDNAME
 
 choice
 	prompt "U-Boot Version"
-	default BR2_TARGET_UBOOT_2013_01
 	help
 	  Select the specific U-Boot version you want to use
 
-config BR2_TARGET_UBOOT_2013_01
-	bool "2013.01.01"
+config BR2_TARGET_UBOOT_LATEST_VERSION
+	bool "2013.07"
 
-config BR2_TARGET_UBOOT_2012_10
-	bool "2012.10"
-
-config BR2_TARGET_UBOOT_2012_07
-	bool "2012.07"
-
-config BR2_TARGET_UBOOT_2012_04
-	bool "2012.04.01"
-
-config BR2_TARGET_UBOOT_2011_12
-	bool "2011.12"
-
-config BR2_TARGET_UBOOT_2011_09
-	bool "2011.09"
-	depends on BR2_DEPRECATED
-
-config BR2_TARGET_UBOOT_2011_06
-	bool "2011.06"
-	depends on BR2_DEPRECATED
+config BR2_TARGET_UBOOT_CUSTOM_VERSION
+       bool "Custom version"
+	help
+	  This option allows to use a specific official versions
 
 config BR2_TARGET_UBOOT_CUSTOM_TARBALL
 	bool "Custom tarball"
@@ -48,6 +32,10 @@ config BR2_TARGET_UBOOT_CUSTOM_GIT
 	bool "Custom Git repository"
 
 endchoice
+
+config BR2_TARGET_UBOOT_CUSTOM_VERSION_VALUE
+	string "U-Boot version"
+	depends on BR2_TARGET_UBOOT_CUSTOM_VERSION
 
 if BR2_TARGET_UBOOT_CUSTOM_TARBALL
 
@@ -58,13 +46,8 @@ endif
 
 config BR2_TARGET_UBOOT_VERSION
 	string
-	default "2013.01.01"	if BR2_TARGET_UBOOT_2013_01
-	default "2012.10"	if BR2_TARGET_UBOOT_2012_10
-	default "2012.07"	if BR2_TARGET_UBOOT_2012_07
-	default "2012.04.01"	if BR2_TARGET_UBOOT_2012_04
-	default "2011.12"	if BR2_TARGET_UBOOT_2011_12
-	default "2011.09"	if BR2_TARGET_UBOOT_2011_09
-	default "2011.06"	if BR2_TARGET_UBOOT_2011_06
+	default "2013.07"	if BR2_TARGET_UBOOT_LATEST_VERSION
+	default $BR2_TARGET_UBOOT_CUSTOM_VERSION_VALUE if BR2_TARGET_UBOOT_CUSTOM_VERSION
 	default "custom"	if BR2_TARGET_UBOOT_CUSTOM_TARBALL
 	default $BR2_TARGET_UBOOT_CUSTOM_GIT_VERSION if BR2_TARGET_UBOOT_CUSTOM_GIT
 
@@ -73,7 +56,7 @@ config BR2_TARGET_UBOOT_CUSTOM_PATCH_DIR
 	help
 	  If your board requires custom patches, add the path to the
 	  directory containing the patches here. The patches must be
-	  named uboot-<version>-<something>.patch.
+	  named uboot-<something>.patch.
 
 	  Most users may leave this empty
 
@@ -115,7 +98,30 @@ config BR2_TARGET_UBOOT_FORMAT_LDR
 	depends on BR2_bfin
 	bool "u-boot.ldr"
 
+config BR2_TARGET_UBOOT_FORMAT_ELF
+	bool "u-boot.elf"
+
+config BR2_TARGET_UBOOT_FORMAT_SB
+	depends on BR2_arm
+	bool "u-boot.sb"
+
+config BR2_TARGET_UBOOT_FORMAT_CUSTOM
+	bool "Custom (specify below)"
+	help
+	  On some platforms, the standard U-Boot binary is not called
+	  u-boot.bin, but u-boot<something>.bin. If this is your case,
+	  you should select this option and specify the correct name
+	  in BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME.
+
 endchoice
+
+config BR2_TARGET_UBOOT_FORMAT_CUSTOM_NAME
+	string "U-Boot binary format: custom name"
+	depends on BR2_TARGET_UBOOT_FORMAT_CUSTOM
+	help
+	  Specify the correct name of the output binary created by
+	  U-Boot, if it is not one of the default names. For example:
+	  u-boot_magic.bin
 
 config BR2_TARGET_UBOOT_OMAP_IFT
 	depends on BR2_TARGET_UBOOT_FORMAT_BIN
@@ -211,5 +217,28 @@ config BR2_TARGET_UBOOT_SPL_NAME
 	  This is the name of the SPL binary, generated during
 	  u-boot build. For most platform it is u-boot-spl.bin
 	  but not always. It is MLO on OMAP for example.
+
+menuconfig BR2_TARGET_UBOOT_ENVIMAGE
+	bool "Environment image"
+	help
+	  Generate a valid binary environment image from a text file
+	  describing the key=value pairs of the environment.
+
+	  The environment image will be called uboot-env.bin.
+
+if BR2_TARGET_UBOOT_ENVIMAGE
+
+config BR2_TARGET_UBOOT_ENVIMAGE_SOURCE
+	string "Source file for environment"
+	help
+	  Text file describing the environment.
+
+config BR2_TARGET_UBOOT_ENVIMAGE_SIZE
+	string "Size of environment"
+	help
+	  Size of envronment, can be prefixed with 0x for hexadecimal
+	  values.
+
+endif # BR2_TARGET_UBOOT_ENVIMAGE
 
 endif # BR2_TARGET_UBOOT

@@ -6,7 +6,6 @@ config BR2_PACKAGE_PULSEAUDIO
 	select BR2_PACKAGE_JSON_C
 	select BR2_PACKAGE_LIBSNDFILE
 	select BR2_PACKAGE_SPEEX
-	select BR2_PACKAGE_GETTEXT if BR2_NEEDS_GETTEXT
 	depends on BR2_LARGEFILE
 	help
 	  PulseAudio is a sound system for POSIX OSes, meaning that it
@@ -18,6 +17,14 @@ config BR2_PACKAGE_PULSEAUDIO
 	  easily achieved using a sound server.
 
 	  http://pulseaudio.org
+
+config BR2_PACKAGE_PULSEAUDIO_DAEMON
+	bool "start as a system daemon"
+	depends on BR2_PACKAGE_PULSEAUDIO
+	help
+	  PulseAudio can be started as a system daemon. This is not the
+	  recommended way of using PulseAudio unless you are building a
+	  headless system.
 
 comment "pulseaudio requires a toolchain with WCHAR, LARGEFILE and threads support"
 	depends on !BR2_USE_WCHAR || !BR2_LARGEFILE || !BR2_TOOLCHAIN_HAS_THREADS

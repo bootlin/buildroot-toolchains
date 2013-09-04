@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # flex
 #
-#############################################################
+################################################################################
 
 FLEX_VERSION = 2.5.37
 FLEX_SITE = http://download.sourceforge.net/project/flex
@@ -10,9 +10,10 @@ FLEX_INSTALL_STAGING = YES
 FLEX_LICENSE = FLEX
 FLEX_LICENSE_FILES = COPYING
 FLEX_DEPENDENCIES = \
-	$(if $(BR2_PACKAGE_GETTEXT),gettext)
+	$(if $(BR2_PACKAGE_GETTEXT_IF_LOCALE),gettext) host-m4
+FLEX_CONF_ENV = ac_cv_path_M4=/usr/bin/m4
 # we don't have a host-gettext/libintl
-HOST_FLEX_DEPENDENCIES =
+HOST_FLEX_DEPENDENCIES = host-m4
 
 ifeq ($(BR2_PACKAGE_FLEX_BINARY),y)
 # lex -> flex

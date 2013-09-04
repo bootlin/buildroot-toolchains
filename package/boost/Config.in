@@ -9,8 +9,6 @@ config BR2_PACKAGE_BOOST
 	# that unfortunately doesn't work. Until someone fixes that,
 	# let's depend on threads.
 	depends on BR2_TOOLCHAIN_HAS_THREADS
-	select BR2_PACKAGE_BZIP2
-	select BR2_PACKAGE_ZLIB
 	help
 	  A general purpose C++ library
 
@@ -20,6 +18,11 @@ if BR2_PACKAGE_BOOST
 
 config BR2_PACKAGE_BOOST_CHRONO
 	bool "boost-chrono"
+
+config BR2_PACKAGE_BOOST_CONTEXT
+	bool "boost-context"
+	depends on (BR2_arm || BR2_armeb || BR2_i386 || BR2_mips || BR2_mipsel \
+			|| BR2_powerpc || BR2_sparc || BR2_x86_64)
 
 config BR2_PACKAGE_BOOST_DATE_TIME
 	bool "boost-date_time"
@@ -38,6 +41,8 @@ config BR2_PACKAGE_BOOST_GRAPH_PARALLEL
 
 config BR2_PACKAGE_BOOST_IOSTREAMS
 	bool "boost-iostreams"
+	select BR2_PACKAGE_BZIP2
+	select BR2_PACKAGE_ZLIB
 
 config BR2_PACKAGE_BOOST_LOCALE
 	depends on BR2_USE_WCHAR

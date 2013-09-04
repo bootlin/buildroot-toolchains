@@ -10,8 +10,8 @@
 
 CTNG_DIR := $(BUILD_DIR)/build-toolchain
 
-CTNG_UCLIBC_CONFIG_FILE := $(TOPDIR)/toolchain/uClibc/uClibc-0.9.33.config
-CTNG_CONFIG_FILE:=$(call qstrip,$(BR2_TOOLCHAIN_CTNG_CONFIG))
+CTNG_UCLIBC_CONFIG_FILE := $(TOPDIR)/package/uclibc/uClibc-0.9.33.config
+CTNG_CONFIG_FILE := $(call qstrip,$(BR2_TOOLCHAIN_CTNG_CONFIG))
 
 # Hack! ct-ng is in fact a Makefile script. As such, it accepts all
 # make options, such as -C, which makes it uneeded to chdir prior
@@ -22,15 +22,13 @@ PATH=$(HOST_PATH) ct-ng -C $(CTNG_DIR) --no-print-directory $(1)
 endef
 
 #-----------------------------------------------------------------------------
-# 'uclibc' is the target to depend on to get the toolchain and prepare
-# the staging directory and co.
-uclibc: dependencies $(STAMP_DIR)/ct-ng-toolchain-installed
+toolchain-crosstool-ng: dependencies $(STAMP_DIR)/ct-ng-toolchain-installed
 
-# 'uclibc-source' is the target used by the infra structure to mean
-# "we just want to download the toolchain's sources, not build it"
-# For crosstool-NG, we need it to be configured before we can download;
-# then we have to override a config option to just do the download
-uclibc-source: $(CTNG_DIR)/.config
+# The target used by the infra structure to mean "we just want to
+# download the toolchain's sources, not build it" For crosstool-NG, we
+# need it to be configured before we can download; then we have to
+# override a config option to just do the download
+toolchain-crosstool-ng-source: $(CTNG_DIR)/.config
 	$(Q)$(call ctng,build CT_ONLY_DOWNLOAD=y)
 
 #-----------------------------------------------------------------------------
@@ -362,32 +360,28 @@ endef
 $(CTNG_DIR)/.config: | host-crosstool-ng
 
 # Default configuration
-# Depends on top-level .config because it has options we have to shoe-horn
-# into crosstool-NG's .config
 # Only copy the original .config file if we don't have one already.
 # Check that given config file matches selected C library.
 # We need to call oldconfig twice in a row to ensure the options
 # are correctly set ( eg. if an option is new, then the initial sed
 # can't do anything about it ) Ideally, this should go in oldconfig
 # itself, but it's much easier to handle here.
-
-$(CTNG_DIR)/.config: $(CTNG_CONFIG_FILE) $(BUILDROOT_CONFIG)
+$(CTNG_DIR)/.config:
 	$(Q)if [ ! -f $@ ]; then                                                        \
 	        mkdir -p "$(CTNG_DIR)";                                                 \
-	        libc="$$(awk -F '"' '$$1=="CT_LIBC=" { print $$2; }' "$<")";            \
+	        libc="$$(awk -F '"' '$$1=="CT_LIBC=" { print $$2; }'                    \
+	                        "$(CTNG_CONFIG_FILE)"                                   \
+	                )";                                                             \
 	        if [ "$${libc}" != "$(BR2_TOOLCHAIN_CTNG_LIBC)" ]; then                 \
-	            echo "* Inconsistency in crosstool-NG config file '$<'";            \
+	            echo "* Inconsistency in crosstool-NG config file '$(CTNG_CONFIG_FILE)'"; \
 	            echo "* - buildroot configured for '$(BR2_TOOLCHAIN_CTNG_LIBC)'";   \
 	            echo "* - given config file for '$${libc}'";                        \
 	            exit 1;                                                             \
 	        fi;                                                                     \
-	        cp -f $< $@;                                                            \
+	        cp -f $(CTNG_CONFIG_FILE) $@;                                                            \
 	    fi
-	$(Q)cp -a $@ $@.timestamp
 	$(call ctng-oldconfig,$@)
 	$(call ctng-oldconfig,$@)
-	$(call ctng-check-config-changed,$@,$@.timestamp)
-	$(Q)rm -f $@.timestamp
 
 # Manual configuration
 ctng-menuconfig: $(CTNG_DIR)/.config

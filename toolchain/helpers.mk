@@ -125,7 +125,7 @@ copy_toolchain_lib_root = \
 # $1: main sysroot directory of the toolchain
 # $2: arch specific sysroot directory of the toolchain
 # $3: arch specific subdirectory in the sysroot
-# $4: directory of libraries ('lib' or 'lib64')
+# $4: directory of libraries ('lib', 'lib32' or 'lib64')
 # $5: support lib directories (for toolchains storing libgcc_s,
 #     libstdc++ and other gcc support libraries outside of the
 #     sysroot)
@@ -135,9 +135,11 @@ copy_toolchain_sysroot = \
 	ARCH_SUBDIR="$(strip $3)"; \
 	ARCH_LIB_DIR="$(strip $4)" ; \
 	SUPPORT_LIB_DIR="$(strip $5)" ; \
-	for i in etc $${ARCH_LIB_DIR} sbin usr ; do \
+	for i in etc $${ARCH_LIB_DIR} sbin usr usr/$${ARCH_LIB_DIR}; do \
 		if [ -d $${ARCH_SYSROOT_DIR}/$$i ] ; then \
-			rsync -au --chmod=Du+w --exclude 'usr/lib/locale' $${ARCH_SYSROOT_DIR}/$$i $(STAGING_DIR)/ ; \
+			rsync -au --chmod=Du+w --exclude 'usr/lib/locale' \
+				--exclude lib --exclude lib32 --exclude lib64 \
+				$${ARCH_SYSROOT_DIR}/$$i/ $(STAGING_DIR)/$$i/ ; \
 		fi ; \
 	done ; \
 	if [ `readlink -f $${SYSROOT_DIR}` != `readlink -f $${ARCH_SYSROOT_DIR}` ] ; then \
@@ -159,19 +161,6 @@ copy_toolchain_sysroot = \
 	find $(STAGING_DIR) -type d | xargs chmod 755
 
 #
-# Create lib64 -> lib and usr/lib64 -> usr/lib symbolic links in the
-# target and staging directories. This is needed for some 64 bits
-# toolchains such as the Crosstool-NG toolchains, for which the path
-# to the dynamic loader and other libraries is /lib64, but the
-# libraries are stored in /lib.
-#
-create_lib64_symlinks = \
-	(cd $(TARGET_DIR) ;      ln -s lib lib64) ; \
-	(cd $(TARGET_DIR)/usr ;  ln -s lib lib64) ; \
-	(cd $(STAGING_DIR) ;     ln -s lib lib64) ; \
-	(cd $(STAGING_DIR)/usr ; ln -s lib lib64)
-
-#
 # Check the availability of a particular glibc feature. This function
 # is used to check toolchain options that are always supported by
 # glibc, so we simply check that the corresponding option is properly
@@ -181,7 +170,7 @@ create_lib64_symlinks = \
 # $2: feature description
 #
 check_glibc_feature = \
-	if [ x$($(1)) != x"y" ] ; then \
+	if [ "$($(1))" != "y" ] ; then \
 		echo "$(2) available in C library, please enable $(1)" ; \
 		exit 1 ; \
 	fi
@@ -236,11 +225,11 @@ check_glibc = \
 #
 check_uclibc_feature = \
 	IS_IN_LIBC=`grep -q "\#define $(1) 1" $(3) && echo y` ; \
-	if [ x$($(2)) != x"y" -a x$${IS_IN_LIBC} = x"y" ] ; then \
+	if [ "$($(2))" != "y" -a "$${IS_IN_LIBC}" = "y" ] ; then \
 		echo "$(4) available in C library, please enable $(2)" ; \
 		exit 1 ; \
 	fi ; \
-	if [ x$($(2)) = x"y" -a x$${IS_IN_LIBC} != x"y" ] ; then \
+	if [ "$($(2))" = "y" -a "$${IS_IN_LIBC}" != "y" ] ; then \
 		echo "$(4) not available in C library, please disable $(2)" ; \
 		exit 1 ; \
 	fi
@@ -279,18 +268,24 @@ check_uclibc = \
 #
 check_arm_abi = \
 	__CROSS_CC=$(strip $1) ; \
+	__CROSS_READELF=$(strip $2) ; \
 	EXT_TOOLCHAIN_TARGET=`LANG=C $${__CROSS_CC} -v 2>&1 | grep ^Target | cut -f2 -d ' '` ; \
-	if echo $${EXT_TOOLCHAIN_TARGET} | grep -qE 'eabi(hf)?$$' ; then \
-		EXT_TOOLCHAIN_ABI="eabi" ; \
-	else \
-		EXT_TOOLCHAIN_ABI="oabi" ; \
-	fi ; \
-	if [ x$(BR2_ARM_OABI) = x"y" -a $${EXT_TOOLCHAIN_ABI} = "eabi" ] ; then \
-		echo "Incorrect ABI setting" ; \
+	if ! echo $${EXT_TOOLCHAIN_TARGET} | grep -qE 'eabi(hf)?$$' ; then \
+		echo "External toolchain uses the unsuported OABI" ; \
 		exit 1 ; \
 	fi ; \
-	if [ x$(BR2_ARM_EABI) = x"y" -a $${EXT_TOOLCHAIN_ABI} = "oabi" ] ; then \
-		echo "Incorrect ABI setting" ; \
+	EXT_TOOLCHAIN_CRT1=`LANG=C $${__CROSS_CC} -print-file-name=crt1.o` ; \
+	if $${__CROSS_READELF} -A $${EXT_TOOLCHAIN_CRT1} | grep -q "Tag_ABI_VFP_args:" ; then \
+		EXT_TOOLCHAIN_ABI="eabihf" ; \
+	else \
+		EXT_TOOLCHAIN_ABI="eabi" ; \
+	fi ; \
+	if [ "$(BR2_ARM_EABI)" = "y" -a "$${EXT_TOOLCHAIN_ABI}" = "eabihf" ] ; then \
+		echo "Incorrect ABI setting: EABI selected, but toolchain uses EABIhf" ; \
+		exit 1 ; \
+	fi ; \
+	if [ "$(BR2_ARM_EABIHF)" = "y" -a "$${EXT_TOOLCHAIN_ABI}" = "eabi" ] ; then \
+		echo "Incorrect ABI setting: EABIhf selected, but toolchain uses EABI" ; \
 		exit 1 ; \
 	fi
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # Usage (the graphviz package must be installed in your distribution)
-#  ./scripts/graph-depends [package-name] > test.dot
+#  ./support/scripts/graph-depends [package-name] > test.dot
 #  dot -Tpdf test.dot -o test.pdf
 #
 # With no arguments, graph-depends will draw a complete graph of
@@ -161,13 +161,17 @@ def remove_redundant_deps(deps):
     return newdeps
 
 TARGET_EXCEPTIONS = [
+    "target-generic-securetty",
     "target-generic-issue",
     "target-generic-getty-busybox",
     "target-generic-do-remount-rw",
+    "target-generic-dont-remount-rw",
     "target-finalize",
     "erase-fakeroots",
     "target-generic-hostname",
     "target-root-passwd",
+    "target-post-image",
+    "target-purgelocales",
 ]
 
 # In full mode, start with the result of get_targets() to get the main

@@ -1,14 +1,16 @@
-#############################################################
+################################################################################
 #
 # Embed the ubifs image into an ubi one
 #
-#############################################################
+################################################################################
 
 UBI_UBINIZE_OPTS := -m $(BR2_TARGET_ROOTFS_UBIFS_MINIOSIZE)
 UBI_UBINIZE_OPTS += -p $(BR2_TARGET_ROOTFS_UBI_PEBSIZE)
 ifneq ($(BR2_TARGET_ROOTFS_UBI_SUBSIZE),0)
 UBI_UBINIZE_OPTS += -s $(BR2_TARGET_ROOTFS_UBI_SUBSIZE)
 endif
+
+UBI_UBINIZE_OPTS += $(call qstrip,$(BR2_TARGET_ROOTFS_UBI_OPTS))
 
 ROOTFS_UBI_DEPENDENCIES = rootfs-ubifs
 

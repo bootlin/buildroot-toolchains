@@ -1,16 +1,17 @@
-#############################################################
+################################################################################
 #
 # nbd
 #
-#############################################################
+################################################################################
 
-NBD_VERSION = 3.2
+NBD_VERSION = 3.3
 NBD_SOURCE = nbd-$(NBD_VERSION).tar.bz2
 NBD_SITE = http://downloads.sourceforge.net/project/nbd/nbd/$(NBD_VERSION)
 NBD_CONF_OPT = $(if $(BR2_LARGEFILE),--enable-lfs,--disable-lfs)
 NBD_DEPENDENCIES = libglib2
+NBD_LICENSE = GPLv2
 
-ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_EXTERNAL_UCLIBC)$(BR2_TOOLCHAIN_CTNG_uClibc),y)
+ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
 # We have linux/falloc.h
 # but uClibc lacks fallocate(2) which is a glibc-ism
 NBD_CONF_ENV = ac_cv_header_linux_falloc_h=no

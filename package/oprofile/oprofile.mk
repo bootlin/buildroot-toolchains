@@ -1,15 +1,20 @@
-#############################################################
+################################################################################
 #
 # oprofile
 #
-#############################################################
+################################################################################
 
 OPROFILE_VERSION = 0.9.8
 OPROFILE_SITE = http://downloads.sourceforge.net/project/oprofile/oprofile/oprofile-$(OPROFILE_VERSION)
 OPROFILE_LICENSE = GPLv2+
 OPROFILE_LICENSE_FILES = COPYING
-OPROFILE_CONF_OPT = --localstatedir=/var --with-kernel-support \
-			ac_cv_lib_popt_poptGetContext=yes
+OPROFILE_CONF_OPT = \
+	--localstatedir=/var \
+	--disable-account-check \
+	--enable-gui=no \
+	--with-kernel=$(STAGING_DIR)/usr \
+	ac_cv_lib_popt_poptGetContext=yes
+OPROFILE_AUTORECONF = YES
 OPROFILE_BINARIES = utils/ophelp pp/opannotate pp/oparchive pp/opgprof
 OPROFILE_BINARIES += pp/opreport opjitconv/opjitconv daemon/oprofiled
 OPROFILE_BINARIES += utils/op-check-perfevents pe_profiling/operf libabi/opimport
@@ -32,11 +37,20 @@ ifeq ($(OPROFILE_ARCH),)
 OPROFILE_ARCH = $(BR2_ARCH)
 endif
 
-OPROFILE_DEPENDENCIES = popt
+OPROFILE_DEPENDENCIES = popt binutils host-pkgconf
 ifneq ($(BR2_bfin),y)
 OPROFILE_DEPENDENCIES = binutils
 endif
 
+ifeq ($(BR2_PACKAGE_LIBPFM4),y)
+OPROFILE_DEPENDENCIES += libpfm4
+endif
+
+define OPROFILE_CREATE_FILES
+	touch $(@D)/NEWS $(@D)/AUTHORS $(@D)/ChangeLog
+endef
+
+OPROFILE_POST_PATCH_HOOKS += OPROFILE_CREATE_FILES
 
 define OPROFILE_INSTALL_TARGET_CMDS
 	$(INSTALL) -d -m 755 $(TARGET_DIR)/usr/bin

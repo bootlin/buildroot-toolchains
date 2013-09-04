@@ -1,11 +1,28 @@
 config BR2_ARCH_IS_64
-       bool
+	bool
+
+config BR2_SOFT_FLOAT
+	bool
 
 choice
 	prompt "Target Architecture"
 	default BR2_i386
 	help
 	  Select the target architecture family to build for.
+
+config BR2_arcle
+	bool "ARC (little endian)"
+	help
+	  Synopsys' DesignWare ARC Processor Cores are a family of 32-bit CPUs
+	  that can be used from deeply embedded to high performance host
+	  applications. Little endian.
+
+config BR2_arceb
+	bool "ARC (big endian)"
+	help
+	  Synopsys' DesignWare ARC Processor Cores are a family of 32-bit CPUs
+	  that can be used from deeply embedded to high performance host
+	  applications. Big endian.
 
 config BR2_arm
 	bool "ARM (little endian)"
@@ -25,6 +42,7 @@ config BR2_armeb
 
 config BR2_aarch64
 	bool "AArch64"
+	select BR2_ARCH_IS_64
 	help
 	  Aarch64 is a 64-bit architecture developed by ARM Holdings.
 	  http://www.arm.com/products/processors/instruction-set-architectures/armv8-architecture.php
@@ -177,6 +195,24 @@ config BR2_GCC_TARGET_CPU
 config BR2_GCC_TARGET_CPU_REVISION
 	string
 
+# The value of this option will be passed as --with-fpu=<value> when
+# building gcc (internal backend) or -mfpu=<value> in the toolchain
+# wrapper (external toolchain)
+config BR2_GCC_TARGET_FPU
+	string
+
+# The value of this option will be passed as --with-float=<value> when
+# building gcc (internal backend) or -mfloat-abi=<value> in the toolchain
+# wrapper (external toolchain)
+config BR2_GCC_TARGET_FLOAT_ABI
+	string
+
+# The value of this option will be passed as --with-mode=<value> when
+# building gcc (internal backend) or -m<value> in the toolchain
+# wrapper (external toolchain)
+config BR2_GCC_TARGET_MODE
+	string
+
 # Set up target binary format
 choice
 	prompt "Target Binary Format"
@@ -236,6 +272,10 @@ config BR2_BINFMT_FLAT_SHARED
 	  Allow to load and link indiviual FLAT binaries at run time.
 
 endchoice
+
+if BR2_arcle || BR2_arceb
+source "arch/Config.in.arc"
+endif
 
 if BR2_arm || BR2_armeb
 source "arch/Config.in.arm"

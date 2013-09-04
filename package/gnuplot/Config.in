@@ -4,4 +4,3 @@ config BR2_PACKAGE_GNUPLOT
 	  A portable command-line driven graphing utility.
 
 	  http://www.gnuplot.info/
-

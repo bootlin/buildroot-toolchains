@@ -15,11 +15,11 @@ system is based on hand-written Makefiles or shell scripts.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ------------------------------
-01: #############################################################
+01: ################################################################################
 02: #
 03: # libfoo
 04: #
-05: #############################################################
+05: ################################################################################
 06:
 07: LIBFOO_VERSION = 1.0
 08: LIBFOO_SOURCE = libfoo-$(LIBFOO_VERSION).tar.gz
@@ -53,7 +53,11 @@ system is based on hand-written Makefiles or shell scripts.
 36:	/bin/foo  f  4755  0  0	 -  -  -  -  -
 37: endef
 38:
-39: $(eval $(generic-package))
+39: define LIBFOO_USERS
+40:	foo -1 libfoo -1 * - - - LibFoo daemon
+41: endef
+42:
+43: $(eval $(generic-package))
 --------------------------------
 
 The Makefile begins on line 7 to 11 with metadata information: the
@@ -95,24 +99,30 @@ of the shell script(s) needing fixing. All these names are relative to
 In addition, the scripts listed in +LIBFOO_CONFIG_SCRIPTS+ are removed
 from +$(TARGET_DIR)/usr/bin+, since they are not needed on the target.
 
-Example 1:
-
+.Config script: 'divine' package
+================================
 Package divine installs shell script '$(STAGING_DIR)/usr/bin/divine-config'.
 
-So it's fixup would be:
+So its fixup would be:
 
+--------------------------------
 DIVINE_CONFIG_SCRIPTS = divine-config
+--------------------------------
+================================
 
-Example 2:
-
+.Config script: 'imagemagick' package:
+================================
 Package imagemagick installs the following scripts:
 '$(STAGING_DIR)/usr/bin/{Magick,Magick++,MagickCore,MagickWand,Wand}-config'
 
 So it's fixup would be:
 
+--------------------------------
 IMAGEMAGICK_CONFIG_SCRIPTS = \
    Magick-config Magick++-config \
    MagickCore-config MagickWand-config Wand-config
+--------------------------------
+================================
 
 On line 14, we specify the list of dependencies this package relies
 on. These dependencies are listed in terms of lower-case package names,
@@ -140,7 +150,10 @@ On line 31..33, we define a device-node file used by this package
 On line 35..37, we define the permissions to set to specific files
 installed by this package (+LIBFOO_PERMISSIONS+).
 
-Finally, on line 39, we call the +generic-package+ function, which
+On lines 39..41, we define a user that is used by this package (eg.
+to run a daemon as non-root) (+LIBFOO_USERS+).
+
+Finally, on line 43, we call the +generic-package+ function, which
 generates, according to the variables defined previously, all the
 Makefile code necessary to make your package working.
 
@@ -307,6 +320,11 @@ information is (assuming the package name is +libfoo+) :
   You can find some documentation for this syntax in the xref:makedev-syntax[].
   This variable is optional.
 
+* +LIBFOO_USERS+ lists the users to create for this package, if it installs
+  a program you want to run as a specific user (eg. as a daemon, or as a
+  cron-job). The syntax is similar in spirit to the makedevs one, and is
+  described in the xref:makeuser-syntax[]. This variable is optional.
+
 * +LIBFOO_LICENSE+ defines the license (or licenses) under which the package
   is released.
   This name will appear in the manifest file produced by +make legal-info+.
@@ -330,6 +348,12 @@ information is (assuming the package name is +libfoo+) :
   non-opensource packages: Buildroot will not save the source code for this
   package when collecting the +legal-info+.
 
+* +LIBFOO_FLAT_STACKSIZE+ defines the stack size of an application built into
+  the FLAT binary format. The application stack size on the NOMMU architecture
+  processors can't be enlarged at run time. The default stack size for the
+  FLAT binary format is only 4k bytes. If the application consumes more stack,
+  append the required number here.
+
 The recommended way to define these variables is to use the following
 syntax:
 
@@ -339,6 +363,13 @@ LIBFOO_VERSION = 2.32
 
 Now, the variables that define what should be performed at the
 different steps of the build process.
+
+* +LIBFOO_EXTRACT_CMDS+ lists the actions to be performed to extract
+  the package. This is generally not needed as tarballs are
+  automatically handled by Buildroot. However, if the package uses a
+  non-standard archive format, such as a ZIP or RAR file, or has a
+  tarball with a non-standard organization, this variable allows to
+  override the package infrastructure default behavior.
 
 * +LIBFOO_CONFIGURE_CMDS+ lists the actions to be performed to
   configure the package before its compilation.

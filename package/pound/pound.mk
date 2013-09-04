@@ -8,6 +8,7 @@ POUND_SITE:=http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/pound
 POUND_SITE_METHOD = svn
 POUND_VERSION = HEAD
 POUND_DEPENDENCIES = openssl
+POUND_CONF_OPT = LIBS=-lz
 
 #define POUND_CONFIGURE_CMDS
 #	$(CONFIG_UPDATE) $(@D)
@@ -21,7 +22,7 @@ VERSION=2.0
 POUND_CFLAGS = $(TARGET_CFLAGS) -I$(LINUX_SRCDIR)/include -I$(LINUX_SRCDIR)/arch/blackfin/include -DHAVE_SYSLOG_H=1 -DVERSION=$(VERSION) -pthread -DNEED_STACK -DEMBED -D__uClinux__  -D_REENTRANT -D_THREAD_SAFE
 
 define POUND_BUILD_CMDS
-	$(MAKE) CFLAGS="$(POUND_CFLAGS)"  OS=$(ARCH) CC="$(TARGET_CC)" -C $(@D)
+	$(MAKE) CFLAGS="$(POUND_CFLAGS)" OS=$(ARCH) CC="$(TARGET_CC)" -C $(@D)
 endef
 
 define POUND_INSTALL_TARGET_CMDS

@@ -1,9 +1,10 @@
-#############################################################
+################################################################################
 #
 # uboot-tools
 #
-#############################################################
-UBOOT_TOOLS_VERSION = 2013.01.01
+################################################################################
+
+UBOOT_TOOLS_VERSION = 2013.07
 UBOOT_TOOLS_SOURCE  = u-boot-$(UBOOT_TOOLS_VERSION).tar.bz2
 UBOOT_TOOLS_SITE    = ftp://ftp.denx.de/pub/u-boot
 UBOOT_TOOLS_LICENSE = GPLv2+
@@ -24,6 +25,12 @@ define UBOOT_TOOLS_INSTALL_MKIMAGE
 endef
 endif
 
+ifeq ($(BR2_PACKAGE_UBOOT_TOOLS_MKENVIMAGE),y)
+define UBOOT_TOOLS_INSTALL_MKENVIMAGE
+	$(INSTALL) -m 0755 -D $(@D)/tools/mkenvimage $(TARGET_DIR)/usr/bin/mkenvimage
+endef
+endif
+
 ifeq ($(BR2_PACKAGE_UBOOT_TOOLS_FWPRINTENV),y)
 define UBOOT_TOOLS_INSTALL_FWPRINTENV
 	$(INSTALL) -m 0755 -D $(@D)/tools/env/fw_printenv $(TARGET_DIR)/usr/sbin/fw_printenv
@@ -33,6 +40,7 @@ endif
 
 define UBOOT_TOOLS_INSTALL_TARGET_CMDS
 	$(UBOOT_TOOLS_INSTALL_MKIMAGE)
+	$(UBOOT_TOOLS_INSTALL_MKENVIMAGE)
 	$(UBOOT_TOOLS_INSTALL_FWPRINTENV)
 endef
 
@@ -51,6 +59,7 @@ endef
 
 define HOST_UBOOT_TOOLS_INSTALL_CMDS
 	$(INSTALL) -m 0755 -D $(@D)/tools/mkimage $(HOST_DIR)/usr/bin/mkimage
+	$(INSTALL) -m 0755 -D $(@D)/tools/mkenvimage $(HOST_DIR)/usr/bin/mkenvimage
 endef
 
 $(eval $(generic-package))

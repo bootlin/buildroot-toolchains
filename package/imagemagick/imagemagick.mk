@@ -1,11 +1,11 @@
-#############################################################
+################################################################################
 #
 # imagemagick
 #
-#############################################################
+################################################################################
 
-IMAGEMAGICK_MAJOR = 6.7.8
-IMAGEMAGICK_VERSION = $(IMAGEMAGICK_MAJOR)-8
+IMAGEMAGICK_MAJOR = 6.8.6
+IMAGEMAGICK_VERSION = $(IMAGEMAGICK_MAJOR)-2
 IMAGEMAGICK_SOURCE = ImageMagick-$(IMAGEMAGICK_VERSION).tar.bz2
 # The official ImageMagick site only keeps the latest versions
 # available, which is annoying. Use an alternate site that keeps all
@@ -19,7 +19,7 @@ IMAGEMAGICK_AUTORECONF = YES
 IMAGEMAGICK_CONFIG_SCRIPTS = \
 	$(addsuffix -config,Magick MagickCore MagickWand Wand)
 
-ifeq ($(BR2_INSTALL_LIBSTDCPP),y)
+ifeq ($(BR2_INSTALL_LIBSTDCPP)$(BR2_USE_WCHAR),yy)
 IMAGEMAGICK_CONFIG_SCRIPTS += Magick++-config
 endif
 

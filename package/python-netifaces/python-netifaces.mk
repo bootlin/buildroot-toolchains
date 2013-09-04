@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # python-netifaces
 #
-#############################################################
+################################################################################
 
 PYTHON_NETIFACES_VERSION = 0.7
 PYTHON_NETIFACES_SOURCE  = netifaces-$(PYTHON_NETIFACES_VERSION).tar.gz
@@ -18,8 +18,10 @@ define PYTHON_NETIFACES_BUILD_CMDS
 endef
 
 define PYTHON_NETIFACES_INSTALL_TARGET_CMDS
-	(cd $(@D); PYTHONPATH=$(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/site-packages \
-	$(HOST_DIR)/usr/bin/python setup.py install --prefix=$(TARGET_DIR)/usr)
+	(cd $(@D); \
+	PYTHONPATH=$(TARGET_DIR)/usr/lib/python$(PYTHON_VERSION_MAJOR)/site-packages \
+	$(HOST_DIR)/usr/bin/python setup.py install \
+	--single-version-externally-managed --root=/ --prefix=$(TARGET_DIR)/usr)
 endef
 
 $(eval $(generic-package))

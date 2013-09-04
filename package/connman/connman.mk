@@ -1,10 +1,10 @@
-#######################################################
+################################################################################
 #
-# connman - open source connection manager
+# connman
 #
-#######################################################
+################################################################################
 
-CONNMAN_VERSION = 1.10
+CONNMAN_VERSION = 1.12
 CONNMAN_SITE = $(BR2_KERNEL_MIRROR)/linux/network/connman/
 CONNMAN_DEPENDENCIES = libglib2 dbus iptables gnutls
 CONNMAN_INSTALL_STAGING = YES

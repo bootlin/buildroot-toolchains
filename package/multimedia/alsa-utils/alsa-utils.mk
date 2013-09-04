@@ -1,8 +1,8 @@
-#############################################################
+################################################################################
 #
 # alsa-utils
 #
-#############################################################
+################################################################################
 
 ALSA_UTILS_VERSION = 1.0.26
 ALSA_UTILS_SOURCE = alsa-utils-$(ALSA_UTILS_VERSION).tar.bz2
@@ -10,7 +10,7 @@ ALSA_UTILS_SITE = http://alsa.cybermirror.org/utils
 ALSA_UTILS_LICENSE = GPLv2
 ALSA_UTILS_LICENSE_FILES = COPYING
 ALSA_UTILS_INSTALL_STAGING = YES
-ALSA_UTILS_DEPENDENCIES = alsa-lib \
+ALSA_UTILS_DEPENDENCIES = host-gettext alsa-lib \
 	$(if $(BR2_PACKAGE_NCURSES),ncurses)
 
 ALSA_UTILS_CONF_ENV = \

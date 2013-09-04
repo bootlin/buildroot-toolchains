@@ -1,15 +1,18 @@
-#############################################################
+################################################################################
 #
 # directfb
 #
-#############################################################
-DIRECTFB_VERSION_MAJOR = 1.4
-DIRECTFB_VERSION = $(DIRECTFB_VERSION_MAJOR).17
+################################################################################
+
+DIRECTFB_VERSION_MAJOR = 1.6
+DIRECTFB_VERSION = $(DIRECTFB_VERSION_MAJOR).3
 DIRECTFB_SITE = http://www.directfb.org/downloads/Core/DirectFB-$(DIRECTFB_VERSION_MAJOR)
 DIRECTFB_SOURCE = DirectFB-$(DIRECTFB_VERSION).tar.gz
 DIRECTFB_LICENSE = LGPLv2.1+
 DIRECTFB_LICENSE_FILES = COPYING
 DIRECTFB_INSTALL_STAGING = YES
+DIRECTFB_AUTORECONF = YES
+
 DIRECTFB_CONF_OPT = \
 	--localstatedir=/var \
 	--disable-explicit-deps \
@@ -43,7 +46,7 @@ endif
 ifeq ($(BR2_PACKAGE_XSERVER),y)
 DIRECTFB_CONF_OPT += --enable-x11
 else
-DIRECTFB_CONF_OPT += -disable-x11
+DIRECTFB_CONF_OPT += --disable-x11
 endif
 
 ifeq ($(BR2_PACKAGE_DIRECTFB_UNIQUE),y)
@@ -114,13 +117,21 @@ else
 DIRECTFB_CONF_OPT += --disable-jpeg
 endif
 
-ifeq ($(BR2_PACKAGE_DIRECTB_DITHER_RGB16),y)
+ifeq ($(BR2_PACKAGE_DIRECTFB_IMLIB2),y)
+DIRECTFB_CONF_OPT += --enable-imlib2
+DIRECTFB_DEPENDENCIES += imlib2
+DIRECTFB_CONF_ENV += ac_cv_path_IMLIB2_CONFIG=$(STAGING_DIR)/usr/bin/imlib2-config
+else
+DIRECTFB_CONF_OPT += --disable-imlib2
+endif
+
+ifeq ($(BR2_PACKAGE_DIRECTFB_DITHER_RGB16),y)
 DIRECTFB_CONF_OPT += --with-dither-rgb16=advanced
 else
 DIRECTFB_CONF_OPT += --with-dither-rgb16=none
 endif
 
-ifeq ($(BR2_PACKAGE_DIRECTB_TESTS),y)
+ifeq ($(BR2_PACKAGE_DIRECTFB_TESTS),y)
 DIRECTFB_CONF_OPT += --with-tests
 endif
 

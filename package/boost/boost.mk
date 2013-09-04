@@ -1,10 +1,10 @@
-#############################################################
+################################################################################
 #
-# Boost
+# boost
 #
-#############################################################
+################################################################################
 
-BOOST_VERSION = 1.52.0
+BOOST_VERSION = 1.53.0
 BOOST_FILE_VERSION = $(subst .,_,$(BOOST_VERSION))
 BOOST_SOURCE = boost_$(BOOST_FILE_VERSION).tar.bz2
 BOOST_SITE = http://downloads.sourceforge.net/project/boost/boost/$(BOOST_VERSION)
@@ -12,12 +12,15 @@ BOOST_INSTALL_STAGING = YES
 
 TARGET_CC_VERSION = $(shell $(TARGET_CC) -dumpversion)
 
-BOOST_DEPENDENCIES = bzip2 zlib
+BOOST_DEPENDENCIES =
 
 BOOST_FLAGS =
-BOOST_WITHOUT_FLAGS = python context
+
+# atomic library compile only with upstream version, wait for next release
+BOOST_WITHOUT_FLAGS = python atomic
 
 BOOST_WITHOUT_FLAGS += $(if $(BR2_PACKAGE_BOOST_CHRONO),,chrono)
+BOOST_WITHOUT_FLAGS += $(if $(BR2_PACKAGE_BOOST_CONTEXT),,context)
 BOOST_WITHOUT_FLAGS += $(if $(BR2_PACKAGE_BOOST_DATE_TIME),,date_time)
 BOOST_WITHOUT_FLAGS += $(if $(BR2_PACKAGE_BOOST_EXCEPTION),,exception)
 BOOST_WITHOUT_FLAGS += $(if $(BR2_PACKAGE_BOOST_FILESYSTEM),,filesystem)
@@ -45,6 +48,10 @@ else
 BOOST_FLAGS += --without-icu
 endif
 
+ifeq ($(BR2_PACKAGE_BOOST_IOSTREAMS),y)
+BOOST_DEPENDENCIES += bzip2 zlib
+endif
+
 BOOST_OPT += toolset=gcc \
 	     threading=multi \
 	     variant=$(if $(BR2_ENABLE_DEBUG),debug,release) \
@@ -52,7 +59,7 @@ BOOST_OPT += toolset=gcc \
 	     runtime-link=$(if $(BR2_PREFER_STATIC_LIB),static,shared)
 
 ifeq ($(BR2_PACKAGE_BOOST_LOCALE),y)
-ifeq ($(BR2_TOOLCHAIN_BUILDROOT)$(BR2_TOOLCHAIN_EXTERNAL_UCLIBC)$(BR2_TOOLCHAIN_CTNG_uClibc),y)
+ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
 # posix backend needs monetary.h which isn't available on uClibc
 BOOST_OPT += boost.locale.posix=off
 endif

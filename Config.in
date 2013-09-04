@@ -419,14 +419,6 @@ config BR2_HAVE_DOCUMENTATION
 	  If you say n here, your target will not contain any
 	  documentation.
 
-config BR2_HAVE_DEVFILES
-	bool "development files in target filesystem"
-	# We no longer want to support a toolchain on the target
-	depends on BR2_DEPRECATED
-	help
-	  Install headers and static libraries in the
-	  target filesystem
-
 config BR2_PACKAGE_OVERRIDE_FILE
 	string "location of a package override file"
 	default "$(TOPDIR)/local.mk"
@@ -437,20 +429,35 @@ config BR2_PACKAGE_OVERRIDE_FILE
 	  as the source directory for a particular package. See the
 	  Buildroot documentation for more details on this feature.
 
+config BR2_GLOBAL_PATCH_DIR
+	string "global patch directory"
+	help
+	  You may specify a directory containing global package patches.
+	  For a specific version <packageversion> of a specific package
+	  <packagename>, patches are applied as follows.
+
+	  First, the default Buildroot patch set for the package is applied.
+
+	  If the directory $(BR2_GLOBAL_PATCH_DIR)/<packagename>/<packageversion>
+	  exists, then all *.patch files in the directory will be applied.
+
+	  Otherwise, if the directory $(BR2_GLOBAL_PATCH_DIR)/<packagename> exists,
+	  then all *.patch files in the directory will be applied.
+
 endmenu
 
 source "toolchain/Config.in"
 
 source "system/Config.in"
 
-source "package/Config.in"
+source "linux/Config.in"
 
-source "package/Config.in.host"
+source "package/Config.in"
 
 source "fs/Config.in"
 
 source "boot/Config.in"
 
-source "linux/Config.in"
+source "package/Config.in.host"
 
 source "Config.in.legacy"

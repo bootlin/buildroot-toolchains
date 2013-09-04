@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # cairo
 #
-#############################################################
+################################################################################
+
 CAIRO_VERSION = 1.12.10
 CAIRO_SOURCE = cairo-$(CAIRO_VERSION).tar.xz
 CAIRO_LICENSE = LGPLv2.1+
@@ -35,6 +36,10 @@ CAIRO_CONF_ENV = ac_cv_func_posix_getpwuid_r=yes glib_cv_stack_grows=no \
 		gl_cv_func_mkdir_trailing_slash_bug=no gl_cv_func_mkstemp_limitations=no \
 		ac_cv_func_working_mktime=yes jm_cv_func_working_re_compile_pattern=yes \
 		ac_use_included_regex=no gl_cv_c_restrict=no
+
+ifeq ($(BR2_TOOLCHAIN_HAS_THREADS),)
+	CAIRO_CONF_ENV += CPPFLAGS="$(TARGET_CPPFLAGS) -DCAIRO_NO_MUTEX=1"
+endif
 
 CAIRO_CONF_OPT = \
 	--enable-trace=no \

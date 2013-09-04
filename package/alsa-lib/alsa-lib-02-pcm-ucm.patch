@@ -61,30 +61,3 @@ Index: alsa-lib/src/pcm/pcm_ladspa.c
                  break;
          case LADSPA_HINT_DEFAULT_MAXIMUM:
                  *val = desc->PortRangeHints[port].UpperBound;
-Index: alsa-lib/src/pcm/pcm_direct.c
-===================================================================
---- alsa-lib/src/pcm/pcm_direct.c	(revision 10341)
-+++ alsa-lib/src/pcm/pcm_direct.c	(revision 10342)
-@@ -424,13 +424,21 @@
- 		close(dmix->server_fd);
- 		return ret;
- 	}
--	
-+
-+#ifdef __NOMMU__
-+	ret = vfork();
-+#else
- 	ret = fork();
-+#endif
- 	if (ret < 0) {
- 		close(dmix->server_fd);
- 		return ret;
- 	} else if (ret == 0) {
-+#ifdef __NOMMU__
-+		ret = vfork();
-+#else
- 		ret = fork();
-+#endif
- 		if (ret == 0)
- 			server_job(dmix);
- 		_exit(EXIT_SUCCESS);

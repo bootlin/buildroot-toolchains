@@ -1,16 +1,15 @@
-#############################################################
+################################################################################
 #
 # libnl
 #
-#############################################################
+################################################################################
 
-LIBNL_VERSION = 3.2.18
+LIBNL_VERSION = 3.2.21
 LIBNL_SITE = http://www.infradead.org/~tgr/libnl/files
 LIBNL_LICENSE = LGPLv2.1+
 LIBNL_LICENSE_FILES = COPYING
 LIBNL_INSTALL_STAGING = YES
-LIBNL_DEPENDENCIES = host-bison
-LIBNL_MAKE = $(MAKE1)
+LIBNL_DEPENDENCIES = host-bison host-flex
 LIBNL_BINARIES = class-add class-delete class-list classid-lookup cls-add \
 	cls-delete cls-list link-list pktloc-lookup qdisc-add qdisc-delete \
 	qdisc-list

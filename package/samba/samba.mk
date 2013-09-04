@@ -1,10 +1,10 @@
-#############################################################
+################################################################################
 #
 # samba
 #
-#############################################################
+################################################################################
 
-SAMBA_VERSION = 3.6.12
+SAMBA_VERSION = 3.6.17
 SAMBA_SITE = http://ftp.samba.org/pub/samba/stable
 SAMBA_SUBDIR = source3
 SAMBA_INSTALL_STAGING = YES
@@ -158,6 +158,9 @@ SAMBA_CONF_OPT += --with-libiconv=$(STAGING_DIR)
 else
 SAMBA_CONF_OPT += --with-libiconv=""
 endif
+
+# Compiled debug messages by level
+SAMBA_CONF_OPT += CFLAGS="$(TARGET_CFLAGS) -DMAX_DEBUG_LEVEL=$(BR2_PACKAGE_SAMBA_MAX_DEBUGLEVEL)"
 
 ifeq ($(BR2_PACKAGE_SAMBA_SWAT),y)
 ifneq ($(BR2_HAVE_DOCUMENTATION),y)

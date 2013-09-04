@@ -1,8 +1,9 @@
-#############################################################
+################################################################################
 #
 # acpid
 #
-#############################################################
+################################################################################
+
 ACPID_VERSION = 2.0.11
 ACPID_SOURCE = acpid_$(ACPID_VERSION).orig.tar.gz
 ACPID_SITE = $(BR2_DEBIAN_MIRROR)/debian/pool/main/a/acpid
@@ -26,7 +27,7 @@ endef
 define ACPID_UNINSTALL_TARGET_CMDS
 	rm -f $(TARGET_DIR)/usr/sbin/acpid
 	rm -f $(TARGET_DIR)/usr/bin/acpi_listen
-	rm -f $(addprefix )$(TARGET_DIR)/usr/share/man/man8/,acpid.8 acpi_listen.8)
+	rm -f $(addprefix $(TARGET_DIR)/usr/share/man/man8/,acpid.8 acpi_listen.8)
 endef
 
 define ACPID_CLEAN_CMDS

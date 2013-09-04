@@ -23,8 +23,8 @@
 # files than series file and archives are considered as a patch.
 #
 # Once a patch is found, the script will try to apply it. If its name doesn't
-# end with '.gz', '.bz', '.bz2', '.zip', '.Z', '.diff*' or '.patch*', it will
-# be skipped. If necessary, the patch will be uncompressed before being
+# end with '.gz', '.bz', '.bz2', '.xz', '.zip', '.Z', '.diff*' or '.patch*',
+# it will be skipped. If necessary, the patch will be uncompressed before being
 # applied. The list of the patches applied is stored in '.applied_patches_list'
 # file in the build directory.
 
@@ -33,6 +33,9 @@ builddir=${1-.}
 patchdir=${2-../kernel-patches}
 shift 2
 patchpattern=${@-*}
+
+# use a well defined sorting order
+export LC_COLLATE=C
 
 if [ ! -d "${builddir}" ] ; then
     echo "Aborting.  '${builddir}' is not a directory."
@@ -59,6 +62,8 @@ function apply_patch {
 	type="bzip"; uncomp="bunzip -dc"; ;; 
 	*.bz2)
 	type="bzip2"; uncomp="bunzip2 -dc"; ;; 
+	*.xz)
+	type="xz"; uncomp="unxz -dc"; ;;
 	*.zip)
 	type="zip"; uncomp="unzip -d"; ;; 
 	*.Z)
@@ -75,7 +80,7 @@ function apply_patch {
     echo ""
     echo "Applying $patch using ${type}: "
 	echo $patch >> ${builddir}/.applied_patches_list
-    ${uncomp} "${path}/$patch" | patch -g0 -p1 -E -d "${builddir}"
+    ${uncomp} "${path}/$patch" | patch -g0 -p1 -E -d "${builddir}" -t
     if [ $? != 0 ] ; then
         echo "Patch failed!  Please fix ${patch}!"
 	exit 1

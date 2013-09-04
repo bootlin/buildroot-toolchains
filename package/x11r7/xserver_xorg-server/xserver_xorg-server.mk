@@ -1,12 +1,14 @@
 ################################################################################
 #
-# xserver_xorg-server -- No description available
+# xserver_xorg-server
 #
 ################################################################################
 
-XSERVER_XORG_SERVER_VERSION = 1.9.4
+XSERVER_XORG_SERVER_VERSION = 1.12.4
 XSERVER_XORG_SERVER_SOURCE = xorg-server-$(XSERVER_XORG_SERVER_VERSION).tar.bz2
 XSERVER_XORG_SERVER_SITE = http://xorg.freedesktop.org/releases/individual/xserver
+XSERVER_XORG_SERVER_LICENSE = MIT
+XSERVER_XORG_SERVER_LICENSE_FILES = COPYING
 XSERVER_XORG_SERVER_MAKE = $(MAKE1) # make install fails with parallel make
 XSERVER_XORG_SERVER_INSTALL_STAGING = YES
 XSERVER_XORG_SERVER_INSTALL_STAGING_OPT = DESTDIR=$(STAGING_DIR) install install-data
@@ -46,7 +48,6 @@ XSERVER_XORG_SERVER_DEPENDENCIES = 	\
 	xproto_xextproto 		\
 	xproto_xf86bigfontproto 	\
 	xproto_xf86dgaproto 		\
-	xproto_xf86rushproto 		\
 	xproto_xf86vidmodeproto 	\
 	xproto_xproto 			\
 	xkeyboard-config		\

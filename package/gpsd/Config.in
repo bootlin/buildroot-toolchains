@@ -29,10 +29,10 @@ config BR2_PACKAGE_GPSD_OLDSTYLE
 
 config BR2_PACKAGE_GPSD_PROFILING
 	bool "profiling support"
-	depends on !BR2_TOOLCHAIN_BUILDROOT && !BR2_TOOLCHAIN_CTNG_uClibc && !BR2_TOOLCHAIN_EXTERNAL_UCLIBC
+	depends on BR2_TOOLCHAIN_USES_GLIBC
 
 comment "profiling support not available with uClibc-based toolchain"
-	depends on BR2_TOOLCHAIN_BUILDROOT || BR2_TOOLCHAIN_CTNG_uClibc || BR2_TOOLCHAIN_EXTERNAL_UCLIBC
+	depends on !BR2_TOOLCHAIN_USES_GLIBC
 
 config BR2_PACKAGE_GPSD_NTP_SHM
 	bool "NTP time hinting support"
@@ -166,6 +166,7 @@ config BR2_PACKAGE_GPSD_NMEA
 config BR2_PACKAGE_GPSD_NMEA2000
 	bool "NMEA2000"
 	select BR2_PACKAGE_GPSD_NAVCOM
+	select BR2_PACKAGE_GPSD_AIVDM
 	help
 	  NMEA2000/CAN support
 

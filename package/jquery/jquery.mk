@@ -1,6 +1,13 @@
-JQUERY_VERSION = 1.8.3
+################################################################################
+#
+# jquery
+#
+################################################################################
+
+JQUERY_VERSION = 1.10.2
 JQUERY_SITE = http://code.jquery.com
 JQUERY_SOURCE = jquery-$(JQUERY_VERSION).min.js
+JQUERY_LICENSE = MIT
 
 define JQUERY_EXTRACT_CMDS
 	cp $(DL_DIR)/$(JQUERY_SOURCE) $(@D)
