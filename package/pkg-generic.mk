@@ -249,9 +249,9 @@ $(2)_BUILDDIR		       ?= $$($(2)_DIR)/$$($(2)_SUBDIR)
 
 ifneq ($$($(2)_OVERRIDE_SRCDIR),)
  $(2)_VERSION = custom
- $(2)_SRCDIR			= $$($(2)_OVERRIDE_SRCDIR)/$$($(2)_SUBDIR)
+ $(2)_SRCDIR			= $$($(2)_OVERRIDE_SRCDIR)
 else
- $(2)_SRCDIR			= $$($(2)_DIR)/$$($(2)_SUBDIR)
+ $(2)_SRCDIR			= $$($(2)_DIR)
 endif
 
 ifndef $(2)_SOURCE
