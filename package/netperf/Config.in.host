@@ -1,0 +1,6 @@
+config BR2_PACKAGE_HOST_NETPERF
+	bool "host netperf"
+	help
+	  Network performance benchmark tool
+
+	  http://www.netperf.org/

@@ -23,3 +23,4 @@ define NETPERF_UNINSTALL_TARGET_CMDS
 endef
 
 $(eval $(autotools-package))
+$(eval $(host-autotools-package))
