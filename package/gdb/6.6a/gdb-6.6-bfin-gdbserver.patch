@@ -1,5 +1,5 @@
---- gdbserver/configure.srv
-+++ gdbserver/configure.srv
+--- gdb-6.6/gdb/gdbserver/configure.srv
++++ gdb-6.6/gdb/gdbserver/configure.srv
 @@ -23,6 +23,11 @@ case "${target}" in
  			srv_linux_usrregs=yes
  			srv_linux_thread_db=yes
@@ -12,8 +12,8 @@
    crisv32-*-linux*)	srv_regobj=reg-crisv32.o
  			srv_tgtobj="linux-low.o linux-crisv32-low.o"
  			srv_linux_regsets=yes
---- gdbserver/linux-bfin-low.c
-+++ gdbserver/linux-bfin-low.c
+--- gdb-6.6/gdb/gdbserver/linux-bfin-low.c
++++ gdb-6.6/gdb/gdbserver/linux-bfin-low.c
 @@ -0,0 +1,101 @@
 +/* GNU/Linux/BFIN specific low level interface, for the remote server for GDB.
 +
@@ -116,8 +116,8 @@
 +  2,
 +  bfin_breakpoint_at,
 +};
---- gdbserver/linux-low.c
-+++ gdbserver/linux-low.c
+--- gdb-6.6/gdb/gdbserver/linux-low.c
++++ gdb-6.6/gdb/gdbserver/linux-low.c
 @@ -1592,6 +1592,10 @@ linux_stopped_data_address (void)
  #define PT_TEXT_ADDR 49*4
  #define PT_DATA_ADDR 50*4
@@ -129,8 +129,8 @@
  #endif
  
  /* Under uClinux, programs are loaded at non-zero offsets, which we need
---- gdbserver/Makefile.in
-+++ gdbserver/Makefile.in
+--- gdb-6.6/gdb/gdbserver/Makefile.in
++++ gdb-6.6/gdb/gdbserver/Makefile.in
 @@ -119,9 +119,9 @@ SFILES=	$(srcdir)/gdbreplay.c $(srcdir)/
  	$(srcdir)/mem-break.c $(srcdir)/proc-service.c $(srcdir)/regcache.c \
  	$(srcdir)/remote-utils.c $(srcdir)/server.c $(srcdir)/target.c \
@@ -170,8 +170,8 @@
  reg-cris.o : reg-cris.c $(regdef_h)
  reg-cris.c : $(srcdir)/../regformats/reg-cris.dat $(regdat_sh)
  	sh $(regdat_sh) $(srcdir)/../regformats/reg-cris.dat reg-cris.c
---- gdbserver/../regformats/reg-bfin.dat
-+++ gdbserver/../regformats/reg-bfin.dat
+--- gdb-6.6/gdb/regformats/reg-bfin.dat
++++ gdb-6.6/gdb/regformats/reg-bfin.dat
 @@ -0,0 +1,63 @@
 +name:bfin
 +expedite:pc,sp,fp
