@@ -64,60 +64,6 @@
    if (test_trap_last_pid < 0)
      g_error ("failed to fork test program: %s", g_strerror (errno));
    if (test_trap_last_pid == 0)  /* child */
---- libglib2/gio/libasyncns/asyncns.c	2011-12-27 12:43:30.538052455 +0800
-+++ libglib2.nommu/gio/libasyncns/asyncns.c	2011-12-27 12:44:12.358046924 +0800
-@@ -804,7 +804,11 @@
-     for (asyncns->valid_workers = 0; asyncns->valid_workers < n_proc; asyncns->valid_workers++) {
- 
- #ifndef HAVE_PTHREAD
-+# ifdef __NOMMU__
-+        if ((asyncns->workers[asyncns->valid_workers] = vfork()) < 0)
-+# else
-         if ((asyncns->workers[asyncns->valid_workers] = fork()) < 0)
-+# endif
-             goto fail;
-         else if (asyncns->workers[asyncns->valid_workers] == 0) {
-             int ret;
---- libglib2/gio/tests/gapplication.c	2011-12-27 12:44:32.930047143 +0800
-+++ libglib2.nommu/gio/tests/gapplication.c	2011-12-27 12:45:07.180323701 +0800
-@@ -145,7 +145,11 @@
-   s = pipe (pipefd);
-   g_assert_cmpint (s, ==, 0);
- 
-+#ifdef __NOMMU__
-+  pid = vfork ();
-+#else
-   pid = fork ();
-+#endif
- 
-   if (pid == 0)
-     {
-@@ -170,7 +174,11 @@
-       g_strfreev (args);
- 
-       g_print ("exit status: %d\n", status);
-+#ifdef __NOMMU__
-+      _exit (0);
-+#else
-       exit (0);
-+#endif
-     }
-   else if (pid > 0)
-     {
---- libglib2/gio/tests/gdbus-sessionbus.c	2011-12-27 12:46:58.222046589 +0800
-+++ libglib2.nommu/gio/tests/gdbus-sessionbus.c	2011-12-27 12:47:27.670297004 +0800
-@@ -178,7 +178,11 @@
-           g_warning ("pipe() failed: %m");
-           g_assert_not_reached ();
-         }
-+#ifdef __NOMMU__
-+      switch (vfork ())
-+#else
-       switch (fork ())
-+#endif
-         {
-         case -1:
-           g_warning ("fork() failed: %m");
 --- libglib2/gio/tests/socket.c	2011-12-27 12:45:25.674046990 +0800
 +++ libglib2.nommu/gio/tests/socket.c	2011-12-27 12:46:04.735134260 +0800
 @@ -105,7 +105,11 @@
@@ -372,3 +318,18 @@
  }
  
  #else /* G_OS_UNIX */
+--- libglib2-2.36.3/gio/gtestdbus.c	2013-09-09 16:53:52.342102407 +0800
++++ libglib2-2.36.3.nommu/gio/gtestdbus.c	2013-09-09 16:54:35.754352095 +0800
+@@ -244,8 +244,11 @@
+           g_warning ("pipe() failed: %m");
+           g_assert_not_reached ();
+         }
+-
++#ifdef __NOMMU__
++      switch (vfork ())
++#else
+       switch (fork ())
++#endif
+         {
+         case -1:
+           g_warning ("fork() failed: %m");
