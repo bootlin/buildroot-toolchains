@@ -6,6 +6,7 @@
 NMI_WDT_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/nmi_wdt_test
 NMI_WDT_TEST_SITE_METHOD = svn
 NMI_WDT_TEST_VERSION = HEAD
+NMI_WDT_TEST_DEPENDENCIES += linux
 
 define NMI_WDT_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) BASE_DIR=$(BASE_DIR) MODULE_DIR=$(BASE_DIR)/build/nmi_wdt_test-$(NMI_WDT_TEST_VERSION)
