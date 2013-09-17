@@ -5,7 +5,7 @@
 #############################################################
 VERSION_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/version
 VERSION_SITE_METHOD = svn
-VERSION_VERSION = HEAD
+VERSION_VERSION = 927
 
 define VERSION_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

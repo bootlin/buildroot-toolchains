@@ -5,7 +5,7 @@
 #############################################################
 GNUPLOT_OLD_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/gnuplot
 GNUPLOT_OLD_SITE_METHOD = svn
-GNUPLOT_OLD_VERSION = HEAD
+GNUPLOT_OLD_VERSION = 927
 GNUPLOT_OLD_DEPENDENCIES = libpng zlib
 
 GNUPLOT_OLD_EXTRA_CFLAGS = -I. -DSHORT_TERMLIST -DHAVE_GETCWD

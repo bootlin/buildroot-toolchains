@@ -5,7 +5,7 @@
 #############################################################
 ICC_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/icc_utils
 ICC_SITE_METHOD = svn
-ICC_VERSION = HEAD
+ICC_VERSION = 927
 ICC_DL_VERSION = $(ICC_VERSION)
 ICC_BASE_NAME=icc-$(ICC_VERSION)
 ICC_DL_DIR=$(DL_DIR)/$(ICC_BASE_NAME)

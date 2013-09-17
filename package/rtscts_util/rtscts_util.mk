@@ -5,7 +5,7 @@
 #############################################################
 RTSCTS_UTIL_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/rtscts_test
 RTSCTS_UTIL_SITE_METHOD = svn
-RTSCTS_UTIL_VERSION = HEAD
+RTSCTS_UTIL_VERSION = 927
 
 define RTSCTS_UTIL_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

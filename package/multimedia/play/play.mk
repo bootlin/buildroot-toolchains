@@ -5,7 +5,7 @@
 #############################################################
 PLAY_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/play
 PLAY_SITE_METHOD = svn
-PLAY_VERSION = HEAD
+PLAY_VERSION = 927
 
 define PLAY_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

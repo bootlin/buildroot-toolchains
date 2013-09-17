@@ -5,7 +5,7 @@
 #############################################################
 BFIN_CANNED_DEMOS_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/ndso
 BFIN_CANNED_DEMOS_SITE_METHOD = svn
-BFIN_CANNED_DEMOS_VERSION = HEAD
+BFIN_CANNED_DEMOS_VERSION = 927
 
 BFIN_CANNED_DEMOS_TARGET =
 BFIN_CANNED_DEMOS_INSTALL =

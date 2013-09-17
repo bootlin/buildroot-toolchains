@@ -5,7 +5,7 @@
 #############################################################
 PPI_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/ppi-test
 PPI_TEST_SITE_METHOD = svn
-PPI_TEST_VERSION = HEAD
+PPI_TEST_VERSION = 927
 
 define PPI_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

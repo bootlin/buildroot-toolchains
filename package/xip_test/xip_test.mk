@@ -5,7 +5,7 @@
 #############################################################
 XIP_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/xip_test
 XIP_TEST_SITE_METHOD = svn
-XIP_TEST_VERSION = HEAD
+XIP_TEST_VERSION = 927
 
 define XIP_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

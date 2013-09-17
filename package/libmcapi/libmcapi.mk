@@ -4,7 +4,7 @@
 #
 #############################################################
 
-LIBMCAPI_VERSION = HEAD
+LIBMCAPI_VERSION = 927
 LIBMCAPI_SITE_METHOD = svn
 LIBMCAPI_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/libs/libmcapi
 

@@ -5,7 +5,7 @@
 #############################################################
 EVENT_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/event_test
 EVENT_TEST_SITE_METHOD = svn
-EVENT_TEST_VERSION = HEAD
+EVENT_TEST_VERSION = 927
 
 define EVENT_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

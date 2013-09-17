@@ -5,7 +5,7 @@
 #############################################################
 FILE_OPERATION_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/file_operation-test
 FILE_OPERATION_TEST_SITE_METHOD = svn
-FILE_OPERATION_TEST_VERSION = HEAD
+FILE_OPERATION_TEST_VERSION = 927
 
 FILE_OPERATION_TEST_SRCS=$(wildcard $(@D)/*.c)
 FILE_OPERATION_TEST_TARGETS=$(patsubst %.c,%,$(notdir $(FILE_OPERATION_TEST_SRCS)))

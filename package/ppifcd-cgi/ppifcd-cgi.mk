@@ -5,7 +5,7 @@
 #############################################################
 PPIFCD_CGI_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/ppifcd-cgi
 PPIFCD_CGI_SITE_METHOD = svn
-PPIFCD_CGI_VERSION = HEAD
+PPIFCD_CGI_VERSION = 927
 
 define PPIFCD_CGI_BUILD_CMDS
 	$(TARGET_CONFIGURE_OPTS) $(MAKE) -C $(@D)/src

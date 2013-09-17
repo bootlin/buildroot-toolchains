@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-STRACE_VERSION = HEAD
+STRACE_VERSION = 927
 STRACE_SITE_METHOD = svn
 STRACE_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/strace
 STRACE_FLAT_STACKSIZE=0x5000

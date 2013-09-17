@@ -5,7 +5,7 @@
 #############################################################
 SQLITE_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/sqlite_test
 SQLITE_TEST_SITE_METHOD = svn
-SQLITE_TEST_VERSION = HEAD
+SQLITE_TEST_VERSION = 927
 
 
 define SQLITE_TEST_BUILD_CMDS

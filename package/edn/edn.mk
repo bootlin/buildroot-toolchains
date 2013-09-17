@@ -5,7 +5,7 @@
 #############################################################
 EDN_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/edn
 EDN_SITE_METHOD = svn
-EDN_VERSION = HEAD
+EDN_VERSION = 927
 
 define EDN_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

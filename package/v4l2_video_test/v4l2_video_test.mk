@@ -5,7 +5,7 @@
 #############################################################
 V4L2_VIDEO_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/v4l2_video_test
 V4L2_VIDEO_TEST_SITE_METHOD = svn
-V4L2_VIDEO_TEST_VERSION = HEAD
+V4L2_VIDEO_TEST_VERSION = 927
 
 define V4L2_VIDEO_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

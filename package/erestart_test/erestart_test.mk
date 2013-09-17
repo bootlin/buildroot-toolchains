@@ -5,7 +5,7 @@
 #############################################################
 ERESTART_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/erestart_test
 ERESTART_TEST_SITE_METHOD = svn
-ERESTART_TEST_VERSION = HEAD
+ERESTART_TEST_VERSION = 927
 
 
 define ERESTART_TEST_BUILD_CMDS

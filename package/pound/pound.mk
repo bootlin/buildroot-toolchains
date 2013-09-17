@@ -6,7 +6,7 @@
 
 POUND_SITE:=http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/pound
 POUND_SITE_METHOD = svn
-POUND_VERSION = HEAD
+POUND_VERSION = 927
 POUND_DEPENDENCIES = openssl
 POUND_CONF_OPT = LIBS=-lz
 

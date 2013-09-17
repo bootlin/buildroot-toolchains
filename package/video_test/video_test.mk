@@ -5,7 +5,7 @@
 #############################################################
 VIDEO_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/video_test
 VIDEO_TEST_SITE_METHOD = svn
-VIDEO_TEST_VERSION = HEAD
+VIDEO_TEST_VERSION = 927
 
 define VIDEO_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

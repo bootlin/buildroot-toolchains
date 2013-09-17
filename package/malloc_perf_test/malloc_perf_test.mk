@@ -5,7 +5,7 @@
 #############################################################
 MALLOC_PERF_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/malloc-perf
 MALLOC_PERF_TEST_SITE_METHOD = svn
-MALLOC_PERF_TEST_VERSION = HEAD
+MALLOC_PERF_TEST_VERSION = 927
 
 define MALLOC_PERF_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

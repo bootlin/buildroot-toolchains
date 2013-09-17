@@ -5,7 +5,7 @@
 #############################################################
 LIBBFGDOTS_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/libs/libbfgdots/g729
 LIBBFGDOTS_SITE_METHOD = svn
-LIBBFGDOTS_VERSION = HEAD
+LIBBFGDOTS_VERSION = 927
 LIBBFGDOTS_INSTALL_STAGING = YES
 LIBBFGDOTS_INSTALL_TARGET = YES
 

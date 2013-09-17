@@ -5,7 +5,7 @@
 #############################################################
 BFIN_GPTIMER_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/gptimer_test
 BFIN_GPTIMER_SITE_METHOD = svn
-BFIN_GPTIMER_VERSION = HEAD
+BFIN_GPTIMER_VERSION = 927
 
 GPT_CFLAGS = $(TARGET_CFLAGS) -I$(LINUX_SRCDIR)/include -I$(LINUX_SRCDIR)/arch/blackfin/include
 

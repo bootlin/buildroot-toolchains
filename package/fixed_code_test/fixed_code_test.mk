@@ -5,7 +5,7 @@
 #############################################################
 FIXED_CODE_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/fixed_code_test
 FIXED_CODE_TEST_SITE_METHOD = svn
-FIXED_CODE_TEST_VERSION = HEAD
+FIXED_CODE_TEST_VERSION = 927
 
 define FIXED_CODE_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

@@ -5,7 +5,7 @@
 #############################################################
 SRAM_ALLOC_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/sram-alloc-test
 SRAM_ALLOC_TEST_SITE_METHOD = svn
-SRAM_ALLOC_TEST_VERSION = HEAD
+SRAM_ALLOC_TEST_VERSION = 927
 
 define SRAM_ALLOC_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

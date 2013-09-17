@@ -5,7 +5,7 @@
 #############################################################
 PTHREAD_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/pthread_test
 PTHREAD_TEST_SITE_METHOD = svn
-PTHREAD_TEST_VERSION = HEAD
+PTHREAD_TEST_VERSION = 927
 
 
 PTH_LDFLAGS = $(TARGET_LDFLAGS) -lpthread

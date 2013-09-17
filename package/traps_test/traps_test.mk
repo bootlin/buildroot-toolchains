@@ -5,7 +5,7 @@
 #############################################################
 TRAPS_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/crash_test
 TRAPS_TEST_SITE_METHOD = svn
-TRAPS_TEST_VERSION = HEAD
+TRAPS_TEST_VERSION = 927
 
 define TRAPS_TEST_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)

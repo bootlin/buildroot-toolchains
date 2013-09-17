@@ -5,7 +5,7 @@
 #############################################################
 MMAP_TEST_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/mmap_test
 MMAP_TEST_SITE_METHOD = svn
-MMAP_TEST_VERSION = HEAD
+MMAP_TEST_VERSION = 927
 MMAP_TEST_DEPENDENCIES = linux
 
 define MMAP_TEST_BUILD_CMDS

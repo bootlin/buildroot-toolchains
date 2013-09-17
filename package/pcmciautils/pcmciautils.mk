@@ -5,7 +5,7 @@
 #############################################################
 PCMCIAUTILS_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/apps/pcmciautils/pcmciautils-015
 PCMCIAUTILS_SITE_METHOD = svn
-PCMCIAUTILS_VERSION = HEAD
+PCMCIAUTILS_VERSION = 927
 
 PCMCIAUTILS_DEPENDENCIES = libsysfs
 

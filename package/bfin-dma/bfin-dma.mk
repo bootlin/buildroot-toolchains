@@ -5,7 +5,7 @@
 #############################################################
 BFIN_DMA_SITE = http://svn.code.sf.net/p/adi-openapp/code/trunk/tests/bfin-dma
 BFIN_DMA_SITE_METHOD = svn
-BFIN_DMA_VERSION = HEAD
+BFIN_DMA_VERSION = 927
 
 define BFIN_DMA_BUILD_CMDS
 	$(MAKE) -C $(@D) $(TARGET_CONFIGURE_OPTS)
