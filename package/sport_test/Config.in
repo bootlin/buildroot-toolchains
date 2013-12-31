@@ -1,0 +1,4 @@
+config BR2_PACKAGE_SPORT_TEST
+	bool "bfin common sport test"
+	help
+	  Bfin common sport test suite
