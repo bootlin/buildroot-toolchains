@@ -1,0 +1,12 @@
+diff -uNr newlib-old/configure newlib-new/configure
+--- newlib-old/configure	2014-07-05 17:09:07.000000000 -0400
++++ newlib-new/configure	2014-12-25 00:59:01.727549186 -0500
+@@ -6985,7 +6985,7 @@
+ 
+ # Some systems (e.g., one of the i386-aix systems the gas testers are
+ # using) don't handle "\$" correctly, so don't use it here.
+-tooldir='${exec_prefix}'/${target_noncanonical}
++tooldir='${exec_prefix}'
+ build_tooldir=${tooldir}
+ 
+ # Create a .gdbinit file which runs the one in srcdir

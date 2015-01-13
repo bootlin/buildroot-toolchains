@@ -1,0 +1,4 @@
+config BR2_PACKAGE_NEWLIB
+       bool
+       depends on BR2_TOOLCHAIN_USES_NEWLIB
+       default y

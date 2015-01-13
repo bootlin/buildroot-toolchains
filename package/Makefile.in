@@ -36,11 +36,17 @@ $(error BR2_TOOLCHAIN_BUILDROOT_VENDOR cannot be 'unknown'. \
 endif
 
 # Compute GNU_TARGET_NAME
+ifeq ($(BR2_TOOLCHAIN_USES_NEWLIB),y)
+GNU_TARGET_NAME = $(ARCH)-$(TARGET_OS)-$(ABI)
+else
 GNU_TARGET_NAME = $(ARCH)-$(TARGET_VENDOR)-$(TARGET_OS)-$(LIBC)$(ABI)
+endif
 
 # FLAT binary format needs uclinux
 ifeq ($(BR2_BINFMT_FLAT),y)
 TARGET_OS = uclinux
+else ifeq ($(BR2_TOOLCHAIN_USES_NEWLIB),y)
+TARGET_OS = none
 else
 TARGET_OS = linux
 endif
@@ -49,6 +55,8 @@ ifeq ($(BR2_TOOLCHAIN_USES_UCLIBC),y)
 LIBC = uclibc
 else ifeq ($(BR2_TOOLCHAIN_USES_MUSL),y)
 LIBC = musl
+else ifeq ($(BR2_TOOLCHAIN_USES_NEWLIB),y)
+LIBC = newlib
 else
 LIBC = gnu
 endif

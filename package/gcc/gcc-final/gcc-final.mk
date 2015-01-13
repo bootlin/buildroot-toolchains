@@ -25,7 +25,7 @@ HOST_GCC_FINAL_POST_PATCH_HOOKS += HOST_GCC_APPLY_PATCHES
 HOST_GCC_FINAL_SUBDIR = build
 
 HOST_GCC_FINAL_PRE_CONFIGURE_HOOKS += HOST_GCC_CONFIGURE_SYMLINK
-
+HOST_GCC_FINAL_MAKE_ENV += CFLAGS_FOR_TARGET="-mthumb -march=armv7-m"
 define  HOST_GCC_FINAL_CONFIGURE_CMDS
 	(cd $(HOST_GCC_FINAL_SRCDIR) && rm -rf config.cache; \
 		$(HOST_CONFIGURE_OPTS) \
@@ -60,11 +60,17 @@ else
 HOST_GCC_FINAL_CONF_OPTS += --enable-shared
 endif
 
+ifeq ($(BR2_TOOLCHAIN_BUILDROOT_NEWLIB),y)
+HOST_GCC_FINAL_CONF_OPTS += --with-newlib
+endif
+
 ifeq ($(BR2_GCC_ENABLE_OPENMP),y)
 HOST_GCC_FINAL_CONF_OPTS += --enable-libgomp
 else
 HOST_GCC_FINAL_CONF_OPTS += --disable-libgomp
 endif
+
+HOST_GCC_FINAL_CONF_OPTS += --disable-libstdcxx-pch
 
 # End with user-provided options, so that they can override previously
 # defined options.

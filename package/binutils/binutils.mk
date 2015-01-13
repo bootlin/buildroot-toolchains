@@ -41,8 +41,8 @@ endif
 # When binutils sources are fetched from the binutils-gdb repository,
 # they also contain the gdb sources, but gdb shouldn't be built, so we
 # disable it.
-BINUTILS_DISABLE_GDB_CONF_OPTS = \
-	--disable-sim --disable-gdb
+#BINUTILS_DISABLE_GDB_CONF_OPTS = \
+#	--disable-sim --disable-gdb
 
 # We need to specify host & target to avoid breaking ARM EABI
 BINUTILS_CONF_OPTS = --disable-multilib --disable-werror \
@@ -77,6 +77,9 @@ define BINUTILS_INSTALL_STAGING_CMDS
 	$(MAKE) -C $(@D)/bfd DESTDIR=$(STAGING_DIR) install
 	$(MAKE) -C $(@D)/libiberty DESTDIR=$(STAGING_DIR) install
 endef
+ifeq ($(BR2_TOOLCHAIN_BUILDROOT_NEWLIB),y)
+	HOST_BINUTILS_CONF_OPTS += --enable-interwork
+endif
 
 # If we don't want full binutils on target
 ifneq ($(BR2_PACKAGE_BINUTILS_TARGET),y)
