@@ -1,0 +1,32 @@
+diff -uNr uClibc++-0.2.4/include/unwind-cxx.h uc_mod/include/unwind-cxx.h
+--- uClibc++-0.2.4/include/unwind-cxx.h	2012-05-25 17:15:31.000000000 -0400
++++ uc_mod/include/unwind-cxx.h	2015-01-14 00:36:53.870819200 -0500
+@@ -172,15 +172,7 @@
+ // These are explicitly GNU C++ specific.
+ 
+ // This is the exception class we report -- "GNUCC++\0".
+-const _Unwind_Exception_Class __gxx_exception_class
+-= ((((((((_Unwind_Exception_Class) 'G' 
+-	 << 8 | (_Unwind_Exception_Class) 'N')
+-	<< 8 | (_Unwind_Exception_Class) 'U')
+-       << 8 | (_Unwind_Exception_Class) 'C')
+-      << 8 | (_Unwind_Exception_Class) 'C')
+-     << 8 | (_Unwind_Exception_Class) '+')
+-    << 8 | (_Unwind_Exception_Class) '+')
+-   << 8 | (_Unwind_Exception_Class) '\0');
++  const _Unwind_Exception_Class __gxx_exception_class = "GNUCC++";
+ 
+ // GNU C++ personality routine, Version 0.
+ extern "C" _Unwind_Reason_Code __gxx_personality_v0
+diff -uNr uClibc++-0.2.4/Rules.mak uc_mod/Rules.mak
+--- uClibc++-0.2.4/Rules.mak	2012-05-25 17:15:31.000000000 -0400
++++ uc_mod/Rules.mak	2015-01-14 00:34:32.426823377 -0500
+@@ -107,7 +107,7 @@
+ 
+ # Some nice CFLAGS to work with
+ GEN_CFLAGS:=-fno-builtin
+-CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS) -ansi
++CFLAGS:=$(XWARNINGS) $(CPU_CFLAGS)
+ 
+ LDFLAGS:=-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc -Wl,-z,defs
+ 

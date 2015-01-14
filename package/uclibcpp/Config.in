@@ -1,0 +1,8 @@
+config BR2_PACKAGE_UCLIBCPP
+       bool "uClibc++ C++ library"
+       depends on BR2_TOOLCHAIN_BUILDROOT_NEWLIB
+       help
+	Uclibc++ library support. Smaller than libvstdc++
+
+
+

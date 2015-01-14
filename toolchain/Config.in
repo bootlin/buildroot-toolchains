@@ -61,5 +61,6 @@ endchoice
 source "toolchain/toolchain-buildroot/Config.in"
 source "toolchain/toolchain-external/Config.in"
 source "toolchain/toolchain-common.in"
+source "package/uclibcpp/Config.in"
 
 endmenu

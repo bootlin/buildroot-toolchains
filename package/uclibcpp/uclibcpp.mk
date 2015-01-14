@@ -1,0 +1,28 @@
+UCLIBCPP_VERSION = 0.2.4
+UCLIBCPP_SOURCE = uClibc++-$(UCLIBCPP_VERSION).tar.bz2
+UCLIBCPP_LICENSE = LGPLv3
+UCLIBCPP_SITE = http://cxx.uclibc.org/src/
+
+UCLIBCPP_INSTALL_STAGING = YES
+
+UCLIBCPP_DEPENDENCIES = host-gcc-final
+
+UCLIBCPP_KCONFIG_FILE = $(TOPDIR)/package/uclibcpp/uclibcpp.config
+
+UCLIBCPP_MAKE_FLAGS = CROSS=$(TARGET_CROSS)
+
+define UCLIBCPP_BUILD_CMDS
+	$(MAKE) -C $(@D) $(UCLIBCPP_MAKE_FLAGS)
+endef
+
+define UCLIBCPP_INSTALL_STAGING_CMDS
+	$(MAKE) -C $(@D) PREFIX=$(STAGING_DIR) install
+endef
+
+define UCLIBCPP_INSTALL_TARGET_CMDS
+	$(MAKE) -C $(@D) PREFIX=$(TARGET_DIR) install
+endef
+
+$(eval $(kconfig-package))
+
+
