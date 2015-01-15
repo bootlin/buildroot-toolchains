@@ -1,6 +1,6 @@
-diff -uNr uClibc++-0.2.4/include/unwind-cxx.h uc_mod/include/unwind-cxx.h
+diff -uNr uClibc++-0.2.4/include/unwind-cxx.h uc_new/include/unwind-cxx.h
 --- uClibc++-0.2.4/include/unwind-cxx.h	2012-05-25 17:15:31.000000000 -0400
-+++ uc_mod/include/unwind-cxx.h	2015-01-14 00:36:53.870819200 -0500
++++ uc_new/include/unwind-cxx.h	2015-01-15 16:29:05.358633886 -0500
 @@ -172,15 +172,7 @@
  // These are explicitly GNU C++ specific.
  
@@ -18,9 +18,9 @@ diff -uNr uClibc++-0.2.4/include/unwind-cxx.h uc_mod/include/unwind-cxx.h
  
  // GNU C++ personality routine, Version 0.
  extern "C" _Unwind_Reason_Code __gxx_personality_v0
-diff -uNr uClibc++-0.2.4/Rules.mak uc_mod/Rules.mak
+diff -uNr uClibc++-0.2.4/Rules.mak uc_new/Rules.mak
 --- uClibc++-0.2.4/Rules.mak	2012-05-25 17:15:31.000000000 -0400
-+++ uc_mod/Rules.mak	2015-01-14 00:34:32.426823377 -0500
++++ uc_new/Rules.mak	2015-01-15 16:29:05.358633886 -0500
 @@ -107,7 +107,7 @@
  
  # Some nice CFLAGS to work with
@@ -30,3 +30,25 @@ diff -uNr uClibc++-0.2.4/Rules.mak uc_mod/Rules.mak
  
  LDFLAGS:=-Wl,--warn-common -Wl,--warn-once -Wl,-z,combreloc -Wl,-z,defs
  
+diff -uNr uClibc++-0.2.4/src/_ct_chr.cpp uc_new/src/_ct_chr.cpp
+--- uClibc++-0.2.4/src/_ct_chr.cpp	1969-12-31 19:00:00.000000000 -0500
++++ uc_new/src/_ct_chr.cpp	2015-01-15 16:29:21.478634145 -0500
+@@ -0,0 +1,18 @@
++#include <_ansi.h>
++#include <ctype.h>
++
++int _DEFUN(isspace, (c),int c){
++  switch(c){
++  case ' ': 
++  case '\r':
++  case '\n':
++  case '\b':
++  case '\t':
++    return true;
++  }
++  return false;
++}
++
++int _DEFUN(isdigit, (c), int c){
++  return ('0' <= c && c <= '9');
++}
