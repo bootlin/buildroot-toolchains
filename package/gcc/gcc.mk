@@ -116,7 +116,7 @@ HOST_GCC_COMMON_CONF_OPTS += --disable-target-optspace
 endif
 else
 ifeq ($(BR2_ARM_CPU_ARMV7M),y)
-HOST_GCC_COMMON_CONF_ENV += CFLAGS_FOR_TARGET='-g -Os -mthumb -march=armv7-m' CXXFLAGS_FOR_TARGET='-g -Os -mthumb -march=armv7-m'
+HOST_GCC_COMMON_CONF_ENV += CFLAGS_FOR_TARGET='-g -Os -mthumb -march=armv7-m' CXXFLAGS_FOR_TARGET='-g -Os -mthumb -march=armv7e-m'
 HOST_GCC_COMMON_CONF_OPTS += --disable-target-optspace
 else
 HOST_GCC_COMMON_CONF_OPTS += --enable-target-optspace
