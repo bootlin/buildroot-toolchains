@@ -1,0 +1,25 @@
+config BR2_PACKAGE_WF111
+	bool "wf111"
+	depends on BR2_LINUX_KERNEL
+	depends on BR2_ARM_CPU_ARMV5 || BR2_ARM_CPU_ARMV7A || BR2_i386
+	# Binary tools are distributed alongside the driver, and are
+	# dynamically compiled against the glibc
+	depends on BR2_TOOLCHAIN_USES_GLIBC
+	help
+	  BlueGiga WF111 WiFi driver and utilities.
+
+	  Warning: CONFIG_WIRELESS_EXT and CONFIG_WEXT_PRIV must be
+	  selected in the Linux kernel configuration.
+
+if BR2_PACKAGE_WF111
+
+config BR2_PACKAGE_WF111_TARBALL_PATH
+	string "WF111 tarball directory location"
+	help
+	  The WF111 tarball can be retrieve on the BlueGiga website after
+	  registration. This options specify the path were the tarball is
+	  locally saved.
+
+	  http://www.bluegiga.com/en-US/products/wifi-modules/wf111-wifi-module/
+
+endif
