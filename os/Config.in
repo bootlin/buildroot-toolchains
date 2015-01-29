@@ -1,0 +1,7 @@
+menu "Kernel"
+
+source "os/linux/Config.in"
+
+source "os/nuttx/Config.in"
+
+endmenu

@@ -389,7 +389,8 @@ endif
 include $(sort $(wildcard package/*/*.mk))
 
 include boot/common.mk
-include linux/linux.mk
+include os/linux/linux.mk
+include os/nuttx/nuttx.mk
 include system/system.mk
 include fs/common.mk
 
@@ -607,6 +608,7 @@ endif
 		echo "ID=buildroot"; \
 		echo "VERSION_ID=$(BR2_VERSION)"; \
 		echo "PRETTY_NAME=\"Buildroot $(BR2_VERSION)\"" \
+		echo "TARGETS=$(TARGETS)" \
 	) >  $(TARGET_DIR)/etc/os-release
 
 	@$(foreach d, $(call qstrip,$(BR2_ROOTFS_OVERLAY)), \

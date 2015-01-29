@@ -621,7 +621,7 @@ source "toolchain/Config.in"
 
 source "system/Config.in"
 
-source "linux/Config.in"
+source "os/Config.in"
 
 source "package/Config.in"
 

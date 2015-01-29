@@ -1,0 +1,19 @@
+config BR2_NUTTX_KERNEL
+       bool "Nuttx Kernel"
+       help 
+         nuttx kernel
+
+if BR2_NUTTX_KERNEL
+
+config BR2_NUTTX_TARGET_BOARD
+       string "Target board"
+       default stm32f4discovery
+       help
+         Nuttx target board
+
+config BR2_NUTTX_DEFCONFIG
+       string "Nuttx defconfig"
+       default pluto_defconfig
+
+
+endif
