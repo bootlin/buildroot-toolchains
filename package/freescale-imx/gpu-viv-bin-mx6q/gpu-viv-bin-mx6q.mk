@@ -4,14 +4,14 @@
 #
 ################################################################################
 
-GPU_VIV_BIN_MX6Q_BASE_VERSION = 3.10.17-1.0.1
+GPU_VIV_BIN_MX6Q_BASE_VERSION = 5.0.11.p4.1
 ifeq ($(BR2_ARM_EABIHF),y)
 GPU_VIV_BIN_MX6Q_VERSION = $(GPU_VIV_BIN_MX6Q_BASE_VERSION)-hfp
 else
 GPU_VIV_BIN_MX6Q_VERSION = $(GPU_VIV_BIN_MX6Q_BASE_VERSION)-sfp
 endif
 GPU_VIV_BIN_MX6Q_SITE = $(FREESCALE_IMX_SITE)
-GPU_VIV_BIN_MX6Q_SOURCE = gpu-viv-bin-mx6q-$(GPU_VIV_BIN_MX6Q_VERSION).bin
+GPU_VIV_BIN_MX6Q_SOURCE = imx-gpu-viv-$(GPU_VIV_BIN_MX6Q_VERSION).bin
 
 GPU_VIV_BIN_MX6Q_INSTALL_STAGING = YES
 
@@ -30,24 +30,24 @@ endef
 # in the upstream archive here.
 # Make sure these commands are idempotent.
 define GPU_VIV_BIN_MX6Q_BUILD_CMDS
-	$(SED) 's/defined(LINUX)/defined(__linux__)/g' $(@D)/usr/include/*/*.h
-	ln -sf libGL.so.1.2 $(@D)/usr/lib/libGL.so
-	ln -sf libGL.so.1.2 $(@D)/usr/lib/libGL.so.1
-	ln -sf libGL.so.1.2 $(@D)/usr/lib/libGL.so.1.2.0
-	ln -sf libEGL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libEGL.so
-	ln -sf libEGL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libEGL.so.1
-	ln -sf libEGL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libEGL.so.1.0
-	ln -sf libGLESv2-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libGLESv2.so
-	ln -sf libGLESv2-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libGLESv2.so.2
-	ln -sf libGLESv2-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libGLESv2.so.2.0.0
-	ln -sf libVIVANTE-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libVIVANTE.so
-	ln -sf libGAL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/usr/lib/libGAL.so
+	$(SED) 's/defined(LINUX)/defined(__linux__)/g' $(@D)/gpu-core/usr/include/*/*.h
+	ln -sf libGL.so.1.2 $(@D)/gpu-core/usr/lib/libGL.so
+	ln -sf libGL.so.1.2 $(@D)/gpu-core/usr/lib/libGL.so.1
+	ln -sf libGL.so.1.2 $(@D)/gpu-core/usr/lib/libGL.so.1.2.0
+	ln -sf libEGL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libEGL.so
+	ln -sf libEGL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libEGL.so.1
+	ln -sf libEGL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libEGL.so.1.0
+	ln -sf libGLESv2-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGLESv2.so
+	ln -sf libGLESv2-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGLESv2.so.2
+	ln -sf libGLESv2-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGLESv2.so.2.0.0
+	ln -sf libVIVANTE-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libVIVANTE.so
+	ln -sf libGAL-$(GPU_VIV_BIN_MX6Q_LIB_TARGET).so $(@D)/gpu-core/usr/lib/libGAL.so
 endef
 
 define GPU_VIV_BIN_MX6Q_INSTALL_STAGING_CMDS
-	cp -r $(@D)/usr/* $(STAGING_DIR)/usr
+	cp -r $(@D)/gpu-core/usr/* $(STAGING_DIR)/usr
 	if [ $(GPU_VIV_BIN_MX6Q_LIB_TARGET) == fb ]; then \
-		$(SED) '/#define EGLAPIENTRY/ a \
+		$(SED) '39i\
 			#if !defined(EGL_API_X11) && !defined(EGL_API_DFB) && !defined(EGL_API_FB) \n\
 			#define EGL_API_FB \n\
 			#endif' $(STAGING_DIR)/usr/include/EGL/eglvivante.h; \
@@ -62,7 +62,7 @@ endef
 ifeq ($(BR2_PACKAGE_GPU_VIV_BIN_MX6Q_EXAMPLES),y)
 define GPU_VIV_BIN_MX6Q_INSTALL_EXAMPLES
 	mkdir -p $(TARGET_DIR)/usr/share/examples/
-	cp -r $(@D)/opt/* $(TARGET_DIR)/usr/share/examples/
+	cp -r $(@D)/gpu-demos/opt/* $(TARGET_DIR)/usr/share/examples/
 endef
 endif
 
@@ -71,7 +71,7 @@ endif
 # to the wrong library
 define GPU_VIV_BIN_MX6Q_INSTALL_TARGET_CMDS
 	$(GPU_VIV_BIN_MX6Q_INSTALL_EXAMPLES)
-	cp -a $(@D)/usr/lib $(TARGET_DIR)/usr
+	cp -a $(@D)/gpu-core/usr/lib $(TARGET_DIR)/usr
 	for lib in EGL GAL VIVANTE GLESv2; do \
 		for f in $(TARGET_DIR)/usr/lib/lib$${lib}-*.so; do \
 			case $$f in \
