@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2015.02-git-g2872b38-dirty Configuration
+# Buildroot 2015.02-git-ga1c1e9a-dirty Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 
@@ -96,7 +96,7 @@ BR2_KERNEL_MIRROR="https://www.kernel.org/pub"
 BR2_GNU_MIRROR="http://ftp.gnu.org/pub/gnu"
 BR2_LUAROCKS_MIRROR="http://rocks.moonscript.org"
 BR2_CPAN_MIRROR="http://cpan.metacpan.org"
-BR2_JLEVEL=0
+BR2_JLEVEL=1
 # BR2_CCACHE is not set
 # BR2_DEPRECATED is not set
 # BR2_ENABLE_DEBUG is not set
@@ -250,6 +250,9 @@ BR2_ROOTFS_POST_IMAGE_SCRIPT=""
 # Kernel
 #
 # BR2_LINUX_KERNEL is not set
+BR2_NUTTX_KERNEL=y
+BR2_NUTTX_TARGET_BOARD="stm32f4discovery"
+BR2_NUTTX_DEFCONFIG="pluto_defconfig"
 
 #
 # Target packages
@@ -1744,7 +1747,7 @@ BR2_PACKAGE_HOST_GENROMFS=y
 # BR2_PACKAGE_HOST_MTD is not set
 # BR2_PACKAGE_HOST_MTOOLS is not set
 # BR2_PACKAGE_HOST_OMAP_U_BOOT_UTILS is not set
-# BR2_PACKAGE_HOST_OPENOCD is not set
+BR2_PACKAGE_HOST_OPENOCD=y
 # BR2_PACKAGE_HOST_PARTED is not set
 # BR2_PACKAGE_HOST_PATCHELF is not set
 # BR2_PACKAGE_HOST_PWGEN is not set
