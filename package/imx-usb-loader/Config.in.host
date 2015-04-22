@@ -1,0 +1,8 @@
+config BR2_PACKAGE_HOST_IMX_USB_LOADER
+	bool "host imx usb loader"
+	depends on BR2_PACKAGE_LIBUSB
+	depends on BR2_TOOLCHAIN_HAS_THREADS
+	help
+	  i.MX/Vybrid recovery utility
+
+	  https://github.com/boundarydevices/imx_usb_loader
