@@ -1,0 +1,5 @@
+config BR2_PACKAGE_MICROSEMI_SPI_FPGA
+	bool "microsemi FPGA SPI programmer"
+	help
+	  Microsemi FPGA programing tool.
+

@@ -346,6 +346,7 @@ endif
 	source "package/memtest86/Config.in"
 	source "package/memtester/Config.in"
 	source "package/minicom/Config.in"
+	source "package/microsemi-spi-fpga/Config.in"
 	source "package/nanocom/Config.in"
 	source "package/neard/Config.in"
 	source "package/ofono/Config.in"
