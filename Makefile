@@ -332,7 +332,13 @@ HOST_DIR := $(call qstrip,$(BR2_HOST_DIR))
 # Quotes are needed for spaces and all in the original PATH content.
 BR_PATH = "$(HOST_DIR)/bin:$(HOST_DIR)/sbin:$(HOST_DIR)/usr/bin:$(HOST_DIR)/usr/sbin:$(PATH)"
 
+ifeq ($(BR2_ROOTFS_SKELETON_DEFAULT),y)
 TARGET_SKELETON = $(TOPDIR)/system/skeleton
+endif
+
+ifeq ($(BR2_ROOTFS_SKELETON_TINY),y)
+TARGET_SKELETON = $(TOPDIR)/system/tinyroot
+endif
 
 # Location of a file giving a big fat warning that output/target
 # should not be used as the root filesystem.
@@ -457,6 +463,7 @@ LIB_SYMLINK = lib32
 endif
 
 $(STAGING_DIR):
+#ifneq ($(BR2_ROOTFS_SKELETON_TINY),y)
 	@mkdir -p $(STAGING_DIR)/bin
 	@mkdir -p $(STAGING_DIR)/lib
 	@ln -snf lib $(STAGING_DIR)/$(LIB_SYMLINK)
@@ -465,6 +472,7 @@ $(STAGING_DIR):
 	@mkdir -p $(STAGING_DIR)/usr/include
 	@mkdir -p $(STAGING_DIR)/usr/bin
 	@ln -snf $(STAGING_DIR) $(BASE_DIR)/staging
+#endif
 
 ifeq ($(BR2_ROOTFS_SKELETON_CUSTOM),y)
 TARGET_SKELETON = $(BR2_ROOTFS_SKELETON_CUSTOM_PATH)
@@ -485,7 +493,20 @@ $(BUILD_DIR)/.root:
 	@ln -snf lib $(TARGET_DIR)/usr/$(LIB_SYMLINK)
 	touch $@
 
+$(BUILD_DIR)/.tiny:
+	mkdir -p $(TARGET_DIR)
+	rsync -a --ignore-times $(RSYNC_VCS_EXCLUSIONS) \
+		--chmod=Du+w --exclude .empty --exclude '*~' \
+		$(TARGET_SKELETON)/ $(TARGET_DIR)/
+	$(INSTALL) -m 0644 support/misc/target-dir-warning.txt $(TARGET_DIR_WARNING_FILE)
+	@mkdir -p $(TARGET_DIR)/usr
+	touch $@
+
+ifeq ($(BR2_ROOTFS_SKELETON_TINY),y)
+$(TARGET_DIR): $(BUILD_DIR)/.tiny
+else
 $(TARGET_DIR): $(BUILD_DIR)/.root
+endif
 
 STRIP_FIND_CMD = find $(TARGET_DIR)
 ifneq (,$(call qstrip,$(BR2_STRIP_EXCLUDE_DIRS)))
