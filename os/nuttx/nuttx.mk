@@ -20,8 +20,17 @@ define NUTTX_INSTALL_TARGET_CMDS
 	install $(@D)/nuttx $(BINARIES_DIR)/nuttx 
 endef
 
+#define NUTTX_POST_INSTALL
+
+nuttx_install_image: 
+	echo "whaaaaa? $(BUILD_DIR)" 
+	make -C $(BUILD_DIR)/nuttx-$(NUTTX_VERSION) V=2 CROSSDEV=$(TARGET_CROSS) ARCROSSDEV=$(TARGET_CROSS) ROMFS=$(BINARIES_DIR)/rootfs.romfs TOPDIR=$(BUILD_DIR)/nuttx-$(NUTTX_VERSION)
+#	$(MAKE) -C $(@D) CROSSDEV=$(TARGET_CROSS) ARCROSSDEV=$(TARGET_CROSS) TOPDIR=$(@D)
+#endef
+
+TARGETS_POST += nuttx_install_image
 
 $(eval $(generic-package))
-
+#$(call NUTTX_POST_INSTALL)
 
 

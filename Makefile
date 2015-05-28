@@ -412,7 +412,7 @@ TARGETS_DIRCLEAN := $(patsubst %,%-dirclean,$(TARGETS))
 # Notice: this only works for newstyle gentargets/autotargets packages
 TARGETS_HOST_DEPS = $(sort $(filter host-%,$(foreach dep,\
 		$(addsuffix _DEPENDENCIES,\
-			$(call UPPERCASE,$(TARGETS) $(TARGETS_ROOTFS))),\
+			$(call UPPERCASE,$(TARGETS) $(TARGETS_ROOTFS) $(TARGETS_POST))),\
 		$($(dep)))))
 # Host packages can in turn have their own dependencies. Likewise find
 # all the package names listed in the HOST_<PKG>_DEPENDENCIES for each
@@ -440,7 +440,7 @@ world: target-post-image
 .PHONY: all world toolchain dirs clean distclean source outputmakefile \
 	legal-info legal-info-prepare legal-info-clean printvars \
 	target-finalize target-post-image \
-	$(TARGETS) $(TARGETS_ROOTFS) \
+	$(TARGETS) $(TARGETS_ROOTFS) $(TARGETS_POST) \
 	$(TARGETS_DIRCLEAN) $(TARGETS_SOURCE) $(TARGETS_LEGAL_INFO) \
 	$(BUILD_DIR) $(STAGING_DIR) $(TARGET_DIR) \
 	$(HOST_DIR) $(BINARIES_DIR)
@@ -642,7 +642,10 @@ endif
 		$(call MESSAGE,"Executing post-build script $(s)"); \
 		$(EXTRA_ENV) $(s) $(TARGET_DIR) $(call qstrip,$(BR2_ROOTFS_POST_SCRIPT_ARGS))$(sep))
 
-target-post-image: $(TARGETS_ROOTFS) target-finalize
+$(TARGETS_POST): $(TARGETS_ROOTFS) target-finalize
+#	echo "Is this correct?? $(TARGETS_POST)"
+
+target-post-image: $(TARGETS_POST) $(TARGETS_ROOTFS) target-finalize
 	@$(foreach s, $(call qstrip,$(BR2_ROOTFS_POST_IMAGE_SCRIPT)), \
 		$(call MESSAGE,"Executing post-image script $(s)"); \
 		$(EXTRA_ENV) $(s) $(BINARIES_DIR) $(call qstrip,$(BR2_ROOTFS_POST_SCRIPT_ARGS))$(sep))
@@ -676,7 +679,7 @@ legal-info: dirs legal-info-clean legal-info-prepare $(TARGETS_LEGAL_INFO) \
 	@rm -f $(LEGAL_WARNINGS)
 
 show-targets:
-	@echo $(HOST_DEPS) $(TARGETS_HOST_DEPS) $(TARGETS) $(TARGETS_ROOTFS)
+	@echo $(HOST_DEPS) $(TARGETS_HOST_DEPS) $(TARGETS) $(TARGETS_ROOTFS) $(TARGETS_POST)
 
 graph-build: $(O)/build/build-time.log
 	@install -d $(O)/graphs
