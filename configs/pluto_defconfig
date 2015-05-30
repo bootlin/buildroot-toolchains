@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Buildroot 2015.02-git-ga1c1e9a-dirty Configuration
+# Buildroot 2015.02-git-g2aa94df-dirty Configuration
 #
 BR2_HAVE_DOT_CONFIG=y
 
@@ -96,7 +96,7 @@ BR2_KERNEL_MIRROR="https://www.kernel.org/pub"
 BR2_GNU_MIRROR="http://ftp.gnu.org/pub/gnu"
 BR2_LUAROCKS_MIRROR="http://rocks.moonscript.org"
 BR2_CPAN_MIRROR="http://cpan.metacpan.org"
-BR2_JLEVEL=1
+BR2_JLEVEL=0
 # BR2_CCACHE is not set
 # BR2_DEPRECATED is not set
 # BR2_ENABLE_DEBUG is not set
@@ -235,12 +235,9 @@ BR2_INIT_NONE=y
 BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_DEVTMPFS=y
 # BR2_ROOTFS_DEVICE_CREATION_DYNAMIC_MDEV is not set
 BR2_ROOTFS_DEVICE_TABLE="system/device_table.txt"
-BR2_ROOTFS_SKELETON_DEFAULT=y
+# BR2_ROOTFS_SKELETON_DEFAULT is not set
+BR2_ROOTFS_SKELETON_TINY=y
 # BR2_ROOTFS_SKELETON_CUSTOM is not set
-BR2_TARGET_GENERIC_ROOT_PASSWD=""
-BR2_SYSTEM_BIN_SH_NONE=y
-# BR2_TARGET_GENERIC_GETTY is not set
-# BR2_TARGET_GENERIC_REMOUNT_ROOTFS_RW is not set
 BR2_ROOTFS_USERS_TABLES=""
 BR2_ROOTFS_OVERLAY=""
 BR2_ROOTFS_POST_BUILD_SCRIPT=""
@@ -1712,7 +1709,7 @@ BR2_PACKAGE_SYSTEMD_ARCH_SUPPORTS=y
 # initramfs needs a Linux kernel to be built
 #
 # BR2_TARGET_ROOTFS_JFFS2 is not set
-# BR2_TARGET_ROOTFS_ROMFS is not set
+BR2_TARGET_ROOTFS_ROMFS=y
 # BR2_TARGET_ROOTFS_SQUASHFS is not set
 # BR2_TARGET_ROOTFS_TAR is not set
 # BR2_TARGET_ROOTFS_UBIFS is not set
