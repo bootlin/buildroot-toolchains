@@ -15,5 +15,10 @@ config BR2_NUTTX_DEFCONFIG
        string "Nuttx defconfig"
        default pluto_defconfig
 
-
+config BR2_NUTTX_FSIMAGE
+       bool "Nuttx image built with filesystem image"
+       default y
+       help
+         If this is selected buildroot will produce the yartos image that will include the romfs image
+       
 endif

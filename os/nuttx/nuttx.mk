@@ -23,11 +23,14 @@ endef
 
 
 nuttx_install_image: 
-	echo "whaaaaa? $(BUILD_DIR)" 
 	make -C $(BUILD_DIR)/nuttx-$(NUTTX_VERSION) V=2 CROSSDEV=$(TARGET_CROSS) ARCROSSDEV=$(TARGET_CROSS) ROMFS=$(BINARIES_DIR)/rootfs.romfs TOPDIR=$(BUILD_DIR)/nuttx-$(NUTTX_VERSION)
 	install $(BUILD_DIR)/nuttx-$(NUTTX_VERSION)/nuttx $(BINARIES_DIR)/yartos
 
+ifeq ($(BR2_NUTTX_FSIMAGE),y)
+
 TARGETS_POST += nuttx_install_image
+
+endif
 
 $(eval $(generic-package))
 
