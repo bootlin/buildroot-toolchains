@@ -1,0 +1,42 @@
+From b2c86eecbf1596756883f281f491d8c1335a76dc Mon Sep 17 00:00:00 2001
+From: Boris Brezillon <boris.brezillon@free-electrons.com>
+Date: Wed, 24 Jun 2015 19:06:40 +0200
+Subject: [PATCH] remove LEB/PEB max size check
+
+Signed-off-by: Boris Brezillon <boris.brezillon@free-electrons.com>
+---
+ mkfs.ubifs/mkfs.ubifs.c | 3 ---
+ ubi-utils/ubinize.c     | 3 ---
+ 2 files changed, 6 deletions(-)
+
+diff --git a/mkfs.ubifs/mkfs.ubifs.c b/mkfs.ubifs/mkfs.ubifs.c
+index ca17e2b..8ea0e4c 100644
+--- a/mkfs.ubifs/mkfs.ubifs.c
++++ b/mkfs.ubifs/mkfs.ubifs.c
+@@ -356,9 +356,6 @@ static int validate_options(void)
+ 		return err_msg("LEB should be multiple of min. I/O units");
+ 	if (c->leb_size % 8)
+ 		return err_msg("LEB size has to be multiple of 8");
+-	if (c->leb_size > UBIFS_MAX_LEB_SZ)
+-		return err_msg("too large LEB size %d, maximum is %d",
+-				c->leb_size, UBIFS_MAX_LEB_SZ);
+ 	if (c->max_leb_cnt < UBIFS_MIN_LEB_CNT)
+ 		return err_msg("too low max. count of LEBs, minimum is %d",
+ 			       UBIFS_MIN_LEB_CNT);
+diff --git a/ubi-utils/ubinize.c b/ubi-utils/ubinize.c
+index 34f465a..93b2736 100644
+--- a/ubi-utils/ubinize.c
++++ b/ubi-utils/ubinize.c
+@@ -254,9 +254,6 @@ static int parse_opt(int argc, char * const argv[])
+ 	if (args.peb_size < 0)
+ 		return errmsg("physical eraseblock size was not specified (use -h for help)");
+ 
+-	if (args.peb_size > UBI_MAX_PEB_SZ)
+-		return errmsg("too high physical eraseblock size %d", args.peb_size);
+-
+ 	if (args.min_io_size < 0)
+ 		return errmsg("min. I/O unit size was not specified (use -h for help)");
+ 
+-- 
+1.9.1
+
