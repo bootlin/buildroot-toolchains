@@ -1,5 +1,5 @@
 NUTTX_VERSION = v0.2
-NUTTX_SITE = git@github.com:vxmdesign/yartos.git
+NUTTX_SITE = https://github.com/vxmdesign/yartos.git
 NUTTX_SITE_METHOD = git
 NUTTX_LICENSE = GPLv2+
 
