@@ -1,0 +1,28 @@
+From c121ec806b6c2c7a69cf0ade8c7840a1f39e1403 Mon Sep 17 00:00:00 2001
+From: Jason Abele <jason@jasonabeleconsulting.com>
+Date: Wed, 22 Jul 2015 17:33:26 -0700
+Subject: [PATCH 1/2] rtl8723bs: remove unused wext wireless_handlers
+
+The wireless_handlers member has been removed from net_device in recent
+kernels and is not required by this driver.  Remove it to fix
+compilation.
+---
+ os_dep/os_intfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/os_dep/os_intfs.c b/os_dep/os_intfs.c
+index 4fa0c86..8b7bbf2 100644
+--- a/os_dep/os_intfs.c
++++ b/os_dep/os_intfs.c
+@@ -600,7 +600,7 @@ struct net_device *rtw_init_netdev(_adapter *old_padapter)
+ 
+ 	//pnetdev->tx_timeout = NULL;
+ 	pnetdev->watchdog_timeo = HZ*3; /* 3 second timeout */
+-	pnetdev->wireless_handlers = (struct iw_handler_def *)&rtw_handlers_def;
++	//pnetdev->wireless_handlers = (struct iw_handler_def *)&rtw_handlers_def;
+ 
+ 	//step 2.
+ 	loadparam(padapter, pnetdev);
+-- 
+1.9.1
+
