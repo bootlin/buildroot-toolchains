@@ -1,0 +1,42 @@
+diff --git a/Makefile b/Makefile
+index a49dfea..f1437d2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -13,6 +13,7 @@ EXTRA_CFLAGS += -Wno-unused-label
+ EXTRA_CFLAGS += -Wno-unused-parameter
+ EXTRA_CFLAGS += -Wno-unused-function
+ EXTRA_CFLAGS += -Wno-unused
++EXTRA_CFLAGS += -Wno-error=date-time
+
+ #EXTRA_CFLAGS += -Wno-uninitialized
+
+@@ -1492,12 +1493,15 @@ all: modules
+ modules:
+ 	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
+
++modules_install:
++	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  INSTALL_MOD_PATH=$(PREFIX) modules_install
++
+ strip:
+ 	$(CROSS_COMPILE)strip $(MODULE_NAME).ko --strip-unneeded
+
+ install:
+ 	install -p -m 644 $(MODULE_NAME).ko  $(MODDESTDIR)
+-	/sbin/depmod -a ${KVER}
++	$(DEPMOD) -a ${KVER}
+
+ uninstall:
+ 	rm -f $(MODDESTDIR)/$(MODULE_NAME).ko
+diff --git a/os_dep/linux/rtw_android.c b/os_dep/linux/rtw_android.c
+index 6d0c84f..a2938a6 100644
+--- a/os_dep/linux/rtw_android.c
++++ b/os_dep/linux/rtw_android.c
+@@ -344,7 +344,7 @@ int rtw_android_cmdstr_to_num(char *cmdstr)
+ {
+ 	int cmd_num;
+ 	for(cmd_num=0 ; cmd_num<ANDROID_WIFI_CMD_MAX; cmd_num++)
+-		if(0 == strnicmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
++		if(0 == strncasecmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
+ 			break;
+
+ 	return cmd_num;
