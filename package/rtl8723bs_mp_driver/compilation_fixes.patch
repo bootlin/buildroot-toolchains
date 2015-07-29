@@ -1,5 +1,5 @@
 diff --git a/Makefile b/Makefile
-index a49dfea..9716725 100644
+index a49dfea..f1437d2 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -13,6 +13,7 @@ EXTRA_CFLAGS += -Wno-unused-label
@@ -7,24 +7,24 @@ index a49dfea..9716725 100644
  EXTRA_CFLAGS += -Wno-unused-function
  EXTRA_CFLAGS += -Wno-unused
 +EXTRA_CFLAGS += -Wno-error=date-time
-
+ 
  #EXTRA_CFLAGS += -Wno-uninitialized
-
+ 
 @@ -1492,12 +1493,15 @@ all: modules
  modules:
  	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
-
+ 
 +modules_install:
 +	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  INSTALL_MOD_PATH=$(PREFIX) modules_install
 +
  strip:
  	$(CROSS_COMPILE)strip $(MODULE_NAME).ko --strip-unneeded
-
+ 
  install:
  	install -p -m 644 $(MODULE_NAME).ko  $(MODDESTDIR)
 -	/sbin/depmod -a ${KVER}
 +	$(DEPMOD) -a ${KVER}
-
+ 
  uninstall:
  	rm -f $(MODDESTDIR)/$(MODULE_NAME).ko
 diff --git a/hal/hal_btcoex.c b/hal/hal_btcoex.c
@@ -33,11 +33,11 @@ index f51e45d..fb63bdf 100644
 +++ b/hal/hal_btcoex.c
 @@ -3286,11 +3286,11 @@ hal_btcoex_AntIsolationConfig_ParaFile(
  	_rtw_memset(pHalData->para_file_buf , 0 , MAX_PARA_FILE_BUF_LEN);
-
-
+ 
+ 
 -	rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +	rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 
 -	if (rtw_is_file_readable(file_path) == _TRUE)
 +	if (rtw_is_file_readable(__file_path) == _TRUE)
  	{
@@ -52,24 +52,24 @@ index 5c5b098..1b000fc 100644
 +++ b/hal/hal_com.c
 @@ -27,7 +27,7 @@
  //#define CONFIG_GTK_OL_DBG
-
+ 
  #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
 -char	file_path[PATH_LENGTH_MAX];
 +char	__file_path[PATH_LENGTH_MAX];
  #endif
-
+ 
  void dump_chip_info(HAL_VERSION	ChipVersion)
 diff --git a/hal/hal_com_phycfg.c b/hal/hal_com_phycfg.c
 index bdf75cf..73bbd77 100644
 --- a/hal/hal_com_phycfg.c
 +++ b/hal/hal_com_phycfg.c
 @@ -2601,11 +2601,11 @@ phy_ConfigMACWithParaFile(
-
+ 
  	if ((pHalData->mac_reg_len == 0) && (pHalData->mac_reg == NULL))
  	{
 -		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +		rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 	
 -		if (rtw_is_file_readable(file_path) == _TRUE)
 +		if (rtw_is_file_readable(__file_path) == _TRUE)
  		{
@@ -79,12 +79,12 @@ index bdf75cf..73bbd77 100644
  			{
  				rtStatus = _SUCCESS;
 @@ -2700,11 +2700,11 @@ phy_ConfigBBWithParaFile(
-
+ 
  	if ((pBufLen != NULL) && (*pBufLen == 0) && (pBuf == NULL))
  	{
 -		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +		rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 	
 -		if (rtw_is_file_readable(file_path) == _TRUE)
 +		if (rtw_is_file_readable(__file_path) == _TRUE)
  		{
@@ -94,12 +94,12 @@ index bdf75cf..73bbd77 100644
  			{
  				rtStatus = _SUCCESS;
 @@ -3153,11 +3153,11 @@ phy_ConfigBBWithPgParaFile(
-
+ 
  	if ((pHalData->bb_phy_reg_pg_len == 0) && (pHalData->bb_phy_reg_pg == NULL))
  	{
 -		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +		rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 	
 -		if (rtw_is_file_readable(file_path) == _TRUE)
 +		if (rtw_is_file_readable(__file_path) == _TRUE)
  		{
@@ -109,12 +109,12 @@ index bdf75cf..73bbd77 100644
  			{
  				rtStatus = _SUCCESS;
 @@ -3216,11 +3216,11 @@ phy_ConfigBBWithMpParaFile(
-
+ 
  	if ((pHalData->bb_phy_reg_mp_len == 0) && (pHalData->bb_phy_reg_mp == NULL))
  	{
 -		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +		rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 	
 -		if (rtw_is_file_readable(file_path) == _TRUE)
 +		if (rtw_is_file_readable(__file_path) == _TRUE)
  		{
@@ -124,12 +124,12 @@ index bdf75cf..73bbd77 100644
  			{
  				rtStatus = _SUCCESS;
 @@ -3352,11 +3352,11 @@ PHY_ConfigRFWithParaFile(
-
+ 
  	if ((pBufLen != NULL) && (*pBufLen == 0) && (pBuf == NULL))
  	{
 -		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +		rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 
 -		if (rtw_is_file_readable(file_path) == _TRUE)
 +		if (rtw_is_file_readable(__file_path) == _TRUE)
  		{
@@ -139,12 +139,12 @@ index bdf75cf..73bbd77 100644
  			{
  				rtStatus = _SUCCESS;
 @@ -3630,11 +3630,11 @@ PHY_ConfigRFWithTxPwrTrackParaFile(
-
+ 
  	if ((pHalData->rf_tx_pwr_track_len == 0) && (pHalData->rf_tx_pwr_track == NULL))
  	{
 -		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +		rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 	
 -		if (rtw_is_file_readable(file_path) == _TRUE)
 +		if (rtw_is_file_readable(__file_path) == _TRUE)
  		{
@@ -154,12 +154,12 @@ index bdf75cf..73bbd77 100644
  			{
  				rtStatus = _SUCCESS;
 @@ -3999,11 +3999,11 @@ PHY_ConfigRFWithPowerLimitTableParaFile(
-
+ 
  	if ((pHalData->rf_tx_pwr_lmt_len == 0) && (pHalData->rf_tx_pwr_lmt == NULL))
  	{
 -		rtw_merge_string(file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
 +		rtw_merge_string(__file_path, PATH_LENGTH_MAX, rtw_phy_file_path, pFileName);
-
+ 	
 -		if (rtw_is_file_readable(file_path) == _TRUE)
 +		if (rtw_is_file_readable(__file_path) == _TRUE)
  		{
@@ -173,14 +173,14 @@ index 5c509da..387c2be 100644
 --- a/include/hal_com.h
 +++ b/include/hal_com.h
 @@ -409,7 +409,7 @@ int rtw_hal_disable_gpio_interrupt(_adapter* adapter, int gpio_num);
-
+ 
  #ifdef CONFIG_LOAD_PHY_PARA_FROM_FILE
  extern char *rtw_phy_file_path;
 -extern char file_path[PATH_LENGTH_MAX];
 +extern char __file_path[PATH_LENGTH_MAX];
  #define GetLineFromBuffer(buffer)   strsep(&buffer, "\n")
  #endif
-
+ 
 diff --git a/os_dep/linux/rtw_android.c b/os_dep/linux/rtw_android.c
 index 6d0c84f..a2938a6 100644
 --- a/os_dep/linux/rtw_android.c
@@ -192,5 +192,5 @@ index 6d0c84f..a2938a6 100644
 -		if(0 == strnicmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
 +		if(0 == strncasecmp(cmdstr , android_wifi_cmd_str[cmd_num], strlen(android_wifi_cmd_str[cmd_num])) )
  			break;
-
+ 
  	return cmd_num;
