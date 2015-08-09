@@ -1,0 +1,39 @@
+From 92dea8360b277f2bb9bd192ac8216c6d9ec97e81 Mon Sep 17 00:00:00 2001
+From: Jason Abele <jason.abele@gmail.com>
+Date: Sat, 8 Aug 2015 20:10:38 -0700
+Subject: [PATCH] rtl8723bs_bt: more flexible Makefile
+
+Allow override of compiler and install prefix and install helper
+programs to /sbin.
+---
+ Makefile | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/Makefile b/Makefile
+index 52506b9..9afbbe2 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,12 +1,16 @@
++CC := cc
++PREFIX :=
++
+ rtk_hciattach:hciattach.c hciattach_rtk.o  
+-	cc -o rtk_hciattach hciattach.c hciattach_rtk.o  
++	$(CC) -o rtk_hciattach hciattach.c hciattach_rtk.o
+ 
+ hciattach_rtk.o:hciattach_rtk.c
+-	cc -c hciattach_rtk.c
++	$(CC) -c hciattach_rtk.c
+ 
+ clean:
+ 	rm -f *.o  rtk_hciattach
+ 
+ install:
+-	mkdir -p /lib/firmware/rtl_bt
+-	cp -p rtlbt_* /lib/firmware/rtl_bt/.
++	mkdir -p $(PREFIX)/lib/firmware/rtl_bt
++	cp -p rtlbt_* $(PREFIX)/lib/firmware/rtl_bt/.
++	cp -p rtk_hciattach $(PREFIX)/sbin/
+-- 
+1.9.1
+

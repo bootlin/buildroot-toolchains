@@ -1,0 +1,63 @@
+config BR2_PACKAGE_RTL8723BS_BT
+	bool "rtl8723bs_bt"
+	depends on BR2_LINUX_KERNEL
+	help
+	  Firmware and config for the rtl8723bs_bt SDIO Bluetooth module.
+
+	  Make sure your target kernel has the following config
+	  options enabled:
+
+	    * CONFIG_BT: bluetooth support
+		* CONFIG_BT_HCIUART: bluetooth HCI UART serial driver
+
+comment "rtl8723bs_bt needs a Linux kernel to be built"
+	depends on !BR2_LINUX_KERNEL
+
+if BR2_PACKAGE_RTL8723BS_BT
+choice
+	prompt "RTL8723BS_BT Version"
+	help
+	  Select the specific RTL8723BS_BT version you want to use
+
+config BR2_PACKAGE_RTL8723BS_BT_LATEST_VERSION
+	bool "2015.04"
+
+config BR2_PACKAGE_RTL8723BS_BT_CUSTOM_VERSION
+	bool "Custom version"
+	help
+	  This option allows to use a specific official versions
+
+config BR2_PACKAGE_RTL8723BS_BT_CUSTOM_GIT
+	bool "Custom Git repository"
+
+endchoice
+
+config BR2_PACKAGE_RTL8723BS_BT_CUSTOM_VERSION_VALUE
+	string "RTL8723BS_BT version"
+	depends on BR2_PACKAGE_RTL8723BS_BT_CUSTOM_VERSION
+
+if BR2_PACKAGE_RTL8723BS_BT_CUSTOM_GIT
+
+config BR2_PACKAGE_RTL8723BS_BT_CUSTOM_REPO_URL
+	string "URL of custom repository"
+	default BR2_PACKAGE_RTL8723BS_BT_CUSTOM_GIT_REPO_URL \
+		if BR2_PACKAGE_RTL8723BS_BT_CUSTOM_GIT_REPO_URL != ""  # legacy
+
+config BR2_PACKAGE_RTL8723BS_BT_CUSTOM_REPO_VERSION
+	string "Custom repository version"
+	default BR2_PACKAGE_RTL8723BS_BT_CUSTOM_GIT_VERSION \
+		if BR2_PACKAGE_RTL8723BS_BT_CUSTOM_GIT_VERSION != ""  # legacy
+	help
+	  Revision to use in the typical format used by Git
+	  E.G. a sha id, a tag, branch, ..
+
+endif
+endif
+
+config BR2_PACKAGE_RTL8723BS_BT_VERSION
+	string
+	default "2015.04"	if BR2_PACKAGE_RTL8723BS_BT_LATEST_VERSION
+	default BR2_PACKAGE_RTL8723BS_BT_CUSTOM_VERSION_VALUE \
+		if BR2_PACKAGE_RTL8723BS_BT_CUSTOM_VERSION
+	default BR2_PACKAGE_RTL8723BS_BT_CUSTOM_REPO_VERSION \
+		if BR2_PACKAGE_RTL8723BS_BT_CUSTOM_GIT
