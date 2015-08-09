@@ -19,6 +19,11 @@ define RTL8723BS_BT_BUILD_CMDS
 	$(MAKE) -C $(@D) CC=$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)-gcc
 endef
 
+define RTL8723BS_BT_INSTALL_INIT_SYSV
+    $(INSTALL) -m 0755 -D package/rtl8723bs_bt/S25rtk_hciattach $(TARGET_DIR)/etc/init.d/S25rtk_hciattach
+    $(INSTALL) -m 0755 -D package/rtl8723bs_bt/start_rtl8723bs_bt $(TARGET_DIR)/sbin/start_rtl8723bs_bt
+endef
+
 define RTL8723BS_BT_INSTALL_TARGET_CMDS
 	$(MAKE) -C $(@D) CC=$(BR2_TOOLCHAIN_EXTERNAL_PREFIX)-gcc \
 		PREFIX=$(TARGET_DIR) install

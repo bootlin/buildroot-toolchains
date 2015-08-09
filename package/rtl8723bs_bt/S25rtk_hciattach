@@ -1,0 +1,26 @@
+#!/bin/sh
+
+TTY_RTL8732BS=/dev/ttyS1
+
+case "$1" in
+	start)
+		echo -n "Starting 8723 Bluetooth HCI ... "
+		/sbin/modprobe hci_uart
+		start-stop-daemon -S -q -m -b -p /var/run/rtk_hciattach.pid --exec /sbin/rtk_hciattach -- -n -s 115200 $TTY_RTL8732BS rtk_h5 2>&1 | logger -t rtk_hciattach &
+		echo "done."
+		;;
+	stop)
+		echo -n "Stopping 8723 Bluetooth HCI ..."
+		start-stop-daemon -K -q -p /var/run/rtk_hciattach.pid
+		/sbin/modprobe -r hci_uart
+		echo "done."
+		;;
+	restart)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+	*)
+		echo "usage: $0 {start|stop|restart}"
+		;;
+esac

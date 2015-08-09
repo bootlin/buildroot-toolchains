@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# Runs rtk_hciattach, logging to a logfile. We have to do
+# this because there is no way to have start-stop-daemon
+# redirect stdout to a syslog, so we use a pipe to logger.
+#
+
+TTY_RTL8732BS=/dev/ttyS1
+
+/sbin/rtk_hciattach -n -s 115200 $TTY_RTL8732BS rtk_h5 2>&1 | logger -t rtk_hciattach
+
+# Capture the child process PID
+CHILD="$!"
+
+# Kill the child process when start-stop-daemon sends us a kill signal
+trap "kill $CHILD" exit INT TERM
+
+# Wait for child process to exit
+wait
