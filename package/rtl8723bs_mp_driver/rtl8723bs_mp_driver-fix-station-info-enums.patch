@@ -1,0 +1,54 @@
+From: Jason Abele <jason@jasonabeleconsulting.com>
+Date: Sat, 15 Aug 2015 13:41:07 -0700
+Subject: [PATCH] rtl8723bs_mp_driver: fix station info enums
+
+---
+ os_dep/linux/ioctl_cfg80211.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/os_dep/linux/ioctl_cfg80211.c b/os_dep/linux/ioctl_cfg80211.c
+index f3c693b..f7894b8 100644
+--- a/os_dep/linux/ioctl_cfg80211.c
++++ b/os_dep/linux/ioctl_cfg80211.c
+@@ -1825,16 +1825,16 @@ static int cfg80211_rtw_get_station(struct wiphy *wiphy,
+ 			goto exit;
+ 		}
+ 
+-		sinfo->filled |= STATION_INFO_SIGNAL;
++		sinfo->filled |= NL80211_STA_INFO_SIGNAL;
+ 		sinfo->signal = translate_percentage_to_dbm(padapter->recvpriv.signal_strength);
+ 
+-		sinfo->filled |= STATION_INFO_TX_BITRATE;
++		sinfo->filled |= NL80211_STA_INFO_TX_BITRATE;
+ 		sinfo->txrate.legacy = rtw_get_cur_max_rate(padapter);
+ 
+-		sinfo->filled |= STATION_INFO_RX_PACKETS;
++		sinfo->filled |= NL80211_STA_INFO_RX_PACKETS;
+ 		sinfo->rx_packets = sta_rx_data_pkts(psta);
+ 
+-		sinfo->filled |= STATION_INFO_TX_PACKETS;
++		sinfo->filled |= NL80211_STA_INFO_TX_PACKETS;
+ 		sinfo->tx_packets = psta->sta_stats.tx_pkts;
+ 
+ 	}
+@@ -3592,7 +3592,7 @@ void rtw_cfg80211_indicate_sta_assoc(_adapter *padapter, u8 *pmgmt_frame, uint f
+ 			ie_offset = _REASOCREQ_IE_OFFSET_;
+ 	
+ 		sinfo.filled = 0;
+-		sinfo.filled = STATION_INFO_ASSOC_REQ_IES;
++		// sinfo.filled = NL80211_STA_INFO_ASSOC_REQ_IES;
+ 		sinfo.assoc_req_ies = pmgmt_frame + WLAN_HDR_A3_LEN + ie_offset;
+ 		sinfo.assoc_req_ies_len = frame_len - WLAN_HDR_A3_LEN - ie_offset;
+ 		cfg80211_new_sta(ndev, GetAddr2Ptr(pmgmt_frame), &sinfo, GFP_ATOMIC);
+@@ -4450,7 +4450,7 @@ static int	cfg80211_rtw_dump_station(struct wiphy *wiphy, struct net_device *nde
+ 	}
+ 	_rtw_memcpy(mac, psta->hwaddr, ETH_ALEN);
+ 	sinfo->filled = 0;
+-	sinfo->filled |= STATION_INFO_SIGNAL;
++	sinfo->filled |= NL80211_STA_INFO_SIGNAL;
+ 	sinfo->signal = psta->rssi;
+ 	
+ exit:
+-- 
+1.9.1
+
