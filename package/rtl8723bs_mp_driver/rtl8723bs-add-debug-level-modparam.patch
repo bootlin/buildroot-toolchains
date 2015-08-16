@@ -1,0 +1,38 @@
+From 3a9365d8baa116cd6df4caf3d04720eb10cee586 Mon Sep 17 00:00:00 2001
+From: Jason Abele <jason@jasonabeleconsulting.com>
+Date: Sat, 15 Aug 2015 17:59:08 -0700
+Subject: [PATCH] rtl8723bs: add debug level modparam
+
+For ease of controlling debug printk verbosity, add a module parameter
+which sets debug level at module load.
+---
+ os_dep/linux/os_intfs.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/os_dep/linux/os_intfs.c b/os_dep/linux/os_intfs.c
+index 4f6541d..e5e85b0 100644
+--- a/os_dep/linux/os_intfs.c
++++ b/os_dep/linux/os_intfs.c
+@@ -413,6 +413,10 @@ module_param(rtw_decrypt_phy_file, int, 0644);
+ MODULE_PARM_DESC(rtw_decrypt_phy_file,"Enable Decrypt PHY File");
+ #endif
+ 
++int rtw_debug_level = _drv_err_;
++module_param(rtw_debug_level, int, 0644);
++MODULE_PARM_DESC(rtw_debug_level,"Set Driver Debug Verbosity");
++
+ static uint loadparam(PADAPTER padapter, _nic_hdl pnetdev);
+ int _netdev_open(struct net_device *pnetdev);
+ int netdev_open (struct net_device *pnetdev);
+@@ -603,6 +607,8 @@ _func_enter_;
+ 
+ 	registry_par->boffefusemask = (u8)rtw_OffEfuseMask;
+ 	registry_par->bFileMaskEfuse = (u8)rtw_FileMaskEfuse;
++
++	GlobalDebugLevel = rtw_debug_level;
+ _func_exit_;
+ 
+ 	return status;
+-- 
+1.9.1
+

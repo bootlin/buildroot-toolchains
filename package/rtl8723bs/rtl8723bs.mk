@@ -24,6 +24,8 @@ define RTL8723BS_INSTALL_TARGET_CMDS
 	$(MAKE) -C $(@D) $(LINUX_MAKE_FLAGS) KSRC=$(LINUX_DIR) \
 		PREFIX=$(TARGET_DIR) modules_install
 	$(HOST_DIR)/sbin/depmod -a -b $(TARGET_DIR) $(LINUX_VERSION_PROBED)
+	$(INSTALL) -D -m 0644 package/rtl8723bs/rtl8723bs.conf \
+		$(TARGET_DIR)/etc/modprobe.d/rtl8723bs.conf
 endef
 
 $(eval $(generic-package))
