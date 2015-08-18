@@ -1,7 +1,6 @@
 config BR2_PACKAGE_RTL8723BS
 	bool "rtl8723bs"
 	depends on BR2_LINUX_KERNEL
-	depends on !BR2_PACKAGE_RTL8723BS_MP_DRIVER
 	help
 	  Linux kernel module for the rtl8723bs SDIO WiFi module.
 
