@@ -1,0 +1,22 @@
+#!/bin/sh
+
+case "$1" in
+	start)
+		echo -n "Starting 8723 Wifi ... "
+		/sbin/modprobe r8723bs
+		echo "done."
+		;;
+	stop)
+		echo -n "Stopping 8723 Wifi ..."
+		/sbin/modprobe -r r8723bs
+		echo "done."
+		;;
+	restart)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+	*)
+		echo "usage: $0 {start|stop|restart}"
+		;;
+esac

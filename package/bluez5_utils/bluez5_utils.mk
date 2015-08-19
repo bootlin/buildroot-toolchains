@@ -56,6 +56,11 @@ endef
 BLUEZ5_UTILS_POST_INSTALL_TARGET_HOOKS += BLUEZ5_UTILS_INSTALL_GATTTOOL
 endif
 
+define BLUEZ5_UTILS_INSTALL_INIT_SYSV
+    $(INSTALL) -m 0755 -D package/bluez5_utils/S65_bluetoothd $(TARGET_DIR)/etc/init.d/S65_bluetoothd
+endef
+
+
 # enable test
 ifeq ($(BR2_PACKAGE_BLUEZ5_UTILS_TEST),y)
 BLUEZ5_UTILS_CONF_OPTS += --enable-test

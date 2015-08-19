@@ -26,6 +26,8 @@ define RTL8723BS_INSTALL_TARGET_CMDS
 	$(HOST_DIR)/sbin/depmod -a -b $(TARGET_DIR) $(LINUX_VERSION_PROBED)
 	$(INSTALL) -D -m 0644 package/rtl8723bs/rtl8723bs.conf \
 		$(TARGET_DIR)/etc/modprobe.d/rtl8723bs.conf
+
+		$(INSTALL) -m 0755 -D package/rtl8723bs/S20_rtl8723bs_wifi $(TARGET_DIR)/etc/init.d/S20_rtl8723bs_wifi
 endef
 
 $(eval $(generic-package))

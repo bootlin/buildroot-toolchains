@@ -1,0 +1,22 @@
+#!/bin/sh
+
+case "$1" in
+	start)
+		echo -n "Starting bluetoothd"
+		start-stop-daemon -S -q -m -b -p /var/run/bluetoothd.pid --exec /usr/libexec/bluetooth/bluetoothd
+		echo "done."
+		;;
+	stop)
+		echo -n "Stopping bluetoothd"
+		start-stop-daemon -K -q -p /var/run/bluetoothd.pid
+		echo "done."
+		;;
+	restart)
+		$0 stop
+		sleep 1
+		$0 start
+		;;
+	*)
+		echo "usage: $0 {start|stop|restart}"
+		;;
+esac
