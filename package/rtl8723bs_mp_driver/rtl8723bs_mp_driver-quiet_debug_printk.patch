@@ -1,0 +1,14 @@
+diff --git a/include/autoconf.h b/include/autoconf.h
+index 5d0d175..203e743 100644
+--- a/include/autoconf.h
++++ b/include/autoconf.h
+@@ -309,8 +309,8 @@
+ 
+ /*
+  * Debug Related Config
+- */
+ #define CONFIG_DEBUG
++*/
+ 
+ #ifdef CONFIG_DEBUG
+ #define DBG	1	// for ODM & BTCOEX debug
