@@ -13,7 +13,7 @@ diff --git a/os_dep/os_intfs.c b/os_dep/os_intfs.c
 index 8b7bbf2..8cdcc8a 100644
 --- a/os_dep/os_intfs.c
 +++ b/os_dep/os_intfs.c
-@@ -261,6 +261,10 @@ module_param(rtw_decrypt_phy_file, int, 0644);
+@@ -254,6 +254,10 @@ module_param(rtw_decrypt_phy_file, int, 0644);
  MODULE_PARM_DESC(rtw_decrypt_phy_file,"Enable Decrypt PHY File");
  #endif
  
@@ -21,10 +21,10 @@ index 8b7bbf2..8cdcc8a 100644
 +module_param(rtw_debug_level, int, 0644);
 +MODULE_PARM_DESC(rtw_debug_level,"Set Driver Debug Verbosity");
 +
- static uint loadparam(PADAPTER padapter, _nic_hdl pnetdev);
+ static uint loadparam(struct adapter * padapter, _nic_hdl pnetdev);
  int _netdev_open(struct net_device *pnetdev);
  int netdev_open (struct net_device *pnetdev);
-@@ -381,6 +385,7 @@ static uint loadparam( _adapter *padapter,  _nic_hdl	pnetdev)
+@@ -373,6 +373,7 @@ static uint loadparam( _adapter *padapter,  _nic_hdl	pnetdev)
  	registry_par->qos_opt_enable = (u8)rtw_qos_opt_enable;
  
  	registry_par->hiq_filter = (u8)rtw_hiq_filter;
