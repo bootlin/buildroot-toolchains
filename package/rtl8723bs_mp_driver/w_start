@@ -1,0 +1,13 @@
+#!/bin/sh
+
+execute() {
+  echo $@
+  $@
+}
+
+dmesg -n 1
+
+execute modprobe -r 8723bs
+execute modprobe 8723bs rtw_mp_mode=1
+execute ifconfig wlan0 up
+execute iwpriv wlan0 mp_start

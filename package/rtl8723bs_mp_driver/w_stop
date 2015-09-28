@@ -1,0 +1,10 @@
+#!/bin/sh
+
+execute() {
+  echo $@
+  $@
+}
+
+execute iwpriv wlan0 mp_stop
+execute ifconfig wlan0 down
+execute modprobe -r 8723bs
