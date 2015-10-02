@@ -1,0 +1,37 @@
+From e3b86ac0f53b154ae9139b9909a5ce03e5ffb2a2 Mon Sep 17 00:00:00 2001
+From: Jason Abele <jason@jasonabeleconsulting.com>
+Date: Fri, 2 Oct 2015 01:09:25 -0700
+Subject: [PATCH] debug: match 4.3 kernel seq_printf api
+
+seq_printf() never returned an int error code with meaning like printk
+and in the 4.3 kernel, seq_printf() changed to return void to avoid
+abuse.  Match this api in the rtl8723bs driver.
+---
+ include/rtw_debug.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/rtw_debug.h b/include/rtw_debug.h
+index bf8ba13..f6168a3 100644
+--- a/include/rtw_debug.h
++++ b/include/rtw_debug.h
+@@ -229,7 +229,7 @@ extern void rtl871x_cedbg(const char *fmt, ...);
+ 		if (sel == RTW_DBGDUMP)\
+ 			_DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
+ 		else {\
+-			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/; \
++			_seqdump(sel, fmt, ##arg); \
+ 		} \
+ 	}while(0)
+ 
+@@ -239,7 +239,7 @@ extern void rtl871x_cedbg(const char *fmt, ...);
+ 		if (sel == RTW_DBGDUMP)\
+ 			DBG_871X_LEVEL(_drv_always_, fmt, ##arg); \
+ 		else {\
+-			if(_seqdump(sel, fmt, ##arg)) /*rtw_warn_on(1)*/; \
++			_seqdump(sel, fmt, ##arg); \
+ 		} \
+ 	}while(0)
+ 
+-- 
+1.9.1
+
