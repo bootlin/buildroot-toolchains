@@ -1,0 +1,2 @@
+-       -1  sudo    -1  -       -           -
+chip    -1  chip    -1   =chip  /home/chip  /bin/sh users,sudo   C.H.I.P. user
