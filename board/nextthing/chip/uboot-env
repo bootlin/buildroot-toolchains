@@ -20,8 +20,8 @@ mtdids=nand0=sunxi-nand.0
 mtdparts=mtdparts=sunxi-nand.0:4m(spl),4m(spl-backup),4m(uboot),4m(env),-(UBI)
 
 # Default boot options
-bootargs=root=ubi0:rootfs rootfstype=ubifs rw ubi.mtd=4
-bootcmd=mtdparts; ubi part UBI; ubifsmount ubi0:rootfs; ubifsload $fdt_addr_r /boot/sun5i-r8-chip.dtb; ubifsload $kernel_addr_r /boot/zImage; bootz $kernel_addr_r - $fdt_addr_r
+bootargs=root=ubi0:rootfs rootfstype=ubifs rw ubi.mtd=4 consoleblank=0
+bootcmd=nand slc-mode on; mtdparts; ubi part UBI; ubifsmount ubi0:rootfs; ubifsload $fdt_addr_r /boot/sun5i-r8-chip.dtb; ubifsload $kernel_addr_r /boot/zImage; bootz $kernel_addr_r - $fdt_addr_r
 
 # Ethernet options
 usbnet_devaddr=de:ad:be:af:00:01
