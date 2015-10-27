@@ -18,7 +18,8 @@ then
 
   cat s3cmd_out.txt |grep Public |head -n1 |sed -e 's/.*\(http:\/\/.*\/[0-9]\+\)\/.*/\1/;' >latest
 	s3cmd put ${S3_OPTIONS} latest ${S3_DEST}/latest
-	
+
+  s3cmd put ${S3_OPTIONS}	output/build/uboot*/spl/sunxi-spl-with-ecc.bin ${S3_DEST}/${BUILD_NUMBER}/sunxi-spl-with-ecc.bin
 	#cat s3cmd_out.txt |grep Public |head -n1 |sed -e 's/.*http:/http:/; s/\(http:.*\/\).*\/.*/\1/' >os_latest
 	#s3cmd put ${S3_OPTIONS} --add-header="x-amz-website-redirect-location:/chip/buildroot/${BRANCH}/${BUILD_NUMBER}/rootfs.ubi" os_latest s3://opensource.nextthing.co/chip/buildroot/stable/latest
 fi
