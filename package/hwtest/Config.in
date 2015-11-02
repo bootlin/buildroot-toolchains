@@ -1,0 +1,8 @@
+config BR2_PACKAGE_HWTEST
+        bool "hwtest"
+	select BR2_PACKAGE_STRESS
+	select BR2_PACKAGE_LSHW
+	select BR2_PACKAGE_I2C_TOOLS
+	select BR2_PACKAGE_IW
+        help
+          Small script to do some hardware tests on CHIP

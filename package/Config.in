@@ -3,6 +3,10 @@ menu "Target packages"
 	source "package/skeleton/Config.in"
 	source "package/busybox/Config.in"
 
+menu "CHIP specific"
+	source "package/hwtest/Config.in"
+endmenu
+
 menu "Audio and video applications"
 	source "package/alsa-utils/Config.in"
 	source "package/aumix/Config.in"
