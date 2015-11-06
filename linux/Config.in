@@ -347,6 +347,14 @@ config BR2_LINUX_KERNEL_CUSTOM_DTS_PATH
 	  provide a list of dts paths to copy and build,
 	  separated by spaces.
 
+config BR2_LINUX_KERNEL_DTC_OVERLAY
+	bool "Compile the device tree with overlay support"
+	select BR2_PACKAGE_HOST_DTC_OVERLAY
+	help
+	  Use an external patched device tree compiler to compile the
+	  device tree, so that it supports overlays. The device tree
+	  compiler used with be host-dtc-overlay.
+
 endif
 
 config BR2_LINUX_KERNEL_INSTALL_TARGET

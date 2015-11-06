@@ -74,6 +74,12 @@ LINUX_MAKE_ENV = \
 	$(TARGET_MAKE_ENV) \
 	BR_BINARIES_DIR=$(BINARIES_DIR)
 
+ifeq ($(BR2_LINUX_KERNEL_DTC_OVERLAY),y)
+LINUX_DEPENDENCIES += host-dtc-overlay
+LINUX_MAKE_ENV += DTC_CMD=$(HOST_DIR)/usr/bin/dtc \
+		  DTC_FLAGS=-@
+endif
+
 # Get the real Linux version, which tells us where kernel modules are
 # going to be installed in the target filesystem.
 LINUX_VERSION_PROBED = `$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_DIR) --no-print-directory -s kernelrelease 2>/dev/null`
