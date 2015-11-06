@@ -1,0 +1,9 @@
+config BR2_PACKAGE_HOST_DTC_OVERLAY
+	bool "host device tree compiler with overlay support"
+	help
+	  The Device Tree Compiler, dtc, takes as input a device-tree in
+	  a give format and outputs a device-tree in another format.
+
+	  This version is patched to support device tree overlays.
+
+	  https://github.com/atenart/dtc
