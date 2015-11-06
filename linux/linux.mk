@@ -248,6 +248,22 @@ define LINUX_INSTALL_DTB_TARGET
 		$(TARGET_DIR)/boot/
 endef
 endif
+ifeq ($(BR2_LINUX_KERNEL_EXTERNAL_DT_OVERLAYS),y)
+KERNEL_DT_OVERLAY_NAMES = $(basename $(filter %.dts,$(notdir $(call qstrip,$(BR2_LINUX_KERNEL_DTS_OVERLAYS)))))
+KERNEL_DT_OVERLAYS = $(addsuffix .dtbo,$(KERNEL_DT_OVERLAY_NAMES))
+
+define LINUX_BUILD_DTB_OVERLAYS
+	cp $(call qstrip, $(BR2_LINUX_KERNEL_DTS_OVERLAYS)) $(@D)
+	for o in $(KERNEL_DT_OVERLAYS) ; do \
+		$(HOST_DIR)/usr/bin/dtc -O dtb -o $(@D)/$$o \
+			-b 0 -@ $(@D)/$${o%.dtbo}.dts; \
+	done
+endef
+define LINUX_INSTALL_DTB_OVERLAYS
+	$(INSTALL) -d $(TARGET_DIR)/lib/firmware
+	$(INSTALL) $(addprefix $(@D)/,$(KERNEL_DT_OVERLAYS)) $(TARGET_DIR)/lib/firmware
+endef
+endif
 endif
 
 ifeq ($(BR2_LINUX_KERNEL_APPENDED_DTB),y)
@@ -283,6 +299,7 @@ define LINUX_BUILD_CMDS
 		$(LINUX_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) modules ;	\
 	fi
 	$(LINUX_BUILD_DTB)
+	$(LINUX_BUILD_DTB_OVERLAYS)
 	$(LINUX_APPEND_DTB)
 endef
 
@@ -291,6 +308,7 @@ ifeq ($(BR2_LINUX_KERNEL_INSTALL_TARGET),y)
 define LINUX_INSTALL_KERNEL_IMAGE_TO_TARGET
 	install -m 0644 -D $(LINUX_IMAGE_PATH) $(TARGET_DIR)/boot/$(LINUX_IMAGE_NAME)
 	$(LINUX_INSTALL_DTB_TARGET)
+	$(LINUX_INSTALL_DTB_OVERLAYS)
 endef
 endif
 
