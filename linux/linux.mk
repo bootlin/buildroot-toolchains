@@ -74,6 +74,12 @@ LINUX_MAKE_ENV = \
 	$(TARGET_MAKE_ENV) \
 	BR_BINARIES_DIR=$(BINARIES_DIR)
 
+ifeq ($(BR2_LINUX_KERNEL_DTC_OVERLAY),y)
+LINUX_DEPENDENCIES += host-dtc-overlay
+LINUX_MAKE_ENV += DTC_CMD=$(HOST_DIR)/usr/bin/dtc \
+		  DTC_FLAGS=-@
+endif
+
 # Get the real Linux version, which tells us where kernel modules are
 # going to be installed in the target filesystem.
 LINUX_VERSION_PROBED = `$(MAKE) $(LINUX_MAKE_FLAGS) -C $(LINUX_DIR) --no-print-directory -s kernelrelease 2>/dev/null`
@@ -251,6 +257,22 @@ define LINUX_INSTALL_DTB_TARGET
 		$(TARGET_DIR)/boot/
 endef
 endif
+ifeq ($(BR2_LINUX_KERNEL_EXTERNAL_DT_OVERLAYS),y)
+KERNEL_DT_OVERLAY_NAMES = $(basename $(filter %.dts,$(notdir $(call qstrip,$(BR2_LINUX_KERNEL_DTS_OVERLAYS)))))
+KERNEL_DT_OVERLAYS = $(addsuffix .dtbo,$(KERNEL_DT_OVERLAY_NAMES))
+
+define LINUX_BUILD_DTB_OVERLAYS
+	cp $(call qstrip, $(BR2_LINUX_KERNEL_DTS_OVERLAYS)) $(@D)
+	for o in $(KERNEL_DT_OVERLAYS) ; do \
+		$(HOST_DIR)/usr/bin/dtc -O dtb -o $(@D)/$$o \
+			-b 0 -@ $(@D)/$${o%.dtbo}.dts; \
+	done
+endef
+define LINUX_INSTALL_DTB_OVERLAYS
+	$(INSTALL) -d $(TARGET_DIR)/lib/firmware
+	$(INSTALL) $(addprefix $(@D)/,$(KERNEL_DT_OVERLAYS)) $(TARGET_DIR)/lib/firmware
+endef
+endif
 endif
 
 ifeq ($(BR2_LINUX_KERNEL_APPENDED_DTB),y)
@@ -286,6 +308,7 @@ define LINUX_BUILD_CMDS
 		$(LINUX_MAKE_ENV) $(MAKE) $(LINUX_MAKE_FLAGS) -C $(@D) modules ;	\
 	fi
 	$(LINUX_BUILD_DTB)
+	$(LINUX_BUILD_DTB_OVERLAYS)
 	$(LINUX_APPEND_DTB)
 endef
 
@@ -294,16 +317,19 @@ ifeq ($(BR2_LINUX_KERNEL_INSTALL_TARGET),y)
 define LINUX_INSTALL_KERNEL_IMAGE_TO_TARGET
 	install -m 0644 -D $(LINUX_IMAGE_PATH) $(TARGET_DIR)/boot/$(LINUX_IMAGE_NAME)
 	$(LINUX_INSTALL_DTB_TARGET)
+	$(LINUX_INSTALL_DTB_OVERLAYS)
 endef
 endif
 
 
+ifneq ($(BR2_PACKAGE_HOST_DTC_OVERLAY),y)
 define LINUX_INSTALL_HOST_TOOLS
 	# Installing dtc (device tree compiler) as host tool, if selected
 	if grep -q "CONFIG_DTC=y" $(@D)/.config; then 	\
 		$(INSTALL) -D -m 0755 $(@D)/scripts/dtc/dtc $(HOST_DIR)/usr/bin/dtc ;	\
 	fi
 endef
+endif
 
 
 define LINUX_INSTALL_IMAGES_CMDS
