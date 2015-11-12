@@ -258,19 +258,20 @@ define LINUX_INSTALL_DTB_TARGET
 endef
 endif
 ifeq ($(BR2_LINUX_KERNEL_EXTERNAL_DT_OVERLAYS),y)
-KERNEL_DT_OVERLAY_NAMES = $(basename $(filter %.dts,$(notdir $(call qstrip,$(BR2_LINUX_KERNEL_DTS_OVERLAYS)))))
-KERNEL_DT_OVERLAYS = $(addsuffix .dtbo,$(KERNEL_DT_OVERLAY_NAMES))
+KERNEL_DT_OVERLAY_NAMES = $(call qstrip,$(BR2_LINUX_KERNEL_DTS_OVERLAYS))
 
 define LINUX_BUILD_DTB_OVERLAYS
-	cp $(call qstrip, $(BR2_LINUX_KERNEL_DTS_OVERLAYS)) $(@D)
-	for o in $(KERNEL_DT_OVERLAYS) ; do \
-		$(HOST_DIR)/usr/bin/dtc -O dtb -o $(@D)/$$o \
-			-b 0 -@ $(@D)/$${o%.dtbo}.dts; \
+	for o in $(KERNEL_DT_OVERLAY_NAMES); do \
+		cp $$o.dts $(@D); \
+		$(HOST_DIR)/usr/bin/dtc -O dtb -o $(@D)/$$(basename $$o).dtbo \
+			-b 0 -@ $(@D)/$$(basename $$o).dts; \
 	done
 endef
 define LINUX_INSTALL_DTB_OVERLAYS
 	$(INSTALL) -d $(TARGET_DIR)/lib/firmware
-	$(INSTALL) $(addprefix $(@D)/,$(KERNEL_DT_OVERLAYS)) $(TARGET_DIR)/lib/firmware
+	for o in $(notdir $(KERNEL_DT_OVERLAY_NAMES)); do \
+		$(INSTALL) $(addsuffix .dtbo, $(addprefix $(@D)/,$$o)) $(TARGET_DIR)/lib/firmware; \
+	done
 endef
 endif
 endif
