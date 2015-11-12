@@ -12,6 +12,9 @@ UBOOT_LICENSE_FILES = Licenses/gpl-2.0.txt
 
 UBOOT_INSTALL_IMAGES = YES
 
+# TODO(ntc/ryan): Set this conditionally based on a BR2 config.
+NTC_CHIP_SPECIFIC_ENV = LOGO_BMP="$(@D)/tools/logos/chip.bmp"
+
 ifeq ($(UBOOT_VERSION),custom)
 # Handle custom U-Boot tarballs as specified by the configuration
 UBOOT_TARBALL = $(call qstrip,$(BR2_TARGET_UBOOT_CUSTOM_TARBALL_LOCATION))
@@ -147,6 +150,7 @@ UBOOT_KCONFIG_OPTS = $(UBOOT_MAKE_OPTS)
 endif # BR2_TARGET_UBOOT_BUILD_SYSTEM_LEGACY
 
 define UBOOT_BUILD_CMDS
+	$(NTC_CHIP_SPECIFIC_ENV) \
 	$(TARGET_CONFIGURE_OPTS) 	\
 		$(MAKE) -C $(@D) $(UBOOT_MAKE_OPTS) 		\
 		$(UBOOT_MAKE_TARGET)
