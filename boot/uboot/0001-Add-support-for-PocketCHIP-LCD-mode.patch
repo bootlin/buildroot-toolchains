@@ -1,0 +1,25 @@
+From 50e1dae4fdec2e3496ba2f6090cab10d4993c0fd Mon Sep 17 00:00:00 2001
+From: Andrew Langley <andrew@nextthing.co>
+Date: Tue, 17 Nov 2015 15:45:16 -0800
+Subject: [PATCH] Add support for PocketCHIP LCD mode
+
+---
+ configs/CHIP_defconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/configs/CHIP_defconfig b/configs/CHIP_defconfig
+index a42406f..e820771 100644
+--- a/configs/CHIP_defconfig
++++ b/configs/CHIP_defconfig
+@@ -7,7 +7,7 @@ CONFIG_USB0_VBUS_PIN="PB10"
+ CONFIG_AXP_GPIO=y
+ # CONFIG_VIDEO_HDMI is not set
+ CONFIG_VIDEO_COMPOSITE=y
+-CONFIG_VIDEO_LCD_MODE=""
++CONFIG_VIDEO_LCD_MODE="x:480,y:272,depth:18,pclk_khz:9000,le:10,ri:5,up:3,lo:8,"
+ CONFIG_VIDEO_LCD_POWER="AXP0-1"
+ CONFIG_VIDEO_LCD_BL_PWM="PB2"
+ CONFIG_DEFAULT_DEVICE_TREE="sun5i-r8-chip"
+-- 
+1.9.1
+
