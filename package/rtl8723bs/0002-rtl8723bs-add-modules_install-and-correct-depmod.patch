@@ -1,4 +1,4 @@
-From 4afeb3c6d23e774251adcccce07d0c440714487f Mon Sep 17 00:00:00 2001
+From dc6e88d977c1cff562e303aa22b24b1c45faf83f Mon Sep 17 00:00:00 2001
 From: Jason Abele <jason@jasonabeleconsulting.com>
 Date: Wed, 22 Jul 2015 17:33:59 -0700
 Subject: [PATCH 2/2] rtl8723bs: add modules_install and correct depmod
@@ -11,7 +11,7 @@ target.
  1 file changed, 9 insertions(+), 2 deletions(-)
 
 diff --git a/Makefile b/Makefile
-index e05ef56..28e1ceb 100644
+index c365539..14414c5 100644
 --- a/Makefile
 +++ b/Makefile
 @@ -7,6 +7,8 @@ EXTRA_CFLAGS += -Wall
@@ -23,7 +23,7 @@ index e05ef56..28e1ceb 100644
  EXTRA_CFLAGS += -I$(src)/include -I$(src)/hal -g
  
  ccflags-y += -D__CHECK_ENDIAN__
-@@ -176,6 +178,8 @@ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
+@@ -174,6 +176,8 @@ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
  INSTALL_PREFIX :=
  endif
  
@@ -32,7 +32,7 @@ index e05ef56..28e1ceb 100644
  ifneq ($(KERNELRELEASE),)
  
  rtk_core :=	core/rtw_cmd.o \
-@@ -217,16 +221,19 @@ all: modules
+@@ -215,6 +219,9 @@ all: modules
  modules:
  	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C $(KSRC) M=$(shell pwd)  modules
  
@@ -42,8 +42,10 @@ index e05ef56..28e1ceb 100644
  strip:
  	$(CROSS_COMPILE)strip $(MODULE_NAME).ko --strip-unneeded
  
- install:
+@@ -222,11 +229,11 @@ install:
  	install -p -m 644 $(MODULE_NAME).ko  $(MODDESTDIR)
+ 	@cp -n rtl8723bs_nic.bin /lib/firmware/rtlwifi/rtl8723bs_nic.bin
+ 	@cp -n rtl8723bs_wowlan.bin /lib/firmware/rtlwifi/rtl8723bs_wowlan.bin
 -	/sbin/depmod -a ${KVER}
 +	$(DEPMOD) -a ${KVER}
  
