@@ -14,5 +14,7 @@ MPFR_DEPENDENCIES = gmp
 HOST_MPFR_DEPENDENCIES = host-gmp
 MPFR_MAKE_OPTS = RANLIB=$(TARGET_RANLIB)
 
+HOST_MPFR_CONF_OPTS += --enable-static --disable-shared
+
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))

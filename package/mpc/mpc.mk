@@ -11,6 +11,7 @@ MPC_LICENSE_FILES = COPYING.LESSER
 MPC_INSTALL_STAGING = YES
 MPC_DEPENDENCIES = gmp mpfr
 HOST_MPC_DEPENDENCIES = host-gmp host-mpfr
+HOST_MPC_CONF_OPTS += --disable-shared --enable-static
 
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))

@@ -19,5 +19,7 @@ ifeq ($(BR2_m68k_cf)$(BR2_MIPS_CPU_MIPS32R6)$(BR2_MIPS_CPU_MIPS64R6)$(BR2_ARM_CP
 GMP_CONF_OPTS += --disable-assembly
 endif
 
+HOST_GMP_CONF_OPTS += --enable-static --disable-shared
+
 $(eval $(autotools-package))
 $(eval $(host-autotools-package))
