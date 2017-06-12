@@ -22,6 +22,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <libgen.h>
 
 #ifdef BR_CCACHE
 static char ccache_path[PATH_MAX];
@@ -160,7 +161,7 @@ static void check_unsafe_path(const char *arg,
 int main(int argc, char **argv)
 {
 	char **args, **cur, **exec_args;
-	char *relbasedir, *absbasedir;
+	char *relbasedir, *absbindir;
 	char *progpath = argv[0];
 	char *basename;
 	char *env_debug;
@@ -173,55 +174,44 @@ int main(int argc, char **argv)
 	if (basename) {
 		*basename = '\0';
 		basename++;
-		relbasedir = malloc(strlen(progpath) + 7);
-		if (relbasedir == NULL) {
-			perror(__FILE__ ": malloc");
-			return 2;
-		}
-		sprintf(relbasedir, "%s/../..", argv[0]);
-		absbasedir = realpath(relbasedir, NULL);
+		absbindir = realpath(argv[0], NULL);
 	} else {
+		char *tmp;
 		basename = progpath;
-		absbasedir = malloc(PATH_MAX + 1);
-		ret = readlink("/proc/self/exe", absbasedir, PATH_MAX);
+		absbindir = malloc(PATH_MAX + 1);
+		ret = readlink("/proc/self/exe", absbindir, PATH_MAX);
 		if (ret < 0) {
 			perror(__FILE__ ": readlink");
 			return 2;
 		}
-		absbasedir[ret] = '\0';
-		for (i = ret; i > 0; i--) {
-			if (absbasedir[i] == '/') {
-				absbasedir[i] = '\0';
-				if (++count == 3)
-					break;
-			}
-		}
+		absbindir[ret] = '\0';
+		absbindir = dirname(absbindir);
 	}
-	if (absbasedir == NULL) {
+	if (absbindir == NULL) {
 		perror(__FILE__ ": realpath");
 		return 2;
 	}
 
 	/* Fill in the relative paths */
 #ifdef BR_CROSS_PATH_REL
-	ret = snprintf(path, sizeof(path), "%s/" BR_CROSS_PATH_REL "/%s" BR_CROSS_PATH_SUFFIX, absbasedir, basename);
+	ret = snprintf(path, sizeof(path), "%s/../../" BR_CROSS_PATH_REL "/%s" BR_CROSS_PATH_SUFFIX, absbindir, basename);
 #elif defined(BR_CROSS_PATH_ABS)
 	ret = snprintf(path, sizeof(path), BR_CROSS_PATH_ABS "/%s" BR_CROSS_PATH_SUFFIX, basename);
 #else
-	ret = snprintf(path, sizeof(path), "%s/usr/bin/%s" BR_CROSS_PATH_SUFFIX, absbasedir, basename);
+	ret = snprintf(path, sizeof(path), "%s/%s" BR_CROSS_PATH_SUFFIX, absbindir, basename);
 #endif
 	if (ret >= sizeof(path)) {
 		perror(__FILE__ ": overflow");
 		return 3;
 	}
 #ifdef BR_CCACHE
-	ret = snprintf(ccache_path, sizeof(ccache_path), "%s/usr/bin/ccache", absbasedir);
+	ret = snprintf(ccache_path, sizeof(ccache_path), "%s/ccache", absbindir);
 	if (ret >= sizeof(ccache_path)) {
 		perror(__FILE__ ": overflow");
 		return 3;
 	}
 #endif
-	ret = snprintf(sysroot, sizeof(sysroot), "%s/" BR_SYSROOT, absbasedir);
+	ret = snprintf(sysroot, sizeof(sysroot), "%s/" BR_REL_SYSROOT, absbindir);
 	if (ret >= sizeof(sysroot)) {
 		perror(__FILE__ ": overflow");
 		return 3;

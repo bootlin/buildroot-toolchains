@@ -10,7 +10,7 @@ TOOLCHAIN_WRAPPER_HASH_STYLE = both
 endif
 
 TOOLCHAIN_WRAPPER_ARGS = $($(PKG)_TOOLCHAIN_WRAPPER_ARGS)
-TOOLCHAIN_WRAPPER_ARGS += -DBR_SYSROOT='"$(STAGING_SUBDIR)"'
+TOOLCHAIN_WRAPPER_ARGS += -DBR_REL_SYSROOT='"../$(GNU_TARGET_NAME)/sysroot"'
 
 # We create a list like '"-mfoo", "-mbar", "-mbarfoo"' so that each flag is a
 # separate argument when used in execv() by the toolchain wrapper.
