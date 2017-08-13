@@ -1,0 +1,55 @@
+From 4152ce511663d290bdcd689f983ca45d1cb12c0a Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Sun, 13 Aug 2017 23:07:43 +0200
+Subject: [PATCH] sparc: kernel/pcic: silence gcc 7.x warning in
+ pcibios_fixup_bus()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When building the kernel for Sparc using gcc 7.x, the build fails
+with:
+
+arch/sparc/kernel/pcic.c: In function ‘pcibios_fixup_bus’:
+arch/sparc/kernel/pcic.c:647:8: error: ‘cmd’ may be used uninitialized in this function [-Werror=maybe-uninitialized]
+    cmd |= PCI_COMMAND_IO;
+        ^~
+
+The simplified code looks like this:
+
+unsigned int cmd;
+[...]
+pcic_read_config(dev->bus, dev->devfn, PCI_COMMAND, 2, &cmd);
+[...]
+cmd |= PCI_COMMAND_IO;
+
+I.e, the code assumes that pcic_read_config() will always initialize
+cmd. But it's not the case. Looking at pcic_read_config(), if
+bus->number is != 0 or if the size is not one of 1, 2 or 4, *val will
+not be initialized.
+
+As a simple fix, we initialize cmd to zero at the beginning of
+pcibios_fixup_bus.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Submitted-upstream: https://patchwork.ozlabs.org/patch/801039/
+---
+ arch/sparc/kernel/pcic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/sparc/kernel/pcic.c b/arch/sparc/kernel/pcic.c
+index a38787b..732af9a 100644
+--- a/arch/sparc/kernel/pcic.c
++++ b/arch/sparc/kernel/pcic.c
+@@ -602,7 +602,7 @@ void pcibios_fixup_bus(struct pci_bus *bus)
+ {
+ 	struct pci_dev *dev;
+ 	int i, has_io, has_mem;
+-	unsigned int cmd;
++	unsigned int cmd = 0;
+ 	struct linux_pcic *pcic;
+ 	/* struct linux_pbm_info* pbm = &pcic->pbm; */
+ 	int node;
+-- 
+2.9.4
+
