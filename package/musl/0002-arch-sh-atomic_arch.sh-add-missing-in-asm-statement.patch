@@ -1,0 +1,38 @@
+From 61e008c90827b7faf38fac923f57c64b86ae73e4 Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Date: Fri, 28 Jul 2017 16:02:32 +0200
+Subject: [PATCH] arch/sh/atomic_arch.sh: add missing : in asm() statement
+
+Due to a missing ":" in an asm() statement, the "memory" statement is
+considered by gcc as input operands and not clobbers, which causes a
+build failure:
+
+In file included from ./src/internal/atomic.h:6:0,
+                 from ./src/internal/pthread_impl.h:10,
+                 from src/ldso/dlerror.c:4:
+./arch/sh/atomic_arch.h: In function 'a_barrier':
+./arch/sh/atomic_arch.h:24:44: error: expected '(' before ')' token
+  __asm__ __volatile__ ("synco" : : "memory");
+                                            ^
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+---
+ arch/sh/atomic_arch.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/sh/atomic_arch.h b/arch/sh/atomic_arch.h
+index 74444d5..d48a765 100644
+--- a/arch/sh/atomic_arch.h
++++ b/arch/sh/atomic_arch.h
+@@ -21,7 +21,7 @@ static inline int a_sc(volatile int *p, int v)
+ #define a_barrier a_barrier
+ static inline void a_barrier()
+ {
+-	__asm__ __volatile__ ("synco" : : "memory");
++	__asm__ __volatile__ ("synco" ::: "memory");
+ }
+ 
+ #define a_pre_llsc a_barrier
+-- 
+2.9.4
+
