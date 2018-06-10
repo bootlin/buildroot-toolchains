@@ -70,6 +70,7 @@ config BR2_PTHREAD_DEBUG
 
 config BR2_TOOLCHAIN_BUILDROOT_USE_SSP
 	bool "Enable stack protection support"
+	depends on !BR2_microblaze # SSP not supported on microblaze
 	select BR2_TOOLCHAIN_HAS_SSP
 	help
 	  Enable stack smashing protection support using GCCs
