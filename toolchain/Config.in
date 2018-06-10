@@ -122,6 +122,9 @@ config BR2_TOOLCHAIN_HAS_THREADS_NPTL
 
 config BR2_TOOLCHAIN_HAS_SSP
 	bool
+	# SSP support require CFI architecture support.
+	# https://gitlab.com/free-electrons/toolchains-builder/issues/1
+	depends on !BR2_microblaze # missing CFI support in "gas"
 
 config BR2_TOOLCHAIN_SUPPORTS_PIE
 	bool

@@ -4,6 +4,7 @@ config BR2_PACKAGE_GLIBC
 	bool
 	default y
 	select BR2_PACKAGE_LINUX_HEADERS
-	select BR2_TOOLCHAIN_HAS_SSP
+	# SSP not supported on microblaze
+	select BR2_TOOLCHAIN_HAS_SSP if !BR2_microblaze
 
 endif
