@@ -2,6 +2,8 @@
 BR2_powerpc64=y
 BR2_powerpc_power7=y
 
+BR2_GLOBAL_PATCH_DIR="board/qemu/ppc64le-pseries/patches/"
+
 # System
 BR2_SYSTEM_DHCP="eth0"
 BR2_TARGET_GENERIC_GETTY_PORT="hvc0"
