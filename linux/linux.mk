@@ -155,6 +155,12 @@ ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_8),y)
 LINUX_KCFLAGS += -Wno-attribute-alias
 endif
 
+# https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=5879ab5fafedc8f6f9bfe95a4cf8501b0df90edd
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=97208
+ifeq ($(BR2_TOOLCHAIN_GCC_AT_LEAST_10)$(BR2_microblaze),yy)
+LINUX_KCFLAGS += -fno-tree-loop-distribute-patterns
+endif
+
 ifeq ($(BR2_LINUX_KERNEL_DTB_OVERLAY_SUPPORT),y)
 LINUX_MAKE_ENV += DTC_FLAGS=-@
 endif
