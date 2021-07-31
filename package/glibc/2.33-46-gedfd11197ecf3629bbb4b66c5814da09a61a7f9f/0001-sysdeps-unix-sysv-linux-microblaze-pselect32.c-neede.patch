@@ -1,0 +1,53 @@
+From 481fd8ce553d1a7d8d69d49bdf4320916237882a Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Date: Sat, 31 Jul 2021 21:22:37 +0200
+Subject: [PATCH] sysdeps/unix/sysv/linux/microblaze/pselect32.c: needed when
+ !__ASSUME_TIME64_SYSCALLS
+
+sysdeps/unix/sysv/linux/pselect.c:__pselect64() calls __pselect32()
+when !__ASSUME_TIME64_SYSCALLS. On most architectures, this works fine
+because __pselect32() is defined sysdeps/unix/sysv/linux/pselect32.c
+when !__ASSUME_TIME64_SYSCALLS.
+
+However, on Microblaze, there is a special version of __pselect32(),
+defined in sysdeps/unix/sysv/linux/microblaze/pselect32.c. But it is
+only defined when !__ASSUME_PSELECT.
+
+__ASSUME_PSELECT is always true, while __ASSUME_TIME64_SYSCALLS is
+only true for kernels >= 5.1. Due to this, on kernels < 5.1, the build
+on Microblaze fails with:
+
+microblazeel-buildroot-linux-gnu/bin/ld: build/libc_pic.os: in function `__pselect64':
+(.text+0x1056f8): undefined reference to `__pselect32'
+
+Because __pselect32() is not implemented. This commit fixes that by
+ensuring the Microblaze-specific __pselect32() is provided when
+!__ASSUME_TIME64_SYSCALLS.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+---
+ sysdeps/unix/sysv/linux/microblaze/pselect32.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sysdeps/unix/sysv/linux/microblaze/pselect32.c b/sysdeps/unix/sysv/linux/microblaze/pselect32.c
+index 70b7b52a48..f14ef4a6fa 100644
+--- a/sysdeps/unix/sysv/linux/microblaze/pselect32.c
++++ b/sysdeps/unix/sysv/linux/microblaze/pselect32.c
+@@ -22,7 +22,7 @@
+ #include <sys/poll.h>
+ #include <sysdep-cancel.h>
+ 
+-#ifndef __ASSUME_PSELECT
++#ifndef __ASSUME_TIME64_SYSCALLS
+ int
+ __pselect32 (int nfds, fd_set *readfds, fd_set *writefds,
+ 	     fd_set *exceptfds, const struct __timespec64 *timeout,
+@@ -57,4 +57,4 @@ __pselect32 (int nfds, fd_set *readfds, fd_set *writefds,
+ 
+   return ret;
+ }
+-#endif /* __ASSUME_PSELECT  */
++#endif /* __ASSUME_TIME64_SYSCALLS */
+-- 
+2.31.1
+
