@@ -1,0 +1,125 @@
+From b0c99c17ebeef01f0494219db8eaf5b3a2e53d6e Mon Sep 17 00:00:00 2001
+From: Coiby Xu <coiby.xu@gmail.com>
+Date: Mon, 27 Dec 2021 14:24:36 +0100
+Subject: [PATCH] fix error "ppc64le: Cannot find symbol for section 11:
+ .text.unlikely."
+
+[Taken from https://www.spinics.net/lists/kexec/msg27933.html]
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+---
+ include/linux/kexec.h | 13 -------------
+ kernel/kexec_file.c   | 40 ++++++++++++++++------------------------
+ 2 files changed, 16 insertions(+), 37 deletions(-)
+
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 0c994ae37729..1476470a10e9 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -186,20 +186,7 @@ void *kexec_purgatory_get_symbol_addr(struct kimage *image, const char *name);
+ /* Architectures may override the below functions */
+ int arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
+ 				  unsigned long buf_len);
+-void *arch_kexec_kernel_image_load(struct kimage *image);
+-int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
+-				     Elf_Shdr *section,
+-				     const Elf_Shdr *relsec,
+-				     const Elf_Shdr *symtab);
+-int arch_kexec_apply_relocations(struct purgatory_info *pi,
+-				 Elf_Shdr *section,
+-				 const Elf_Shdr *relsec,
+-				 const Elf_Shdr *symtab);
+ int arch_kimage_file_post_load_cleanup(struct kimage *image);
+-#ifdef CONFIG_KEXEC_SIG
+-int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+-				 unsigned long buf_len);
+-#endif
+ int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf);
+ 
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 33400ff051a8..6acdbe067590 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -71,7 +71,7 @@ static void *kexec_image_load_default(struct kimage *image)
+ 				 image->cmdline_buf_len);
+ }
+ 
+-void * __weak arch_kexec_kernel_image_load(struct kimage *image)
++static void * arch_kexec_kernel_image_load(struct kimage *image)
+ {
+ 	return kexec_image_load_default(image);
+ }
+@@ -89,25 +89,6 @@ int __weak arch_kimage_file_post_load_cleanup(struct kimage *image)
+ 	return kexec_image_post_load_cleanup_default(image);
+ }
+ 
+-#ifdef CONFIG_KEXEC_SIG
+-static int kexec_image_verify_sig_default(struct kimage *image, void *buf,
+-					  unsigned long buf_len)
+-{
+-	if (!image->fops || !image->fops->verify_sig) {
+-		pr_debug("kernel loader does not support signature verification.\n");
+-		return -EKEYREJECTED;
+-	}
+-
+-	return image->fops->verify_sig(buf, buf_len);
+-}
+-
+-int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+-					unsigned long buf_len)
+-{
+-	return kexec_image_verify_sig_default(image, buf, buf_len);
+-}
+-#endif
+-
+ /*
+  * arch_kexec_apply_relocations_add - apply relocations of type RELA
+  * @pi:		Purgatory to be relocated.
+@@ -117,7 +98,7 @@ int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+  *
+  * Return: 0 on success, negative errno on error.
+  */
+-int __weak
++static int
+ arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
+ 				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
+ {
+@@ -134,7 +115,7 @@ arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
+  *
+  * Return: 0 on success, negative errno on error.
+  */
+-int __weak
++static int
+ arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
+ 			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
+ {
+@@ -184,13 +165,24 @@ void kimage_file_post_load_cleanup(struct kimage *image)
+ }
+ 
+ #ifdef CONFIG_KEXEC_SIG
++static int kexec_image_verify_sig(struct kimage *image, void *buf,
++		unsigned long buf_len)
++{
++	if (!image->fops || !image->fops->verify_sig) {
++		pr_debug("kernel loader does not support signature verification.\n");
++		return -EKEYREJECTED;
++	}
++
++	return image->fops->verify_sig(buf, buf_len);
++}
++
+ static int
+ kimage_validate_signature(struct kimage *image)
+ {
+ 	int ret;
+ 
+-	ret = arch_kexec_kernel_verify_sig(image, image->kernel_buf,
+-					   image->kernel_buf_len);
++	ret = kexec_image_verify_sig(image, image->kernel_buf,
++			image->kernel_buf_len);
+ 	if (ret) {
+ 
+ 		if (IS_ENABLED(CONFIG_KEXEC_SIG_FORCE)) {
+-- 
+2.31.1
+
