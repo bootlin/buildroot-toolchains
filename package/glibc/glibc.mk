@@ -7,7 +7,7 @@
 # Generate version string using:
 #   git describe --match 'glibc-*' --abbrev=40 origin/release/MAJOR.MINOR/master | cut -d '-' -f 2-
 # When updating the version, please also update localedef
-GLIBC_VERSION = 2.34-109-gd64b08d5ba7ffbc9155630f4843cf2e271b1629c
+GLIBC_VERSION = 2.35-6-g491f2ef1f0ff849490f374917957018d07ee0586
 # Upstream doesn't officially provide an https download link.
 # There is one (https://sourceware.org/git/glibc.git) but it's not reliable,
 # sometimes the connection times out. So use an unofficial github mirror.
@@ -110,16 +110,20 @@ endif
 #
 #  2. We have to execute the configure script with bash and not sh.
 #
-# Note that as mentionned in
-# http://patches.openembedded.org/patch/38849/, glibc must be
-# built with -O2, so we pass our own CFLAGS and CXXFLAGS below.
+# Glibc nowadays can be build with optimization flags f.e. -Os
+
+# crash in qemu-system-nios2 with -Os
+ifeq ($(BR2_nios2),y)
+TARGET_FCFLAGS := -O2
+endif
+
 define GLIBC_CONFIGURE_CMDS
 	mkdir -p $(@D)/build
 	# Do the configuration
 	(cd $(@D)/build; \
 		$(TARGET_CONFIGURE_OPTS) \
-		CFLAGS="-O2 $(GLIBC_EXTRA_CFLAGS)" CPPFLAGS="" \
-		CXXFLAGS="-O2 $(GLIBC_EXTRA_CFLAGS)" \
+		CFLAGS="$(TARGET_FCFLAGS) $(GLIBC_EXTRA_CFLAGS)" CPPFLAGS="" \
+		CXXFLAGS="$(TARGET_FCFLAGS) $(GLIBC_EXTRA_CFLAGS)" \
 		$(GLIBC_CONF_ENV) \
 		$(SHELL) $(@D)/configure \
 		--target=$(GNU_TARGET_NAME) \
