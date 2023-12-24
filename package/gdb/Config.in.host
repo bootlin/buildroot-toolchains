@@ -57,6 +57,9 @@ config BR2_GDB_VERSION_12
 config BR2_GDB_VERSION_13
 	bool "gdb 13.x"
 
+config BR2_GDB_VERSION_14
+	bool "gdb 14.x"
+
 endchoice
 
 endif
@@ -68,4 +71,5 @@ config BR2_GDB_VERSION
 	default "11.2"     if BR2_GDB_VERSION_11
 	default "12.1"     if BR2_GDB_VERSION_12 || !BR2_PACKAGE_HOST_GDB
 	default "13.2"     if BR2_GDB_VERSION_13
+	default "14.1"     if BR2_GDB_VERSION_14
 	depends on BR2_PACKAGE_GDB || BR2_PACKAGE_HOST_GDB
