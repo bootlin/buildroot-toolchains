@@ -48,7 +48,7 @@ def main():
                 if line.startswith('exitstatus: ')]
         if len(exit) and exit[0] == 127:
             print('qemu-start.sh could not find the qemu binary')
-            sys.exit(0)
+            sys.exit(1)
         print("Connection problem, exiting.")
         sys.exit(1)
     except pexpect.TIMEOUT:
