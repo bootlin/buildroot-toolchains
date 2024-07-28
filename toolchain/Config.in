@@ -929,12 +929,14 @@ config BR2_TOOLCHAIN_HAS_ATOMIC
 # - At least, libquadmath is available on:
 #   - i*86
 #   - x86_64
-#   - PowerPC with vector scalar (VSX) instruction set
+#   - PowerPC with vector scalar (VSX) instruction set, except on musl
+#     for which recent gcc versions complain with "unable to emulate
+#     ‘TF’", https://gcc.gnu.org/bugzilla/show_bug.cgi?id=116007
 # - When available, libquadmath requires wchar support.
 config BR2_TOOLCHAIN_HAS_LIBQUADMATH
 	bool
 	default y if BR2_i386 || BR2_x86_64
-	default y if BR2_POWERPC_CPU_HAS_VSX
+	default y if (BR2_POWERPC_CPU_HAS_VSX && !BR2_TOOLCHAIN_USES_MUSL)
 
 comment "Bare metal toolchain"
 
