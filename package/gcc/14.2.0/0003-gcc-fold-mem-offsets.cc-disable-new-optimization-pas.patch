@@ -1,0 +1,31 @@
+From d58509f1e678eab372c2cca88edf470bb7e3b16d Mon Sep 17 00:00:00 2001
+From: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Date: Sun, 4 Aug 2024 21:47:24 +0200
+Subject: [PATCH] gcc/fold-mem-offsets.cc: disable new optimization pass
+
+This optimization pass was added in GCC 14.x, but causes some bugs on
+m68k, so let's disable it altogether until it gets fixed.
+
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+---
+ gcc/fold-mem-offsets.cc | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/gcc/fold-mem-offsets.cc b/gcc/fold-mem-offsets.cc
+index 84b9623058b..87cbea490da 100644
+--- a/gcc/fold-mem-offsets.cc
++++ b/gcc/fold-mem-offsets.cc
+@@ -118,7 +118,9 @@ public:
+   /* opt_pass methods: */
+   virtual bool gate (function *)
+     {
+-      return flag_fold_mem_offsets && optimize >= 2;
++      /* This new optimization pass causes bugs on m68k, so disable. This is
++	 equivalent to passing -fno-fold-mem-offsets */
++      return false;
+     }
+ 
+   virtual unsigned int execute (function *);
+-- 
+2.45.2
+
