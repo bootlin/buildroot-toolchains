@@ -42,7 +42,6 @@ config BR2_PACKAGE_HOST_GDB_SIM
 choice
 	prompt "GDB debugger Version"
 	default BR2_GDB_VERSION_14
-	depends on !BR2_arc
 	help
 	  Select the version of gdb you wish to use.
 
@@ -51,6 +50,10 @@ config BR2_GDB_VERSION_13
 
 config BR2_GDB_VERSION_14
 	bool "gdb 14.x"
+
+config BR2_GDB_VERSION_ARC
+	bool "gdb arc (14.2)"
+	depends on BR2_arc
 
 config BR2_GDB_VERSION_15
 	bool "gdb 15.x"
@@ -67,7 +70,8 @@ endif
 # If cross-gdb is not enabled, the latest stable version is chosen.
 config BR2_GDB_VERSION
 	string
-	default "arc-2024.06-release" if BR2_arc
+	default "arc-2024.06-release" if \
+		BR2_GDB_VERSION_ARC || (BR2_arc && !BR2_PACKAGE_HOST_GDB)
 	default "13.2"     if BR2_GDB_VERSION_13
 	default "14.2"     if BR2_GDB_VERSION_14 || !BR2_PACKAGE_HOST_GDB
 	default "15.1"	   if BR2_GDB_VERSION_15
