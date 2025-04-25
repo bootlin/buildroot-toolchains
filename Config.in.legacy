@@ -144,7 +144,14 @@ endif
 
 ###############################################################################
 
-comment "Legacy options removed in 2025.02"
+comment "Legacy options removed in 2025.05"
+
+config BR2_GCC_VERSION_12_X
+	bool "gcc 12.x support removed"
+	select BR2_LEGACY
+	help
+	  Support for building a toolchain based on GCC 12.x has been
+	  removed, chose a newer GCC version instead.
 
 config BR2_PACKAGE_SQLITE_ENABLE_JSON1
 	bool "Enable the JSON extensions for SQLite has been removed"
