@@ -212,6 +212,10 @@ ifeq ($(BR2_SOFT_FLOAT),y)
 ifeq ($(BR2_arm)$(BR2_armeb)$(BR2_mips)$(BR2_mipsel)$(BR2_mips64)$(BR2_mips64el)$(BR2_powerpc)$(BR2_sparc),y)
 HOST_GCC_COMMON_CONF_OPTS += --with-float=soft
 endif
+else
+ifeq ($(BR2_or1k),y)
+HOST_GCC_COMMON_CONF_OPTS += --with-float=hard
+endif
 endif
 
 # Determine arch/tune/abi/cpu options

@@ -1,3 +1,13 @@
+config BR2_OR1K_SOFT_FLOAT
+	bool "Use soft-float"
+	default y
+	select BR2_SOFT_FLOAT
+	help
+	  If your target CPU does not have a Floating Point Unit (FPU)
+	  or a kernel FPU emulator, but you still wish to support
+	  floating point functions, then everything will need to be
+	  compiled with soft floating point support (-msoft-float).
+
 config BR2_ARCH
 	default "or1k"
 

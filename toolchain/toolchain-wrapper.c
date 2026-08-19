@@ -61,6 +61,9 @@ static char *predef_args[] = {
 #ifdef BR_SOFTFLOAT
 	"-msoft-float",
 #endif /* BR_SOFTFLOAT */
+#ifdef BR_HARDFLOAT
+	"-mhard-float",
+#endif /* BR_HARDFLOAT */
 #ifdef BR_SIMD
 	"-msimd=" BR_SIMD,
 #endif
