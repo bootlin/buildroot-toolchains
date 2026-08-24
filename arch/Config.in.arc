@@ -7,12 +7,15 @@ choice
 
 config BR2_arc750d
 	bool "ARC 750D"
+	select BR2_SOFT_FLOAT
 
 config BR2_arc770d
 	bool "ARC 770D"
+	select BR2_SOFT_FLOAT
 
 config BR2_archs38
 	bool "ARC HS38"
+	select BR2_SOFT_FLOAT
 	help
 	  Generic ARC HS capable of running Linux, i.e. with MMU,
 	  caches and 32-bit multiplier. Also it corresponds to the
@@ -20,6 +23,7 @@ config BR2_archs38
 
 config BR2_archs38_64mpy
 	bool "ARC HS38 with 64-bit mpy"
+	select BR2_SOFT_FLOAT
 	help
 	  Fully featured ARC HS capable of running Linux, i.e. with
 	  MMU, caches and 64-bit multiplier.
@@ -39,15 +43,17 @@ config BR2_archs38_full
 
 config BR2_archs4x_rel31
 	bool "ARC HS48 rel 31"
+	select BR2_SOFT_FLOAT
 	help
 	  Build for HS48 release 3.1
 
 config BR2_archs4x
 	bool "ARC HS48"
+	select BR2_SOFT_FLOAT
 	help
 	  Latest release of HS48 processor
 	   - Dual and Quad multiply and MAC operations
-	   - Double-precision FPU
+	   - Double-precision FPU (optional)
 
 endchoice
 
