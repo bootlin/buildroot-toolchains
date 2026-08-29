@@ -75,8 +75,8 @@ HOST_GCC_COMMON_CONF_OPTS = \
 	--with-gmp=$(HOST_DIR) \
 	--with-mpc=$(HOST_DIR) \
 	--with-mpfr=$(HOST_DIR) \
-	--with-pkgversion="Buildroot $(BR2_VERSION_FULL)" \
-	--with-bugurl="https://gitlab.com/buildroot.org/buildroot/-/issues" \
+	--with-pkgversion="toolchains.bootlin.com 2026.08-1" \
+	--with-bugurl="https://github.com/bootlin/toolchains-builder/issues" \
 	--without-zstd
 
 # https://gcc.gnu.org/gcc-16/changes.html#s390
